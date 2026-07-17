@@ -44,8 +44,12 @@ function earthPositionInSceneUnits(date: Date): [number, number, number] {
 }
 
 async function main() {
-  const canvas = document.querySelector<HTMLCanvasElement>('#scene')
-  if (!canvas) throw new Error('Canvas element #scene not found.')
+  const canvasElement = document.querySelector<HTMLCanvasElement>('#scene')
+  if (!canvasElement) throw new Error('Canvas element #scene not found.')
+  // Bind to a new const so TypeScript's null-narrowing survives capture by the
+  // frame() closure below (narrowing on the original `canvasElement | null`
+  // check does not propagate into nested function declarations).
+  const canvas: HTMLCanvasElement = canvasElement
   canvas.width = 800
   canvas.height = 600
 
@@ -139,6 +143,10 @@ async function main() {
     drawBody(pass, litPipeline, meshBuffers, earthBindGroup)
     pass.end()
     device.queue.submit([encoder.finish()])
+    // Signals to tests (and anyone inspecting the DOM) that a frame has actually
+    // completed submission to the GPU queue — i.e. WebGPU init, pipeline creation,
+    // and bind group setup all succeeded. Harmless to set on every frame.
+    canvas.dataset.rendered = 'true'
     requestAnimationFrame(frame)
   }
   requestAnimationFrame(frame)
