@@ -8,5 +8,6 @@ second — with explanations for what you're looking at along the way.
   current, implementation-ready design.
 - [Roadmap](docs/roadmap.md) — features named for future phases (seasons, moon phases, eclipses,
   satellites/probes, a speed-of-light calculator, gravitational field visualization, and more).
+- [Credits](CREDITS.md) — third-party data and library attributions.
 
 Licensed under the [MIT License](LICENSE).
