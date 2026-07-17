@@ -9,5 +9,8 @@ export default defineConfig({
   },
   use: {
     baseURL: 'http://localhost:5173',
+    launchOptions: {
+      args: ['--enable-unsafe-webgpu', '--enable-features=Vulkan', '--use-gpu-in-tests', '--ignore-gpu-blocklist'],
+    },
   },
 })
