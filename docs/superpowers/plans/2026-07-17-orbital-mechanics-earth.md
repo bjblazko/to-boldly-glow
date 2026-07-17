@@ -5,7 +5,7 @@
 **Goal:** Give `packages/engine` its first real orbital-mechanics capability: a generic VSOP87
 series evaluator plus Earth's heliocentric position (longitude/latitude/distance), backed by
 genuine, source-verified, truncated VSOP87B coefficient data — accurate to under 1 arcsecond in
-longitude/latitude and ~230 km in distance over 1800–2200 — rather than hand-typed-from-memory
+longitude/latitude and ~151 km in distance over 1800–2200 — rather than hand-typed-from-memory
 numbers.
 
 **Architecture:** A generic power-series evaluator (`evalVsop87Coordinate`) that sums periodic
