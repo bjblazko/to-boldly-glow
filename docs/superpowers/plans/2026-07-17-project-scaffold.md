@@ -29,7 +29,8 @@ below implicitly inherits these.)
 - UI layer: plain TypeScript + DOM, no framework (decided during brainstorming; spec §4.7 "no
   state-management framework or library").
 - Code license: MIT (`LICENSE`, already committed).
-- Testing: Vitest for unit tests, Playwright for integration tests (spec §7).
+- Testing: Vitest for unit tests, Playwright for integration tests; CI runs lint, typecheck, and
+  both test suites on every push/PR (spec §7).
 - Changelog: Keep a Changelog format in `CHANGELOG.md` (already scaffolded).
 - No runtime network fetch for MVP core data — everything bundled/computed locally (spec §5).
 
@@ -528,11 +529,27 @@ git commit -m "feat(app): scaffold Vite app wired to the engine package"
 **Files:**
 - Create: `.github/workflows/ci.yml`
 
+**Files:**
+- Update: `packages/app/package.json` (add a `typecheck` script running `tsc --noEmit` against
+  the package's own `tsconfig.json`)
+- Update: `package.json` (root; add a `typecheck` script delegating to the app workspace)
+
 **Interfaces:**
-- Consumes: `npm run lint`, `npm run build`, `npm run test`, `npm run test:e2e` (root scripts,
-  Task 1, wired to real workspace scripts by Tasks 2–4).
+- Consumes: `npm run lint`, `npm run typecheck`, `npm run build`, `npm run test`,
+  `npm run test:e2e` (root scripts, Task 1, wired to real workspace scripts by Tasks 2–4; the
+  `typecheck` script is added in this task since it only makes sense once `packages/app` has real
+  TypeScript source to check — `packages/engine` is AssemblyScript and is validated by `asc`
+  instead, never `tsc`).
 - Produces: a GitHub Actions status check on every push/PR to `main`, which later plans' tasks
   extend by adding more unit/E2E specs — no workflow changes needed as the test suites grow.
+
+- [ ] **Step 0: Add `typecheck` scripts**
+
+In `packages/app/package.json`, add `"typecheck": "tsc --noEmit"` alongside `dev`/`build`/
+`test:e2e` (uses the package's existing `typescript` devDependency and its own `tsconfig.json`).
+
+In root `package.json`, add `"typecheck": "npm run typecheck --workspace=@toboldlyglow/app"`
+alongside `lint`/`build`/`test`/`test:e2e`.
 
 - [ ] **Step 1: Create `.github/workflows/ci.yml`**
 
@@ -555,6 +572,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run lint
+      - run: npm run typecheck
       - run: npm run build
       - run: npm test
       - name: Install Playwright browsers
@@ -562,24 +580,28 @@ jobs:
       - run: npm run test:e2e
 ```
 
+The `typecheck` step runs right after `lint` and before `build`/`test`, per spec §7 ("runs lint,
+typecheck, and both test suites on every push/PR") — it's a fast, cheap gate, so it belongs before
+the more expensive build/test steps.
+
 - [ ] **Step 2: Verify the same commands succeed locally**
 
-Run, from the repo root: `npm ci && npm run lint && npm run build && npm test`
-Expected: all four commands exit 0, matching what CI will run (there is no GitHub remote yet, so
+Run, from the repo root: `npm ci && npm run lint && npm run typecheck && npm run build && npm test`
+Expected: all five commands exit 0, matching what CI will run (there is no GitHub remote yet, so
 this local run is the verification until the repo is pushed).
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add .github/workflows/ci.yml
-git commit -m "ci: run lint, build, and both test suites on push/PR"
+git add package.json packages/app/package.json .github/workflows/ci.yml
+git commit -m "ci: run lint, typecheck, build, and both test suites on push/PR"
 ```
 
 ---
 
 ## Verification (whole plan)
 
-After all 5 tasks: `npm ci && npm run lint && npm run build && npm test && npm run test:e2e`
+After all 5 tasks: `npm ci && npm run lint && npm run typecheck && npm run build && npm test && npm run test:e2e`
 run from the repo root should all pass with zero manual intervention, and `npm run dev --workspace=@toboldlyglow/app`
 should show the Julian Day text in a browser. `git log --oneline` should show 5 commits since the
 design-spec commit (`81d06ec`), one per task.

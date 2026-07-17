@@ -9,7 +9,8 @@
     "build": "npm run build --workspace=@toboldlyglow/engine && npm run build --workspace=@toboldlyglow/app",
     "test": "npm run test --workspace=@toboldlyglow/engine",
     "test:e2e": "npm run build && npm run test:e2e --workspace=@toboldlyglow/app",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "typecheck": "npm run typecheck --workspace=@toboldlyglow/app"
   },
   "devDependencies": {
     "eslint": "^9.10.0",
