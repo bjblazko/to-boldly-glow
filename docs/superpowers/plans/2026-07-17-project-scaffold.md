@@ -528,8 +528,6 @@ git commit -m "feat(app): scaffold Vite app wired to the engine package"
 
 **Files:**
 - Create: `.github/workflows/ci.yml`
-
-**Files:**
 - Update: `packages/app/package.json` (add a `typecheck` script running `tsc --noEmit` against
   the package's own `tsconfig.json`)
 - Update: `package.json` (root; add a `typecheck` script delegating to the app workspace)
