@@ -90,9 +90,12 @@ export class CameraInputController {
 
     // Trackpad two-finger scroll: reports both deltaX and deltaY (a plain mouse wheel only ever
     // reports deltaY). Treat this as an orbit drag, since click-and-drag is uncomfortable on a
-    // trackpad. Sensitivity here is a feel parameter, not a correctness one — see plan Context.
+    // trackpad. Uses applyDrag's default sensitivity, matching the pointer-drag path exactly,
+    // since both are drag-sourced orbit gestures with comparable delta magnitudes. If this feels
+    // too fast or slow on real trackpad hardware, adjusting it is a feel/UX tuning matter, not a
+    // correctness one — see plan Context on sign/sensitivity conventions.
     if (event.deltaX !== 0) {
-      this.orbitCamera.applyDrag(-event.deltaX, -event.deltaY, 1)
+      this.orbitCamera.applyDrag(-event.deltaX, -event.deltaY)
       return
     }
 
