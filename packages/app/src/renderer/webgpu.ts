@@ -73,6 +73,10 @@ export interface MeshBuffers {
   indexCount: number
 }
 
+// The `as BufferSource` casts below are type-only: @webgpu/types' writeBuffer signature expects
+// ArrayBufferView<ArrayBuffer>, but TypeScript 5.9's DOM lib made typed arrays generic over their
+// backing buffer type, so SphereMesh's unparameterized Float32Array/Uint32Array (ArrayBufferLike)
+// no longer structurally matches. No change to the data actually written at runtime.
 export function createMeshBuffers(device: GPUDevice, mesh: SphereMesh): MeshBuffers {
   const positionBuffer = device.createBuffer({
     label: 'sphere positions',
