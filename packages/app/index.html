@@ -12,6 +12,23 @@
     >
       Switch to Free-fly Camera
     </button>
+    <div
+      id="time-controls"
+      style="position: fixed; bottom: 12px; left: 12px; padding: 8px 12px; font: 14px sans-serif; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; display: flex; align-items: center; gap: 8px;"
+    >
+      <button id="time-play-pause">Pause</button>
+      <button id="time-reverse">Reverse Direction</button>
+      <select id="time-preset-select">
+        <option value="0">Real-time</option>
+        <option value="1">1 min/s</option>
+        <option value="2">1 hr/s</option>
+        <option value="3">1 day/s</option>
+        <option value="4">1 month/s</option>
+        <option value="5">1 year/s</option>
+      </select>
+      <input id="time-shuttle" type="range" min="-100" max="100" value="0" style="width: 150px;" />
+      <span id="time-display">—</span>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

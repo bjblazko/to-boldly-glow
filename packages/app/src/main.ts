@@ -13,6 +13,8 @@ import { generateSphereMesh } from './geometry/sphere'
 import { OrbitCamera } from './camera/orbitCamera'
 import { FlyCamera } from './camera/flyCamera'
 import { CameraInputController } from './camera/inputController'
+import { SimulationClock } from './time/simulationClock'
+import { TimeControlUI } from './time/timeControlUI'
 import {
   createLitPipeline,
   createMeshBuffers,
@@ -41,6 +43,12 @@ function earthPositionInSceneUnits(date: Date): [number, number, number] {
     sphericalToY(L, B, R) * AU_TO_SCENE_UNITS,
     sphericalToZ(L, B, R) * AU_TO_SCENE_UNITS,
   ]
+}
+
+function requireElement<T extends HTMLElement>(selector: string): T {
+  const element = document.querySelector<T>(selector)
+  if (!element) throw new Error(`Required element ${selector} not found.`)
+  return element
 }
 
 async function main() {
@@ -91,6 +99,16 @@ async function main() {
       nextMode === 'orbit' ? 'Switch to Free-fly Camera' : 'Switch to Orbit Camera'
   })
 
+  const simulationClock = new SimulationClock()
+  const timeControlUI = new TimeControlUI(
+    simulationClock,
+    requireElement<HTMLButtonElement>('#time-play-pause'),
+    requireElement<HTMLButtonElement>('#time-reverse'),
+    requireElement<HTMLSelectElement>('#time-preset-select'),
+    requireElement<HTMLInputElement>('#time-shuttle'),
+    requireElement<HTMLElement>('#time-display'),
+  )
+
   function drawBody(
     pass: GPURenderPassEncoder,
     pipeline: GPURenderPipeline,
@@ -112,10 +130,12 @@ async function main() {
     const deltaSeconds = (now - lastFrameTime) / 1000
     lastFrameTime = now
     cameraInput.update(deltaSeconds)
+    simulationClock.update(deltaSeconds)
+    timeControlUI.refreshDisplay()
 
     const view = cameraInput.getViewMatrix()
     const sunPosition: [number, number, number] = [0, 0, 0]
-    const earthPosition = earthPositionInSceneUnits(new Date())
+    const earthPosition = earthPositionInSceneUnits(simulationClock.getCurrentDate())
 
     const sunWorld = mat4.fromScaling(mat4.create(), [SUN_VISUAL_RADIUS, SUN_VISUAL_RADIUS, SUN_VISUAL_RADIUS])
     const sunWVP = mat4.multiply(mat4.create(), projection, mat4.multiply(mat4.create(), view, sunWorld))
