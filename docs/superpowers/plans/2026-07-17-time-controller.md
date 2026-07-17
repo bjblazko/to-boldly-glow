@@ -252,7 +252,7 @@ export class SimulationClock {
 - [ ] **Step 4: Run the tests to verify they pass**
 
 Run: `npm run test --workspace=@toboldlyglow/app`
-Expected: PASS — all 13 new tests pass.
+Expected: PASS — all 14 new tests pass.
 
 - [ ] **Step 5: Commit**
 
