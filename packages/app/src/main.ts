@@ -10,6 +10,9 @@ import {
   sphericalToZ,
 } from '@toboldlyglow/engine'
 import { generateSphereMesh } from './geometry/sphere'
+import { OrbitCamera } from './camera/orbitCamera'
+import { FlyCamera } from './camera/flyCamera'
+import { CameraInputController } from './camera/inputController'
 import {
   createLitPipeline,
   createMeshBuffers,
@@ -18,10 +21,7 @@ import {
   type MeshBuffers,
 } from './renderer/webgpu'
 
-// TEMPORARY visual scale, not physically accurate. Distance uses real astronomical units
-// converted to scene units, so orbital motion is spatially correct; body radii are fixed
-// placeholder sizes chosen only so both bodies are visible and distinguishable — the real
-// realistic/explorer scale toggle (design spec §4.3) is a separate future plan.
+// TEMPORARY visual scale, not physically accurate — see the orbital-mechanics/renderer-core plans.
 const AU_TO_SCENE_UNITS = 20
 const SUN_VISUAL_RADIUS = 3
 const EARTH_VISUAL_RADIUS = 1
@@ -46,9 +46,6 @@ function earthPositionInSceneUnits(date: Date): [number, number, number] {
 async function main() {
   const canvasElement = document.querySelector<HTMLCanvasElement>('#scene')
   if (!canvasElement) throw new Error('Canvas element #scene not found.')
-  // Bind to a new const so TypeScript's null-narrowing survives capture by the
-  // frame() closure below (narrowing on the original `canvasElement | null`
-  // check does not propagate into nested function declarations).
   const canvas: HTMLCanvasElement = canvasElement
   canvas.width = 800
   canvas.height = 600
@@ -62,7 +59,7 @@ async function main() {
 
   const sunUniformBuffer = device.createBuffer({
     label: 'sun uniforms',
-    size: 20 * 4, // worldViewProjection(16) + color(4)
+    size: 20 * 4,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   })
   const sunBindGroup = device.createBindGroup({
@@ -72,7 +69,7 @@ async function main() {
 
   const earthUniformBuffer = device.createBuffer({
     label: 'earth uniforms',
-    size: 40 * 4, // worldViewProjection(16) + world(16) + color(4) + lightDirection(4)
+    size: 40 * 4,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   })
   const earthBindGroup = device.createBindGroup({
@@ -81,7 +78,18 @@ async function main() {
   })
 
   const projection = mat4.perspective(mat4.create(), Math.PI / 4, canvas.width / canvas.height, 0.1, 1000)
-  const view = mat4.lookAt(mat4.create(), [0, 25, 60], [0, 0, 0], [0, 1, 0])
+
+  const orbitCamera = new OrbitCamera({ radius: 65, azimuth: 0, elevation: 0.4 })
+  const flyCamera = new FlyCamera({ position: [0, 25, 60], yaw: Math.PI, pitch: 0 })
+  const cameraInput = new CameraInputController(canvas, orbitCamera, flyCamera)
+
+  const modeToggleButton = document.querySelector<HTMLButtonElement>('#camera-mode-toggle')
+  modeToggleButton?.addEventListener('click', () => {
+    const nextMode = cameraInput.mode === 'orbit' ? 'fly' : 'orbit'
+    cameraInput.setMode(nextMode)
+    modeToggleButton.textContent =
+      nextMode === 'orbit' ? 'Switch to Free-fly Camera' : 'Switch to Orbit Camera'
+  })
 
   function drawBody(
     pass: GPURenderPassEncoder,
@@ -97,7 +105,15 @@ async function main() {
     pass.drawIndexed(buffers.indexCount)
   }
 
+  let lastFrameTime = performance.now()
+
   function frame() {
+    const now = performance.now()
+    const deltaSeconds = (now - lastFrameTime) / 1000
+    lastFrameTime = now
+    cameraInput.update(deltaSeconds)
+
+    const view = cameraInput.getViewMatrix()
     const sunPosition: [number, number, number] = [0, 0, 0]
     const earthPosition = earthPositionInSceneUnits(new Date())
 
@@ -143,9 +159,6 @@ async function main() {
     drawBody(pass, litPipeline, meshBuffers, earthBindGroup)
     pass.end()
     device.queue.submit([encoder.finish()])
-    // Signals to tests (and anyone inspecting the DOM) that a frame has actually
-    // completed submission to the GPU queue — i.e. WebGPU init, pipeline creation,
-    // and bind group setup all succeeded. Harmless to set on every frame.
     canvas.dataset.rendered = 'true'
     requestAnimationFrame(frame)
   }
