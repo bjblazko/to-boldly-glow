@@ -1,5 +1,5 @@
 import type { SphereMesh } from '../geometry/sphere'
-import { litSphereShaderCode } from './shaders'
+import { litSphereShaderCode, unlitSphereShaderCode } from './shaders'
 
 export interface GpuContext {
   device: GPUDevice
@@ -61,6 +61,24 @@ export function createLitPipeline(device: GPUDevice, format: GPUTextureFormat): 
     // lit rim (the far hemisphere's own grazing edge), instead of a normally-lit near hemisphere.
     // Declaring frontFace: 'cw' matches the mesh's actual winding and keeps cullMode: 'back'
     // culling the true back faces.
+    primitive: { topology: 'triangle-list', cullMode: 'back', frontFace: 'cw' },
+    depthStencil: { depthWriteEnabled: true, depthCompare: 'less', format: 'depth24plus' },
+  })
+}
+
+export function createUnlitPipeline(device: GPUDevice, format: GPUTextureFormat): GPURenderPipeline {
+  const module = device.createShaderModule({ label: 'unlit sphere shader', code: unlitSphereShaderCode })
+  return device.createRenderPipeline({
+    label: 'unlit sphere pipeline',
+    layout: 'auto',
+    vertex: { module, entryPoint: 'vs', buffers: [POSITION_BUFFER_LAYOUT, NORMAL_BUFFER_LAYOUT] },
+    fragment: { module, entryPoint: 'fs', targets: [{ format }] },
+    // DEVIATION from brief carried forward from createLitPipeline: added `frontFace: 'cw'`. Same
+    // root cause as documented above — generateSphereMesh (Task 1)'s winding is clockwise as
+    // viewed from outside, opposite WebGPU's default 'ccw' front face. This pipeline draws the
+    // same sphere mesh with cullMode: 'back', so without this fix it would hit the identical bug
+    // (hollow/inverted sphere). Not a new diagnosis, just applying the already-approved fix to a
+    // second pipeline that shares the mesh.
     primitive: { topology: 'triangle-list', cullMode: 'back', frontFace: 'cw' },
     depthStencil: { depthWriteEnabled: true, depthCompare: 'less', format: 'depth24plus' },
   })

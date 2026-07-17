@@ -39,3 +39,28 @@ fn fs(in: VertexOutput) -> @location(0) vec4f {
   return vec4f(uni.color.rgb * brightness, uni.color.a);
 }
 `
+
+// Uniform layout: [0..16) worldViewProjection : mat4x4f, [16..20) color : vec4f
+export const unlitSphereShaderCode = /* wgsl */ `
+struct Uniforms {
+  worldViewProjection: mat4x4f,
+  color: vec4f,
+};
+
+struct VertexInput {
+  @location(0) position: vec3f,
+  @location(1) normal: vec3f,
+};
+
+@group(0) @binding(0) var<uniform> uni: Uniforms;
+
+@vertex
+fn vs(vert: VertexInput) -> @builtin(position) vec4f {
+  return uni.worldViewProjection * vec4f(vert.position, 1.0);
+}
+
+@fragment
+fn fs() -> @location(0) vec4f {
+  return uni.color;
+}
+`

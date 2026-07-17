@@ -26,6 +26,11 @@ The evaluation method (summing periodic terms as a power series in Julian millen
 follows the standard VSOP87 usage described in Jean Meeus, *Astronomical Algorithms*, 2nd ed.
 (Willmann-Bell, 1998).
 
+## Math library
+
+- [gl-matrix](https://glmatrix.net/) — MIT License (matrix/vector math for the WebGPU renderer:
+  perspective/lookAt matrices, vector normalization)
+
 ## Build tooling
 
 - [AssemblyScript](https://www.assemblyscript.org/) — MIT License
