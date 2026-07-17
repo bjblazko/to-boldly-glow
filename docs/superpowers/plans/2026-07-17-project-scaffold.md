@@ -158,6 +158,7 @@ export function ping(): i32 {
 
 ```json
 {
+  "entries": ["assembly/index.ts"],
   "targets": {
     "release": {
       "outFile": "build/engine.wasm",
@@ -167,6 +168,11 @@ export function ping(): i32 {
   }
 }
 ```
+
+(The top-level `entries` array is required — `asc` only treats a compile as having work to do if
+an entry file is given either as a positional CLI argument or via this `entries` array; the
+`targets.<name>` block alone only supplies compile options like `outFile`/`bindings`, not entry
+files. Without `entries`, `npm run build` silently prints help text and exits 0 with no output.)
 
 - [ ] **Step 3: Create `packages/engine/package.json`**
 
