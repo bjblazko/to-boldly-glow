@@ -20,3 +20,8 @@ export function calendarToJulianDay(year: i32, month: i32, day: f64): f64 {
 export function daysSinceJ2000(julianDay: f64): f64 {
   return julianDay - 2451545.0
 }
+
+// VSOP87 and other periodic series are evaluated in T = Julian millennia since J2000.0.
+export function julianMillenniaSinceJ2000(julianDay: f64): f64 {
+  return daysSinceJ2000(julianDay) / 365250.0
+}
