@@ -1,0 +1,10 @@
+{
+  "entries": ["assembly/index.ts"],
+  "targets": {
+    "release": {
+      "outFile": "build/engine.wasm",
+      "bindings": "esm",
+      "optimize": true
+    }
+  }
+}
