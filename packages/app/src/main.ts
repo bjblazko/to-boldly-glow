@@ -54,8 +54,8 @@ async function main() {
   canvas.height = 600
 
   const { device, context, format, depthTexture } = await initWebGpu(canvas)
-  const litPipeline = createLitPipeline(device, format)
-  const unlitPipeline = createUnlitPipeline(device, format)
+  const litPipeline = await createLitPipeline(device, format)
+  const unlitPipeline = await createUnlitPipeline(device, format)
 
   const sphereMesh = generateSphereMesh(1, 32, 32)
   const meshBuffers = createMeshBuffers(device, sphereMesh)

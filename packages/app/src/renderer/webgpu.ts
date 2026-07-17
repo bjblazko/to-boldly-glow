@@ -44,9 +44,9 @@ const NORMAL_BUFFER_LAYOUT: GPUVertexBufferLayout = {
   attributes: [{ shaderLocation: 1, offset: 0, format: 'float32x3' }],
 }
 
-export function createLitPipeline(device: GPUDevice, format: GPUTextureFormat): GPURenderPipeline {
+export async function createLitPipeline(device: GPUDevice, format: GPUTextureFormat): Promise<GPURenderPipeline> {
   const module = device.createShaderModule({ label: 'lit sphere shader', code: litSphereShaderCode })
-  return device.createRenderPipeline({
+  return await device.createRenderPipelineAsync({
     label: 'lit sphere pipeline',
     layout: 'auto',
     vertex: { module, entryPoint: 'vs', buffers: [POSITION_BUFFER_LAYOUT, NORMAL_BUFFER_LAYOUT] },
@@ -66,9 +66,12 @@ export function createLitPipeline(device: GPUDevice, format: GPUTextureFormat): 
   })
 }
 
-export function createUnlitPipeline(device: GPUDevice, format: GPUTextureFormat): GPURenderPipeline {
+export async function createUnlitPipeline(
+  device: GPUDevice,
+  format: GPUTextureFormat,
+): Promise<GPURenderPipeline> {
   const module = device.createShaderModule({ label: 'unlit sphere shader', code: unlitSphereShaderCode })
-  return device.createRenderPipeline({
+  return await device.createRenderPipelineAsync({
     label: 'unlit sphere pipeline',
     layout: 'auto',
     vertex: { module, entryPoint: 'vs', buffers: [POSITION_BUFFER_LAYOUT, NORMAL_BUFFER_LAYOUT] },
