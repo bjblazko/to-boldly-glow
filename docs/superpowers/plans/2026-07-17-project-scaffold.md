@@ -415,8 +415,17 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   root: '.',
+  build: {
+    target: 'esnext',
+  },
 })
 ```
+
+(The `build.target: 'esnext'` is required because `packages/engine`'s AssemblyScript `--bindings
+esm` output uses a top-level `await` to instantiate the WASM module — Vite's default production
+build target doesn't support top-level await during bundling/minification. Vite's dev server serves
+native ESM and isn't affected, so a dev-server-only check won't catch this; verify with an actual
+`vite build`, not just `npm run dev`.)
 
 - [ ] **Step 4: Create `packages/app/index.html`**
 
@@ -458,6 +467,14 @@ Run: `npm run dev --workspace=@toboldlyglow/app`
 Expected: Vite prints a local URL (e.g. `http://localhost:5173`); opening it shows the text
 "Engine loaded. Julian Day for 2000-01-01 12:00 UTC: 2451545". Stop the server (Ctrl+C) once
 confirmed.
+
+- [ ] **Step 7b: Verify the production build too**
+
+Run: `npm run build --workspace=@toboldlyglow/app`
+Expected: exits 0 and produces `packages/app/dist/`. The dev server (Step 7) serves native ESM and
+will succeed even without `build.target: 'esnext'` in `vite.config.ts`; only a real production
+build exercises Vite's bundling/minification path, which is what needs that setting because of the
+engine module's top-level await. Don't skip this step just because the dev server worked.
 
 - [ ] **Step 8: Create `packages/app/playwright.config.ts`**
 
