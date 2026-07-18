@@ -6,6 +6,7 @@ export { venusHeliocentricL, venusHeliocentricB, venusHeliocentricR } from './ve
 export { marsHeliocentricL, marsHeliocentricB, marsHeliocentricR } from './mars'
 export { jupiterHeliocentricL, jupiterHeliocentricB, jupiterHeliocentricR } from './jupiter'
 export { saturnHeliocentricL, saturnHeliocentricB, saturnHeliocentricR } from './saturn'
+export { uranusHeliocentricL, uranusHeliocentricB, uranusHeliocentricR } from './uranus'
 
 export function ping(): i32 {
   return 42
