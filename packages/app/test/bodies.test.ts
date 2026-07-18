@@ -19,7 +19,7 @@ describe('body registry', () => {
     expect(SUN.radiusKm).toBeGreaterThan(byId.jupiter)
     expect(byId.jupiter).toBeGreaterThan(byId.saturn)
     expect(byId.saturn).toBeGreaterThan(byId.uranus)
-    expect(byId.uranus).toBeGreaterThan(byId.neptune * 0.9) // Uranus and Neptune are close in size
+    expect(byId.uranus).toBeGreaterThan(byId.neptune) // Uranus and Neptune are close in size
     expect(byId.earth).toBeGreaterThan(byId.mars)
     expect(byId.venus).toBeGreaterThan(byId.mercury)
   })
