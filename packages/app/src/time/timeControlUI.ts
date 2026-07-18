@@ -15,6 +15,7 @@ export class TimeControlUI {
     private readonly shuttleSlider: HTMLInputElement,
     private readonly dateDisplay: HTMLElement,
   ) {
+    this.populatePresetOptions()
     this.playPauseButton.addEventListener('click', this.onPlayPauseClick)
     this.reverseButton.addEventListener('click', this.onReverseClick)
     this.presetSelect.addEventListener('change', this.onPresetChange)
@@ -26,6 +27,17 @@ export class TimeControlUI {
   refreshDisplay(): void {
     const iso = this.clock.getCurrentDate().toISOString()
     this.dateDisplay.textContent = `${iso.replace('T', ' ').slice(0, 16)} UTC`
+  }
+
+  // Builds the preset <option> elements from TIME_SCALE_PRESETS so the dropdown can never drift
+  // out of sync with the array — the array is the single source of truth, not the HTML.
+  private populatePresetOptions(): void {
+    for (const [index, preset] of TIME_SCALE_PRESETS.entries()) {
+      const option = document.createElement('option')
+      option.value = String(index)
+      option.textContent = preset.label
+      this.presetSelect.appendChild(option)
+    }
   }
 
   private onPlayPauseClick = () => {
