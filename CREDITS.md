@@ -26,6 +26,13 @@ The evaluation method (summing periodic terms as a power series in Julian millen
 follows the standard VSOP87 usage described in Jean Meeus, *Astronomical Algorithms*, 2nd ed.
 (Willmann-Bell, 1998).
 
+The same source and methodology were used for the remaining 7 planets (Mercury, Venus, Mars,
+Jupiter, Saturn, Uranus, Neptune) — see
+`docs/superpowers/plans/2026-07-18-remaining-planets-orbital-mechanics.md` for the accuracy target
+and cross-verification used for those bodies (looser than Earth's, deliberately, since it is
+visually indistinguishable at any reasonable camera distance and keeps the combined dataset
+smaller).
+
 ## Math library
 
 - [gl-matrix](https://glmatrix.net/) — MIT License (matrix/vector math for the WebGPU renderer:
