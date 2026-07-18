@@ -11,16 +11,20 @@ const MARS_R_ORDERS: f64[][] = [MARS_R0, MARS_R1, MARS_R2, MARS_R3, MARS_R4, MAR
 
 const TWO_PI: f64 = 2.0 * Math.PI
 
+// T: Julian millennia since J2000.0 (see julianMillenniaSinceJ2000 in time.ts).
+// Returns heliocentric ecliptic longitude in radians, normalized to [0, 2*PI).
 export function marsHeliocentricL(T: f64): f64 {
   let l = evalVsop87Coordinate(MARS_L_ORDERS, T) % TWO_PI
   if (l < 0.0) l += TWO_PI
   return l
 }
 
+// Returns heliocentric ecliptic latitude in radians.
 export function marsHeliocentricB(T: f64): f64 {
   return evalVsop87Coordinate(MARS_B_ORDERS, T)
 }
 
+// Returns heliocentric distance in astronomical units (AU).
 export function marsHeliocentricR(T: f64): f64 {
   return evalVsop87Coordinate(MARS_R_ORDERS, T)
 }
