@@ -33,6 +33,25 @@
       Switch to Free-fly Camera
     </button>
     <div
+      id="entity-search"
+      style="position: fixed; top: 56px; left: 12px; padding: 8px 12px; font: 14px sans-serif; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; width: 200px;"
+    >
+      <input
+        id="entity-search-input"
+        type="text"
+        placeholder="Search bodies…"
+        style="width: 100%; box-sizing: border-box;"
+      />
+      <div id="entity-search-results" style="max-height: 160px; overflow-y: auto;"></div>
+    </div>
+    <div
+      id="follow-indicator"
+      style="position: fixed; top: 12px; left: 224px; padding: 8px 12px; font: 14px sans-serif; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; display: none; align-items: center; gap: 8px;"
+    >
+      <span id="follow-indicator-label"></span>
+      <button id="follow-stop-button">×</button>
+    </div>
+    <div
       id="time-controls"
       style="position: fixed; bottom: 12px; left: 12px; padding: 8px 12px; font: 14px sans-serif; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; display: flex; align-items: center; gap: 8px;"
     >
@@ -63,6 +82,34 @@
     >
       <input id="body-labels-toggle" type="checkbox" checked />
       Show labels
+    </label>
+    <label
+      id="starfield-label"
+      style="position: fixed; top: 144px; right: 12px; padding: 8px 12px; font: 14px sans-serif; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; display: flex; align-items: center; gap: 8px; cursor: pointer;"
+    >
+      <input id="starfield-toggle" type="checkbox" checked />
+      Show stars
+    </label>
+    <label
+      id="bloom-label"
+      style="position: fixed; top: 188px; right: 12px; padding: 8px 12px; font: 14px sans-serif; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; display: flex; align-items: center; gap: 8px; cursor: pointer;"
+    >
+      <input id="bloom-toggle" type="checkbox" checked />
+      Show bloom
+    </label>
+    <label
+      id="flares-label"
+      style="position: fixed; top: 232px; right: 12px; padding: 8px 12px; font: 14px sans-serif; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; display: flex; align-items: center; gap: 8px; cursor: pointer;"
+    >
+      <input id="flares-toggle" type="checkbox" checked />
+      Show lens flares
+    </label>
+    <label
+      id="moons-label"
+      style="position: fixed; top: 276px; right: 12px; padding: 8px 12px; font: 14px sans-serif; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; display: flex; align-items: center; gap: 8px; cursor: pointer;"
+    >
+      <input id="moons-toggle" type="checkbox" checked />
+      Show moons
     </label>
     <script type="module" src="/src/main.ts"></script>
   </body>

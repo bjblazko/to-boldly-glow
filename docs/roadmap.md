@@ -71,6 +71,21 @@ rendering.
 **Data needed**: none beyond existing orbital mechanics — mostly content-authoring + a rendering
 pass.
 
+## Named star search
+**What**: Extend the entity search (Sun/planets/moons, with camera fly-to and orbit-follow lock-on)
+to also cover named stars from the starfield catalog, e.g. Sirius, Betelgeuse, Polaris.
+**Approach**: Reuses the search UI and camera-follow machinery built for Sun/planets/moons — search
+just needs star entries added to the searchable index. Camera-follow semantics need their own design
+pass first, though: stars are rendered as a fixed backdrop (point sprites with no real navigable 3D
+position at solar-system scale), so "flying to" one doesn't mean the same thing as flying to a
+planet — more likely just re-aiming the view direction at it, with no distance/zoom change.
+**Data needed**: proper star names, which don't exist anywhere in the pipeline today. The raw Yale
+Bright Star Catalogue source only carries Bayer/Flamsteed designations (e.g. Sirius is stored as
+`9Alp CMa`), and the bundled `starCatalog.bin` asset (`packages/data-pipeline/src/convertBrightStarCatalog.ts`
+→ `packages/app/src/starfield/starCatalog.ts`) carries only position + brightness, no identifiers at
+all. Needs a supplementary named-star dataset (e.g. the IAU Catalog of Star Names) joined in by HR
+number, plus a licensing check per the project's data-provenance discipline (§5 of the MVP spec).
+
 ## Mobile/touch refinement
 **What**: MVP includes basic touch gestures (drag-to-orbit, pinch-to-zoom); this entry covers
 deeper mobile ergonomics — layout adaptation for small screens, touch-friendly HUD sizing,
@@ -78,6 +93,17 @@ performance tuning for mobile GPUs.
 **Approach**: Responsive layout pass on the existing DOM-based UI; profiling on representative
 mobile hardware.
 **Data needed**: none.
+
+## Planet texture mipmaps
+**What**: The 2K equirectangular planet/Sun textures added for the eye-candy pass ship without
+mipmaps. Small/distant spheres (especially at the "Explorer" end of the scale slider) may alias or
+shimmer under minification without them.
+**Approach**: Generate a mip chain per texture at load time via a manual blit-downsample render
+pass per level (`mipLevelCount` + repeated fullscreen-quad draws into successive mip views) — a
+well-known WebGPU pattern. The bloom pass's downsample-chain shader (dual-Kawase-style fullscreen
+blit) is structurally similar, so this could reuse that code path rather than being written from
+scratch.
+**Data needed**: none — existing textures, just an added GPU-side generation step.
 
 ## WebGL2 fallback (reconsideration)
 **What**: MVP is WebGPU-only by deliberate choice. If WebGPU adoption stalls or a significant

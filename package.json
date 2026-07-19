@@ -7,7 +7,7 @@
   "engines": { "node": ">=20" },
   "scripts": {
     "build": "npm run build --workspace=@toboldlyglow/engine && npm run build --workspace=@toboldlyglow/app",
-    "test": "npm run test --workspace=@toboldlyglow/engine && npm run test --workspace=@toboldlyglow/app",
+    "test": "npm run test --workspace=@toboldlyglow/engine && npm run test --workspace=@toboldlyglow/app && npm run test --workspace=@toboldlyglow/data-pipeline",
     "test:e2e": "npm run build && npm run test:e2e --workspace=@toboldlyglow/app",
     "lint": "eslint .",
     "typecheck": "npm run typecheck --workspace=@toboldlyglow/app"

@@ -33,6 +33,78 @@ and cross-verification used for those bodies (looser than Earth's, deliberately,
 visually indistinguishable at any reasonable camera distance and keeps the combined dataset
 smaller).
 
+## Planet & Sun textures
+
+The 2K equirectangular albedo textures for the Sun and all 8 planets
+(`packages/app/public/textures/*.jpg`) are sourced from
+[Solar System Scope](https://www.solarsystemscope.com/textures/), licensed under
+**Creative Commons Attribution 4.0 International (CC BY 4.0)**:
+
+```
+Textures by Solar System Scope (https://www.solarsystemscope.com/textures/)
+License: Attribution 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/
+```
+
+Files used: `2k_sun.jpg`, `2k_mercury.jpg`, `2k_venus_surface.jpg`, `2k_earth_daymap.jpg`,
+`2k_mars.jpg`, `2k_jupiter.jpg`, `2k_saturn.jpg`, `2k_uranus.jpg`, `2k_neptune.jpg`, renamed to
+`<body-id>.jpg` in this repo. Saturn's ring texture (`packages/app/public/textures/saturn_ring.png`,
+a radial gradient/alpha strip) is `2k_saturn_ring_alpha.png` from the same source and license.
+
+## Moon textures
+
+The Moon's texture (`packages/app/public/textures/moon.jpg`, `2k_moon.jpg`) is also from Solar
+System Scope, same source/license as above.
+
+The Galilean moons (Io, Europa, Ganymede, Callisto) and Titan use public-domain NASA/JPL/USGS
+imagery, sourced via Wikimedia Commons (each confirmed "Public domain" under `{{PD-USGov-NASA}}`
+or equivalent at time of download) and resized/recompressed for this repo:
+
+```
+Io      — packages/app/public/textures/io.jpg
+          Source: NASA/JPL/USGS, "Io map projection" (PIA00319)
+          https://photojournal.jpl.nasa.gov/catalog/PIA00319
+
+Europa  — packages/app/public/textures/europa.jpg
+          Source: USGS/PDS/Tammy Becker, Voyager-Galileo SSI global mosaic
+          https://astrogeology.usgs.gov/search/map/Europa/Voyager-Galileo/Europa_Voyager_GalileoSSI_global_mosaic_500m
+
+Ganymede — packages/app/public/textures/ganymede.jpg
+          Source: Caltech/JPL/USGS, Voyager global map
+          https://maps.jpl.nasa.gov/pix/jup3vss2.jpg
+
+Callisto — packages/app/public/textures/callisto.jpg
+          Source: USGS, equatorial map mosaic
+          https://geopubs.wr.usgs.gov/i-map/i2770/
+
+Titan   — packages/app/public/textures/titan.jpg
+          Source: NASA, Cassini-derived global map (PIA14908)
+          https://photojournal.jpl.nasa.gov/catalog/PIA14908
+```
+
+Titania, Oberon, and Triton have no texture (they render as a flat, illustrative-color sphere
+instead) — Voyager 2's brief flybys of Uranus and Neptune only imaged part of each moon's surface,
+leaving large gaps in any full-sphere equirectangular projection of them; no gap-free public-domain
+map exists to source instead.
+
+## Star catalog
+
+The starfield's positions and brightness (`packages/app/public/stars/starCatalog.bin`) are
+converted from the **Yale Bright Star Catalogue, 5th Revised Edition** (Hoffleit & Warren, Yale
+University Observatory / Astronomical Data Center), a public-domain catalog of all ~9,100 stars
+down to naked-eye visibility (V ≤ 6.5):
+
+```
+V/50  Bright Star Catalogue, 5th Revised Ed. (Preliminary Version)
+Hoffleit D., Warren Jr W.H., Astronomical Data Center, NSSDC/ADC (1991)
+Source used: CDS VizieR ASCII edition, https://cdsarc.cds.unistra.fr/ftp/V/50/catalog.gz
+```
+
+The raw catalog and its byte-by-byte format description are vendored at
+`packages/data-pipeline/data/bsc5.dat` and `packages/data-pipeline/data/ReadMe`. Conversion (RA/Dec
+→ unit direction, magnitude → render brightness) happens once, offline, via
+`packages/data-pipeline` (`npm run convert`), not at runtime.
+
 ## Math library
 
 - [gl-matrix](https://glmatrix.net/) — MIT License (matrix/vector math for the WebGPU renderer:

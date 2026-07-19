@@ -31,6 +31,15 @@ export interface BodyDefinition {
    */
   siderealPeriodDays: number | null
   position: HeliocentricPosition | null
+  /** Path (under public/) to a 2K equirectangular albedo texture. See CREDITS.md for sourcing. */
+  textureUrl: string
+  /**
+   * Axial rotation period, hours. Source: NASA Planetary Fact Sheet. Negative means retrograde
+   * (spins opposite its orbital direction — Venus and, due to its extreme axial tilt, Uranus).
+   * Drives the body's own spin around its local Y axis; unrelated to siderealPeriodDays (orbital
+   * motion) above.
+   */
+  siderealRotationHours: number
 }
 
 /** 1 astronomical unit, kilometers (IAU-defined exact value). */
@@ -44,6 +53,8 @@ export const SUN: BodyDefinition = {
   explorerVisualRadius: 3,
   siderealPeriodDays: null,
   position: null,
+  textureUrl: '/textures/sun.jpg',
+  siderealRotationHours: 609.12,
 }
 
 export const PLANETS: BodyDefinition[] = [
@@ -59,6 +70,8 @@ export const PLANETS: BodyDefinition[] = [
       latitude: mercuryHeliocentricB,
       distance: mercuryHeliocentricR,
     },
+    textureUrl: '/textures/mercury.jpg',
+    siderealRotationHours: 1407.6,
   },
   {
     id: 'venus',
@@ -68,6 +81,8 @@ export const PLANETS: BodyDefinition[] = [
     explorerVisualRadius: 0.9,
     siderealPeriodDays: 224.701,
     position: { longitude: venusHeliocentricL, latitude: venusHeliocentricB, distance: venusHeliocentricR },
+    textureUrl: '/textures/venus.jpg',
+    siderealRotationHours: -5832.5,
   },
   {
     id: 'earth',
@@ -77,6 +92,8 @@ export const PLANETS: BodyDefinition[] = [
     explorerVisualRadius: 1.0,
     siderealPeriodDays: 365.256,
     position: { longitude: earthHeliocentricL, latitude: earthHeliocentricB, distance: earthHeliocentricR },
+    textureUrl: '/textures/earth.jpg',
+    siderealRotationHours: 23.9345,
   },
   {
     id: 'mars',
@@ -86,6 +103,8 @@ export const PLANETS: BodyDefinition[] = [
     explorerVisualRadius: 0.55,
     siderealPeriodDays: 686.98,
     position: { longitude: marsHeliocentricL, latitude: marsHeliocentricB, distance: marsHeliocentricR },
+    textureUrl: '/textures/mars.jpg',
+    siderealRotationHours: 24.6229,
   },
   {
     id: 'jupiter',
@@ -99,6 +118,8 @@ export const PLANETS: BodyDefinition[] = [
       latitude: jupiterHeliocentricB,
       distance: jupiterHeliocentricR,
     },
+    textureUrl: '/textures/jupiter.jpg',
+    siderealRotationHours: 9.925,
   },
   {
     id: 'saturn',
@@ -108,6 +129,8 @@ export const PLANETS: BodyDefinition[] = [
     explorerVisualRadius: 1.9,
     siderealPeriodDays: 10_759.22,
     position: { longitude: saturnHeliocentricL, latitude: saturnHeliocentricB, distance: saturnHeliocentricR },
+    textureUrl: '/textures/saturn.jpg',
+    siderealRotationHours: 10.656,
   },
   {
     id: 'uranus',
@@ -117,6 +140,8 @@ export const PLANETS: BodyDefinition[] = [
     explorerVisualRadius: 1.3,
     siderealPeriodDays: 30_688.5,
     position: { longitude: uranusHeliocentricL, latitude: uranusHeliocentricB, distance: uranusHeliocentricR },
+    textureUrl: '/textures/uranus.jpg',
+    siderealRotationHours: -17.24,
   },
   {
     id: 'neptune',
@@ -130,5 +155,7 @@ export const PLANETS: BodyDefinition[] = [
       latitude: neptuneHeliocentricB,
       distance: neptuneHeliocentricR,
     },
+    textureUrl: '/textures/neptune.jpg',
+    siderealRotationHours: 16.11,
   },
 ]

@@ -1,5 +1,13 @@
+import type { RingMesh } from '../geometry/ring'
 import type { SphereMesh } from '../geometry/sphere'
-import { lineShaderCode, litSphereShaderCode, unlitSphereShaderCode } from './shaders'
+import {
+  flareShaderCode,
+  lineShaderCode,
+  litSphereShaderCode,
+  ringShaderCode,
+  starShaderCode,
+  unlitSphereShaderCode,
+} from './shaders'
 
 export const SAMPLE_COUNT = 4
 
@@ -85,12 +93,28 @@ const NORMAL_BUFFER_LAYOUT: GPUVertexBufferLayout = {
   attributes: [{ shaderLocation: 1, offset: 0, format: 'float32x3' }],
 }
 
+const UV_BUFFER_LAYOUT: GPUVertexBufferLayout = {
+  arrayStride: 2 * 4,
+  attributes: [{ shaderLocation: 2, offset: 0, format: 'float32x2' }],
+}
+
+export function createBodySampler(device: GPUDevice): GPUSampler {
+  // U (longitude) wraps around the sphere seam; V (latitude) must not wrap at the poles.
+  return device.createSampler({
+    label: 'body texture sampler',
+    magFilter: 'linear',
+    minFilter: 'linear',
+    addressModeU: 'repeat',
+    addressModeV: 'clamp-to-edge',
+  })
+}
+
 export async function createLitPipeline(device: GPUDevice, format: GPUTextureFormat): Promise<GPURenderPipeline> {
   const module = device.createShaderModule({ label: 'lit sphere shader', code: litSphereShaderCode })
   return await device.createRenderPipelineAsync({
     label: 'lit sphere pipeline',
     layout: 'auto',
-    vertex: { module, entryPoint: 'vs', buffers: [POSITION_BUFFER_LAYOUT, NORMAL_BUFFER_LAYOUT] },
+    vertex: { module, entryPoint: 'vs', buffers: [POSITION_BUFFER_LAYOUT, NORMAL_BUFFER_LAYOUT, UV_BUFFER_LAYOUT] },
     fragment: { module, entryPoint: 'fs', targets: [{ format }] },
     // DEVIATION from brief: added `frontFace: 'cw'`. The brief's pipeline code omitted `frontFace`,
     // which defaults to WebGPU's 'ccw'. generateSphereMesh (Task 1)'s index order
@@ -116,7 +140,7 @@ export async function createUnlitPipeline(
   return await device.createRenderPipelineAsync({
     label: 'unlit sphere pipeline',
     layout: 'auto',
-    vertex: { module, entryPoint: 'vs', buffers: [POSITION_BUFFER_LAYOUT, NORMAL_BUFFER_LAYOUT] },
+    vertex: { module, entryPoint: 'vs', buffers: [POSITION_BUFFER_LAYOUT, NORMAL_BUFFER_LAYOUT, UV_BUFFER_LAYOUT] },
     fragment: { module, entryPoint: 'fs', targets: [{ format }] },
     // DEVIATION from brief carried forward from createLitPipeline: added `frontFace: 'cw'`. Same
     // root cause as documented above — generateSphereMesh (Task 1)'s winding is clockwise as
@@ -133,6 +157,7 @@ export async function createUnlitPipeline(
 export interface MeshBuffers {
   positionBuffer: GPUBuffer
   normalBuffer: GPUBuffer
+  uvBuffer: GPUBuffer
   indexBuffer: GPUBuffer
   indexCount: number
 }
@@ -156,6 +181,13 @@ export function createMeshBuffers(device: GPUDevice, mesh: SphereMesh): MeshBuff
   })
   device.queue.writeBuffer(normalBuffer, 0, mesh.normals as BufferSource)
 
+  const uvBuffer = device.createBuffer({
+    label: 'sphere uvs',
+    size: mesh.uvs.byteLength,
+    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+  })
+  device.queue.writeBuffer(uvBuffer, 0, mesh.uvs as BufferSource)
+
   const indexBuffer = device.createBuffer({
     label: 'sphere indices',
     size: mesh.indices.byteLength,
@@ -163,7 +195,7 @@ export function createMeshBuffers(device: GPUDevice, mesh: SphereMesh): MeshBuff
   })
   device.queue.writeBuffer(indexBuffer, 0, mesh.indices as BufferSource)
 
-  return { positionBuffer, normalBuffer, indexBuffer, indexCount: mesh.indices.length }
+  return { positionBuffer, normalBuffer, uvBuffer, indexBuffer, indexCount: mesh.indices.length }
 }
 
 const LINE_POSITION_BUFFER_LAYOUT: GPUVertexBufferLayout = {
@@ -199,4 +231,157 @@ export function createOrbitPathBuffer(device: GPUDevice, initialPoints: Float32A
 
 export function updateOrbitPathBuffer(device: GPUDevice, buffer: GPUBuffer, points: Float32Array): void {
   device.queue.writeBuffer(buffer, 0, points as BufferSource)
+}
+
+// Per-instance (x, y, z, brightness), one instance per star — see starShaderCode for how each
+// instance expands into a 4-vertex billboard quad with no per-star vertex geometry of its own.
+const STAR_INSTANCE_BUFFER_LAYOUT: GPUVertexBufferLayout = {
+  arrayStride: 4 * 4,
+  stepMode: 'instance',
+  attributes: [
+    { shaderLocation: 0, offset: 0, format: 'float32x3' },
+    { shaderLocation: 1, offset: 3 * 4, format: 'float32' },
+  ],
+}
+
+export async function createStarPipeline(device: GPUDevice, format: GPUTextureFormat): Promise<GPURenderPipeline> {
+  const module = device.createShaderModule({ label: 'star shader', code: starShaderCode })
+  return await device.createRenderPipelineAsync({
+    label: 'star pipeline',
+    layout: 'auto',
+    vertex: { module, entryPoint: 'vs', buffers: [STAR_INSTANCE_BUFFER_LAYOUT] },
+    fragment: {
+      module,
+      entryPoint: 'fs',
+      targets: [
+        {
+          format,
+          blend: {
+            color: { srcFactor: 'one', dstFactor: 'one', operation: 'add' },
+            alpha: { srcFactor: 'one', dstFactor: 'one', operation: 'add' },
+          },
+        },
+      ],
+    },
+    // Camera-facing billboard quads aren't consistently wound the way the sphere mesh is, so
+    // there's no meaningful "back face" to cull here. depthCompare 'always' + depthWriteEnabled
+    // false means depth testing has no actual effect (stars rely on draw order instead — see
+    // main.ts, which draws them first, a painter's-algorithm approach), but WebGPU still requires
+    // a pipeline's attachment state (including depth-stencil format) to exactly match the render
+    // pass it's used in, so this can't be omitted.
+    primitive: { topology: 'triangle-strip', cullMode: 'none' },
+    depthStencil: { depthWriteEnabled: false, depthCompare: 'always', format: 'depth24plus' },
+    multisample: { count: SAMPLE_COUNT },
+  })
+}
+
+export function createStarBuffer(device: GPUDevice, catalog: Float32Array): GPUBuffer {
+  const buffer = device.createBuffer({
+    label: 'star catalog',
+    size: Math.max(catalog.byteLength, 4 * 4), // avoid a zero-size buffer if the catalog failed to load
+    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+  })
+  if (catalog.byteLength > 0) device.queue.writeBuffer(buffer, 0, catalog as BufferSource)
+  return buffer
+}
+
+export async function createFlarePipeline(device: GPUDevice, format: GPUTextureFormat): Promise<GPURenderPipeline> {
+  const module = device.createShaderModule({ label: 'flare shader', code: flareShaderCode })
+  return await device.createRenderPipelineAsync({
+    label: 'flare pipeline',
+    layout: 'auto',
+    vertex: { module, entryPoint: 'vs' },
+    fragment: {
+      module,
+      entryPoint: 'fs',
+      targets: [
+        {
+          format,
+          blend: {
+            color: { srcFactor: 'one', dstFactor: 'one', operation: 'add' },
+            alpha: { srcFactor: 'one', dstFactor: 'one', operation: 'add' },
+          },
+        },
+      ],
+    },
+    // Same camera-facing-quad reasoning as the star pipeline: no meaningful back face to cull.
+    // Unlike stars, this DOES depth-test (depthWriteEnabled false, so the flare itself never
+    // occludes anything) against the depth buffer the main pass already populated, so planets in
+    // front of the Sun naturally occlude the flare per-pixel.
+    primitive: { topology: 'triangle-strip', cullMode: 'none' },
+    depthStencil: { depthWriteEnabled: false, depthCompare: 'less', format: 'depth24plus' },
+    multisample: { count: SAMPLE_COUNT },
+  })
+}
+
+const RING_POSITION_BUFFER_LAYOUT: GPUVertexBufferLayout = {
+  arrayStride: 3 * 4,
+  attributes: [{ shaderLocation: 0, offset: 0, format: 'float32x3' }],
+}
+
+const RING_UV_BUFFER_LAYOUT: GPUVertexBufferLayout = {
+  arrayStride: 2 * 4,
+  attributes: [{ shaderLocation: 1, offset: 0, format: 'float32x2' }],
+}
+
+export async function createRingPipeline(device: GPUDevice, format: GPUTextureFormat): Promise<GPURenderPipeline> {
+  const module = device.createShaderModule({ label: 'ring shader', code: ringShaderCode })
+  return await device.createRenderPipelineAsync({
+    label: 'ring pipeline',
+    layout: 'auto',
+    vertex: { module, entryPoint: 'vs', buffers: [RING_POSITION_BUFFER_LAYOUT, RING_UV_BUFFER_LAYOUT] },
+    fragment: {
+      module,
+      entryPoint: 'fs',
+      targets: [
+        {
+          format,
+          // Standard (non-premultiplied) alpha blending: the ring texture's alpha channel encodes
+          // real transparency (e.g. the Cassini Division gap), unlike the additive blending used
+          // for stars/flares/bloom.
+          blend: {
+            color: { srcFactor: 'src-alpha', dstFactor: 'one-minus-src-alpha', operation: 'add' },
+            alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },
+          },
+        },
+      ],
+    },
+    // Visible from both above and below; depth-tested but not written, same reasoning as the
+    // flare pipeline — the ring shouldn't occlude anything behind it beyond what its alpha implies.
+    primitive: { topology: 'triangle-list', cullMode: 'none' },
+    depthStencil: { depthWriteEnabled: false, depthCompare: 'less', format: 'depth24plus' },
+    multisample: { count: SAMPLE_COUNT },
+  })
+}
+
+export interface RingBuffers {
+  positionBuffer: GPUBuffer
+  uvBuffer: GPUBuffer
+  indexBuffer: GPUBuffer
+  indexCount: number
+}
+
+export function createRingBuffers(device: GPUDevice, mesh: RingMesh): RingBuffers {
+  const positionBuffer = device.createBuffer({
+    label: 'ring positions',
+    size: mesh.positions.byteLength,
+    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+  })
+  device.queue.writeBuffer(positionBuffer, 0, mesh.positions as BufferSource)
+
+  const uvBuffer = device.createBuffer({
+    label: 'ring uvs',
+    size: mesh.uvs.byteLength,
+    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+  })
+  device.queue.writeBuffer(uvBuffer, 0, mesh.uvs as BufferSource)
+
+  const indexBuffer = device.createBuffer({
+    label: 'ring indices',
+    size: mesh.indices.byteLength,
+    usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST,
+  })
+  device.queue.writeBuffer(indexBuffer, 0, mesh.indices as BufferSource)
+
+  return { positionBuffer, uvBuffer, indexBuffer, indexCount: mesh.indices.length }
 }

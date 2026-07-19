@@ -1,6 +1,7 @@
 export interface SphereMesh {
   positions: Float32Array
   normals: Float32Array
+  uvs: Float32Array
   indices: Uint32Array
 }
 
@@ -10,6 +11,7 @@ export interface SphereMesh {
 export function generateSphereMesh(radius: number, latSegments: number, lonSegments: number): SphereMesh {
   const positions: number[] = []
   const normals: number[] = []
+  const uvs: number[] = []
   const indices: number[] = []
 
   for (let lat = 0; lat <= latSegments; lat++) {
@@ -28,6 +30,11 @@ export function generateSphereMesh(radius: number, latSegments: number, lonSegme
 
       positions.push(radius * x, radius * y, radius * z)
       normals.push(x, y, z)
+      // Standard equirectangular (Plate Carrée) mapping, matching how 2K planet texture images
+      // are conventionally laid out: u wraps around longitude, v runs from north pole (v=0) to
+      // south pole (v=1). The seam-duplicate vertices at lon=0/lon=lonSegments (see index buffer
+      // below) are exactly what let u run cleanly 0..1 without a wraparound artifact.
+      uvs.push(lon / lonSegments, lat / latSegments)
     }
   }
 
@@ -44,6 +51,7 @@ export function generateSphereMesh(radius: number, latSegments: number, lonSegme
   return {
     positions: new Float32Array(positions),
     normals: new Float32Array(normals),
+    uvs: new Float32Array(uvs),
     indices: new Uint32Array(indices),
   }
 }
