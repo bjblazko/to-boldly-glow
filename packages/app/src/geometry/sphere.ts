@@ -8,6 +8,9 @@ export interface SphereMesh {
 // Generates a UV sphere: latSegments bands from pole to pole, lonSegments bands around each
 // latitude circle. A unit sphere's outward normal at any point equals that point's position
 // divided by its radius, so positions and normals share the same generation loop.
+// The mesh's polar axis is local +Z (theta=0 sits at local +Z, full radius) — this matches
+// solarSystem/poleOrientation.ts's axisAlignmentRotation, which maps local +Z onto each body's
+// real pole, and the spin rotation (mat4.fromZRotation) applied around local Z.
 export function generateSphereMesh(radius: number, latSegments: number, lonSegments: number): SphereMesh {
   const positions: number[] = []
   const normals: number[] = []
@@ -24,16 +27,17 @@ export function generateSphereMesh(radius: number, latSegments: number, lonSegme
       const sinPhi = Math.sin(phi)
       const cosPhi = Math.cos(phi)
 
-      const x = cosPhi * sinTheta
-      const y = cosTheta
-      const z = sinPhi * sinTheta
+      const x = sinPhi * sinTheta
+      const y = cosPhi * sinTheta
+      const z = cosTheta
 
       positions.push(radius * x, radius * y, radius * z)
       normals.push(x, y, z)
       // Standard equirectangular (Plate Carrée) mapping, matching how 2K planet texture images
-      // are conventionally laid out: u wraps around longitude, v runs from north pole (v=0) to
-      // south pole (v=1). The seam-duplicate vertices at lon=0/lon=lonSegments (see index buffer
-      // below) are exactly what let u run cleanly 0..1 without a wraparound artifact.
+      // are conventionally laid out: u wraps around longitude, v runs from north pole (v=0, local
+      // +Z) to south pole (v=1, local -Z). The seam-duplicate vertices at lon=0/lon=lonSegments
+      // (see index buffer below) are exactly what let u run cleanly 0..1 without a wraparound
+      // artifact.
       uvs.push(lon / lonSegments, lat / latSegments)
     }
   }

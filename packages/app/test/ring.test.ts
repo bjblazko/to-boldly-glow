@@ -16,15 +16,15 @@ describe('generateRingMesh', () => {
 
   it('places inner-edge vertices at innerRadius and outer-edge vertices at outerRadius', () => {
     for (let i = 0; i < mesh.positions.length; i += 6) {
-      const innerDistance = Math.hypot(mesh.positions[i], mesh.positions[i + 2])
-      const outerDistance = Math.hypot(mesh.positions[i + 3], mesh.positions[i + 5])
+      const innerDistance = Math.hypot(mesh.positions[i], mesh.positions[i + 1])
+      const outerDistance = Math.hypot(mesh.positions[i + 3], mesh.positions[i + 4])
       expect(innerDistance).toBeCloseTo(innerRadius, 5)
       expect(outerDistance).toBeCloseTo(outerRadius, 5)
     }
   })
 
-  it('keeps every vertex in the Y=0 plane', () => {
-    for (let i = 1; i < mesh.positions.length; i += 3) {
+  it('keeps every vertex in the Z=0 plane', () => {
+    for (let i = 2; i < mesh.positions.length; i += 3) {
       expect(mesh.positions[i]).toBe(0)
     }
   })
