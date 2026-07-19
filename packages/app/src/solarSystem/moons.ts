@@ -22,6 +22,23 @@ export interface MoonDefinition {
    */
   siderealOrbitPeriodDays: number
   /**
+   * Real orbital inclination, degrees, relative to the parent's equatorial plane (the Laplace
+   * plane, for the regular moons) - EXCEPT for the Moon, whose real orbital plane precesses
+   * relative to the ECLIPTIC rather than Earth's equator (see
+   * moonOrbit.ts's moonOrbitReferencePoleDirection), so this field holds its ecliptic-relative
+   * inclination instead. Source: Wikipedia orbital-elements infoboxes (themselves derived from
+   * JPL/IAU data); Triton's value is a representative snapshot since its node precesses with a
+   * ~678-year period that isn't modeled.
+   */
+  orbitInclinationToParentEquatorDegrees: number
+  /**
+   * Longitude of the ascending node, degrees, defining which direction (within the reference
+   * plane) the inclination above tilts toward. Set to 0 for every moon except Triton as a
+   * documented simplification: at under half a degree of inclination, the node has no visually
+   * perceptible effect for the other 8 moons. Triton's value is illustrative (see the field above).
+   */
+  orbitAscendingNodeDegrees: number
+  /**
    * Path (under public/) to a 2K-ish equirectangular albedo texture. Omitted where no clean
    * full-sphere public-domain map exists — Titania, Oberon, and Triton were each only partially
    * imaged during Voyager 2's brief flybys, leaving large gaps in any equirectangular projection
@@ -41,6 +58,8 @@ export const MOONS: MoonDefinition[] = [
     orbitDistanceKm: 384_400,
     explorerOrbitVisualRadius: 1.7,
     siderealOrbitPeriodDays: 27.321661,
+    orbitInclinationToParentEquatorDegrees: 5.145,
+    orbitAscendingNodeDegrees: 0,
     textureUrl: '/textures/moon.jpg',
   },
   {
@@ -53,6 +72,8 @@ export const MOONS: MoonDefinition[] = [
     orbitDistanceKm: 421_800,
     explorerOrbitVisualRadius: 3.0,
     siderealOrbitPeriodDays: 1.769138,
+    orbitInclinationToParentEquatorDegrees: 0.050,
+    orbitAscendingNodeDegrees: 0,
     textureUrl: '/textures/io.jpg',
   },
   {
@@ -65,6 +86,8 @@ export const MOONS: MoonDefinition[] = [
     orbitDistanceKm: 671_100,
     explorerOrbitVisualRadius: 3.6,
     siderealOrbitPeriodDays: 3.551181,
+    orbitInclinationToParentEquatorDegrees: 0.471,
+    orbitAscendingNodeDegrees: 0,
     textureUrl: '/textures/europa.jpg',
   },
   {
@@ -77,6 +100,8 @@ export const MOONS: MoonDefinition[] = [
     orbitDistanceKm: 1_070_400,
     explorerOrbitVisualRadius: 4.3,
     siderealOrbitPeriodDays: 7.154553,
+    orbitInclinationToParentEquatorDegrees: 0.204,
+    orbitAscendingNodeDegrees: 0,
     textureUrl: '/textures/ganymede.jpg',
   },
   {
@@ -89,6 +114,8 @@ export const MOONS: MoonDefinition[] = [
     orbitDistanceKm: 1_882_700,
     explorerOrbitVisualRadius: 5.2,
     siderealOrbitPeriodDays: 16.68902,
+    orbitInclinationToParentEquatorDegrees: 0.205,
+    orbitAscendingNodeDegrees: 0,
     textureUrl: '/textures/callisto.jpg',
   },
   {
@@ -104,6 +131,8 @@ export const MOONS: MoonDefinition[] = [
     // strictly real-ratio-scaled value, which would put Titan visually inside/through the rings.
     explorerOrbitVisualRadius: 5.5,
     siderealOrbitPeriodDays: 15.945,
+    orbitInclinationToParentEquatorDegrees: 0.34854,
+    orbitAscendingNodeDegrees: 0,
     textureUrl: '/textures/titan.jpg',
   },
   {
@@ -116,6 +145,8 @@ export const MOONS: MoonDefinition[] = [
     orbitDistanceKm: 435_910,
     explorerOrbitVisualRadius: 2.0,
     siderealOrbitPeriodDays: 8.706234,
+    orbitInclinationToParentEquatorDegrees: 0.114,
+    orbitAscendingNodeDegrees: 0,
   },
   {
     id: 'oberon',
@@ -127,6 +158,8 @@ export const MOONS: MoonDefinition[] = [
     orbitDistanceKm: 583_520,
     explorerOrbitVisualRadius: 2.6,
     siderealOrbitPeriodDays: 13.463234,
+    orbitInclinationToParentEquatorDegrees: 0.125,
+    orbitAscendingNodeDegrees: 0,
   },
   {
     id: 'triton',
@@ -138,5 +171,7 @@ export const MOONS: MoonDefinition[] = [
     orbitDistanceKm: 354_759,
     explorerOrbitVisualRadius: 2.1,
     siderealOrbitPeriodDays: -5.876854,
+    orbitInclinationToParentEquatorDegrees: 157.3,
+    orbitAscendingNodeDegrees: 0,
   },
 ]
