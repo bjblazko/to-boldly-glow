@@ -14,10 +14,13 @@ import { EntitySearchUI } from './search/entitySearchUI'
 import { scaledBodyRadiusUnits, scaledPosition } from './solarSystem/sceneScale'
 import { generateOrbitPathPositions } from './solarSystem/orbitPath'
 import { rotationAngleRadians } from './solarSystem/rotation'
+import { axisAlignmentRotation, equatorialToEclipticPoleDirection } from './solarSystem/poleOrientation'
 import { MOONS } from './solarSystem/moons'
 import {
+  moonFlatOrbitPosition,
   moonOrbitAngleRadians,
-  moonRelativePosition,
+  moonOrbitPlaneTiltMatrix,
+  moonOrbitReferencePoleDirection,
   moonRotationAngleRadians,
   scaledMoonOrbitRadiusUnits,
 } from './solarSystem/moonOrbit'
@@ -277,11 +280,6 @@ async function main() {
       { binding: 2, resource: bodySampler },
     ],
   })
-  // A fixed visual tilt (Saturn's real axial tilt, 26.73°) applied only to the ring — there's no
-  // per-body axial-tilt system for the sphere itself, but the ring reads as unmistakably wrong (a
-  // flat pancake) without any tilt at all, so this is a deliberate, scoped exception.
-  const SATURN_RING_TILT_RADIANS = (26.73 * Math.PI) / 180
-
   // Starts fully "Explorer" (1) for a legible initial view — at "Realistic" (0), the inner
   // planets are indistinguishable from the Sun at any reasonable camera distance. The slider
   // lets the user dial toward "Realistic" to see true relative scale/distance.
@@ -502,10 +500,12 @@ async function main() {
 
     const sunRadius = scaledBodyRadiusUnits(SUN.radiusKm, SUN.explorerVisualRadius, scaleBlend, AU_KM)
     const sunRotation = rotationAngleRadians(daysSinceEpoch, SUN.siderealRotationHours)
+    const sunPoleDirection = equatorialToEclipticPoleDirection(SUN.poleRightAscensionDegrees, SUN.poleDeclinationDegrees)
+    const sunTilt = axisAlignmentRotation(sunPoleDirection)
     const sunWorld = mat4.multiply(
       mat4.create(),
-      mat4.fromYRotation(mat4.create(), sunRotation),
-      mat4.fromScaling(mat4.create(), [sunRadius, sunRadius, sunRadius]),
+      sunTilt,
+      mat4.multiply(mat4.create(), mat4.fromZRotation(mat4.create(), sunRotation), mat4.fromScaling(mat4.create(), [sunRadius, sunRadius, sunRadius])),
     )
     const sunWVP = mat4.multiply(mat4.create(), projection, mat4.multiply(mat4.create(), view, sunWorld))
     const sunColorMultiplier = bloomSupported && showBloom ? SUN_BLOOM_INTENSITY : 1.0
@@ -557,10 +557,19 @@ async function main() {
         AU_KM,
       )
       const rotation = rotationAngleRadians(daysSinceEpoch, renderable.definition.siderealRotationHours)
+      const poleDirection = equatorialToEclipticPoleDirection(
+        renderable.definition.poleRightAscensionDegrees,
+        renderable.definition.poleDeclinationDegrees,
+      )
+      const tilt = axisAlignmentRotation(poleDirection)
       const world = mat4.multiply(
         mat4.create(),
         mat4.fromTranslation(mat4.create(), [sx, sy, sz]),
-        mat4.multiply(mat4.create(), mat4.fromYRotation(mat4.create(), rotation), mat4.fromScaling(mat4.create(), [radius, radius, radius])),
+        mat4.multiply(
+          mat4.create(),
+          tilt,
+          mat4.multiply(mat4.create(), mat4.fromZRotation(mat4.create(), rotation), mat4.fromScaling(mat4.create(), [radius, radius, radius])),
+        ),
       )
       const wvp = mat4.multiply(mat4.create(), projection, mat4.multiply(mat4.create(), view, world))
       const lightDirection = vec3.normalize(vec3.create(), vec3.fromValues(sx, sy, sz))
@@ -576,11 +585,7 @@ async function main() {
         const ringWorld = mat4.multiply(
           mat4.create(),
           mat4.fromTranslation(mat4.create(), [sx, sy, sz]),
-          mat4.multiply(
-            mat4.create(),
-            mat4.fromXRotation(mat4.create(), SATURN_RING_TILT_RADIANS),
-            mat4.fromScaling(mat4.create(), [radius, radius, radius]),
-          ),
+          mat4.multiply(mat4.create(), tilt, mat4.fromScaling(mat4.create(), [radius, radius, radius])),
         )
         const ringWvp = mat4.multiply(mat4.create(), projection, mat4.multiply(mat4.create(), view, ringWorld))
         const ringUniforms = new Float32Array(36)
@@ -603,18 +608,30 @@ async function main() {
         if (!parentPosition) continue
         const angle = moonOrbitAngleRadians(daysSinceEpoch, moon.siderealOrbitPeriodDays)
         const orbitRadius = scaledMoonOrbitRadiusUnits(moon.orbitDistanceKm, moon.explorerOrbitVisualRadius, scaleBlend, AU_KM)
-        const [rx, ry, rz] = moonRelativePosition(orbitRadius, angle)
+        const parentDefinition = PLANETS.find((p) => p.id === moon.parentId) as BodyDefinition
+        const referencePoleDirection = moonOrbitReferencePoleDirection(moon, parentDefinition)
+        const moonTilt = moonOrbitPlaneTiltMatrix(
+          moon.orbitInclinationToParentEquatorDegrees,
+          moon.orbitAscendingNodeDegrees,
+          referencePoleDirection,
+        )
+        const [rx, ry, rz] = vec3.transformMat4(vec3.create(), moonFlatOrbitPosition(orbitRadius, angle), moonTilt)
         const [px, py, pz] = parentPosition
         const [sx, sy, sz] = [px + rx, py + ry, pz + rz]
         const radius = scaledBodyRadiusUnits(moon.radiusKm, moon.explorerVisualRadius, scaleBlend, AU_KM)
-        // Tidally locked (true of every moon in this set): rotation tracks the negative of the
-        // orbital angle rather than an independent sidereal rate, so the same face always faces
-        // the parent (see moonRotationAngleRadians for why the sign must be negated).
+        // Tidally locked (true of every moon in this set): rotation tracks the orbital angle
+        // directly under this local-Z-spin convention (see moonRotationAngleRadians), and the
+        // SAME moonTilt matrix used for position is reused here, so tidal lock holds regardless
+        // of the orbital plane's real 3D tilt.
         const rotation = moonRotationAngleRadians(angle)
         const world = mat4.multiply(
           mat4.create(),
           mat4.fromTranslation(mat4.create(), [sx, sy, sz]),
-          mat4.multiply(mat4.create(), mat4.fromYRotation(mat4.create(), rotation), mat4.fromScaling(mat4.create(), [radius, radius, radius])),
+          mat4.multiply(
+            mat4.create(),
+            moonTilt,
+            mat4.multiply(mat4.create(), mat4.fromZRotation(mat4.create(), rotation), mat4.fromScaling(mat4.create(), [radius, radius, radius])),
+          ),
         )
         const wvp = mat4.multiply(mat4.create(), projection, mat4.multiply(mat4.create(), view, world))
         const lightDirection = vec3.normalize(vec3.create(), vec3.fromValues(sx, sy, sz))
