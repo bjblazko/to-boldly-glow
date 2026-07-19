@@ -36,10 +36,23 @@ export interface BodyDefinition {
   /**
    * Axial rotation period, hours. Source: NASA Planetary Fact Sheet. Negative means retrograde
    * (spins opposite its orbital direction — Venus and, due to its extreme axial tilt, Uranus).
-   * Drives the body's own spin around its local Y axis; unrelated to siderealPeriodDays (orbital
-   * motion) above.
+   * Drives the body's own spin around its local Z axis (see poleOrientation.ts - tilt happens on
+   * top of this spin, not instead of it); unrelated to siderealPeriodDays (orbital motion) above.
+   * This sign is independent of poleRightAscensionDegrees/poleDeclinationDegrees below - tilt
+   * magnitude does NOT reliably indicate spin direction (IAU's own published pole for Uranus
+   * derives a tilt under 90° despite Uranus's rotation being genuinely retrograde relative to it -
+   * see the design spec §3), so this field keeps carrying that fact explicitly.
    */
   siderealRotationHours: number
+  /**
+   * North pole right ascension and declination, degrees, J2000 equatorial (ICRF) frame, as
+   * published by the IAU Working Group on Cartographic Coordinates and Rotational Elements
+   * (WGCCRE). Converted to an ecliptic-frame direction vector by
+   * poleOrientation.ts's equatorialToEclipticPoleDirection, then used to tilt the body's spin
+   * axis (and, for Saturn, its ring) into its real 3D orientation.
+   */
+  poleRightAscensionDegrees: number
+  poleDeclinationDegrees: number
 }
 
 /** 1 astronomical unit, kilometers (IAU-defined exact value). */
@@ -55,6 +68,8 @@ export const SUN: BodyDefinition = {
   position: null,
   textureUrl: '/textures/sun.jpg',
   siderealRotationHours: 609.12,
+  poleRightAscensionDegrees: 286.13,
+  poleDeclinationDegrees: 63.87,
 }
 
 export const PLANETS: BodyDefinition[] = [
@@ -72,6 +87,8 @@ export const PLANETS: BodyDefinition[] = [
     },
     textureUrl: '/textures/mercury.jpg',
     siderealRotationHours: 1407.6,
+    poleRightAscensionDegrees: 281.01,
+    poleDeclinationDegrees: 61.41,
   },
   {
     id: 'venus',
@@ -83,6 +100,8 @@ export const PLANETS: BodyDefinition[] = [
     position: { longitude: venusHeliocentricL, latitude: venusHeliocentricB, distance: venusHeliocentricR },
     textureUrl: '/textures/venus.jpg',
     siderealRotationHours: -5832.5,
+    poleRightAscensionDegrees: 92.76,
+    poleDeclinationDegrees: -67.16,
   },
   {
     id: 'earth',
@@ -94,6 +113,8 @@ export const PLANETS: BodyDefinition[] = [
     position: { longitude: earthHeliocentricL, latitude: earthHeliocentricB, distance: earthHeliocentricR },
     textureUrl: '/textures/earth.jpg',
     siderealRotationHours: 23.9345,
+    poleRightAscensionDegrees: 0,
+    poleDeclinationDegrees: 90,
   },
   {
     id: 'mars',
@@ -105,6 +126,8 @@ export const PLANETS: BodyDefinition[] = [
     position: { longitude: marsHeliocentricL, latitude: marsHeliocentricB, distance: marsHeliocentricR },
     textureUrl: '/textures/mars.jpg',
     siderealRotationHours: 24.6229,
+    poleRightAscensionDegrees: 317.68,
+    poleDeclinationDegrees: 52.89,
   },
   {
     id: 'jupiter',
@@ -120,6 +143,8 @@ export const PLANETS: BodyDefinition[] = [
     },
     textureUrl: '/textures/jupiter.jpg',
     siderealRotationHours: 9.925,
+    poleRightAscensionDegrees: 268.06,
+    poleDeclinationDegrees: 64.50,
   },
   {
     id: 'saturn',
@@ -131,6 +156,8 @@ export const PLANETS: BodyDefinition[] = [
     position: { longitude: saturnHeliocentricL, latitude: saturnHeliocentricB, distance: saturnHeliocentricR },
     textureUrl: '/textures/saturn.jpg',
     siderealRotationHours: 10.656,
+    poleRightAscensionDegrees: 40.59,
+    poleDeclinationDegrees: 83.54,
   },
   {
     id: 'uranus',
@@ -142,6 +169,8 @@ export const PLANETS: BodyDefinition[] = [
     position: { longitude: uranusHeliocentricL, latitude: uranusHeliocentricB, distance: uranusHeliocentricR },
     textureUrl: '/textures/uranus.jpg',
     siderealRotationHours: -17.24,
+    poleRightAscensionDegrees: 257.31,
+    poleDeclinationDegrees: -15.18,
   },
   {
     id: 'neptune',
@@ -157,5 +186,7 @@ export const PLANETS: BodyDefinition[] = [
     },
     textureUrl: '/textures/neptune.jpg',
     siderealRotationHours: 16.11,
+    poleRightAscensionDegrees: 299.33,
+    poleDeclinationDegrees: 42.95,
   },
 ]
