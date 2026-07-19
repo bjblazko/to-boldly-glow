@@ -33,6 +33,28 @@ and cross-verification used for those bodies (looser than Earth's, deliberately,
 visually indistinguishable at any reasonable camera distance and keeps the combined dataset
 smaller).
 
+## Axial tilt & orbital-plane orientation
+
+Each body's real rotation-axis direction (`poleRightAscensionDegrees`/`poleDeclinationDegrees` in
+`packages/app/src/solarSystem/bodies.ts`) is sourced from the IAU Working Group on Cartographic
+Coordinates and Rotational Elements (WGCCRE), the standard reference for planetary pole
+orientations:
+
+```
+Archinal, B.A., Acton, C.H., A'Hearn, M.F. et al.
+"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015."
+Celestial Mechanics and Dynamical Astronomy 130, 22 (2018).
+https://doi.org/10.1007/s10569-017-9805-5
+```
+
+Each moon's orbital-plane inclination relative to its parent's equator
+(`orbitInclinationToParentEquatorDegrees`/`orbitAscendingNodeDegrees` in
+`packages/app/src/solarSystem/moons.ts`) is sourced from Wikipedia's orbital-elements infoboxes for
+each moon (themselves derived from JPL/IAU data), cross-checked at time of writing. Triton's
+inclination is a representative snapshot value, not a precise unchanging constant — its real
+orbital node precesses with a ~678-year period, which this app does not model (see
+`docs/superpowers/specs/2026-07-19-axial-tilt-design.md`).
+
 ## Planet & Sun textures
 
 The 2K equirectangular albedo textures for the Sun and all 8 planets
