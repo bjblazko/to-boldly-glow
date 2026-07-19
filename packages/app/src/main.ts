@@ -22,9 +22,6 @@ import {
   createOrbitPathBuffer,
   createUnlitPipeline,
   initWebGpu,
-  // Not called until Task 6 wires it into the scale-blend slider's change handler (regenerates
-  // orbit paths on blend change).
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   updateOrbitPathBuffer,
   type MeshBuffers,
 } from './renderer/webgpu'
@@ -103,10 +100,10 @@ async function main() {
   const sunRenderable = createBodyRenderable(device, unlitPipeline, SUN, 20)
   const planetRenderables = PLANETS.map((planet) => createBodyRenderable(device, litPipeline, planet, 40))
 
-  // Temporary hardcoded value — Task 6 wires this to a UI slider (0 = realistic, 1 = explorer).
-  // Declared here (moved up from its original spot further down) because orbitPathRenderables
-  // below needs it in scope to generate its initial buffers.
-  const scaleBlend = 1
+  // Starts fully "Explorer" (1) for a legible initial view — at "Realistic" (0), the inner
+  // planets are indistinguishable from the Sun at any reasonable camera distance. The slider
+  // lets the user dial toward "Realistic" to see true relative scale/distance.
+  let scaleBlend = 1
 
   const linePipeline = await createLinePipeline(device, format)
 
@@ -131,10 +128,26 @@ async function main() {
     return { definition: planet, vertexBuffer, uniformBuffer, bindGroup }
   })
 
-  // Stays `let`: Task 6 adds a checkbox handler that reassigns this to toggle orbit paths
-  // on/off; it's read-only until that lands.
-  // eslint-disable-next-line prefer-const
   let showOrbitPaths = true
+
+  function refreshOrbitPaths(): void {
+    for (const path of orbitPathRenderables) {
+      updateOrbitPathBuffer(device, path.vertexBuffer, generateOrbitPathPositions(path.definition, scaleBlend))
+    }
+  }
+
+  const scaleSlider = requireElement<HTMLInputElement>('#scale-slider')
+  scaleSlider.addEventListener('input', () => {
+    scaleBlend = Number(scaleSlider.value) / 100
+    canvas.dataset.scaleBlend = String(scaleBlend)
+    refreshOrbitPaths()
+  })
+
+  const orbitPathsToggle = requireElement<HTMLInputElement>('#orbit-paths-toggle')
+  orbitPathsToggle.addEventListener('change', () => {
+    showOrbitPaths = orbitPathsToggle.checked
+    canvas.dataset.orbitPaths = String(showOrbitPaths)
+  })
 
   const projection = mat4.perspective(mat4.create(), Math.PI / 4, canvas.width / canvas.height, 0.1, 1000)
 

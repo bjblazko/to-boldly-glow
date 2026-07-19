@@ -22,6 +22,21 @@
       <input id="time-shuttle" type="range" min="-100" max="100" value="0" style="width: 150px;" />
       <span id="time-display">—</span>
     </div>
+    <div
+      id="scale-controls"
+      style="position: fixed; top: 12px; right: 12px; padding: 8px 12px; font: 14px sans-serif; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; display: flex; align-items: center; gap: 8px;"
+    >
+      <span>Realistic</span>
+      <input id="scale-slider" type="range" min="0" max="100" value="100" style="width: 150px;" />
+      <span>Explorer</span>
+    </div>
+    <label
+      id="orbit-paths-label"
+      style="position: fixed; top: 56px; right: 12px; padding: 8px 12px; font: 14px sans-serif; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; display: flex; align-items: center; gap: 8px; cursor: pointer;"
+    >
+      <input id="orbit-paths-toggle" type="checkbox" checked />
+      Show orbit paths
+    </label>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
