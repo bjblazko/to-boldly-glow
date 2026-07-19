@@ -7,8 +7,39 @@ export interface GpuContext {
   device: GPUDevice
   context: GPUCanvasContext
   format: GPUTextureFormat
+}
+
+export interface RenderTargets {
   depthTexture: GPUTexture
   multisampleColorTexture: GPUTexture
+}
+
+// The depth and MSAA color textures are fixed-size GPU resources tied to the canvas's current
+// backing-store dimensions — unlike the canvas's own swap-chain texture (from
+// `context.getCurrentTexture()`), which WebGPU resizes automatically to track `canvas.width`/
+// `canvas.height`. Callers must recreate these (and destroy the old ones) whenever the canvas is
+// resized; see `resizeCanvasIfNeeded` in main.ts.
+export function createRenderTargets(
+  device: GPUDevice,
+  format: GPUTextureFormat,
+  width: number,
+  height: number,
+): RenderTargets {
+  const depthTexture = device.createTexture({
+    size: [width, height],
+    format: 'depth24plus',
+    sampleCount: SAMPLE_COUNT,
+    usage: GPUTextureUsage.RENDER_ATTACHMENT,
+  })
+
+  const multisampleColorTexture = device.createTexture({
+    size: [width, height],
+    format,
+    sampleCount: SAMPLE_COUNT,
+    usage: GPUTextureUsage.RENDER_ATTACHMENT,
+  })
+
+  return { depthTexture, multisampleColorTexture }
 }
 
 export async function initWebGpu(canvas: HTMLCanvasElement): Promise<GpuContext> {
@@ -41,21 +72,7 @@ export async function initWebGpu(canvas: HTMLCanvasElement): Promise<GpuContext>
   const format = navigator.gpu.getPreferredCanvasFormat()
   context.configure({ device, format })
 
-  const depthTexture = device.createTexture({
-    size: [canvas.width, canvas.height],
-    format: 'depth24plus',
-    sampleCount: SAMPLE_COUNT,
-    usage: GPUTextureUsage.RENDER_ATTACHMENT,
-  })
-
-  const multisampleColorTexture = device.createTexture({
-    size: [canvas.width, canvas.height],
-    format,
-    sampleCount: SAMPLE_COUNT,
-    usage: GPUTextureUsage.RENDER_ATTACHMENT,
-  })
-
-  return { device, context, format, depthTexture, multisampleColorTexture }
+  return { device, context, format }
 }
 
 const POSITION_BUFFER_LAYOUT: GPUVertexBufferLayout = {

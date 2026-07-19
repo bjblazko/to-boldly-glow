@@ -17,3 +17,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Realistic ⇄ Explorer visual scale slider, blending between true-to-scale distances/sizes and a
   compressed, exaggerated view suited for exploration.
 - Toggleable name labels over the Sun and each planet.
+- The scene now fills the browser window and adapts its resolution (including render targets and
+  camera aspect ratio) when the window is resized, instead of rendering into a fixed 800x600 box.

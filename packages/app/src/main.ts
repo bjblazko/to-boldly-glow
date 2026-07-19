@@ -16,11 +16,13 @@ import { AU_KM, PLANETS, SUN, type BodyDefinition } from './solarSystem/bodies'
 import { scaledBodyRadiusUnits, scaledPosition } from './solarSystem/sceneScale'
 import { generateOrbitPathPositions } from './solarSystem/orbitPath'
 import { worldToScreen, type ScreenPosition } from './renderer/screenProjection'
+import { computeCanvasSize } from './renderer/canvasSize'
 import {
   createLinePipeline,
   createLitPipeline,
   createMeshBuffers,
   createOrbitPathBuffer,
+  createRenderTargets,
   createUnlitPipeline,
   initWebGpu,
   updateOrbitPathBuffer,
@@ -31,6 +33,17 @@ function requireElement<T extends HTMLElement>(selector: string): T {
   const element = document.querySelector<T>(selector)
   if (!element) throw new Error(`Required element ${selector} not found.`)
   return element
+}
+
+// Resizes the canvas's backing store to match its CSS-determined display size (see
+// computeCanvasSize). Returns false without touching the canvas if the size hasn't changed, so
+// callers can cheaply skip recreating size-dependent GPU resources on every resize event.
+function resizeCanvasIfNeeded(canvas: HTMLCanvasElement): boolean {
+  const { width, height } = computeCanvasSize(canvas.clientWidth, canvas.clientHeight, window.devicePixelRatio || 1)
+  if (canvas.width === width && canvas.height === height) return false
+  canvas.width = width
+  canvas.height = height
+  return true
 }
 
 function currentJulianMillennia(date: Date): number {
@@ -88,10 +101,10 @@ async function main() {
   const canvasElement = document.querySelector<HTMLCanvasElement>('#scene')
   if (!canvasElement) throw new Error('Canvas element #scene not found.')
   const canvas: HTMLCanvasElement = canvasElement
-  canvas.width = 800
-  canvas.height = 600
+  resizeCanvasIfNeeded(canvas)
 
-  const { device, context, format, depthTexture, multisampleColorTexture } = await initWebGpu(canvas)
+  const { device, context, format } = await initWebGpu(canvas)
+  let { depthTexture, multisampleColorTexture } = createRenderTargets(device, format, canvas.width, canvas.height)
   const litPipeline = await createLitPipeline(device, format)
   const unlitPipeline = await createUnlitPipeline(device, format)
 
@@ -184,7 +197,20 @@ async function main() {
     canvas.dataset.labelsVisible = String(showBodyLabels)
   })
 
-  const projection = mat4.perspective(mat4.create(), Math.PI / 4, canvas.width / canvas.height, 0.1, 1000)
+  let projection = mat4.perspective(mat4.create(), Math.PI / 4, canvas.width / canvas.height, 0.1, 1000)
+
+  // The depth/MSAA textures and the projection matrix's aspect ratio are both tied to the
+  // canvas's backing-store size, which computeCanvasSize/resizeCanvasIfNeeded derive from the
+  // canvas's CSS display size (see index.html, where #scene fills its viewport-sized wrapper).
+  // WebGPU's canvas swap-chain texture (`context.getCurrentTexture()`) tracks canvas.width/height
+  // automatically and needs no such handling.
+  window.addEventListener('resize', () => {
+    if (!resizeCanvasIfNeeded(canvas)) return
+    depthTexture.destroy()
+    multisampleColorTexture.destroy()
+    ;({ depthTexture, multisampleColorTexture } = createRenderTargets(device, format, canvas.width, canvas.height))
+    projection = mat4.perspective(mat4.create(), Math.PI / 4, canvas.width / canvas.height, 0.1, 1000)
+  })
 
   const orbitCamera = new OrbitCamera({ radius: 65, azimuth: 0, elevation: 0.4 })
   const flyCamera = new FlyCamera({ position: [0, 25, 60], yaw: Math.PI, pitch: 0 })
