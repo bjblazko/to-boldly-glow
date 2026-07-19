@@ -19,6 +19,7 @@ import {
   moonOrbitAngleRadians,
   moonRelativePosition,
   moonRotationAngleRadians,
+  moonOrbitReferencePoleDirection,
   scaledMoonOrbitRadiusUnits,
 } from './solarSystem/moonOrbit'
 import { worldToScreen, type ScreenPosition } from './renderer/screenProjection'
@@ -601,9 +602,18 @@ async function main() {
         const moon = renderable.definition
         const parentPosition = planetPositionsById.get(moon.parentId)
         if (!parentPosition) continue
+        const parentPlanet = PLANETS.find((p) => p.id === moon.parentId)
+        if (!parentPlanet) continue
         const angle = moonOrbitAngleRadians(daysSinceEpoch, moon.siderealOrbitPeriodDays)
         const orbitRadius = scaledMoonOrbitRadiusUnits(moon.orbitDistanceKm, moon.explorerOrbitVisualRadius, scaleBlend, AU_KM)
-        const [rx, ry, rz] = moonRelativePosition(orbitRadius, angle)
+        const referencePoleDirection = moonOrbitReferencePoleDirection(moon, parentPlanet)
+        const [rx, ry, rz] = moonRelativePosition(
+          orbitRadius,
+          angle,
+          moon.orbitInclinationToParentEquatorDegrees,
+          moon.orbitAscendingNodeDegrees,
+          referencePoleDirection,
+        )
         const [px, py, pz] = parentPosition
         const [sx, sy, sz] = [px + rx, py + ry, pz + rz]
         const radius = scaledBodyRadiusUnits(moon.radiusKm, moon.explorerVisualRadius, scaleBlend, AU_KM)
