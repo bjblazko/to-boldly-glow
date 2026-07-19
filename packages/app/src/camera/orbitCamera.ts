@@ -32,7 +32,7 @@ export class OrbitCamera {
     this.azimuth = options.azimuth ?? 0
     this.elevation = options.elevation ?? 0.4
     this.minRadius = options.minRadius ?? 5
-    this.maxRadius = options.maxRadius ?? 500
+    this.maxRadius = options.maxRadius ?? 700
   }
 
   getEyePosition(): vec3 {

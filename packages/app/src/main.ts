@@ -1,9 +1,6 @@
 import { mat4, vec3 } from 'gl-matrix'
 import {
   calendarToJulianDay,
-  earthHeliocentricB,
-  earthHeliocentricL,
-  earthHeliocentricR,
   julianMillenniaSinceJ2000,
   sphericalToX,
   sphericalToY,
@@ -15,6 +12,8 @@ import { FlyCamera } from './camera/flyCamera'
 import { CameraInputController } from './camera/inputController'
 import { SimulationClock } from './time/simulationClock'
 import { TimeControlUI } from './time/timeControlUI'
+import { AU_KM, PLANETS, SUN, type BodyDefinition } from './solarSystem/bodies'
+import { scaledBodyRadiusUnits, scaledPosition } from './solarSystem/sceneScale'
 import {
   createLitPipeline,
   createMeshBuffers,
@@ -23,32 +22,61 @@ import {
   type MeshBuffers,
 } from './renderer/webgpu'
 
-// TEMPORARY visual scale, not physically accurate — see the orbital-mechanics/renderer-core plans.
-const AU_TO_SCENE_UNITS = 20
-const SUN_VISUAL_RADIUS = 3
-const EARTH_VISUAL_RADIUS = 1
+function requireElement<T extends HTMLElement>(selector: string): T {
+  const element = document.querySelector<T>(selector)
+  if (!element) throw new Error(`Required element ${selector} not found.`)
+  return element
+}
 
-function earthPositionInSceneUnits(date: Date): [number, number, number] {
+function currentJulianMillennia(date: Date): number {
   const julianDay = calendarToJulianDay(
     date.getUTCFullYear(),
     date.getUTCMonth() + 1,
     date.getUTCDate() + date.getUTCHours() / 24,
   )
-  const T = julianMillenniaSinceJ2000(julianDay)
-  const L = earthHeliocentricL(T)
-  const B = earthHeliocentricB(T)
-  const R = earthHeliocentricR(T)
-  return [
-    sphericalToX(L, B, R) * AU_TO_SCENE_UNITS,
-    sphericalToY(L, B, R) * AU_TO_SCENE_UNITS,
-    sphericalToZ(L, B, R) * AU_TO_SCENE_UNITS,
-  ]
+  return julianMillenniaSinceJ2000(julianDay)
 }
 
-function requireElement<T extends HTMLElement>(selector: string): T {
-  const element = document.querySelector<T>(selector)
-  if (!element) throw new Error(`Required element ${selector} not found.`)
-  return element
+// Returns a planet's true AU-space position (unscaled) and its true distance from the Sun.
+function planetAuPosition(
+  planet: BodyDefinition,
+  T: number,
+): { x: number; y: number; z: number; distanceAu: number } {
+  const position = planet.position
+  if (!position) throw new Error(`${planet.id} has no position data.`)
+  const longitude = position.longitude(T)
+  const latitude = position.latitude(T)
+  const distanceAu = position.distance(T)
+  return {
+    x: sphericalToX(longitude, latitude, distanceAu),
+    y: sphericalToY(longitude, latitude, distanceAu),
+    z: sphericalToZ(longitude, latitude, distanceAu),
+    distanceAu,
+  }
+}
+
+interface BodyRenderable {
+  definition: BodyDefinition
+  uniformBuffer: GPUBuffer
+  bindGroup: GPUBindGroup
+}
+
+function createBodyRenderable(
+  device: GPUDevice,
+  pipeline: GPURenderPipeline,
+  definition: BodyDefinition,
+  uniformFloatCount: number,
+): BodyRenderable {
+  const uniformBuffer = device.createBuffer({
+    label: `${definition.id} uniforms`,
+    size: uniformFloatCount * 4,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  })
+  const bindGroup = device.createBindGroup({
+    layout: pipeline.getBindGroupLayout(0),
+    entries: [{ binding: 0, resource: { buffer: uniformBuffer } }],
+  })
+  return { definition, uniformBuffer, bindGroup }
 }
 
 async function main() {
@@ -65,25 +93,8 @@ async function main() {
   const sphereMesh = generateSphereMesh(1, 32, 32)
   const meshBuffers = createMeshBuffers(device, sphereMesh)
 
-  const sunUniformBuffer = device.createBuffer({
-    label: 'sun uniforms',
-    size: 20 * 4,
-    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-  })
-  const sunBindGroup = device.createBindGroup({
-    layout: unlitPipeline.getBindGroupLayout(0),
-    entries: [{ binding: 0, resource: { buffer: sunUniformBuffer } }],
-  })
-
-  const earthUniformBuffer = device.createBuffer({
-    label: 'earth uniforms',
-    size: 40 * 4,
-    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-  })
-  const earthBindGroup = device.createBindGroup({
-    layout: litPipeline.getBindGroupLayout(0),
-    entries: [{ binding: 0, resource: { buffer: earthUniformBuffer } }],
-  })
+  const sunRenderable = createBodyRenderable(device, unlitPipeline, SUN, 20)
+  const planetRenderables = PLANETS.map((planet) => createBodyRenderable(device, litPipeline, planet, 40))
 
   const projection = mat4.perspective(mat4.create(), Math.PI / 4, canvas.width / canvas.height, 0.1, 1000)
 
@@ -108,6 +119,9 @@ async function main() {
     requireElement<HTMLInputElement>('#time-shuttle'),
     requireElement<HTMLElement>('#time-display'),
   )
+
+  // Temporary hardcoded value — Task 6 wires this to a UI slider (0 = realistic, 1 = explorer).
+  const scaleBlend = 1
 
   function drawBody(
     pass: GPURenderPassEncoder,
@@ -134,29 +148,39 @@ async function main() {
     timeControlUI.refreshDisplay()
 
     const view = cameraInput.getViewMatrix()
-    const sunPosition: [number, number, number] = [0, 0, 0]
-    const earthPosition = earthPositionInSceneUnits(simulationClock.getCurrentDate())
+    const T = currentJulianMillennia(simulationClock.getCurrentDate())
 
-    const sunWorld = mat4.fromScaling(mat4.create(), [SUN_VISUAL_RADIUS, SUN_VISUAL_RADIUS, SUN_VISUAL_RADIUS])
+    const sunRadius = scaledBodyRadiusUnits(SUN.radiusKm, SUN.explorerVisualRadius, scaleBlend, AU_KM)
+    const sunWorld = mat4.fromScaling(mat4.create(), [sunRadius, sunRadius, sunRadius])
     const sunWVP = mat4.multiply(mat4.create(), projection, mat4.multiply(mat4.create(), view, sunWorld))
     const sunUniforms = new Float32Array(20)
     sunUniforms.set(sunWVP, 0)
-    sunUniforms.set([1.0, 0.9, 0.6, 1.0], 16)
-    device.queue.writeBuffer(sunUniformBuffer, 0, sunUniforms)
+    sunUniforms.set([...SUN.color, 1.0], 16)
+    device.queue.writeBuffer(sunRenderable.uniformBuffer, 0, sunUniforms)
 
-    const earthWorld = mat4.multiply(
-      mat4.create(),
-      mat4.fromTranslation(mat4.create(), earthPosition),
-      mat4.fromScaling(mat4.create(), [EARTH_VISUAL_RADIUS, EARTH_VISUAL_RADIUS, EARTH_VISUAL_RADIUS]),
-    )
-    const earthWVP = mat4.multiply(mat4.create(), projection, mat4.multiply(mat4.create(), view, earthWorld))
-    const lightDirection = vec3.normalize(vec3.create(), vec3.subtract(vec3.create(), earthPosition, sunPosition))
-    const earthUniforms = new Float32Array(40)
-    earthUniforms.set(earthWVP, 0)
-    earthUniforms.set(earthWorld, 16)
-    earthUniforms.set([0.25, 0.45, 0.75, 1.0], 32)
-    earthUniforms.set([...lightDirection, 0], 36)
-    device.queue.writeBuffer(earthUniformBuffer, 0, earthUniforms)
+    for (const renderable of planetRenderables) {
+      const { x, y, z, distanceAu } = planetAuPosition(renderable.definition, T)
+      const [sx, sy, sz] = scaledPosition(x, y, z, distanceAu, scaleBlend)
+      const radius = scaledBodyRadiusUnits(
+        renderable.definition.radiusKm,
+        renderable.definition.explorerVisualRadius,
+        scaleBlend,
+        AU_KM,
+      )
+      const world = mat4.multiply(
+        mat4.create(),
+        mat4.fromTranslation(mat4.create(), [sx, sy, sz]),
+        mat4.fromScaling(mat4.create(), [radius, radius, radius]),
+      )
+      const wvp = mat4.multiply(mat4.create(), projection, mat4.multiply(mat4.create(), view, world))
+      const lightDirection = vec3.normalize(vec3.create(), vec3.fromValues(sx, sy, sz))
+      const uniforms = new Float32Array(40)
+      uniforms.set(wvp, 0)
+      uniforms.set(world, 16)
+      uniforms.set([...renderable.definition.color, 1.0], 32)
+      uniforms.set([...lightDirection, 0], 36)
+      device.queue.writeBuffer(renderable.uniformBuffer, 0, uniforms)
+    }
 
     const encoder = device.createCommandEncoder({ label: 'frame encoder' })
     const pass = encoder.beginRenderPass({
@@ -175,8 +199,10 @@ async function main() {
         depthStoreOp: 'store',
       },
     })
-    drawBody(pass, unlitPipeline, meshBuffers, sunBindGroup)
-    drawBody(pass, litPipeline, meshBuffers, earthBindGroup)
+    drawBody(pass, unlitPipeline, meshBuffers, sunRenderable.bindGroup)
+    for (const renderable of planetRenderables) {
+      drawBody(pass, litPipeline, meshBuffers, renderable.bindGroup)
+    }
     pass.end()
     device.queue.submit([encoder.finish()])
     canvas.dataset.rendered = 'true'
