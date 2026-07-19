@@ -21,6 +21,19 @@ export async function initWebGpu(canvas: HTMLCanvasElement): Promise<GpuContext>
   }
   const device = await adapter.requestDevice()
 
+  // WebGPU validation errors raised during command encoding/submission (e.g. a pipeline whose
+  // multisample count doesn't match its render pass's attachments) are reported asynchronously
+  // as GPUUncapturedErrorEvents, not as thrown/catchable exceptions — createRenderPipelineAsync's
+  // rejection only covers pipeline-*creation*-time errors (like shader compile failures), not
+  // this class of per-draw validation error. Without this listener such errors are silently
+  // logged to the console and the invalid command buffer is dropped, while frame() keeps running
+  // and rendering looks fine — masking real bugs both from users and from the e2e test's
+  // `pageerror` check. Re-throwing surfaces it as an uncaught exception, which both browsers and
+  // Playwright's `page.on('pageerror')` treat the same as any other runtime error.
+  device.addEventListener('uncapturederror', (event) => {
+    throw (event as GPUUncapturedErrorEvent).error
+  })
+
   const context = canvas.getContext('webgpu')
   if (!context) {
     throw new Error('Failed to get a WebGPU canvas context.')
