@@ -16,3 +16,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Toggleable orbit-path overlay showing each planet's full orbit.
 - Realistic ⇄ Explorer visual scale slider, blending between true-to-scale distances/sizes and a
   compressed, exaggerated view suited for exploration.
+- Toggleable name labels over the Sun and each planet.

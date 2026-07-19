@@ -15,6 +15,7 @@ import { TimeControlUI } from './time/timeControlUI'
 import { AU_KM, PLANETS, SUN, type BodyDefinition } from './solarSystem/bodies'
 import { scaledBodyRadiusUnits, scaledPosition } from './solarSystem/sceneScale'
 import { generateOrbitPathPositions } from './solarSystem/orbitPath'
+import { worldToScreen, type ScreenPosition } from './renderer/screenProjection'
 import {
   createLinePipeline,
   createLitPipeline,
@@ -149,6 +150,40 @@ async function main() {
     canvas.dataset.orbitPaths = String(showOrbitPaths)
   })
 
+  const labelsContainer = requireElement<HTMLDivElement>('#body-labels')
+  const labelElements = new Map<string, HTMLDivElement>()
+  for (const body of [SUN, ...PLANETS]) {
+    const label = document.createElement('div')
+    label.className = 'body-label'
+    label.textContent = body.name
+    label.style.position = 'absolute'
+    label.style.transform = 'translate(-50%, 4px)'
+    label.style.color = 'white'
+    label.style.font = '12px sans-serif'
+    label.style.textShadow = '0 0 3px black, 0 0 3px black'
+    label.style.whiteSpace = 'nowrap'
+    labelsContainer.appendChild(label)
+    labelElements.set(body.id, label)
+  }
+
+  function updateLabelPosition(label: HTMLDivElement, screen: ScreenPosition): void {
+    if (!screen.visible) {
+      label.style.display = 'none'
+      return
+    }
+    label.style.display = ''
+    label.style.left = `${screen.x}px`
+    label.style.top = `${screen.y}px`
+  }
+
+  let showBodyLabels = true
+  const bodyLabelsToggle = requireElement<HTMLInputElement>('#body-labels-toggle')
+  bodyLabelsToggle.addEventListener('change', () => {
+    showBodyLabels = bodyLabelsToggle.checked
+    labelsContainer.style.display = showBodyLabels ? '' : 'none'
+    canvas.dataset.labelsVisible = String(showBodyLabels)
+  })
+
   const projection = mat4.perspective(mat4.create(), Math.PI / 4, canvas.width / canvas.height, 0.1, 1000)
 
   const orbitCamera = new OrbitCamera({ radius: 65, azimuth: 0, elevation: 0.4 })
@@ -199,6 +234,7 @@ async function main() {
 
     const view = cameraInput.getViewMatrix()
     const T = currentJulianMillennia(simulationClock.getCurrentDate())
+    const viewProjection = mat4.multiply(mat4.create(), projection, view)
 
     const sunRadius = scaledBodyRadiusUnits(SUN.radiusKm, SUN.explorerVisualRadius, scaleBlend, AU_KM)
     const sunWorld = mat4.fromScaling(mat4.create(), [sunRadius, sunRadius, sunRadius])
@@ -207,6 +243,11 @@ async function main() {
     sunUniforms.set(sunWVP, 0)
     sunUniforms.set([...SUN.color, 1.0], 16)
     device.queue.writeBuffer(sunRenderable.uniformBuffer, 0, sunUniforms)
+
+    if (showBodyLabels) {
+      const sunScreen = worldToScreen(viewProjection, 0, 0, 0, canvas.width, canvas.height)
+      updateLabelPosition(labelElements.get(SUN.id)!, sunScreen)
+    }
 
     for (const renderable of planetRenderables) {
       const { x, y, z, distanceAu } = planetAuPosition(renderable.definition, T)
@@ -230,10 +271,14 @@ async function main() {
       uniforms.set([...renderable.definition.color, 1.0], 32)
       uniforms.set([...lightDirection, 0], 36)
       device.queue.writeBuffer(renderable.uniformBuffer, 0, uniforms)
+
+      if (showBodyLabels) {
+        const screen = worldToScreen(viewProjection, sx, sy, sz, canvas.width, canvas.height)
+        updateLabelPosition(labelElements.get(renderable.definition.id)!, screen)
+      }
     }
 
     if (showOrbitPaths) {
-      const viewProjection = mat4.multiply(mat4.create(), projection, view)
       for (const path of orbitPathRenderables) {
         const uniforms = new Float32Array(20)
         uniforms.set(viewProjection, 0)

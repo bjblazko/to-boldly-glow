@@ -5,7 +5,10 @@
     <title>To Boldly Glow</title>
   </head>
   <body>
-    <canvas id="scene"></canvas>
+    <div id="scene-wrapper" style="position: relative; width: 800px; height: 600px;">
+      <canvas id="scene"></canvas>
+      <div id="body-labels" style="position: absolute; inset: 0; pointer-events: none; overflow: hidden;"></div>
+    </div>
     <button
       id="camera-mode-toggle"
       style="position: fixed; top: 12px; left: 12px; padding: 8px 12px; font: 14px sans-serif;"
@@ -36,6 +39,13 @@
     >
       <input id="orbit-paths-toggle" type="checkbox" checked />
       Show orbit paths
+    </label>
+    <label
+      id="body-labels-label"
+      style="position: fixed; top: 100px; right: 12px; padding: 8px 12px; font: 14px sans-serif; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; display: flex; align-items: center; gap: 8px; cursor: pointer;"
+    >
+      <input id="body-labels-toggle" type="checkbox" checked />
+      Show labels
     </label>
     <script type="module" src="/src/main.ts"></script>
   </body>
