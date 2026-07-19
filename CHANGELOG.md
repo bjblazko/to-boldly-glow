@@ -47,6 +47,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Every body (Sun, planets, moons) now has a real axial tilt and rotation axis, sourced from IAU
+  pole-orientation data — previously every body spun around the scene's vertical axis, which for
+  planets lay *inside* their own orbital plane rather than roughly perpendicular to it. Uranus now
+  visibly rolls onto its side; Saturn's ring shares the sphere's own real tilt instead of a
+  separate hardcoded angle; moons' orbital planes now track their parent's real tilted equator
+  (most visibly for Titan, Titania/Oberon, and Triton) instead of a fixed flat plane.
 - Moons were spinning with the same sign as their orbital angle, which — given how their rotation
   and orbital-position math compose — made them sweep through two extra full rotations per orbit
   instead of staying tidally locked, so every side was visible over an orbit rather than one face
