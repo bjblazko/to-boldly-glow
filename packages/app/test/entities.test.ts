@@ -10,7 +10,7 @@ import {
 import { AU_KM, PLANETS } from '../src/solarSystem/bodies'
 import { MOONS } from '../src/solarSystem/moons'
 import { scaledPosition } from '../src/solarSystem/sceneScale'
-import { moonOrbitAngleRadians, moonRelativePosition, scaledMoonOrbitRadiusUnits } from '../src/solarSystem/moonOrbit'
+import { moonOrbitAngleRadians, moonOrbitReferencePoleDirection, moonRelativePosition, scaledMoonOrbitRadiusUnits } from '../src/solarSystem/moonOrbit'
 
 function findEntity(id: string): SolarSystemEntity {
   const entity = ALL_ENTITIES.find((e) => e.id === id)
@@ -89,7 +89,14 @@ describe('entityWorldPosition', () => {
     const moon = titan.definition as (typeof MOONS)[number]
     const angle = moonOrbitAngleRadians(daysSinceEpoch, moon.siderealOrbitPeriodDays)
     const orbitRadius = scaledMoonOrbitRadiusUnits(moon.orbitDistanceKm, moon.explorerOrbitVisualRadius, scaleBlend, AU_KM)
-    const [rx, ry, rz] = moonRelativePosition(orbitRadius, angle)
+    const referencePoleDirection = moonOrbitReferencePoleDirection(moon, saturn.definition as (typeof PLANETS)[number])
+    const [rx, ry, rz] = moonRelativePosition(
+      orbitRadius,
+      angle,
+      moon.orbitInclinationToParentEquatorDegrees,
+      moon.orbitAscendingNodeDegrees,
+      referencePoleDirection,
+    )
     const actual = entityWorldPosition(titan, T, daysSinceEpoch, scaleBlend)
     expect(actual[0]).toBeCloseTo(px + rx, 10)
     expect(actual[1]).toBeCloseTo(py + ry, 10)
