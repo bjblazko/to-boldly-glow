@@ -58,7 +58,7 @@ export const MOONS: MoonDefinition[] = [
     orbitDistanceKm: 384_400,
     explorerOrbitVisualRadius: 1.7,
     siderealOrbitPeriodDays: 27.321661,
-    orbitInclinationToParentEquatorDegrees: 5.145,
+    orbitInclinationToParentEquatorDegrees: 5.145, // to the ecliptic, not Earth's equator - see field doc
     orbitAscendingNodeDegrees: 0,
     textureUrl: '/textures/moon.jpg',
   },
@@ -171,7 +171,7 @@ export const MOONS: MoonDefinition[] = [
     orbitDistanceKm: 354_759,
     explorerOrbitVisualRadius: 2.1,
     siderealOrbitPeriodDays: -5.876854,
-    orbitInclinationToParentEquatorDegrees: 157.3,
-    orbitAscendingNodeDegrees: 0,
+    orbitInclinationToParentEquatorDegrees: 157.3, // illustrative snapshot - real value precesses, see field doc
+    orbitAscendingNodeDegrees: 0, // illustrative, see field doc
   },
 ]
