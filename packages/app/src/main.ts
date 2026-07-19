@@ -86,7 +86,7 @@ async function main() {
   canvas.width = 800
   canvas.height = 600
 
-  const { device, context, format, depthTexture } = await initWebGpu(canvas)
+  const { device, context, format, depthTexture, multisampleColorTexture } = await initWebGpu(canvas)
   const litPipeline = await createLitPipeline(device, format)
   const unlitPipeline = await createUnlitPipeline(device, format)
 
@@ -186,10 +186,11 @@ async function main() {
     const pass = encoder.beginRenderPass({
       colorAttachments: [
         {
-          view: context.getCurrentTexture().createView(),
+          view: multisampleColorTexture.createView(),
+          resolveTarget: context.getCurrentTexture().createView(),
           clearValue: { r: 0.02, g: 0.02, b: 0.05, a: 1 },
           loadOp: 'clear',
-          storeOp: 'store',
+          storeOp: 'discard',
         },
       ],
       depthStencilAttachment: {

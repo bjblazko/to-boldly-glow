@@ -1,11 +1,14 @@
 import type { SphereMesh } from '../geometry/sphere'
 import { litSphereShaderCode, unlitSphereShaderCode } from './shaders'
 
+export const SAMPLE_COUNT = 4
+
 export interface GpuContext {
   device: GPUDevice
   context: GPUCanvasContext
   format: GPUTextureFormat
   depthTexture: GPUTexture
+  multisampleColorTexture: GPUTexture
 }
 
 export async function initWebGpu(canvas: HTMLCanvasElement): Promise<GpuContext> {
@@ -28,10 +31,18 @@ export async function initWebGpu(canvas: HTMLCanvasElement): Promise<GpuContext>
   const depthTexture = device.createTexture({
     size: [canvas.width, canvas.height],
     format: 'depth24plus',
+    sampleCount: SAMPLE_COUNT,
     usage: GPUTextureUsage.RENDER_ATTACHMENT,
   })
 
-  return { device, context, format, depthTexture }
+  const multisampleColorTexture = device.createTexture({
+    size: [canvas.width, canvas.height],
+    format,
+    sampleCount: SAMPLE_COUNT,
+    usage: GPUTextureUsage.RENDER_ATTACHMENT,
+  })
+
+  return { device, context, format, depthTexture, multisampleColorTexture }
 }
 
 const POSITION_BUFFER_LAYOUT: GPUVertexBufferLayout = {
@@ -63,6 +74,7 @@ export async function createLitPipeline(device: GPUDevice, format: GPUTextureFor
     // culling the true back faces.
     primitive: { topology: 'triangle-list', cullMode: 'back', frontFace: 'cw' },
     depthStencil: { depthWriteEnabled: true, depthCompare: 'less', format: 'depth24plus' },
+    multisample: { count: SAMPLE_COUNT },
   })
 }
 
@@ -84,6 +96,7 @@ export async function createUnlitPipeline(
     // second pipeline that shares the mesh.
     primitive: { topology: 'triangle-list', cullMode: 'back', frontFace: 'cw' },
     depthStencil: { depthWriteEnabled: true, depthCompare: 'less', format: 'depth24plus' },
+    multisample: { count: SAMPLE_COUNT },
   })
 }
 
