@@ -14,11 +14,18 @@ import { SimulationClock } from './time/simulationClock'
 import { TimeControlUI } from './time/timeControlUI'
 import { AU_KM, PLANETS, SUN, type BodyDefinition } from './solarSystem/bodies'
 import { scaledBodyRadiusUnits, scaledPosition } from './solarSystem/sceneScale'
+import { generateOrbitPathPositions } from './solarSystem/orbitPath'
 import {
+  createLinePipeline,
   createLitPipeline,
   createMeshBuffers,
+  createOrbitPathBuffer,
   createUnlitPipeline,
   initWebGpu,
+  // Not called until Task 6 wires it into the scale-blend slider's change handler (regenerates
+  // orbit paths on blend change).
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  updateOrbitPathBuffer,
   type MeshBuffers,
 } from './renderer/webgpu'
 
@@ -96,6 +103,39 @@ async function main() {
   const sunRenderable = createBodyRenderable(device, unlitPipeline, SUN, 20)
   const planetRenderables = PLANETS.map((planet) => createBodyRenderable(device, litPipeline, planet, 40))
 
+  // Temporary hardcoded value — Task 6 wires this to a UI slider (0 = realistic, 1 = explorer).
+  // Declared here (moved up from its original spot further down) because orbitPathRenderables
+  // below needs it in scope to generate its initial buffers.
+  const scaleBlend = 1
+
+  const linePipeline = await createLinePipeline(device, format)
+
+  interface OrbitPathRenderable {
+    definition: BodyDefinition
+    vertexBuffer: GPUBuffer
+    uniformBuffer: GPUBuffer
+    bindGroup: GPUBindGroup
+  }
+
+  const orbitPathRenderables: OrbitPathRenderable[] = PLANETS.map((planet) => {
+    const vertexBuffer = createOrbitPathBuffer(device, generateOrbitPathPositions(planet, scaleBlend))
+    const uniformBuffer = device.createBuffer({
+      label: `${planet.id} orbit path uniforms`,
+      size: 20 * 4,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    })
+    const bindGroup = device.createBindGroup({
+      layout: linePipeline.getBindGroupLayout(0),
+      entries: [{ binding: 0, resource: { buffer: uniformBuffer } }],
+    })
+    return { definition: planet, vertexBuffer, uniformBuffer, bindGroup }
+  })
+
+  // Stays `let`: Task 6 adds a checkbox handler that reassigns this to toggle orbit paths
+  // on/off; it's read-only until that lands.
+  // eslint-disable-next-line prefer-const
+  let showOrbitPaths = true
+
   const projection = mat4.perspective(mat4.create(), Math.PI / 4, canvas.width / canvas.height, 0.1, 1000)
 
   const orbitCamera = new OrbitCamera({ radius: 65, azimuth: 0, elevation: 0.4 })
@@ -119,9 +159,6 @@ async function main() {
     requireElement<HTMLInputElement>('#time-shuttle'),
     requireElement<HTMLElement>('#time-display'),
   )
-
-  // Temporary hardcoded value — Task 6 wires this to a UI slider (0 = realistic, 1 = explorer).
-  const scaleBlend = 1
 
   function drawBody(
     pass: GPURenderPassEncoder,
@@ -182,6 +219,16 @@ async function main() {
       device.queue.writeBuffer(renderable.uniformBuffer, 0, uniforms)
     }
 
+    if (showOrbitPaths) {
+      const viewProjection = mat4.multiply(mat4.create(), projection, view)
+      for (const path of orbitPathRenderables) {
+        const uniforms = new Float32Array(20)
+        uniforms.set(viewProjection, 0)
+        uniforms.set([...path.definition.color, 0.5], 16)
+        device.queue.writeBuffer(path.uniformBuffer, 0, uniforms)
+      }
+    }
+
     const encoder = device.createCommandEncoder({ label: 'frame encoder' })
     const pass = encoder.beginRenderPass({
       colorAttachments: [
@@ -203,6 +250,14 @@ async function main() {
     drawBody(pass, unlitPipeline, meshBuffers, sunRenderable.bindGroup)
     for (const renderable of planetRenderables) {
       drawBody(pass, litPipeline, meshBuffers, renderable.bindGroup)
+    }
+    if (showOrbitPaths) {
+      pass.setPipeline(linePipeline)
+      for (const path of orbitPathRenderables) {
+        pass.setVertexBuffer(0, path.vertexBuffer)
+        pass.setBindGroup(0, path.bindGroup)
+        pass.draw(129) // ORBIT_PATH_SEGMENTS + 1 points, see orbitPath.ts
+      }
     }
     pass.end()
     device.queue.submit([encoder.finish()])

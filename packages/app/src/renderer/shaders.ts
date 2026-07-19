@@ -64,3 +64,25 @@ fn fs() -> @location(0) vec4f {
   return uni.color;
 }
 `
+
+// Uniform layout: [0..16) worldViewProjection : mat4x4f, [16..20) color : vec4f
+// Positions supplied to this pipeline are already in world space (see orbitPath.ts), so
+// worldViewProjection here is really just projection * view — no separate world matrix needed.
+export const lineShaderCode = /* wgsl */ `
+struct Uniforms {
+  worldViewProjection: mat4x4f,
+  color: vec4f,
+};
+
+@group(0) @binding(0) var<uniform> uni: Uniforms;
+
+@vertex
+fn vs(@location(0) position: vec3f) -> @builtin(position) vec4f {
+  return uni.worldViewProjection * vec4f(position, 1.0);
+}
+
+@fragment
+fn fs() -> @location(0) vec4f {
+  return uni.color;
+}
+`

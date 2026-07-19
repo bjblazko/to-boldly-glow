@@ -1,5 +1,5 @@
 import type { SphereMesh } from '../geometry/sphere'
-import { litSphereShaderCode, unlitSphereShaderCode } from './shaders'
+import { lineShaderCode, litSphereShaderCode, unlitSphereShaderCode } from './shaders'
 
 export const SAMPLE_COUNT = 4
 
@@ -147,4 +147,39 @@ export function createMeshBuffers(device: GPUDevice, mesh: SphereMesh): MeshBuff
   device.queue.writeBuffer(indexBuffer, 0, mesh.indices as BufferSource)
 
   return { positionBuffer, normalBuffer, indexBuffer, indexCount: mesh.indices.length }
+}
+
+const LINE_POSITION_BUFFER_LAYOUT: GPUVertexBufferLayout = {
+  arrayStride: 3 * 4,
+  attributes: [{ shaderLocation: 0, offset: 0, format: 'float32x3' }],
+}
+
+export async function createLinePipeline(device: GPUDevice, format: GPUTextureFormat): Promise<GPURenderPipeline> {
+  const module = device.createShaderModule({ label: 'orbit line shader', code: lineShaderCode })
+  return await device.createRenderPipelineAsync({
+    label: 'orbit line pipeline',
+    layout: 'auto',
+    vertex: { module, entryPoint: 'vs', buffers: [LINE_POSITION_BUFFER_LAYOUT] },
+    fragment: { module, entryPoint: 'fs', targets: [{ format }] },
+    primitive: { topology: 'line-strip' },
+    multisample: { count: SAMPLE_COUNT },
+    // depthWriteEnabled: false — orbit lines shouldn't occlude each other or leave depth marks
+    // that could z-fight against the sphere meshes; depthCompare 'less' still hides line segments
+    // that pass behind a planet or the Sun.
+    depthStencil: { depthWriteEnabled: false, depthCompare: 'less', format: 'depth24plus' },
+  })
+}
+
+export function createOrbitPathBuffer(device: GPUDevice, initialPoints: Float32Array): GPUBuffer {
+  const buffer = device.createBuffer({
+    label: 'orbit path positions',
+    size: initialPoints.byteLength,
+    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+  })
+  device.queue.writeBuffer(buffer, 0, initialPoints as BufferSource)
+  return buffer
+}
+
+export function updateOrbitPathBuffer(device: GPUDevice, buffer: GPUBuffer, points: Float32Array): void {
+  device.queue.writeBuffer(buffer, 0, points as BufferSource)
 }
