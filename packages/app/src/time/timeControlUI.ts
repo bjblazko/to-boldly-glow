@@ -65,6 +65,9 @@ export class TimeControlUI {
   }
 
   private updatePlayPauseLabel(): void {
-    this.playPauseButton.textContent = this.clock.isPaused() ? 'Play' : 'Pause'
+    const paused = this.clock.isPaused()
+    this.playPauseButton.classList.toggle('is-paused', paused)
+    const label = this.playPauseButton.querySelector<HTMLElement>('.btn-label')
+    if (label) label.textContent = paused ? 'Play' : 'Pause'
   }
 }

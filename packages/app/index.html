@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <title>To Boldly Glow</title>
+    <link rel="stylesheet" href="/src/hud/hud.css" />
     <style>
       html, body {
         margin: 0;
@@ -26,91 +27,181 @@
       <canvas id="scene"></canvas>
       <div id="body-labels" style="position: absolute; inset: 0; pointer-events: none; overflow: hidden;"></div>
     </div>
-    <button
-      id="camera-mode-toggle"
-      style="position: fixed; top: 12px; left: 12px; padding: 8px 12px; font: 14px sans-serif;"
-    >
-      Switch to Free-fly Camera
-    </button>
-    <div
-      id="entity-search"
-      style="position: fixed; top: 56px; left: 12px; padding: 8px 12px; font: 14px sans-serif; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; width: 200px;"
-    >
-      <input
-        id="entity-search-input"
-        type="text"
-        placeholder="Search bodies…"
-        style="width: 100%; box-sizing: border-box;"
-      />
-      <div id="entity-search-results" style="max-height: 160px; overflow-y: auto;"></div>
+
+    <!-- Monochrome line-icon set, referenced elsewhere via <svg class="icon"><use href="#icon-name"/></svg> -->
+    <svg class="icon-sprite" aria-hidden="true">
+      <symbol id="icon-camera" viewBox="0 0 24 24">
+        <path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2l1-2h7l1 2h2A1.5 1.5 0 0 1 20 8.5v9A1.5 1.5 0 0 1 18.5 19h-13A1.5 1.5 0 0 1 4 17.5v-9Z" />
+        <circle cx="12" cy="13" r="3.4" />
+      </symbol>
+      <symbol id="icon-clock" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="8.25" />
+        <path d="M12 7.5V12l3.2 2" />
+      </symbol>
+      <symbol id="icon-layers" viewBox="0 0 24 24">
+        <path d="M12 3.5 21 8.5 12 13.5 3 8.5 12 3.5Z" />
+        <path d="M3 12.5 12 17.5 21 12.5" />
+        <path d="M3 16.5 12 21.5 21 16.5" />
+      </symbol>
+      <symbol id="icon-search" viewBox="0 0 24 24">
+        <circle cx="10.5" cy="10.5" r="6" />
+        <path d="M15.2 15.2 20 20" />
+      </symbol>
+      <symbol id="icon-close" viewBox="0 0 24 24">
+        <path d="M6 6l12 12M18 6 6 18" />
+      </symbol>
+      <symbol id="icon-play" viewBox="0 0 24 24">
+        <path d="M8 5.5v13l11-6.5-11-6.5Z" />
+      </symbol>
+      <symbol id="icon-pause" viewBox="0 0 24 24">
+        <path d="M9 6v12M15 6v12" />
+      </symbol>
+      <symbol id="icon-reverse" viewBox="0 0 24 24">
+        <path d="M4 9.5h13.5M13.5 5.5l4 4-4 4" />
+        <path d="M20 14.5H6.5M10.5 18.5l-4-4 4-4" />
+      </symbol>
+      <symbol id="icon-rewind" viewBox="0 0 24 24">
+        <path d="M13 6l-6 6 6 6M19 6l-6 6 6 6" />
+      </symbol>
+      <symbol id="icon-forward" viewBox="0 0 24 24">
+        <path d="M11 6l6 6-6 6M5 6l6 6-6 6" />
+      </symbol>
+      <symbol id="icon-check" viewBox="0 0 24 24">
+        <path d="M5 12.5l4.5 4.5L19 7" />
+      </symbol>
+    </svg>
+
+    <div class="hud-sheet" id="hud-sheet">
+      <div class="hud-sheet-panel" data-panel="camera">
+        <button id="camera-mode-toggle" class="hud-btn hud-btn-primary" type="button">
+          <svg class="icon" aria-hidden="true"><use href="#icon-camera"></use></svg>
+          <span class="btn-label">Switch to Free-fly Camera</span>
+        </button>
+        <div class="hud-search">
+          <svg class="icon" aria-hidden="true"><use href="#icon-search"></use></svg>
+          <input id="entity-search-input" type="text" placeholder="Search bodies…" />
+        </div>
+        <div id="entity-search-results"></div>
+        <div id="follow-indicator" class="hud-chip">
+          <span id="follow-indicator-label"></span>
+          <button id="follow-stop-button" class="hud-chip-close" type="button" aria-label="Stop following">
+            <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="hud-sheet-panel" data-panel="time">
+        <div class="hud-row">
+          <button id="time-play-pause" class="hud-icon-btn" type="button">
+            <svg class="icon icon-pause-glyph" aria-hidden="true"><use href="#icon-pause"></use></svg>
+            <svg class="icon icon-play-glyph" aria-hidden="true"><use href="#icon-play"></use></svg>
+            <span class="btn-label">Pause</span>
+          </button>
+          <button id="time-reverse" class="hud-icon-btn" type="button" aria-label="Reverse direction">
+            <svg class="icon" aria-hidden="true"><use href="#icon-reverse"></use></svg>
+          </button>
+          <select id="time-preset-select" class="hud-select"></select>
+        </div>
+
+        <div>
+          <div class="hud-shuttle">
+            <svg class="icon hud-shuttle-end" aria-hidden="true"><use href="#icon-rewind"></use></svg>
+            <div class="hud-shuttle-track-wrap">
+              <div class="hud-shuttle-track">
+                <div class="hud-shuttle-fill" id="time-shuttle-fill"></div>
+                <div class="hud-shuttle-center"></div>
+              </div>
+              <input
+                id="time-shuttle"
+                class="hud-range hud-shuttle-input"
+                type="range"
+                min="-100"
+                max="100"
+                value="0"
+                aria-label="Time rate — negative rewinds, positive fast-forwards, center is stopped"
+              />
+            </div>
+            <svg class="icon hud-shuttle-end" aria-hidden="true"><use href="#icon-forward"></use></svg>
+          </div>
+          <div class="hud-shuttle-labels" aria-hidden="true">
+            <span>Past</span>
+            <span class="hud-shuttle-now">Now</span>
+            <span>Future</span>
+          </div>
+        </div>
+
+        <div class="hud-row-between">
+          <span>Realistic</span>
+          <input id="scale-slider" class="hud-range" type="range" min="0" max="100" value="100" />
+          <span>Explorer</span>
+        </div>
+
+        <div id="time-display" class="hud-readout">—</div>
+      </div>
+
+      <div class="hud-sheet-panel" data-panel="display">
+        <div class="hud-toggle-grid">
+          <label class="hud-toggle-chip">
+            <input id="orbit-paths-toggle" type="checkbox" checked />
+            <span class="hud-toggle-visual">
+              <svg class="icon icon-check" aria-hidden="true"><use href="#icon-check"></use></svg>
+              Orbit paths
+            </span>
+          </label>
+          <label class="hud-toggle-chip">
+            <input id="body-labels-toggle" type="checkbox" checked />
+            <span class="hud-toggle-visual">
+              <svg class="icon icon-check" aria-hidden="true"><use href="#icon-check"></use></svg>
+              Labels
+            </span>
+          </label>
+          <label class="hud-toggle-chip">
+            <input id="starfield-toggle" type="checkbox" checked />
+            <span class="hud-toggle-visual">
+              <svg class="icon icon-check" aria-hidden="true"><use href="#icon-check"></use></svg>
+              Stars
+            </span>
+          </label>
+          <label class="hud-toggle-chip">
+            <input id="bloom-toggle" type="checkbox" checked />
+            <span class="hud-toggle-visual">
+              <svg class="icon icon-check" aria-hidden="true"><use href="#icon-check"></use></svg>
+              Bloom
+            </span>
+          </label>
+          <label class="hud-toggle-chip">
+            <input id="flares-toggle" type="checkbox" checked />
+            <span class="hud-toggle-visual">
+              <svg class="icon icon-check" aria-hidden="true"><use href="#icon-check"></use></svg>
+              Lens flares
+            </span>
+          </label>
+          <label class="hud-toggle-chip">
+            <input id="moons-toggle" type="checkbox" checked />
+            <span class="hud-toggle-visual">
+              <svg class="icon icon-check" aria-hidden="true"><use href="#icon-check"></use></svg>
+              Moons
+            </span>
+          </label>
+        </div>
+      </div>
     </div>
-    <div
-      id="follow-indicator"
-      style="position: fixed; top: 12px; left: 224px; padding: 8px 12px; font: 14px sans-serif; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; display: none; align-items: center; gap: 8px;"
-    >
-      <span id="follow-indicator-label"></span>
-      <button id="follow-stop-button">×</button>
-    </div>
-    <div
-      id="time-controls"
-      style="position: fixed; bottom: 12px; left: 12px; padding: 8px 12px; font: 14px sans-serif; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; display: flex; align-items: center; gap: 8px;"
-    >
-      <button id="time-play-pause">Pause</button>
-      <button id="time-reverse">Reverse Direction</button>
-      <select id="time-preset-select"></select>
-      <input id="time-shuttle" type="range" min="-100" max="100" value="0" style="width: 150px;" />
-      <span id="time-display">—</span>
-    </div>
-    <div
-      id="scale-controls"
-      style="position: fixed; top: 12px; right: 12px; padding: 8px 12px; font: 14px sans-serif; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; display: flex; align-items: center; gap: 8px;"
-    >
-      <span>Realistic</span>
-      <input id="scale-slider" type="range" min="0" max="100" value="100" style="width: 150px;" />
-      <span>Explorer</span>
-    </div>
-    <label
-      id="orbit-paths-label"
-      style="position: fixed; top: 56px; right: 12px; padding: 8px 12px; font: 14px sans-serif; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; display: flex; align-items: center; gap: 8px; cursor: pointer;"
-    >
-      <input id="orbit-paths-toggle" type="checkbox" checked />
-      Show orbit paths
-    </label>
-    <label
-      id="body-labels-label"
-      style="position: fixed; top: 100px; right: 12px; padding: 8px 12px; font: 14px sans-serif; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; display: flex; align-items: center; gap: 8px; cursor: pointer;"
-    >
-      <input id="body-labels-toggle" type="checkbox" checked />
-      Show labels
-    </label>
-    <label
-      id="starfield-label"
-      style="position: fixed; top: 144px; right: 12px; padding: 8px 12px; font: 14px sans-serif; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; display: flex; align-items: center; gap: 8px; cursor: pointer;"
-    >
-      <input id="starfield-toggle" type="checkbox" checked />
-      Show stars
-    </label>
-    <label
-      id="bloom-label"
-      style="position: fixed; top: 188px; right: 12px; padding: 8px 12px; font: 14px sans-serif; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; display: flex; align-items: center; gap: 8px; cursor: pointer;"
-    >
-      <input id="bloom-toggle" type="checkbox" checked />
-      Show bloom
-    </label>
-    <label
-      id="flares-label"
-      style="position: fixed; top: 232px; right: 12px; padding: 8px 12px; font: 14px sans-serif; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; display: flex; align-items: center; gap: 8px; cursor: pointer;"
-    >
-      <input id="flares-toggle" type="checkbox" checked />
-      Show lens flares
-    </label>
-    <label
-      id="moons-label"
-      style="position: fixed; top: 276px; right: 12px; padding: 8px 12px; font: 14px sans-serif; background: rgba(0,0,0,0.6); color: white; border-radius: 4px; display: flex; align-items: center; gap: 8px; cursor: pointer;"
-    >
-      <input id="moons-toggle" type="checkbox" checked />
-      Show moons
-    </label>
+
+    <nav class="hud-dock" aria-label="Controls">
+      <button class="hud-dock-btn" data-panel="camera" type="button">
+        <svg class="icon" aria-hidden="true"><use href="#icon-camera"></use></svg>
+        <span class="hud-dock-label">Camera</span>
+      </button>
+      <button class="hud-dock-btn" data-panel="time" type="button">
+        <svg class="icon" aria-hidden="true"><use href="#icon-clock"></use></svg>
+        <span class="hud-dock-label">Time</span>
+      </button>
+      <button class="hud-dock-btn" data-panel="display" type="button">
+        <svg class="icon" aria-hidden="true"><use href="#icon-layers"></use></svg>
+        <span class="hud-dock-label">Display</span>
+      </button>
+    </nav>
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

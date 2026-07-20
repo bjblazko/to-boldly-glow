@@ -1,0 +1,493 @@
+/* Explorer Deck: a floating bottom dock (Camera / Time / Display) that raises a contextual sheet.
+   Dark space app only — no light-mode variant, since the HUD floats over a rendered night sky. */
+
+:root {
+  --hud-text: #f5f5f7;
+  --hud-dim: #9da0ac;
+  --hud-panel: rgba(22, 24, 32, 0.9);
+  --hud-panel-border: rgba(255, 255, 255, 0.09);
+  --hud-control-bg: rgba(255, 255, 255, 0.05);
+  --hud-control-border: rgba(255, 255, 255, 0.09);
+
+  --hud-accent-camera: #6c7bff;
+  --hud-accent-camera-tint: rgba(108, 123, 255, 0.16);
+  --hud-accent-time: #ffb454;
+  --hud-accent-time-tint: rgba(255, 180, 84, 0.16);
+  --hud-accent-display: #4fd8c4;
+  --hud-accent-display-tint: rgba(79, 216, 196, 0.16);
+  --hud-shuttle-past: #6fc7e8;
+}
+
+.hud-dock,
+.hud-sheet,
+.hud-toggle-chip,
+.hud-search,
+#entity-search-results {
+  font-family:
+    -apple-system, 'Segoe UI', Roboto, ui-sans-serif, system-ui, sans-serif;
+  color: var(--hud-text);
+}
+
+/* -------------------- icons -------------------- */
+.icon-sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+.icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* -------------------- dock -------------------- */
+.hud-dock {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+  background: var(--hud-panel);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--hud-panel-border);
+  border-radius: 20px;
+  padding: 8px;
+  box-shadow: 0 16px 32px -16px rgba(0, 0, 0, 0.65);
+  z-index: 2;
+}
+.hud-dock-btn {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  background: transparent;
+  color: var(--hud-dim);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 9px 18px;
+  border-radius: 14px;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 68px;
+}
+.hud-dock-btn:hover {
+  color: var(--hud-text);
+}
+.hud-dock-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+.hud-dock-btn[data-panel='camera'].is-active {
+  background: var(--hud-accent-camera-tint);
+  color: #c1c8ff;
+}
+.hud-dock-btn[data-panel='time'].is-active {
+  background: var(--hud-accent-time-tint);
+  color: #ffd8a8;
+}
+.hud-dock-btn[data-panel='display'].is-active {
+  background: var(--hud-accent-display-tint);
+  color: #a9f3e7;
+}
+
+/* -------------------- sheet -------------------- */
+.hud-sheet {
+  position: fixed;
+  left: 50%;
+  bottom: 84px;
+  transform: translate(-50%, 10px);
+  width: min(420px, calc(100vw - 32px));
+  background: var(--hud-panel);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--hud-panel-border);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 20px 44px -18px rgba(0, 0, 0, 0.65);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform 0.16s ease,
+    opacity 0.16s ease;
+  z-index: 2;
+}
+.hud-sheet.is-open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, 0);
+}
+.hud-sheet-panel {
+  display: none;
+  flex-direction: column;
+  gap: 14px;
+}
+.hud-sheet-panel.is-active {
+  display: flex;
+}
+
+/* -------------------- shared controls -------------------- */
+.hud-btn {
+  appearance: none;
+  border: 1px solid var(--hud-control-border);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--hud-text);
+  background: var(--hud-control-bg);
+  padding: 10px 14px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hud-btn:hover {
+  background: rgba(255, 255, 255, 0.09);
+}
+.hud-btn-primary {
+  background: var(--hud-accent-camera);
+  border-color: var(--hud-accent-camera);
+}
+.hud-btn-primary:hover {
+  background: #7d8aff;
+}
+
+.hud-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--hud-control-bg);
+  border: 1px solid var(--hud-control-border);
+  border-radius: 12px;
+  padding: 9px 12px;
+}
+.hud-search .icon {
+  color: var(--hud-dim);
+}
+.hud-search input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: 13.5px;
+  color: var(--hud-text);
+  background: transparent;
+  border: none;
+  outline: none;
+}
+.hud-search input::placeholder {
+  color: var(--hud-dim);
+}
+
+#entity-search-results {
+  max-height: 160px;
+  overflow-y: auto;
+}
+#entity-search-results:not(:empty) {
+  border: 1px solid var(--hud-control-border);
+  border-radius: 12px;
+  padding: 4px;
+  margin-top: -4px;
+}
+#entity-search-results div {
+  border-radius: 8px;
+  padding: 7px 10px !important;
+  font-size: 13px;
+}
+#entity-search-results div:hover {
+  background: var(--hud-accent-camera-tint);
+}
+
+.hud-chip {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  background: var(--hud-accent-camera-tint);
+  color: #c1c8ff;
+  border-radius: 999px;
+  padding: 7px 8px 7px 14px;
+  font-size: 13px;
+}
+.hud-chip-close {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+.hud-chip-close .icon {
+  width: 11px;
+  height: 11px;
+}
+
+.hud-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.hud-row-between {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11.5px;
+  color: var(--hud-dim);
+  letter-spacing: 0.02em;
+}
+
+.hud-icon-btn {
+  position: relative;
+  appearance: none;
+  border: 1px solid var(--hud-control-border);
+  cursor: pointer;
+  background: var(--hud-control-bg);
+  color: var(--hud-text);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font: inherit;
+}
+.hud-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+#time-play-pause .btn-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.icon-play-glyph {
+  display: none;
+}
+#time-play-pause.is-paused .icon-pause-glyph {
+  display: none;
+}
+#time-play-pause.is-paused .icon-play-glyph {
+  display: block;
+}
+
+.hud-select {
+  font: inherit;
+  font-size: 13px;
+  color: var(--hud-text);
+  background: var(--hud-control-bg);
+  border: 1px solid var(--hud-control-border);
+  border-radius: 10px;
+  padding: 9px 10px;
+}
+
+.hud-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 20px;
+  background: transparent;
+  cursor: pointer;
+}
+.hud-range::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+}
+.hud-range::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+}
+.hud-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  margin-top: -6px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--hud-accent-time);
+}
+.hud-range::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--hud-accent-time);
+}
+.hud-range:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+.hud-readout {
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  color: var(--hud-dim);
+}
+
+/* -------------------- time shuttle: center = 0, left = past, right = future -------------------- */
+.hud-shuttle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hud-shuttle-end {
+  color: var(--hud-dim);
+  width: 15px;
+  height: 15px;
+}
+.hud-shuttle-track-wrap {
+  position: relative;
+  flex: 1;
+  height: 20px;
+  display: flex;
+  align-items: center;
+}
+.hud-shuttle-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  overflow: visible;
+}
+.hud-shuttle-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-radius: 999px;
+  background: var(--hud-accent-time);
+}
+.hud-shuttle-fill.is-past {
+  background: var(--hud-shuttle-past);
+}
+/* The zero-mark: a bright tick straddling the track, always visible regardless of thumb position. */
+.hud-shuttle-center {
+  position: absolute;
+  left: 50%;
+  top: -5px;
+  bottom: -5px;
+  width: 2px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.14);
+}
+.hud-shuttle-input {
+  position: relative;
+  z-index: 1;
+}
+.hud-shuttle-input::-webkit-slider-runnable-track {
+  background: transparent;
+}
+.hud-shuttle-input::-moz-range-track {
+  background: transparent;
+}
+.hud-shuttle-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--hud-dim);
+  margin-top: -6px;
+  padding: 0 1px;
+}
+.hud-shuttle-labels .hud-shuttle-now {
+  color: var(--hud-text);
+}
+
+/* -------------------- display toggles -------------------- */
+.hud-toggle-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.hud-toggle-chip {
+  position: relative;
+  display: block;
+  border-radius: 12px;
+}
+.hud-toggle-chip input[type='checkbox'] {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 1;
+}
+.hud-toggle-visual {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--hud-dim);
+  background: var(--hud-control-bg);
+  border: 1px solid var(--hud-control-border);
+  border-radius: 12px;
+  padding: 9px 10px;
+}
+.hud-toggle-visual .icon-check {
+  width: 13px;
+  height: 13px;
+  color: var(--hud-accent-display);
+  opacity: 0;
+  transform: scale(0.5);
+  transition:
+    opacity 0.12s ease,
+    transform 0.12s ease;
+}
+.hud-toggle-chip input:checked ~ .hud-toggle-visual {
+  color: #a9f3e7;
+  background: var(--hud-accent-display-tint);
+  border-color: rgba(79, 216, 196, 0.3);
+}
+.hud-toggle-chip input:checked ~ .hud-toggle-visual .icon-check {
+  opacity: 1;
+  transform: scale(1);
+}
+.hud-toggle-chip input:focus-visible ~ .hud-toggle-visual {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* -------------------- following chip default state -------------------- */
+#follow-indicator {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-sheet {
+    transition: none;
+  }
+  .hud-toggle-visual .icon-check {
+    transition: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .hud-dock-btn {
+    min-width: 0;
+    padding: 9px 12px;
+  }
+  .hud-dock-label {
+    display: none;
+  }
+}

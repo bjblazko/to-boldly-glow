@@ -11,6 +11,8 @@ import { TimeControlUI } from './time/timeControlUI'
 import { AU_KM, PLANETS, SUN, type BodyDefinition } from './solarSystem/bodies'
 import { planetAuPosition } from './solarSystem/entities'
 import { EntitySearchUI } from './search/entitySearchUI'
+import { DockUI } from './hud/dockUI'
+import { initShuttleVisual } from './hud/shuttleVisual'
 import { scaledBodyRadiusUnits, scaledPosition } from './solarSystem/sceneScale'
 import { generateOrbitPathPositions } from './solarSystem/orbitPath'
 import { rotationAngleRadians } from './solarSystem/rotation'
@@ -428,10 +430,11 @@ async function main() {
   const cameraInput = new CameraInputController(canvas, orbitCamera, flyCamera)
 
   const modeToggleButton = document.querySelector<HTMLButtonElement>('#camera-mode-toggle')
+  const modeToggleLabel = modeToggleButton?.querySelector<HTMLElement>('.btn-label')
   function setCameraMode(mode: 'orbit' | 'fly') {
     cameraInput.setMode(mode)
-    if (modeToggleButton) {
-      modeToggleButton.textContent = mode === 'orbit' ? 'Switch to Free-fly Camera' : 'Switch to Orbit Camera'
+    if (modeToggleLabel) {
+      modeToggleLabel.textContent = mode === 'orbit' ? 'Switch to Free-fly Camera' : 'Switch to Orbit Camera'
     }
   }
   modeToggleButton?.addEventListener('click', () => {
@@ -447,6 +450,13 @@ async function main() {
     requireElement<HTMLInputElement>('#time-shuttle'),
     requireElement<HTMLElement>('#time-display'),
   )
+
+  new DockUI(
+    document.querySelectorAll<HTMLButtonElement>('.hud-dock-btn'),
+    requireElement<HTMLElement>('#hud-sheet'),
+    document.querySelectorAll<HTMLElement>('.hud-sheet-panel'),
+  )
+  initShuttleVisual(requireElement<HTMLInputElement>('#time-shuttle'), requireElement<HTMLElement>('#time-shuttle-fill'))
 
   const cameraFollow = new CameraFollowController(orbitCamera)
   const entitySearchUI = new EntitySearchUI(

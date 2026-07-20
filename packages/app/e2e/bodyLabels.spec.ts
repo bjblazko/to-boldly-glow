@@ -16,6 +16,8 @@ test('body labels show each name and can be toggled off', async ({ page }) => {
   // Positive control: unchecking the toggle actually hides the labels container, not just the
   // checkbox's own visual state. (Mirrors the scale-slider/orbit-paths positive-control pattern
   // in solarSystem.spec.ts.)
+  // Display toggles live behind the dock's "Display" sheet — open it before interacting.
+  await page.locator('.hud-dock-btn[data-panel="display"]').click()
   const toggle = page.locator('#body-labels-toggle')
   await expect(toggle).toBeChecked()
   await expect(page.locator('#body-labels')).toBeVisible()

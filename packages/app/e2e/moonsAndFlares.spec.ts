@@ -7,6 +7,9 @@ test('moons and lens flares can each be toggled independently', async ({ page })
   await page.goto('/')
   await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
 
+  // Display toggles live behind the dock's "Display" sheet — open it before interacting.
+  await page.locator('.hud-dock-btn[data-panel="display"]').click()
+
   const moonsToggle = page.locator('#moons-toggle')
   await expect(moonsToggle).toBeChecked()
   await moonsToggle.uncheck()

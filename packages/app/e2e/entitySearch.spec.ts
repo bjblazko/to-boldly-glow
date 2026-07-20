@@ -7,6 +7,9 @@ test('searching and selecting an entity locks the camera onto it', async ({ page
   await page.goto('/')
   await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
 
+  // Camera/search controls live behind the dock's "Camera" sheet — open it before interacting.
+  await page.locator('.hud-dock-btn[data-panel="camera"]').click()
+
   await page.locator('#entity-search-input').fill('Titan')
   await page.locator('#entity-search-results').getByText('Titan (Moon)', { exact: true }).click()
 
@@ -24,6 +27,9 @@ test('searching and selecting an entity locks the camera onto it', async ({ page
 test('selecting a search result while in fly mode forces the camera back to orbit mode', async ({ page }) => {
   await page.goto('/')
   await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+
+  // Camera/search controls live behind the dock's "Camera" sheet — open it before interacting.
+  await page.locator('.hud-dock-btn[data-panel="camera"]').click()
 
   const modeToggle = page.locator('#camera-mode-toggle')
   await modeToggle.click()

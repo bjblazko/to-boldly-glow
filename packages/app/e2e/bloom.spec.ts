@@ -12,6 +12,9 @@ test('bloom post-processing initializes and can be toggled', async ({ page }) =>
   // DOM.
   await expect(page.locator('#scene')).toHaveAttribute('data-bloom-supported', 'true')
 
+  // Display toggles live behind the dock's "Display" sheet — open it before interacting.
+  await page.locator('.hud-dock-btn[data-panel="display"]').click()
+
   const toggle = page.locator('#bloom-toggle')
   await expect(toggle).toBeChecked()
   await toggle.uncheck()

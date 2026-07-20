@@ -8,6 +8,9 @@ test('pausing the clock stops the time display from advancing (with a positive c
   // Wait for main() to finish booting (see scaffold.spec.ts) so the clock and UI are wired up.
   await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
 
+  // Time controls live behind the dock's "Time" sheet — open it before interacting.
+  await page.locator('.hud-dock-btn[data-panel="time"]').click()
+
   // Positive control: select the fastest preset so the (minute-granularity) display is guaranteed
   // to advance within a short, reliable wait. Without this half, the test below could pass for the
   // wrong reason — e.g. if refreshDisplay() were dropped from the frame loop entirely, both
@@ -37,6 +40,9 @@ test('preset dropdown lists the expected options in order', async ({ page }) => 
 test('selecting the "1 year/s" preset makes the display advance rapidly', async ({ page }) => {
   await page.goto('/')
   await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+
+  // Time controls live behind the dock's "Time" sheet — open it before interacting.
+  await page.locator('.hud-dock-btn[data-panel="time"]').click()
 
   const beforeReading = await page.locator('#time-display').textContent()
 
