@@ -423,7 +423,8 @@ fn fs(in: VertexOutput) -> @location(0) vec4f {
 //   [4..6)  ndcCenter  : vec2f
 //   [6..8)  sizeNdc    : vec2f
 //   [8]     ndcDepth   : f32
-//   [9]     bladeCount : f32 (0 = anamorphic streak mode; otherwise a 5-9 sided aperture polygon)
+//   [9]     bladeCount : f32 (< -0.5 = corona/halo mode; 0 = anamorphic streak mode; otherwise a
+//                              5-9 sided aperture polygon)
 //   [10]    rotation   : f32 (radians; varies the polygon's orientation between ghosts)
 //                              (struct rounds up to 12 floats / 48 bytes; float 11 is padding)
 //
@@ -434,12 +435,17 @@ fn fs(in: VertexOutput) -> @location(0) vec4f {
 // NDC depth (same convention as every other depth-tested draw in this renderer), so
 // depthCompare 'less' against the scene's existing depth buffer (populated by the main pass,
 // drawn beforehand) makes planets naturally occlude the flare per-pixel with no CPU readback.
+// Every flare's color.rgb is additionally faded each frame by how much of the Sun's actual screen-
+// space disc is covered by a nearer body (see circleOverlap.ts + main.ts's per-frame computation)
+// — a smooth analytic dim rather than this per-pixel depth cutoff popping on/off at the silhouette;
+// the two mechanisms are complementary (global soft dimmer vs. local hard silhouette clip).
 //
-// Two shapes, chosen per-instance by main.ts's FLARE_SPECS: a regular N-gon (5-9 sides) evaluated
+// Three shapes, chosen per-instance by main.ts's FLARE_SPECS: a regular N-gon (5-9 sides) evaluated
 // via a polar signed-distance function — mimicking a real camera's aperture-blade diaphragm,
 // which is what actually produces polygonal "ghost" artifacts and bokeh in a lens flare, rather
-// than the plain circular blobs (easily mistaken for tiny planets) this shader used before — and
-// a thin, wide horizontal streak, the signature look of an anamorphic lens flare.
+// than the plain circular blobs (easily mistaken for tiny planets) this shader used before — a
+// thin, wide horizontal streak, the signature look of an anamorphic lens flare — and a soft radial
+// corona/halo centered directly on the Sun.
 export const flareShaderCode = /* wgsl */ `
 struct Uniforms {
   color: vec4f,
@@ -472,7 +478,15 @@ fn vs(@builtin(vertex_index) vertexIndex: u32) -> VertexOutput {
 @fragment
 fn fs(in: VertexOutput) -> @location(0) vec4f {
   var intensity: f32;
-  if (uni.bladeCount < 0.5) {
+  if (uni.bladeCount < -0.5) {
+    // Corona/halo: a soft radial glow centered on the Sun itself (no polygon faceting) — a bright
+    // core falling off quickly, plus a fainter, wider skirt for a softer overall halo than the
+    // aperture ghosts or the bloom pass alone produce.
+    let d = length(in.uv);
+    let core = pow(smoothstep(1.0, 0.0, d), 3.0);
+    let skirt = pow(smoothstep(1.0, 0.0, d), 0.5);
+    intensity = core + 0.3 * skirt;
+  } else if (uni.bladeCount < 0.5) {
     // Anamorphic streak: thin in Y, a soft wide plateau in X (not a point falloff), so it reads
     // as a stretched smear of light through the source rather than an ellipse.
     let vertical = smoothstep(1.0, 0.0, abs(in.uv.y));

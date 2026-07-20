@@ -30,6 +30,7 @@ import {
 import { worldToScreen, type ScreenPosition } from './renderer/screenProjection'
 import { computeCanvasSize } from './renderer/canvasSize'
 import { LIT_UNIFORM_FLOAT_COUNT } from './renderer/shaders'
+import { circleOverlapFraction } from './renderer/circleOverlap'
 import {
   createBodySampler,
   createFlarePipeline,
@@ -96,7 +97,8 @@ const HDR_BACKGROUND_CLEAR_VALUE: GPUColorDict = { r: 0.02 ** 2.2, g: 0.02 ** 2.
 // plus several aperture-blade "ghost" artifacts along the line from the Sun through screen center
 // (t=0.5 lands exactly on center; t>0.5 overshoots to the mirrored side) — the classic
 // real-lens-flare placement. bladeCount is the aperture polygon's side count (a real camera's iris
-// shape); 0 selects the anamorphic-streak shape instead of a polygon. Sizes are in pixels.
+// shape); 0 selects the anamorphic-streak shape instead of a polygon; -1 selects a soft radial
+// corona/halo centered directly on the Sun (t=0, no mirror offset). Sizes are in pixels.
 interface FlareSpec {
   widthPx: number
   heightPx: number
@@ -106,6 +108,7 @@ interface FlareSpec {
   rotation: number
 }
 const FLARE_SPECS: FlareSpec[] = [
+  { widthPx: 260, heightPx: 260, color: [1.0, 0.9, 0.7, 0.35], t: 0, bladeCount: -1, rotation: 0 },
   { widthPx: 800, heightPx: 4, color: [0.65, 0.8, 1.0, 0.5], t: 0, bladeCount: 0, rotation: 0 },
   { widthPx: 90, heightPx: 90, color: [1.0, 0.85, 0.55, 0.4], t: 0, bladeCount: 8, rotation: 0.3 },
   { widthPx: 34, heightPx: 34, color: [0.55, 0.75, 1.0, 0.35], t: 0.6, bladeCount: 6, rotation: 0.5 },
@@ -592,23 +595,14 @@ async function main() {
     // The Sun always sits at the world origin, so its clip-space position simplifies to just the
     // view-projection matrix's translation column (see worldToScreen for the general case this
     // specializes). sunClipW <= 0 means the Sun is behind the camera; skip the flare entirely then.
+    // The flare uniforms themselves aren't written until after planet/moon positions are known
+    // further below (see the disc-coverage fade computation there) — this only computes the parts
+    // that don't depend on body positions.
     const sunClipW = viewProjection[15]
     const sunFlareVisible = showFlares && sunClipW > 0
-    if (sunFlareVisible) {
-      const sunNdcX = viewProjection[12] / sunClipW
-      const sunNdcY = viewProjection[13] / sunClipW
-      const sunNdcZ = viewProjection[14] / sunClipW
-      for (const flare of flareRenderables) {
-        const { widthPx, heightPx, color, t, bladeCount, rotation } = flare.spec
-        const mirrorFactor = 1 - 2 * t
-        const flareUniforms = new Float32Array(12)
-        flareUniforms.set(color, 0)
-        flareUniforms.set([sunNdcX * mirrorFactor, sunNdcY * mirrorFactor], 4)
-        flareUniforms.set([(widthPx * 2) / canvas.width, (heightPx * 2) / canvas.height], 6)
-        flareUniforms.set([sunNdcZ, bladeCount, rotation], 8)
-        device.queue.writeBuffer(flare.uniformBuffer, 0, flareUniforms)
-      }
-    }
+    const sunNdcX = sunClipW > 0 ? viewProjection[12] / sunClipW : 0
+    const sunNdcY = sunClipW > 0 ? viewProjection[13] / sunClipW : 0
+    const sunNdcZ = sunClipW > 0 ? viewProjection[14] / sunClipW : 0
 
     if (showBodyLabels) {
       // Label positions feed CSS `left`/`top` on DOM elements, so they need CSS pixels
@@ -711,6 +705,64 @@ async function main() {
       // moons also cast no shadows (moonOccludersByParentId stays empty), matching what's rendered.
       for (const moon of MOONS) {
         labelElements.get(moon.id)!.style.display = 'none'
+      }
+    }
+
+    if (sunFlareVisible) {
+      // How much of the Sun's own screen-space disc is covered by a nearer body (any planet or
+      // moon), as a smooth [0,1] fraction rather than the flare pipeline's per-pixel depth test
+      // alone (see circleOverlap.ts and flareShaderCode's doc comment for why the two are
+      // complementary, not redundant). Needs planet/moon positions, hence computed here rather
+      // than earlier alongside sunClipW/sunNdc.
+      const cameraRight: [number, number, number] = [view[0], view[4], view[8]]
+      function screenSpaceBody(x: number, y: number, z: number, worldRadius: number) {
+        const center = worldToScreen(viewProjection, x, y, z, canvas.width, canvas.height)
+        const edge = worldToScreen(
+          viewProjection,
+          x + cameraRight[0] * worldRadius,
+          y + cameraRight[1] * worldRadius,
+          z + cameraRight[2] * worldRadius,
+          canvas.width,
+          canvas.height,
+        )
+        return { center, screenRadius: Math.hypot(edge.x - center.x, edge.y - center.y) }
+      }
+      const sunDistanceToCamera = Math.hypot(...cameraPosition)
+      const sunScreen = screenSpaceBody(0, 0, 0, sunRadius)
+      const occludingBodies: Array<{ x: number; y: number; z: number; radius: number }> = [
+        ...planetFrameData.map(({ x, y, z, radius }) => ({ x, y, z, radius })),
+        ...[...moonOccludersByParentId.values()].flat().map(([x, y, z, radius]) => ({ x, y, z, radius })),
+      ]
+      let sunVisibleFraction = 1
+      for (const body of occludingBodies) {
+        const distanceToCamera = Math.hypot(body.x - cameraPosition[0], body.y - cameraPosition[1], body.z - cameraPosition[2])
+        if (distanceToCamera >= sunDistanceToCamera) continue // only nearer bodies can occlude the Sun
+        const bodyScreen = screenSpaceBody(body.x, body.y, body.z, body.radius)
+        if (!bodyScreen.center.visible) continue
+        const separation = Math.hypot(bodyScreen.center.x - sunScreen.center.x, bodyScreen.center.y - sunScreen.center.y)
+        const overlap = circleOverlapFraction(sunScreen.screenRadius, bodyScreen.screenRadius, separation)
+        sunVisibleFraction = Math.min(sunVisibleFraction, 1 - overlap)
+      }
+      sunVisibleFraction = Math.max(0, sunVisibleFraction)
+
+      for (const flare of flareRenderables) {
+        const { widthPx, heightPx, color, t, bladeCount, rotation } = flare.spec
+        const mirrorFactor = 1 - 2 * t
+        // Additive blending (see createFlarePipeline) means the alpha channel has zero effect on
+        // the final blended color - the fade must scale RGB, not alpha, or it would be a silent
+        // no-op.
+        const fadedColor: [number, number, number, number] = [
+          color[0] * sunVisibleFraction,
+          color[1] * sunVisibleFraction,
+          color[2] * sunVisibleFraction,
+          color[3],
+        ]
+        const flareUniforms = new Float32Array(12)
+        flareUniforms.set(fadedColor, 0)
+        flareUniforms.set([sunNdcX * mirrorFactor, sunNdcY * mirrorFactor], 4)
+        flareUniforms.set([(widthPx * 2) / canvas.width, (heightPx * 2) / canvas.height], 6)
+        flareUniforms.set([sunNdcZ, bladeCount, rotation], 8)
+        device.queue.writeBuffer(flare.uniformBuffer, 0, flareUniforms)
       }
     }
 
