@@ -29,6 +29,7 @@ import {
 } from './solarSystem/moonOrbit'
 import { worldToScreen, type ScreenPosition } from './renderer/screenProjection'
 import { computeCanvasSize } from './renderer/canvasSize'
+import { LIT_UNIFORM_FLOAT_COUNT } from './renderer/shaders'
 import {
   createBodySampler,
   createFlarePipeline,
@@ -196,11 +197,13 @@ async function main() {
   const sunRenderable = await createBodyRenderable(device, unlitPipeline, SUN, 20, bodySampler, mipmapPipeline, mipmapSampler)
   const planetRenderables = await Promise.all(
     PLANETS.map((planet) =>
-      createBodyRenderable(device, litPipeline, planet, 44, bodySampler, mipmapPipeline, mipmapSampler),
+      createBodyRenderable(device, litPipeline, planet, LIT_UNIFORM_FLOAT_COUNT, bodySampler, mipmapPipeline, mipmapSampler),
     ),
   )
   const moonRenderables = await Promise.all(
-    MOONS.map((moon) => createBodyRenderable(device, litPipeline, moon, 44, bodySampler, mipmapPipeline, mipmapSampler)),
+    MOONS.map((moon) =>
+      createBodyRenderable(device, litPipeline, moon, LIT_UNIFORM_FLOAT_COUNT, bodySampler, mipmapPipeline, mipmapSampler),
+    ),
   )
   canvas.dataset.texturesLoaded = 'true'
 
@@ -271,9 +274,13 @@ async function main() {
   // Saturn's rings: a flat annulus, unit-relative to a sphere of radius 1 (same convention as
   // generateSphereMesh(1, ...)), so it scales exactly like Saturn's own sphere across the
   // Realistic/Compact toggle. Real ring extent is roughly 1.1-2.3 Saturn radii; not modeled per
-  // body, since Saturn is the only planet with a visible ring system.
+  // body, since Saturn is the only planet with a visible ring system. Named so the ring's
+  // shadow-on-Saturn test (see the planet uniform write in frame()) can derive the ring's actual
+  // world-space extent from Saturn's own rendered radius instead of duplicating these numbers.
+  const RING_INNER_RADIUS_FACTOR = 1.3
+  const RING_OUTER_RADIUS_FACTOR = 2.3
   const ringPipeline = await createRingPipeline(device, sceneColorFormat)
-  const ringMesh = generateRingMesh(1.3, 2.3, 128)
+  const ringMesh = generateRingMesh(RING_INNER_RADIUS_FACTOR, RING_OUTER_RADIUS_FACTOR, 128)
   const ringBuffers = createRingBuffers(device, ringMesh)
   const ringTexture = await loadBodyTexture(device, '/textures/saturn_ring.png', mipmapPipeline, mipmapSampler)
   const ringUniformBuffer = device.createBuffer({
@@ -613,8 +620,18 @@ async function main() {
       updateLabelPosition(labelElements.get(SUN.id)!, sunScreen)
     }
 
+    // Body positions/shadows are computed in three phases rather than the old two-loop
+    // (planets-then-moons) structure, because a planet's shadow-occluder list needs its own
+    // moons' THIS-FRAME positions, while a moon's position needs its parent's - a dependency the
+    // old structure couldn't satisfy (planet uniforms, including their occluder list, used to be
+    // written before any moon position existed). Phase 1 computes cheap position/radius data for
+    // every planet with no GPU writes; Phase 2 computes and writes moon uniforms (a moon only ever
+    // needs its own parent as a shadow occluder, already available from Phase 1) while
+    // accumulating each parent's occluder list; Phase 3 does the more expensive rotation/world-
+    // matrix work and writes planet uniforms, now with occluders/ring-shadow data folded in.
     const planetPositionsById = new Map<string, [number, number, number]>()
-    for (const renderable of planetRenderables) {
+    const planetRadiusById = new Map<string, number>()
+    const planetFrameData = planetRenderables.map((renderable) => {
       const { x, y, z, distanceAu } = planetAuPosition(renderable.definition, T)
       const [sx, sy, sz] = scaledPosition(x, y, z, distanceAu, scaleBlend)
       planetPositionsById.set(renderable.definition.id, [sx, sy, sz])
@@ -624,50 +641,14 @@ async function main() {
         scaleBlend,
         AU_KM,
       )
-      const rotation = rotationAngleRadians(daysSinceEpoch, renderable.definition.siderealRotationHours)
-      const poleDirection = equatorialToEclipticPoleDirection(
-        renderable.definition.poleRightAscensionDegrees,
-        renderable.definition.poleDeclinationDegrees,
-      )
-      const tilt = axisAlignmentRotation(poleDirection)
-      const world = mat4.multiply(
-        mat4.create(),
-        mat4.fromTranslation(mat4.create(), [sx, sy, sz]),
-        mat4.multiply(
-          mat4.create(),
-          tilt,
-          mat4.multiply(mat4.create(), mat4.fromZRotation(mat4.create(), rotation), mat4.fromScaling(mat4.create(), [radius, radius, radius])),
-        ),
-      )
-      const wvp = mat4.multiply(mat4.create(), projection, mat4.multiply(mat4.create(), view, world))
-      const lightDirection = vec3.normalize(vec3.create(), vec3.fromValues(sx, sy, sz))
-      const uniforms = new Float32Array(44)
-      uniforms.set(wvp, 0)
-      uniforms.set(world, 16)
-      uniforms.set([...renderable.definition.color, 1.0], 32)
-      uniforms.set([...lightDirection, 0], 36)
-      uniforms.set([...cameraPosition, 0], 40)
-      device.queue.writeBuffer(renderable.uniformBuffer, 0, uniforms)
+      planetRadiusById.set(renderable.definition.id, radius)
+      return { renderable, x: sx, y: sy, z: sz, radius }
+    })
 
-      if (renderable.definition.id === 'saturn') {
-        const ringWorld = mat4.multiply(
-          mat4.create(),
-          mat4.fromTranslation(mat4.create(), [sx, sy, sz]),
-          mat4.multiply(mat4.create(), tilt, mat4.fromScaling(mat4.create(), [radius, radius, radius])),
-        )
-        const ringWvp = mat4.multiply(mat4.create(), projection, mat4.multiply(mat4.create(), view, ringWorld))
-        const ringUniforms = new Float32Array(36)
-        ringUniforms.set(ringWvp, 0)
-        ringUniforms.set(ringWorld, 16)
-        ringUniforms.set([...lightDirection, 0], 32)
-        device.queue.writeBuffer(ringUniformBuffer, 0, ringUniforms)
-      }
-
-      if (showBodyLabels) {
-        const screen = worldToScreen(viewProjection, sx, sy, sz, canvas.clientWidth, canvas.clientHeight)
-        updateLabelPosition(labelElements.get(renderable.definition.id)!, screen)
-      }
-    }
+    // xyz = world-space center, w = world-space radius; the same [center, radius] shape written
+    // into a lit body's `occluders` uniform slots (see shaders.ts's Uniforms layout comment).
+    type Occluder = [number, number, number, number]
+    const moonOccludersByParentId = new Map<string, Occluder[]>()
 
     if (showMoons) {
       for (const renderable of moonRenderables) {
@@ -703,13 +684,21 @@ async function main() {
         )
         const wvp = mat4.multiply(mat4.create(), projection, mat4.multiply(mat4.create(), view, world))
         const lightDirection = vec3.normalize(vec3.create(), vec3.fromValues(sx, sy, sz))
-        const uniforms = new Float32Array(44)
+        const uniforms = new Float32Array(LIT_UNIFORM_FLOAT_COUNT)
         uniforms.set(wvp, 0)
         uniforms.set(world, 16)
         uniforms.set([...moon.color, 1.0], 32)
         uniforms.set([...lightDirection, 0], 36)
         uniforms.set([...cameraPosition, 0], 40)
+        // A moon only ever needs its own parent planet as a shadow occluder (the planet eclipsing
+        // its moon) - slot 0 holds the parent, the remaining 3 stay zero (unused).
+        uniforms.set([px, py, pz, planetRadiusById.get(moon.parentId) ?? 0], 44)
+        uniforms.set([sunRadius, 0, 0, 0], 60)
         device.queue.writeBuffer(renderable.uniformBuffer, 0, uniforms)
+
+        const parentOccluders = moonOccludersByParentId.get(moon.parentId) ?? []
+        parentOccluders.push([sx, sy, sz, radius])
+        moonOccludersByParentId.set(moon.parentId, parentOccluders)
 
         if (showBodyLabels) {
           const screen = worldToScreen(viewProjection, sx, sy, sz, canvas.clientWidth, canvas.clientHeight)
@@ -718,9 +707,65 @@ async function main() {
       }
     } else {
       // Otherwise a moon's label would freeze at its last position (still visible) instead of
-      // disappearing the moment moons are hidden, since nothing would update it again.
+      // disappearing the moment moons are hidden, since nothing would update it again. Hidden
+      // moons also cast no shadows (moonOccludersByParentId stays empty), matching what's rendered.
       for (const moon of MOONS) {
         labelElements.get(moon.id)!.style.display = 'none'
+      }
+    }
+
+    for (const { renderable, x: sx, y: sy, z: sz, radius } of planetFrameData) {
+      const rotation = rotationAngleRadians(daysSinceEpoch, renderable.definition.siderealRotationHours)
+      const poleDirection = equatorialToEclipticPoleDirection(
+        renderable.definition.poleRightAscensionDegrees,
+        renderable.definition.poleDeclinationDegrees,
+      )
+      const tilt = axisAlignmentRotation(poleDirection)
+      const world = mat4.multiply(
+        mat4.create(),
+        mat4.fromTranslation(mat4.create(), [sx, sy, sz]),
+        mat4.multiply(
+          mat4.create(),
+          tilt,
+          mat4.multiply(mat4.create(), mat4.fromZRotation(mat4.create(), rotation), mat4.fromScaling(mat4.create(), [radius, radius, radius])),
+        ),
+      )
+      const wvp = mat4.multiply(mat4.create(), projection, mat4.multiply(mat4.create(), view, world))
+      const lightDirection = vec3.normalize(vec3.create(), vec3.fromValues(sx, sy, sz))
+      const uniforms = new Float32Array(LIT_UNIFORM_FLOAT_COUNT)
+      uniforms.set(wvp, 0)
+      uniforms.set(world, 16)
+      uniforms.set([...renderable.definition.color, 1.0], 32)
+      uniforms.set([...lightDirection, 0], 36)
+      uniforms.set([...cameraPosition, 0], 40)
+      const occluders = moonOccludersByParentId.get(renderable.definition.id) ?? []
+      for (let slot = 0; slot < 4; slot++) {
+        uniforms.set(occluders[slot] ?? [0, 0, 0, 0], 44 + slot * 4)
+      }
+      const isSaturn = renderable.definition.id === 'saturn'
+      uniforms.set(
+        [sunRadius, isSaturn ? radius * RING_INNER_RADIUS_FACTOR : 0, isSaturn ? radius * RING_OUTER_RADIUS_FACTOR : 0, 0],
+        60,
+      )
+      device.queue.writeBuffer(renderable.uniformBuffer, 0, uniforms)
+
+      if (isSaturn) {
+        const ringWorld = mat4.multiply(
+          mat4.create(),
+          mat4.fromTranslation(mat4.create(), [sx, sy, sz]),
+          mat4.multiply(mat4.create(), tilt, mat4.fromScaling(mat4.create(), [radius, radius, radius])),
+        )
+        const ringWvp = mat4.multiply(mat4.create(), projection, mat4.multiply(mat4.create(), view, ringWorld))
+        const ringUniforms = new Float32Array(36)
+        ringUniforms.set(ringWvp, 0)
+        ringUniforms.set(ringWorld, 16)
+        ringUniforms.set([...lightDirection, 0], 32)
+        device.queue.writeBuffer(ringUniformBuffer, 0, ringUniforms)
+      }
+
+      if (showBodyLabels) {
+        const screen = worldToScreen(viewProjection, sx, sy, sz, canvas.clientWidth, canvas.clientHeight)
+        updateLabelPosition(labelElements.get(renderable.definition.id)!, screen)
       }
     }
 
