@@ -14,6 +14,7 @@ import { EntitySearchUI } from './search/entitySearchUI'
 import { DockUI } from './hud/dockUI'
 import { initShuttleVisual } from './hud/shuttleVisual'
 import { scaledBodyRadiusUnits, scaledPosition } from './solarSystem/sceneScale'
+import { ScaleBlendTween } from './solarSystem/scaleBlendTween'
 import { generateOrbitPathPositions } from './solarSystem/orbitPath'
 import { rotationAngleRadians } from './solarSystem/rotation'
 import { axisAlignmentRotation, equatorialToEclipticPoleDirection } from './solarSystem/poleOrientation'
@@ -269,7 +270,7 @@ async function main() {
 
   // Saturn's rings: a flat annulus, unit-relative to a sphere of radius 1 (same convention as
   // generateSphereMesh(1, ...)), so it scales exactly like Saturn's own sphere across the
-  // Realistic/Explorer slider. Real ring extent is roughly 1.1-2.3 Saturn radii; not modeled per
+  // Realistic/Compact toggle. Real ring extent is roughly 1.1-2.3 Saturn radii; not modeled per
   // body, since Saturn is the only planet with a visible ring system.
   const ringPipeline = await createRingPipeline(device, sceneColorFormat)
   const ringMesh = generateRingMesh(1.3, 2.3, 128)
@@ -288,10 +289,13 @@ async function main() {
       { binding: 2, resource: bodySampler },
     ],
   })
-  // Starts fully "Explorer" (1) for a legible initial view — at "Realistic" (0), the inner
-  // planets are indistinguishable from the Sun at any reasonable camera distance. The slider
-  // lets the user dial toward "Realistic" to see true relative scale/distance.
+  // Starts fully "Compact" (1) for a legible initial view — at "Realistic" (0), the inner
+  // planets are indistinguishable from the Sun at any reasonable camera distance. The toggle
+  // lets the user switch to "Realistic" to see true relative scale/distance; scaleBlendTween
+  // animates scaleBlend between the two endpoints rather than snapping (see frame() below).
   let scaleBlend = 1
+  const scaleBlendTween = new ScaleBlendTween(scaleBlend)
+  canvas.dataset.scaleMode = 'compact'
 
   // elevation was 0.4 rad under the old (incorrect) Y-up convention, where azimuth=0 happened to
   // put most of the eye offset along the scene's real north (Z) by coincidence of the old
@@ -335,21 +339,24 @@ async function main() {
 
   // Keeps the camera's zoom-in floor proportional to the current scale, so a body's own close-up
   // framing (see defaultFramingRadius in cameraFollow.ts) is never overridden by an
-  // Explorer-appropriate minimum distance that's now orders of magnitude too large.
+  // Compact-appropriate minimum distance that's now orders of magnitude too large.
   function refreshCameraZoomLimits(): void {
     orbitCamera.minRadius = minOrbitRadiusForBlend(scaleBlend)
   }
   refreshCameraZoomLimits()
 
-  const scaleSlider = requireElement<HTMLInputElement>('#scale-slider')
-  scaleSlider.addEventListener('input', () => {
-    scaleBlend = Number(scaleSlider.value) / 100
-    canvas.dataset.scaleBlend = String(scaleBlend)
+  // The near clip plane is derived from orbitCamera.minRadius (see nearPlaneDistance), which
+  // refreshCameraZoomLimits updates - projection is rebuilt to match wherever this pair is called
+  // (both here and, every tween frame, in frame() below).
+  function refreshScaleDependentState(): void {
     refreshOrbitPaths()
     refreshCameraZoomLimits()
-    // The near clip plane is derived from orbitCamera.minRadius (see nearPlaneDistance), which
-    // refreshCameraZoomLimits just updated - rebuild the projection matrix to match.
     projection = mat4.perspective(mat4.create(), Math.PI / 4, canvas.width / canvas.height, nearPlaneDistance(), 1000)
+  }
+
+  const scaleToggle = requireElement<HTMLInputElement>('#scale-toggle')
+  scaleToggle.addEventListener('change', () => {
+    scaleBlendTween.retarget(scaleToggle.checked ? 1 : 0, scaleBlend)
   })
 
   const orbitPathsToggle = requireElement<HTMLInputElement>('#orbit-paths-toggle')
@@ -409,8 +416,8 @@ async function main() {
   // (orbitCamera.minRadius), or the camera clips away exactly the body it's trying to frame -
   // e.g. at Realistic scale, orbitCamera.minRadius shrinks to ~0.0005 units (see
   // minOrbitRadiusForBlend in orbitCamera.ts), so a fixed near plane of 0.1 (tuned for
-  // Explorer-scale zoom) would clip away everything the camera gets close enough to actually
-  // resolve. 0.02 reproduces today's Explorer-mode near plane exactly (5 * 0.02 = 0.1) while
+  // Compact-scale zoom) would clip away everything the camera gets close enough to actually
+  // resolve. 0.02 reproduces today's Compact-mode near plane exactly (5 * 0.02 = 0.1) while
   // shrinking proportionally at smaller blends.
   const NEAR_PLANE_FRACTION_OF_MIN_RADIUS = 0.02
   function nearPlaneDistance(): number {
@@ -512,6 +519,19 @@ async function main() {
     const now = performance.now()
     const deltaSeconds = (now - lastFrameTime) / 1000
     lastFrameTime = now
+
+    // Advances the Realistic<->Compact scale toggle's animated transition, if one is in flight.
+    // refreshOrbitPaths/refreshCameraZoomLimits/the projection rebuild must all run every tween
+    // frame (not just once at the end), since orbit paths and clip planes need to animate in sync
+    // with the bodies themselves - the same three calls the old drag-slider's `input` listener used
+    // to make once per user input event.
+    if (scaleBlendTween.isAnimating) {
+      scaleBlend = scaleBlendTween.update(deltaSeconds)
+      canvas.dataset.scaleBlend = String(scaleBlend)
+      refreshScaleDependentState()
+      if (!scaleBlendTween.isAnimating) canvas.dataset.scaleMode = scaleBlendTween.target === 1 ? 'compact' : 'realistic'
+    }
+
     cameraInput.update(deltaSeconds)
     simulationClock.update(deltaSeconds)
     timeControlUI.refreshDisplay()
@@ -546,7 +566,7 @@ async function main() {
       device.queue.writeBuffer(starUniformBuffer, 0, starUniforms)
     }
 
-    const sunRadius = scaledBodyRadiusUnits(SUN.radiusKm, SUN.explorerVisualRadius, scaleBlend, AU_KM)
+    const sunRadius = scaledBodyRadiusUnits(SUN.radiusKm, SUN.compactVisualRadius, scaleBlend, AU_KM)
     const sunRotation = rotationAngleRadians(daysSinceEpoch, SUN.siderealRotationHours)
     const sunPoleDirection = equatorialToEclipticPoleDirection(SUN.poleRightAscensionDegrees, SUN.poleDeclinationDegrees)
     const sunTilt = axisAlignmentRotation(sunPoleDirection)
@@ -600,7 +620,7 @@ async function main() {
       planetPositionsById.set(renderable.definition.id, [sx, sy, sz])
       const radius = scaledBodyRadiusUnits(
         renderable.definition.radiusKm,
-        renderable.definition.explorerVisualRadius,
+        renderable.definition.compactVisualRadius,
         scaleBlend,
         AU_KM,
       )
@@ -655,7 +675,7 @@ async function main() {
         const parentPosition = planetPositionsById.get(moon.parentId)
         if (!parentPosition) continue
         const angle = moonOrbitAngleRadians(daysSinceEpoch, moon.siderealOrbitPeriodDays)
-        const orbitRadius = scaledMoonOrbitRadiusUnits(moon.orbitDistanceKm, moon.explorerOrbitVisualRadius, scaleBlend, AU_KM)
+        const orbitRadius = scaledMoonOrbitRadiusUnits(moon.orbitDistanceKm, moon.compactOrbitVisualRadius, scaleBlend, AU_KM)
         const parentDefinition = PLANETS.find((p) => p.id === moon.parentId) as BodyDefinition
         const referencePoleDirection = moonOrbitReferencePoleDirection(moon, parentDefinition)
         const moonTilt = moonOrbitPlaneTiltMatrix(
@@ -666,7 +686,7 @@ async function main() {
         const [rx, ry, rz] = vec3.transformMat4(vec3.create(), moonFlatOrbitPosition(orbitRadius, angle), moonTilt)
         const [px, py, pz] = parentPosition
         const [sx, sy, sz] = [px + rx, py + ry, pz + rz]
-        const radius = scaledBodyRadiusUnits(moon.radiusKm, moon.explorerVisualRadius, scaleBlend, AU_KM)
+        const radius = scaledBodyRadiusUnits(moon.radiusKm, moon.compactVisualRadius, scaleBlend, AU_KM)
         // Tidally locked (true of every moon in this set): rotation tracks the orbital angle
         // directly under this local-Z-spin convention (see moonRotationAngleRadians), and the
         // SAME moonTilt matrix used for position is reused here, so tidal lock holds regardless

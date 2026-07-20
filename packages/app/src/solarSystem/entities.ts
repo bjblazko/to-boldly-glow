@@ -69,7 +69,7 @@ export function entityWorldPosition(
   if (!parent) throw new Error(`${moon.id} has no known parent ${moon.parentId}.`)
   const [px, py, pz] = entityWorldPosition(parent, T, daysSinceEpoch, scaleBlend)
   const angle = moonOrbitAngleRadians(daysSinceEpoch, moon.siderealOrbitPeriodDays)
-  const orbitRadius = scaledMoonOrbitRadiusUnits(moon.orbitDistanceKm, moon.explorerOrbitVisualRadius, scaleBlend, AU_KM)
+  const orbitRadius = scaledMoonOrbitRadiusUnits(moon.orbitDistanceKm, moon.compactOrbitVisualRadius, scaleBlend, AU_KM)
   const referencePoleDirection = moonOrbitReferencePoleDirection(moon, parent.definition as BodyDefinition)
   const [rx, ry, rz] = moonRelativePosition(
     orbitRadius,

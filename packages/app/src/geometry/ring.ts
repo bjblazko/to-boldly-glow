@@ -6,7 +6,7 @@ export interface RingMesh {
 
 // Generates a flat annulus in the local XY plane (Z=0), inner/outer radius relative to a unit
 // sphere radius of 1 — callers scale it the same way generateSphereMesh's unit sphere is scaled,
-// so the ring stays proportional to its planet at every "Realistic"/"Explorer" blend position.
+// so the ring stays proportional to its planet at every "Realistic"/"Compact" blend position.
 // The ring's normal is local +Z, matching generateSphereMesh's polar axis convention, so a ring
 // lies flat in its parent body's equatorial plane once the shared tilt rotation is applied.
 // UV.u is the radial fraction (0 at the inner edge, 1 at the outer edge) — the ring texture is a

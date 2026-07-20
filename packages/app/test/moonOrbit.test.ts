@@ -23,17 +23,17 @@ describe('scaledMoonOrbitRadiusUnits', () => {
     expect(result).toBeCloseTo((orbitDistanceKm / AU_KM) * AU_TO_SCENE_UNITS, 10)
   })
 
-  it('matches the hand-picked explorer radius at blend=1', () => {
+  it('matches the hand-picked compact radius at blend=1', () => {
     const result = scaledMoonOrbitRadiusUnits(384_400, 1.7, 1, AU_KM)
     expect(result).toBeCloseTo(1.7, 10)
   })
 
   it('interpolates geometrically (matching scaledBodyRadiusUnits) between the two endpoints', () => {
     const orbitDistanceKm = 384_400
-    const explorerRadius = 1.7
+    const compactRadius = 1.7
     const realistic = (orbitDistanceKm / AU_KM) * AU_TO_SCENE_UNITS
-    const atHalf = scaledMoonOrbitRadiusUnits(orbitDistanceKm, explorerRadius, 0.5, AU_KM)
-    expect(atHalf).toBeCloseTo(Math.sqrt(realistic * explorerRadius), 10)
+    const atHalf = scaledMoonOrbitRadiusUnits(orbitDistanceKm, compactRadius, 0.5, AU_KM)
+    expect(atHalf).toBeCloseTo(Math.sqrt(realistic * compactRadius), 10)
   })
 })
 
@@ -103,7 +103,7 @@ describe('moonOrbitReferencePoleDirection', () => {
     name: 'Fake Planet',
     color: [1, 1, 1],
     radiusKm: 1000,
-    explorerVisualRadius: 1,
+    compactVisualRadius: 1,
     siderealPeriodDays: 100,
     position: null,
     textureUrl: '',
@@ -119,9 +119,9 @@ describe('moonOrbitReferencePoleDirection', () => {
       parentId: 'earth',
       color: [1, 1, 1],
       radiusKm: 1737.4,
-      explorerVisualRadius: 0.27,
+      compactVisualRadius: 0.27,
       orbitDistanceKm: 384_400,
-      explorerOrbitVisualRadius: 1.7,
+      compactOrbitVisualRadius: 1.7,
       siderealOrbitPeriodDays: 27.321661,
       orbitInclinationToParentEquatorDegrees: 5.145,
       orbitAscendingNodeDegrees: 0,
@@ -136,9 +136,9 @@ describe('moonOrbitReferencePoleDirection', () => {
       parentId: 'saturn',
       color: [1, 1, 1],
       radiusKm: 2574.7,
-      explorerVisualRadius: 0.2,
+      compactVisualRadius: 0.2,
       orbitDistanceKm: 1_221_870,
-      explorerOrbitVisualRadius: 5.5,
+      compactOrbitVisualRadius: 5.5,
       siderealOrbitPeriodDays: 15.945,
       orbitInclinationToParentEquatorDegrees: 0.34854,
       orbitAscendingNodeDegrees: 0,

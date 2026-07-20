@@ -132,8 +132,13 @@
 
         <div class="hud-row-between">
           <span>Realistic</span>
-          <input id="scale-slider" class="hud-range" type="range" min="0" max="100" value="100" />
-          <span>Explorer</span>
+          <label class="hud-toggle-chip">
+            <input id="scale-toggle" type="checkbox" checked aria-label="Scale mode: Realistic or Compact" />
+            <span class="hud-toggle-visual">
+              <svg class="icon icon-check" aria-hidden="true"><use href="#icon-check"></use></svg>
+            </span>
+          </label>
+          <span>Compact</span>
         </div>
 
         <div id="time-display" class="hud-readout">—</div>

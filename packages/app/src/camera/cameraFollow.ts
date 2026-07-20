@@ -42,8 +42,8 @@ interface FlyToTween {
 }
 
 function defaultFramingRadius(entity: SolarSystemEntity, scaleBlend: number, camera: OrbitCamera): number {
-  const { radiusKm, explorerVisualRadius } = entity.definition
-  const bodyRadius = scaledBodyRadiusUnits(radiusKm, explorerVisualRadius, scaleBlend, AU_KM)
+  const { radiusKm, compactVisualRadius } = entity.definition
+  const bodyRadius = scaledBodyRadiusUnits(radiusKm, compactVisualRadius, scaleBlend, AU_KM)
   const framing = bodyRadius * FRAMING_RADIUS_MULTIPLIER
   return Math.min(Math.max(framing, camera.minRadius), camera.maxRadius)
 }

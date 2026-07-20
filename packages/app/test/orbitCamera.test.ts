@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
-  EXPLORER_MIN_ORBIT_RADIUS,
+  COMPACT_MIN_ORBIT_RADIUS,
   minOrbitRadiusForBlend,
   OrbitCamera,
   orbitBasisForUpAxis,
@@ -116,8 +116,8 @@ describe('OrbitCamera', () => {
 })
 
 describe('minOrbitRadiusForBlend', () => {
-  it('matches the explorer-mode zoom floor at blend=1 (today\'s default minRadius)', () => {
-    expect(minOrbitRadiusForBlend(1)).toBeCloseTo(EXPLORER_MIN_ORBIT_RADIUS, 10)
+  it('matches the compact-mode zoom floor at blend=1 (today\'s default minRadius)', () => {
+    expect(minOrbitRadiusForBlend(1)).toBeCloseTo(COMPACT_MIN_ORBIT_RADIUS, 10)
   })
 
   it('matches the realistic-mode zoom floor at blend=0', () => {
@@ -125,7 +125,7 @@ describe('minOrbitRadiusForBlend', () => {
   })
 
   it('is small enough to get close to the smallest rendered body (Oberon) at blend=0', () => {
-    // Oberon: radiusKm 761.4, explorerVisualRadius 0.085 - its own default fly-to framing distance
+    // Oberon: radiusKm 761.4, compactVisualRadius 0.085 - its own default fly-to framing distance
     // (radius * FRAMING_RADIUS_MULTIPLIER from cameraFollow.ts) at blend=0 is ~0.00061 scene units.
     // The zoom floor must sit below that, or the clamp would override even a real body's own
     // close-up framing.
@@ -135,6 +135,6 @@ describe('minOrbitRadiusForBlend', () => {
 
   it('interpolates geometrically between the two endpoints at blend 0.5', () => {
     const atHalf = minOrbitRadiusForBlend(0.5)
-    expect(atHalf).toBeCloseTo(Math.sqrt(REALISTIC_MIN_ORBIT_RADIUS * EXPLORER_MIN_ORBIT_RADIUS), 10)
+    expect(atHalf).toBeCloseTo(Math.sqrt(REALISTIC_MIN_ORBIT_RADIUS * COMPACT_MIN_ORBIT_RADIUS), 10)
   })
 })

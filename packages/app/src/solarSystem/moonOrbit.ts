@@ -5,21 +5,21 @@ import { AU_TO_SCENE_UNITS, geometricBlend } from './sceneScale'
 import { axisAlignmentRotation, ECLIPTIC_NORTH, equatorialToEclipticPoleDirection } from './poleOrientation'
 
 // blend: 0 = fully realistic (the same true-AU-consistent scale used everywhere else), 1 = fully
-// explorer (a hand-picked explorerOrbitVisualRadius, in the same spirit as each body's own
-// explorerVisualRadius). Uses the same geometric blend as scaledBodyRadiusUnits (see
-// geometricBlend in sceneScale.ts) rather than a linear one: the realistic and explorer endpoints
+// compact (a hand-picked compactOrbitVisualRadius, in the same spirit as each body's own
+// compactVisualRadius). Uses the same geometric blend as scaledBodyRadiusUnits (see
+// geometricBlend in sceneScale.ts) rather than a linear one: the realistic and compact endpoints
 // here differ by 1-2 orders of magnitude (e.g. the Moon's true orbit radius in scene units is
-// ~33x smaller than its hand-picked explorer radius), so a linear blend collapses to explorer-mode
+// ~33x smaller than its hand-picked compact radius), so a linear blend collapses to compact-mode
 // proportions almost immediately off blend=0. Geometric blending keeps the moon-to-parent distance
-// proportional across the whole slider range instead.
+// proportional across the whole toggle range instead.
 export function scaledMoonOrbitRadiusUnits(
   orbitDistanceKm: number,
-  explorerOrbitVisualRadius: number,
+  compactOrbitVisualRadius: number,
   blend: number,
   auKm: number,
 ): number {
   const realistic = (orbitDistanceKm / auKm) * AU_TO_SCENE_UNITS
-  return geometricBlend(realistic, explorerOrbitVisualRadius, blend)
+  return geometricBlend(realistic, compactOrbitVisualRadius, blend)
 }
 
 // Progress angle around the orbit, measured from an arbitrary epoch reference (this app doesn't

@@ -8,12 +8,12 @@ export interface MoonDefinition {
   color: [number, number, number]
   /** True mean radius, kilometers. Source: NASA Planetary Satellite Fact Sheet. */
   radiusKm: number
-  /** Hand-picked radius (scene units) at the fully-"explorer" end of the scale slider. */
-  explorerVisualRadius: number
+  /** Hand-picked radius (scene units) at the fully-"compact" end of the scale toggle. */
+  compactVisualRadius: number
   /** True orbital semi-major axis around the parent, kilometers. */
   orbitDistanceKm: number
-  /** Hand-picked orbit radius (scene units) at the fully-"explorer" end of the scale slider. */
-  explorerOrbitVisualRadius: number
+  /** Hand-picked orbit radius (scene units) at the fully-"compact" end of the scale toggle. */
+  compactOrbitVisualRadius: number
   /**
    * Sidereal orbital period, days. Negative means retrograde (Triton, uniquely among large
    * moons, orbits opposite its parent's rotation — a strong hint it's a captured object rather
@@ -54,9 +54,9 @@ export const MOONS: MoonDefinition[] = [
     parentId: 'earth',
     color: [0.75, 0.75, 0.72],
     radiusKm: 1737.4,
-    explorerVisualRadius: 0.27,
+    compactVisualRadius: 0.27,
     orbitDistanceKm: 384_400,
-    explorerOrbitVisualRadius: 1.7,
+    compactOrbitVisualRadius: 1.7,
     siderealOrbitPeriodDays: 27.321661,
     orbitInclinationToParentEquatorDegrees: 5.145, // to the ecliptic, not Earth's equator - see field doc
     orbitAscendingNodeDegrees: 0,
@@ -68,9 +68,9 @@ export const MOONS: MoonDefinition[] = [
     parentId: 'jupiter',
     color: [0.9, 0.8, 0.5],
     radiusKm: 1821.6,
-    explorerVisualRadius: 0.16,
+    compactVisualRadius: 0.16,
     orbitDistanceKm: 421_800,
-    explorerOrbitVisualRadius: 3.0,
+    compactOrbitVisualRadius: 3.0,
     siderealOrbitPeriodDays: 1.769138,
     orbitInclinationToParentEquatorDegrees: 0.050,
     orbitAscendingNodeDegrees: 0,
@@ -82,9 +82,9 @@ export const MOONS: MoonDefinition[] = [
     parentId: 'jupiter',
     color: [0.85, 0.8, 0.75],
     radiusKm: 1560.8,
-    explorerVisualRadius: 0.14,
+    compactVisualRadius: 0.14,
     orbitDistanceKm: 671_100,
-    explorerOrbitVisualRadius: 3.6,
+    compactOrbitVisualRadius: 3.6,
     siderealOrbitPeriodDays: 3.551181,
     orbitInclinationToParentEquatorDegrees: 0.471,
     orbitAscendingNodeDegrees: 0,
@@ -96,9 +96,9 @@ export const MOONS: MoonDefinition[] = [
     parentId: 'jupiter',
     color: [0.7, 0.65, 0.6],
     radiusKm: 2634.1,
-    explorerVisualRadius: 0.19,
+    compactVisualRadius: 0.19,
     orbitDistanceKm: 1_070_400,
-    explorerOrbitVisualRadius: 4.3,
+    compactOrbitVisualRadius: 4.3,
     siderealOrbitPeriodDays: 7.154553,
     orbitInclinationToParentEquatorDegrees: 0.204,
     orbitAscendingNodeDegrees: 0,
@@ -110,9 +110,9 @@ export const MOONS: MoonDefinition[] = [
     parentId: 'jupiter',
     color: [0.55, 0.5, 0.45],
     radiusKm: 2410.3,
-    explorerVisualRadius: 0.18,
+    compactVisualRadius: 0.18,
     orbitDistanceKm: 1_882_700,
-    explorerOrbitVisualRadius: 5.2,
+    compactOrbitVisualRadius: 5.2,
     siderealOrbitPeriodDays: 16.68902,
     orbitInclinationToParentEquatorDegrees: 0.205,
     orbitAscendingNodeDegrees: 0,
@@ -124,12 +124,12 @@ export const MOONS: MoonDefinition[] = [
     parentId: 'saturn',
     color: [0.85, 0.7, 0.4],
     radiusKm: 2574.7,
-    explorerVisualRadius: 0.2,
+    compactVisualRadius: 0.2,
     orbitDistanceKm: 1_221_870,
-    // Kept clear of Saturn's rings (outer edge at 2.3x Saturn's own explorer radius, ~4.37 units —
+    // Kept clear of Saturn's rings (outer edge at 2.3x Saturn's own compact radius, ~4.37 units —
     // see geometry/ring.ts's generateRingMesh(1.3, 2.3, ...) call in main.ts) rather than using a
     // strictly real-ratio-scaled value, which would put Titan visually inside/through the rings.
-    explorerOrbitVisualRadius: 5.5,
+    compactOrbitVisualRadius: 5.5,
     siderealOrbitPeriodDays: 15.945,
     orbitInclinationToParentEquatorDegrees: 0.34854,
     orbitAscendingNodeDegrees: 0,
@@ -141,9 +141,9 @@ export const MOONS: MoonDefinition[] = [
     parentId: 'uranus',
     color: [0.6, 0.6, 0.65],
     radiusKm: 788.4,
-    explorerVisualRadius: 0.09,
+    compactVisualRadius: 0.09,
     orbitDistanceKm: 435_910,
-    explorerOrbitVisualRadius: 2.0,
+    compactOrbitVisualRadius: 2.0,
     siderealOrbitPeriodDays: 8.706234,
     orbitInclinationToParentEquatorDegrees: 0.114,
     orbitAscendingNodeDegrees: 0,
@@ -154,9 +154,9 @@ export const MOONS: MoonDefinition[] = [
     parentId: 'uranus',
     color: [0.55, 0.55, 0.6],
     radiusKm: 761.4,
-    explorerVisualRadius: 0.085,
+    compactVisualRadius: 0.085,
     orbitDistanceKm: 583_520,
-    explorerOrbitVisualRadius: 2.6,
+    compactOrbitVisualRadius: 2.6,
     siderealOrbitPeriodDays: 13.463234,
     orbitInclinationToParentEquatorDegrees: 0.125,
     orbitAscendingNodeDegrees: 0,
@@ -167,9 +167,9 @@ export const MOONS: MoonDefinition[] = [
     parentId: 'neptune',
     color: [0.85, 0.8, 0.78],
     radiusKm: 1353.4,
-    explorerVisualRadius: 0.15,
+    compactVisualRadius: 0.15,
     orbitDistanceKm: 354_759,
-    explorerOrbitVisualRadius: 2.1,
+    compactOrbitVisualRadius: 2.1,
     siderealOrbitPeriodDays: -5.876854,
     orbitInclinationToParentEquatorDegrees: 157.3, // illustrative snapshot - real value precesses, see field doc
     orbitAscendingNodeDegrees: 0, // illustrative, see field doc

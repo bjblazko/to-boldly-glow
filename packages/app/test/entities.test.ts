@@ -90,7 +90,7 @@ describe('entityWorldPosition', () => {
     const [px, py, pz] = entityWorldPosition(saturn, T, daysSinceEpoch, scaleBlend)
     const moon = titan.definition as (typeof MOONS)[number]
     const angle = moonOrbitAngleRadians(daysSinceEpoch, moon.siderealOrbitPeriodDays)
-    const orbitRadius = scaledMoonOrbitRadiusUnits(moon.orbitDistanceKm, moon.explorerOrbitVisualRadius, scaleBlend, AU_KM)
+    const orbitRadius = scaledMoonOrbitRadiusUnits(moon.orbitDistanceKm, moon.compactOrbitVisualRadius, scaleBlend, AU_KM)
     const referencePoleDirection = moonOrbitReferencePoleDirection(moon, saturn.definition as (typeof PLANETS)[number])
     const [rx, ry, rz] = moonRelativePosition(
       orbitRadius,
