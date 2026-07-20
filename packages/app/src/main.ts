@@ -747,6 +747,10 @@ async function main() {
         [sunRadius, isSaturn ? radius * RING_INNER_RADIUS_FACTOR : 0, isSaturn ? radius * RING_OUTER_RADIUS_FACTOR : 0, 0],
         60,
       )
+      const { atmosphereColor, atmosphereIntensity } = renderable.definition
+      if (atmosphereColor && atmosphereIntensity) {
+        uniforms.set([...atmosphereColor, atmosphereIntensity], 64)
+      }
       device.queue.writeBuffer(renderable.uniformBuffer, 0, uniforms)
 
       if (isSaturn) {

@@ -53,6 +53,15 @@ export interface BodyDefinition {
    */
   poleRightAscensionDegrees: number
   poleDeclinationDegrees: number
+  /**
+   * Atmospheric rim/limb glow color, driven by which planets actually have a substantial
+   * atmosphere in reality (Earth, Venus, and the four gas giants) — omitted entirely for Mercury
+   * and Mars, both near-vacuum. Approximate/illustrative, like `color` above, not a physically
+   * calibrated scattering spectrum. Undefined means no glow.
+   */
+  atmosphereColor?: [number, number, number]
+  /** Rim-glow strength, roughly 0-1. Undefined/0 means no glow. */
+  atmosphereIntensity?: number
 }
 
 /** 1 astronomical unit, kilometers (IAU-defined exact value). */
@@ -102,6 +111,10 @@ export const PLANETS: BodyDefinition[] = [
     siderealRotationHours: -5832.5,
     poleRightAscensionDegrees: 92.76,
     poleDeclinationDegrees: -67.16,
+    // Venus's atmosphere is the thickest of any rocky body here (92x Earth's surface pressure) —
+    // the brightest, palest limb glow of the set.
+    atmosphereColor: [1.0, 0.95, 0.78],
+    atmosphereIntensity: 0.9,
   },
   {
     id: 'earth',
@@ -115,6 +128,10 @@ export const PLANETS: BodyDefinition[] = [
     siderealRotationHours: 23.9345,
     poleRightAscensionDegrees: 0,
     poleDeclinationDegrees: 90,
+    // Earth's nitrogen/oxygen atmosphere scatters blue light at the limb (the same Rayleigh
+    // scattering that makes the sky blue, seen edge-on).
+    atmosphereColor: [0.4, 0.65, 1.0],
+    atmosphereIntensity: 0.5,
   },
   {
     id: 'mars',
@@ -145,6 +162,8 @@ export const PLANETS: BodyDefinition[] = [
     siderealRotationHours: 9.925,
     poleRightAscensionDegrees: 268.06,
     poleDeclinationDegrees: 64.50,
+    atmosphereColor: [0.85, 0.75, 0.6],
+    atmosphereIntensity: 0.4,
   },
   {
     id: 'saturn',
@@ -158,6 +177,8 @@ export const PLANETS: BodyDefinition[] = [
     siderealRotationHours: 10.656,
     poleRightAscensionDegrees: 40.59,
     poleDeclinationDegrees: 83.54,
+    atmosphereColor: [0.9, 0.85, 0.65],
+    atmosphereIntensity: 0.4,
   },
   {
     id: 'uranus',
@@ -171,6 +192,10 @@ export const PLANETS: BodyDefinition[] = [
     siderealRotationHours: -17.24,
     poleRightAscensionDegrees: 257.31,
     poleDeclinationDegrees: -15.18,
+    // Methane in the upper atmosphere absorbs red light, giving Uranus/Neptune their pale-cyan and
+    // deeper-blue tints respectively.
+    atmosphereColor: [0.6, 0.9, 0.95],
+    atmosphereIntensity: 0.35,
   },
   {
     id: 'neptune',
@@ -188,5 +213,7 @@ export const PLANETS: BodyDefinition[] = [
     siderealRotationHours: 16.11,
     poleRightAscensionDegrees: 299.33,
     poleDeclinationDegrees: 42.95,
+    atmosphereColor: [0.35, 0.5, 0.95],
+    atmosphereIntensity: 0.4,
   },
 ]

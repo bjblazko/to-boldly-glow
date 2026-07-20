@@ -2,7 +2,7 @@
 // (rather than a bare literal duplicated at every call site in main.ts) so growing this struct
 // can't silently drift out of sync with the Float32Array packing that feeds it: a mismatch here is
 // silently-wrong rendering, not a compile error.
-export const LIT_UNIFORM_FLOAT_COUNT = 64
+export const LIT_UNIFORM_FLOAT_COUNT = 68
 
 // Uniform layout (must match the Float32Array packing in main.ts exactly):
 //   [0..16)  worldViewProjection : mat4x4f
@@ -21,6 +21,8 @@ export const LIT_UNIFORM_FLOAT_COUNT = 64
 //                                 size for the shadow's soft-penumbra math; y/z = Saturn's ring
 //                                 inner/outer world-space radius, both 0 for every non-Saturn body
 //                                 so the ring-plane shadow test below is a no-op elsewhere; w unused)
+//   [64..68) atmosphereParams    : vec4f (rgb = rim-glow color, a = intensity; a of 0 means no
+//                                 atmosphere - every moon and Mercury/Mars write this as all-zero)
 export const litSphereShaderCode = /* wgsl */ `
 struct Uniforms {
   worldViewProjection: mat4x4f,
@@ -30,6 +32,7 @@ struct Uniforms {
   cameraPosition: vec4f,
   occluders: array<vec4f, 4>,
   ringParams: vec4f,
+  atmosphereParams: vec4f,
 };
 
 struct VertexInput {
@@ -164,7 +167,19 @@ fn fs(in: VertexOutput) -> @location(0) vec4f {
   let halfVector = normalize(toLight + toCamera);
   let specular = pow(max(dot(normal, halfVector), 0.0), 24.0) * 0.15 * step(0.0, dot(normal, toLight)) * shadowFactor;
 
-  return vec4f(sampled.rgb * uni.color.rgb * diffuse + vec3f(specular), uni.color.a);
+  // Atmospheric rim/limb glow: a Fresnel term (brightest where the surface normal is near-
+  // perpendicular to the camera, i.e. right at the silhouette edge) approximating how sunlight
+  // scatters through a thin shell of atmosphere seen edge-on. atmosphereParams.a is 0 for bodies
+  // with no substantial real atmosphere (Mercury, Mars, every moon), making this whole term a
+  // no-op for them. Gated by the SAME shadowFactor as the diffuse/specular terms above, so a
+  // planet's limb dims consistently with its shadowed surface during a transit/eclipse, and by a
+  // sun-facing falloff so the glow fades out toward the unlit night limb rather than wrapping
+  // all the way around the silhouette.
+  let rimFactor = pow(1.0 - max(dot(normal, toCamera), 0.0), 3.0);
+  let sunFacingGate = smoothstep(-0.1, 0.3, dot(normal, toLight));
+  let atmosphereGlow = uni.atmosphereParams.rgb * rimFactor * uni.atmosphereParams.a * sunFacingGate * shadowFactor;
+
+  return vec4f(sampled.rgb * uni.color.rgb * diffuse + vec3f(specular) + atmosphereGlow, uni.color.a);
 }
 `
 
