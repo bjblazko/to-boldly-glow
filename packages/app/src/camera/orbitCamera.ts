@@ -1,4 +1,25 @@
 import { mat4, vec3 } from 'gl-matrix'
+import { geometricBlend } from '../solarSystem/sceneScale'
+
+// The Explorer-mode zoom-in floor (matches OrbitCamera's own default minRadius) was tuned for
+// Explorer-scale body sizes (~0.1-3 scene units). At Realistic scale (blend=0), body/moon radii
+// and moon-orbit distances shrink into the ~0.0001-0.09 unit range (see sceneScale.ts/
+// moonOrbit.ts's geometricBlend endpoints), so a fixed 5-unit floor makes it impossible to zoom
+// close enough to tell any two nearby bodies apart - e.g. the Moon's entire real orbit around
+// Earth (~0.05 units) is roughly 100x smaller than this floor, so the camera can never get closer
+// to Earth than 100x the Earth-Moon distance itself. REALISTIC_MIN_ORBIT_RADIUS is chosen below
+// the smallest default fly-to framing distance among all rendered bodies at blend=0 (Oberon's,
+// see cameraFollow.ts's FRAMING_RADIUS_MULTIPLIER) so this floor never becomes the bottleneck for
+// a real body's own close-up view.
+export const EXPLORER_MIN_ORBIT_RADIUS = 5
+export const REALISTIC_MIN_ORBIT_RADIUS = 0.0005
+
+// The camera's zoom-in limit, blended the same way as body radii/moon orbits (see geometricBlend
+// in sceneScale.ts) so it shrinks proportionally as the scale slider moves toward Realistic,
+// instead of staying fixed at an Explorer-appropriate distance no matter how small the scene gets.
+export function minOrbitRadiusForBlend(blend: number): number {
+  return geometricBlend(REALISTIC_MIN_ORBIT_RADIUS, EXPLORER_MIN_ORBIT_RADIUS, blend)
+}
 
 export interface OrbitCameraOptions {
   target?: [number, number, number]

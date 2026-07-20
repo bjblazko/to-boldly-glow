@@ -2,7 +2,7 @@ import { mat4, vec3 } from 'gl-matrix'
 import { calendarToJulianDay, daysSinceJ2000, julianMillenniaSinceJ2000 } from '@toboldlyglow/engine'
 import { generateSphereMesh } from './geometry/sphere'
 import { generateRingMesh } from './geometry/ring'
-import { OrbitCamera } from './camera/orbitCamera'
+import { minOrbitRadiusForBlend, OrbitCamera } from './camera/orbitCamera'
 import { FlyCamera } from './camera/flyCamera'
 import { CameraInputController } from './camera/inputController'
 import { CameraFollowController } from './camera/cameraFollow'
@@ -285,6 +285,8 @@ async function main() {
   // lets the user dial toward "Realistic" to see true relative scale/distance.
   let scaleBlend = 1
 
+  const orbitCamera = new OrbitCamera({ radius: 65, azimuth: 0, elevation: 0.4 })
+
   const linePipeline = await createLinePipeline(device, sceneColorFormat)
 
   interface OrbitPathRenderable {
@@ -316,11 +318,23 @@ async function main() {
     }
   }
 
+  // Keeps the camera's zoom-in floor proportional to the current scale, so a body's own close-up
+  // framing (see defaultFramingRadius in cameraFollow.ts) is never overridden by an
+  // Explorer-appropriate minimum distance that's now orders of magnitude too large.
+  function refreshCameraZoomLimits(): void {
+    orbitCamera.minRadius = minOrbitRadiusForBlend(scaleBlend)
+  }
+  refreshCameraZoomLimits()
+
   const scaleSlider = requireElement<HTMLInputElement>('#scale-slider')
   scaleSlider.addEventListener('input', () => {
     scaleBlend = Number(scaleSlider.value) / 100
     canvas.dataset.scaleBlend = String(scaleBlend)
     refreshOrbitPaths()
+    refreshCameraZoomLimits()
+    // The near clip plane is derived from orbitCamera.minRadius (see nearPlaneDistance), which
+    // refreshCameraZoomLimits just updated - rebuild the projection matrix to match.
+    projection = mat4.perspective(mat4.create(), Math.PI / 4, canvas.width / canvas.height, nearPlaneDistance(), 1000)
   })
 
   const orbitPathsToggle = requireElement<HTMLInputElement>('#orbit-paths-toggle')
@@ -376,7 +390,19 @@ async function main() {
     canvas.dataset.labelsVisible = String(showBodyLabels)
   })
 
-  let projection = mat4.perspective(mat4.create(), Math.PI / 4, canvas.width / canvas.height, 0.1, 1000)
+  // The near clip plane must stay closer than the camera's own closest-possible zoom distance
+  // (orbitCamera.minRadius), or the camera clips away exactly the body it's trying to frame -
+  // e.g. at Realistic scale, orbitCamera.minRadius shrinks to ~0.0005 units (see
+  // minOrbitRadiusForBlend in orbitCamera.ts), so a fixed near plane of 0.1 (tuned for
+  // Explorer-scale zoom) would clip away everything the camera gets close enough to actually
+  // resolve. 0.02 reproduces today's Explorer-mode near plane exactly (5 * 0.02 = 0.1) while
+  // shrinking proportionally at smaller blends.
+  const NEAR_PLANE_FRACTION_OF_MIN_RADIUS = 0.02
+  function nearPlaneDistance(): number {
+    return orbitCamera.minRadius * NEAR_PLANE_FRACTION_OF_MIN_RADIUS
+  }
+
+  let projection = mat4.perspective(mat4.create(), Math.PI / 4, canvas.width / canvas.height, nearPlaneDistance(), 1000)
 
   // The depth/MSAA textures and the projection matrix's aspect ratio are both tied to the
   // canvas's backing-store size, which computeCanvasSize/resizeCanvasIfNeeded derive from the
@@ -392,10 +418,9 @@ async function main() {
       destroyBloomTargets(bloomTargets!)
       bloomTargets = createBloomTargets(device, bloomPipelines, canvas.width, canvas.height)
     }
-    projection = mat4.perspective(mat4.create(), Math.PI / 4, canvas.width / canvas.height, 0.1, 1000)
+    projection = mat4.perspective(mat4.create(), Math.PI / 4, canvas.width / canvas.height, nearPlaneDistance(), 1000)
   })
 
-  const orbitCamera = new OrbitCamera({ radius: 65, azimuth: 0, elevation: 0.4 })
   const flyCamera = new FlyCamera({ position: [0, 25, 60], yaw: Math.PI, pitch: 0 })
   const cameraInput = new CameraInputController(canvas, orbitCamera, flyCamera)
 
