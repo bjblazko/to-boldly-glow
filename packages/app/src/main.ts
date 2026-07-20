@@ -46,6 +46,7 @@ import {
   type MeshBuffers,
 } from './renderer/webgpu'
 import { createFallbackWhiteTexture, loadBodyTexture } from './renderer/textureLoader'
+import { createMipmapPipeline, createMipmapSampler } from './renderer/mipmapGenerator'
 import { loadStarCatalog } from './starfield/starCatalog'
 import {
   createBloomPipelines,
@@ -125,6 +126,8 @@ async function createBodyRenderable<TDefinition extends { id: string; textureUrl
   definition: TDefinition,
   uniformFloatCount: number,
   sampler: GPUSampler,
+  mipPipeline: GPURenderPipeline,
+  mipSampler: GPUSampler,
 ): Promise<BodyRenderable<TDefinition>> {
   const uniformBuffer = device.createBuffer({
     label: `${definition.id} uniforms`,
@@ -132,7 +135,7 @@ async function createBodyRenderable<TDefinition extends { id: string; textureUrl
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   })
   const texture = definition.textureUrl
-    ? await loadBodyTexture(device, definition.textureUrl)
+    ? await loadBodyTexture(device, definition.textureUrl, mipPipeline, mipSampler)
     : createFallbackWhiteTexture(device)
   const bindGroup = device.createBindGroup({
     layout: pipeline.getBindGroupLayout(0),
@@ -184,12 +187,19 @@ async function main() {
   const meshBuffers = createMeshBuffers(device, sphereMesh)
   const bodySampler = createBodySampler(device)
 
-  const sunRenderable = await createBodyRenderable(device, unlitPipeline, SUN, 20, bodySampler)
+  // Body textures are rgba8unorm-srgb (see textureLoader.ts); this pipeline/sampler pair is only
+  // ever used at load time to blit each texture's mip chain, never during scene rendering itself.
+  const mipmapPipeline = await createMipmapPipeline(device, 'rgba8unorm-srgb')
+  const mipmapSampler = createMipmapSampler(device)
+
+  const sunRenderable = await createBodyRenderable(device, unlitPipeline, SUN, 20, bodySampler, mipmapPipeline, mipmapSampler)
   const planetRenderables = await Promise.all(
-    PLANETS.map((planet) => createBodyRenderable(device, litPipeline, planet, 44, bodySampler)),
+    PLANETS.map((planet) =>
+      createBodyRenderable(device, litPipeline, planet, 44, bodySampler, mipmapPipeline, mipmapSampler),
+    ),
   )
   const moonRenderables = await Promise.all(
-    MOONS.map((moon) => createBodyRenderable(device, litPipeline, moon, 44, bodySampler)),
+    MOONS.map((moon) => createBodyRenderable(device, litPipeline, moon, 44, bodySampler, mipmapPipeline, mipmapSampler)),
   )
   canvas.dataset.texturesLoaded = 'true'
 
@@ -264,7 +274,7 @@ async function main() {
   const ringPipeline = await createRingPipeline(device, sceneColorFormat)
   const ringMesh = generateRingMesh(1.3, 2.3, 128)
   const ringBuffers = createRingBuffers(device, ringMesh)
-  const ringTexture = await loadBodyTexture(device, '/textures/saturn_ring.png')
+  const ringTexture = await loadBodyTexture(device, '/textures/saturn_ring.png', mipmapPipeline, mipmapSampler)
   const ringUniformBuffer = device.createBuffer({
     label: 'saturn ring uniforms',
     size: 36 * 4, // worldViewProjection (16) + world (16) + lightDirection (4)

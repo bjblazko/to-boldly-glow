@@ -5,6 +5,7 @@ import {
   brightPassShaderCode,
 } from './shaders'
 import { SAMPLE_COUNT } from './webgpu'
+import { createFullscreenPipeline, runFullscreenPass } from './fullscreenPass'
 
 const HDR_FORMAT: GPUTextureFormat = 'rgba16float'
 const MAX_BLOOM_MIP_LEVELS = 5
@@ -20,23 +21,6 @@ export interface BloomPipelines {
   downsamplePipeline: GPURenderPipeline
   upsamplePipeline: GPURenderPipeline
   compositePipeline: GPURenderPipeline
-}
-
-async function createFullscreenPipeline(
-  device: GPUDevice,
-  code: string,
-  targetFormat: GPUTextureFormat,
-  label: string,
-  blend?: GPUBlendState,
-): Promise<GPURenderPipeline> {
-  const module = device.createShaderModule({ label, code })
-  return await device.createRenderPipelineAsync({
-    label,
-    layout: 'auto',
-    vertex: { module, entryPoint: 'vs' },
-    fragment: { module, entryPoint: 'fs', targets: [{ format: targetFormat, blend }] },
-    primitive: { topology: 'triangle-list' },
-  })
 }
 
 // Pipelines don't depend on canvas size, so they're created once and reused across resizes (see
@@ -183,22 +167,6 @@ export function destroyBloomTargets(targets: BloomTargets): void {
   targets.hdrMultisampleTexture.destroy()
   targets.hdrResolveTexture.destroy()
   targets.bloomTexture.destroy()
-}
-
-function runFullscreenPass(
-  encoder: GPUCommandEncoder,
-  pipeline: GPURenderPipeline,
-  bindGroup: GPUBindGroup,
-  targetView: GPUTextureView,
-  loadOp: GPULoadOp,
-): void {
-  const pass = encoder.beginRenderPass({
-    colorAttachments: [{ view: targetView, loadOp, clearValue: { r: 0, g: 0, b: 0, a: 1 }, storeOp: 'store' }],
-  })
-  pass.setPipeline(pipeline)
-  pass.setBindGroup(0, bindGroup)
-  pass.draw(3)
-  pass.end()
 }
 
 // Runs the bright-pass -> downsample chain -> upsample/blend chain -> composite+tonemap sequence.

@@ -100,10 +100,18 @@ const UV_BUFFER_LAYOUT: GPUVertexBufferLayout = {
 
 export function createBodySampler(device: GPUDevice): GPUSampler {
   // U (longitude) wraps around the sphere seam; V (latitude) must not wrap at the poles.
+  // mipmapFilter requires body textures to actually carry a mip chain (see textureLoader.ts's
+  // generateMipmaps call) — without one, WebGPU still accepts this but there's nothing to
+  // interpolate between. maxAnisotropy sharpens grazing-angle views (e.g. ring edges, planets near
+  // the horizon) once mips exist; 16 is the conventional safe ceiling most implementations clamp
+  // to — WebGPU exposes no queryable upper bound for this via GPUSupportedLimits, unlike most other
+  // limits, so this is worth reverifying empirically on target browsers rather than assuming.
   return device.createSampler({
     label: 'body texture sampler',
     magFilter: 'linear',
     minFilter: 'linear',
+    mipmapFilter: 'linear',
+    maxAnisotropy: 16,
     addressModeU: 'repeat',
     addressModeV: 'clamp-to-edge',
   })
