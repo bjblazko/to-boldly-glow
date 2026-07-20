@@ -1,5 +1,4 @@
-const PANEL_NAMES = ['camera', 'time', 'display'] as const
-type PanelName = (typeof PANEL_NAMES)[number]
+type PanelName = 'camera' | 'time' | 'display'
 
 // Wires the bottom dock's buttons to the sheet above it — only one panel open at a time; clicking
 // the already-active dock button closes the sheet instead of re-opening the same panel.
