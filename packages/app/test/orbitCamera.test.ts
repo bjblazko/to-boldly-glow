@@ -47,26 +47,47 @@ describe('orbitBasisForUpAxis', () => {
 })
 
 describe('OrbitCamera', () => {
-  it('places the eye directly on the +Z axis at azimuth 0, elevation 0', () => {
+  it('places the eye on the +X axis at azimuth 0, elevation 0 (default up-axis is ecliptic north, +Z)', () => {
     const camera = new OrbitCamera({ radius: 10, azimuth: 0, elevation: 0 })
     const eye = camera.getEyePosition()
-    expect(eye[0]).toBeCloseTo(0, 10)
+    expect(eye[0]).toBeCloseTo(10, 10)
     expect(eye[1]).toBeCloseTo(0, 10)
-    expect(eye[2]).toBeCloseTo(10, 10)
+    expect(eye[2]).toBeCloseTo(0, 10)
   })
 
-  it('places the eye on the +X axis at azimuth PI/2, elevation 0', () => {
+  it('places the eye on the +Y axis at azimuth PI/2, elevation 0', () => {
     const camera = new OrbitCamera({ radius: 10, azimuth: Math.PI / 2, elevation: 0 })
     const eye = camera.getEyePosition()
-    expect(eye[0]).toBeCloseTo(10, 5)
-    expect(eye[1]).toBeCloseTo(0, 10)
-    expect(eye[2]).toBeCloseTo(0, 5)
+    expect(eye[0]).toBeCloseTo(0, 5)
+    expect(eye[1]).toBeCloseTo(10, 5)
+    expect(eye[2]).toBeCloseTo(0, 10)
   })
 
-  it('raises the eye above the target as elevation increases', () => {
+  it('raises the eye above the target, along the up-axis, as elevation increases', () => {
     const camera = new OrbitCamera({ radius: 10, azimuth: 0, elevation: Math.PI / 4 })
     const eye = camera.getEyePosition()
-    expect(eye[1]).toBeCloseTo(10 * Math.sin(Math.PI / 4), 5)
+    expect(eye[2]).toBeCloseTo(10 * Math.sin(Math.PI / 4), 5)
+  })
+
+  it('defaults upAxis to ecliptic north (+Z)', () => {
+    const camera = new OrbitCamera()
+    expect(camera.upAxis[0]).toBeCloseTo(0, 10)
+    expect(camera.upAxis[1]).toBeCloseTo(0, 10)
+    expect(camera.upAxis[2]).toBeCloseTo(1, 10)
+  })
+
+  it('accepts an explicit upAxis and orbits around it instead', () => {
+    const camera = new OrbitCamera({ radius: 10, azimuth: 0, elevation: 0, upAxis: [0, 1, 0] })
+    const eye = camera.getEyePosition()
+    // upAxis=[0,1,0]: world X is already perpendicular to it, so orbitBasisForUpAxis's
+    // Gram-Schmidt step leaves the primary reference (X) unchanged as forward0 - eye offset at
+    // azimuth 0 lands on world X. (Not the same eye position the old hardcoded Y-up formula
+    // produced at azimuth 0 - that formula always used Z as its azimuth-0 direction regardless of
+    // which axis was "up"; this general version always seeds from X instead, except in the rare
+    // degenerate case handled by the fallback reference - see the previous two tests.)
+    expect(eye[0]).toBeCloseTo(10, 10)
+    expect(eye[1]).toBeCloseTo(0, 10)
+    expect(eye[2]).toBeCloseTo(0, 10)
   })
 
   it('clamps elevation to avoid flipping past the poles', () => {

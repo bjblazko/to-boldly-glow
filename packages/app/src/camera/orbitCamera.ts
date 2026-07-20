@@ -1,5 +1,6 @@
 import { mat4, vec3 } from 'gl-matrix'
 import { geometricBlend } from '../solarSystem/sceneScale'
+import { ECLIPTIC_NORTH } from '../solarSystem/poleOrientation'
 
 // The Explorer-mode zoom-in floor (matches OrbitCamera's own default minRadius) was tuned for
 // Explorer-scale body sizes (~0.1-3 scene units). At Realistic scale (blend=0), body/moon radii
@@ -73,6 +74,7 @@ export interface OrbitCameraOptions {
   elevation?: number
   minRadius?: number
   maxRadius?: number
+  upAxis?: [number, number, number]
 }
 
 const MAX_ELEVATION = Math.PI / 2 - 0.01
@@ -82,8 +84,11 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 // Orbits around `target` at a fixed distance (`radius`), parameterized by azimuth (rotation
-// around the Y axis) and elevation (angle above the horizontal plane). Default values roughly
-// match the renderer-core plan's fixed camera framing (eye ~[0, 25, 60]).
+// around `upAxis`) and elevation (angle above the plane perpendicular to `upAxis`). `upAxis`
+// defaults to ECLIPTIC_NORTH, the scene's real "north" (see poleOrientation.ts) - not world Y,
+// which doesn't correspond to anything astronomical. CameraFollowController re-points upAxis at a
+// followed entity's own real pole direction during fly-to (see cameraFollow.ts). See
+// docs/superpowers/specs/2026-07-20-camera-north-up-orientation-design.md for why this matters.
 export class OrbitCamera {
   target: vec3
   radius: number
@@ -91,6 +96,7 @@ export class OrbitCamera {
   elevation: number
   minRadius: number
   maxRadius: number
+  upAxis: vec3
 
   constructor(options: OrbitCameraOptions = {}) {
     this.target = vec3.fromValues(...(options.target ?? [0, 0, 0]))
@@ -99,18 +105,24 @@ export class OrbitCamera {
     this.elevation = options.elevation ?? 0.4
     this.minRadius = options.minRadius ?? 5
     this.maxRadius = options.maxRadius ?? 700
+    this.upAxis = vec3.fromValues(...(options.upAxis ?? ECLIPTIC_NORTH))
   }
 
   getEyePosition(): vec3 {
     const cosEl = Math.cos(this.elevation)
-    const x = this.target[0] + this.radius * cosEl * Math.sin(this.azimuth)
-    const y = this.target[1] + this.radius * Math.sin(this.elevation)
-    const z = this.target[2] + this.radius * cosEl * Math.cos(this.azimuth)
+    const sinEl = Math.sin(this.elevation)
+    const sinAz = Math.sin(this.azimuth)
+    const cosAz = Math.cos(this.azimuth)
+    const upAxis: [number, number, number] = [this.upAxis[0], this.upAxis[1], this.upAxis[2]]
+    const { right, forward0 } = orbitBasisForUpAxis(upAxis)
+    const x = this.target[0] + this.radius * (cosEl * (sinAz * right[0] + cosAz * forward0[0]) + sinEl * upAxis[0])
+    const y = this.target[1] + this.radius * (cosEl * (sinAz * right[1] + cosAz * forward0[1]) + sinEl * upAxis[1])
+    const z = this.target[2] + this.radius * (cosEl * (sinAz * right[2] + cosAz * forward0[2]) + sinEl * upAxis[2])
     return vec3.fromValues(x, y, z)
   }
 
   getViewMatrix(): mat4 {
-    return mat4.lookAt(mat4.create(), this.getEyePosition(), this.target, [0, 1, 0])
+    return mat4.lookAt(mat4.create(), this.getEyePosition(), this.target, this.upAxis)
   }
 
   applyDrag(deltaX: number, deltaY: number, sensitivity = 0.005): void {
