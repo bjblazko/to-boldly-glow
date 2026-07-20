@@ -285,7 +285,14 @@ async function main() {
   // lets the user dial toward "Realistic" to see true relative scale/distance.
   let scaleBlend = 1
 
-  const orbitCamera = new OrbitCamera({ radius: 65, azimuth: 0, elevation: 0.4 })
+  // elevation was 0.4 rad under the old (incorrect) Y-up convention, where azimuth=0 happened to
+  // put most of the eye offset along the scene's real north (Z) by coincidence of the old
+  // hardcoded formula - see docs/superpowers/specs/2026-07-20-camera-north-up-orientation-design.md
+  // #1 and #3.2. That accidental view sat ~23 degrees off true north, i.e. ~67 degrees of true
+  // elevation above the real ecliptic plane. Now that elevation is measured against the real
+  // up-axis (ECLIPTIC_NORTH by default), 67 degrees reproduces the same-looking default view
+  // under the corrected semantics.
+  const orbitCamera = new OrbitCamera({ radius: 65, azimuth: 0, elevation: (67 * Math.PI) / 180 })
 
   const linePipeline = await createLinePipeline(device, sceneColorFormat)
 
