@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { SimulationClock, shuttleValueToTimeScale, TIME_SCALE_PRESETS } from '../src/time/simulationClock'
+import { calendarToJulianDay } from '@toboldlyglow/engine'
+import { currentJulianDay, SimulationClock, shuttleValueToTimeScale, TIME_SCALE_PRESETS } from '../src/time/simulationClock'
 
 describe('SimulationClock', () => {
   it('starts at the given initial date', () => {
@@ -62,6 +63,26 @@ describe('SimulationClock', () => {
     expect(clock.getTimeScale()).toBe(1)
     clock.setTimeScale(86400)
     expect(clock.getTimeScale()).toBe(86400)
+  })
+})
+
+describe('currentJulianDay', () => {
+  it('includes minutes, seconds, and milliseconds in the fractional day, not just whole hours', () => {
+    const date = new Date(Date.UTC(2026, 0, 1, 12, 30, 45, 500))
+    const expectedFractionalDay = 1 + 12 / 24 + 30 / 1440 + 45 / 86400 + 500 / 86400000
+    const expected = calendarToJulianDay(2026, 1, expectedFractionalDay)
+    expect(currentJulianDay(date)).toBeCloseTo(expected, 10)
+  })
+
+  it('produces different Julian Days for dates that differ only by minutes (regression: previously truncated to whole hours, so two dates in the same hour were indistinguishable - the root cause of choppy-looking motion at fast time scales, where the simulated clock could advance many minutes per real animation frame without ever crossing an hour boundary)', () => {
+    const a = new Date(Date.UTC(2026, 0, 1, 12, 0, 0))
+    const b = new Date(Date.UTC(2026, 0, 1, 12, 30, 0))
+    expect(currentJulianDay(a)).not.toBeCloseTo(currentJulianDay(b), 6)
+  })
+
+  it('matches calendarToJulianDay directly for a whole-hour date (no regression at the previously-correct precision)', () => {
+    const date = new Date(Date.UTC(2026, 5, 15, 6, 0, 0))
+    expect(currentJulianDay(date)).toBeCloseTo(calendarToJulianDay(2026, 6, 15 + 6 / 24), 10)
   })
 })
 

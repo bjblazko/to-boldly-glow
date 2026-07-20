@@ -1,12 +1,12 @@
 import { mat4, vec3 } from 'gl-matrix'
-import { calendarToJulianDay, daysSinceJ2000, julianMillenniaSinceJ2000 } from '@toboldlyglow/engine'
+import { daysSinceJ2000, julianMillenniaSinceJ2000 } from '@toboldlyglow/engine'
 import { generateSphereMesh } from './geometry/sphere'
 import { generateRingMesh } from './geometry/ring'
 import { minOrbitRadiusForBlend, OrbitCamera } from './camera/orbitCamera'
 import { FlyCamera } from './camera/flyCamera'
 import { CameraInputController } from './camera/inputController'
 import { CameraFollowController } from './camera/cameraFollow'
-import { SimulationClock } from './time/simulationClock'
+import { currentJulianDay, SimulationClock } from './time/simulationClock'
 import { TimeControlUI } from './time/timeControlUI'
 import { AU_KM, PLANETS, SUN, type BodyDefinition } from './solarSystem/bodies'
 import { planetAuPosition } from './solarSystem/entities'
@@ -69,10 +69,6 @@ function resizeCanvasIfNeeded(canvas: HTMLCanvasElement): boolean {
   canvas.width = width
   canvas.height = height
   return true
-}
-
-function currentJulianDay(date: Date): number {
-  return calendarToJulianDay(date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate() + date.getUTCHours() / 24)
 }
 
 // Sun texture/color samples are clamped to [0,1] like any other body's, so left alone the Sun

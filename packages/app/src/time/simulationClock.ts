@@ -1,3 +1,22 @@
+import { calendarToJulianDay } from '@toboldlyglow/engine'
+
+// Converts a JS Date (UTC) to a Julian Day, preserving sub-hour precision (minutes, seconds,
+// milliseconds) in the fractional day - not just whole hours. At fast time scales the simulated
+// clock can advance many real-world minutes of simulated time within a single hour between
+// animation frames; truncating to whole hours made every frame within that hour resolve to the
+// exact same Julian Day (and therefore the exact same body positions/rotations), so motion only
+// visibly advanced once per simulated hour crossed - at the "1 hr/s" preset specifically, that's
+// once per real second, which is what made the animation look like it was running at ~1fps.
+export function currentJulianDay(date: Date): number {
+  const fractionalDay =
+    date.getUTCDate() +
+    date.getUTCHours() / 24 +
+    date.getUTCMinutes() / 1440 +
+    date.getUTCSeconds() / 86400 +
+    date.getUTCMilliseconds() / 86400000
+  return calendarToJulianDay(date.getUTCFullYear(), date.getUTCMonth() + 1, fractionalDay)
+}
+
 export interface TimeScalePreset {
   label: string
   secondsPerSecond: number
