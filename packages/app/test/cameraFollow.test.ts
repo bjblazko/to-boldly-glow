@@ -225,6 +225,45 @@ describe('CameraFollowController', () => {
     expect(camera.upAxis[2]).toBeCloseTo(expectedPole[2], 6)
   })
 
+  it('keeps the up-axis at unit length and rotating smoothly throughout the fly-to, even for a near-antipodal transition (Venus)', () => {
+    // Venus is retrograde: its real pole is ~178.76 degrees from the default up-axis
+    // (ECLIPTIC_NORTH = [0, 0, 1]), i.e. nearly antipodal to it. A plain lerp+normalize between
+    // two near-antipodal unit vectors always renormalizes to unit length by construction (even a
+    // near-zero raw vector divided by its own tiny magnitude yields a unit vector) - so a
+    // magnitude-only check can't actually distinguish the buggy approach from a correct one, it
+    // passes either way. What lerp+normalize actually gets wrong is *direction*: near the
+    // antipodal crossing, the tiny pre-normalization vector is highly sensitive to which side of
+    // zero it falls on frame to frame, so the normalized direction can swing enormously - a
+    // "whippy roll" - between two consecutive, closely-spaced tween steps. vec3.slerp instead
+    // moves along the constant-magnitude great-circle arc at a smooth, bounded angular rate. So
+    // this test checks both: unit length at every step, AND that no single step's worth of real
+    // time (0.1s here) ever rotates the up-axis by an implausibly large angle.
+    const camera = new OrbitCamera()
+    const controller = new CameraFollowController(camera)
+    const venus = findEntity('venus')
+
+    controller.selectEntity(venus, 0.1, 500, 0.5)
+    let previous: [number, number, number] = [camera.upAxis[0], camera.upAxis[1], camera.upAxis[2]]
+    let maxStepAngleDegrees = 0
+    for (let i = 0; i < 15; i++) {
+      controller.update(0.1, 0.1, 500, 0.5)
+      const current: [number, number, number] = [camera.upAxis[0], camera.upAxis[1], camera.upAxis[2]]
+      const magnitude = Math.hypot(current[0], current[1], current[2])
+      expect(magnitude).toBeCloseTo(1, 6)
+
+      const dot = previous[0] * current[0] + previous[1] * current[1] + previous[2] * current[2]
+      const stepAngleDegrees = (Math.acos(Math.min(1, Math.max(-1, dot))) * 180) / Math.PI
+      maxStepAngleDegrees = Math.max(maxStepAngleDegrees, stepAngleDegrees)
+      previous = current
+    }
+
+    // The total rotation across the whole fly-to is ~178.76 degrees, but eased over 15 steps -
+    // no single 0.1s step should account for anywhere near that much of it. The old lerp+normalize
+    // code produces a ~173 degree single-step jump right at the antipodal crossing for this exact
+    // Venus transition; slerp's worst single step here is ~33 degrees.
+    expect(maxStepAngleDegrees).toBeLessThan(90)
+  })
+
   it('leaves the up-axis wherever it was after stopFollowing, matching target/radius/azimuth', () => {
     const camera = new OrbitCamera()
     const controller = new CameraFollowController(camera)

@@ -127,9 +127,9 @@ export class CameraFollowController {
       vec3.copy(this.orbitCamera.target, lerpVec3(this.flyTo.startTarget, this.flyTo.endTarget, eased))
       this.orbitCamera.radius = lerp(this.flyTo.startRadius, this.flyTo.endRadius, eased)
       this.orbitCamera.azimuth = lerpAngle(this.flyTo.startAzimuth, this.flyTo.endAzimuth, eased)
-      const upAxis = lerpVec3(this.flyTo.startUpAxis, this.flyTo.endUpAxis, eased)
-      const upAxisLength = Math.hypot(upAxis[0], upAxis[1], upAxis[2])
-      vec3.set(this.orbitCamera.upAxis, upAxis[0] / upAxisLength, upAxis[1] / upAxisLength, upAxis[2] / upAxisLength)
+      const upAxis = vec3.create()
+      vec3.slerp(upAxis, this.flyTo.startUpAxis, this.flyTo.endUpAxis, eased)
+      vec3.copy(this.orbitCamera.upAxis, upAxis)
       if (t >= 1) this.flyTo = null
       return
     }
