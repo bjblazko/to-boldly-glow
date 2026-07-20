@@ -32,7 +32,7 @@ describe('orbitBasisForUpAxis', () => {
     // Uranus's real pole direction (equatorialToEclipticPoleDirection(257.31, -15.18)) - the
     // steepest tilt of any body in this app, ~82 degrees from world Z, and close to world Y,
     // which is exactly why this is a meaningful case to exercise (see the design spec #3.1).
-    const upAxis: [number, number, number] = [-0.212, -0.968, 0.1343]
+    const upAxis: [number, number, number] = [-0.21201099582187488, -0.9679986589133237, 0.13427558971244094]
     const basis = orbitBasisForUpAxis(upAxis)
 
     const dot = (a: readonly number[], b: readonly number[]) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
