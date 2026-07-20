@@ -164,9 +164,11 @@ In `CameraFollowController` (`cameraFollow.ts`):
 - `update()`'s tween step interpolates `upAxis` alongside target/radius/azimuth via a normalized
   lerp (`vec3.lerp` then `vec3.normalize` — adequate for a ≤1.5s tween; exact constant angular
   velocity isn't a requirement here), assigning the result to `orbitCamera.upAxis` each frame.
-- `stopFollowing()` resets `orbitCamera.upAxis` to `ECLIPTIC_NORTH` — free browsing after
-  un-following returns to the (new, corrected) default, consistent with radius/target already
-  having no followed-entity semantics once unfollowed.
+- `stopFollowing()` is **unchanged** — like `target`/`radius`/`azimuth` today, `upAxis` simply
+  freezes at whatever the last frame left it rather than snapping anywhere. Resetting it to
+  `ECLIPTIC_NORTH` on stop would be a new, inconsistent "snap" behavior this codebase doesn't have
+  anywhere else (confirmed: the existing `'stops re-targeting once stopFollowing is called'` test
+  in `cameraFollow.test.ts` asserts `target` stays exactly where it was, not reset).
 
 ### 3.5 Edge cases
 
@@ -191,8 +193,9 @@ In `CameraFollowController` (`cameraFollow.ts`):
   for a planet and the Sun, and `moonOrbitReferencePoleDirection`'s result for a moon — proven to
   be the same value already driving that entity's rendered tilt, not a separate computation that
   could drift out of sync.
-- `cameraFollow.test.ts` (or equivalent): a completed fly-to tween ends with `orbitCamera.upAxis`
-  equal to the followed entity's pole direction; `stopFollowing()` resets it to `ECLIPTIC_NORTH`.
+- `cameraFollow.test.ts`: a completed fly-to tween ends with `orbitCamera.upAxis` equal to the
+  followed entity's pole direction; `stopFollowing()` leaves `upAxis` unchanged (matching existing
+  `target` behavior).
 - `defaultFramingAzimuth`'s existing tests get parallel cases for a non-default basis (not just
   world X/Z), confirming the projection generalization is correct.
 - Manual verification in the browser (per this project's established practice): the *unfollowed*
