@@ -3,8 +3,48 @@ import {
   EXPLORER_MIN_ORBIT_RADIUS,
   minOrbitRadiusForBlend,
   OrbitCamera,
+  orbitBasisForUpAxis,
   REALISTIC_MIN_ORBIT_RADIUS,
 } from '../src/camera/orbitCamera'
+
+describe('orbitBasisForUpAxis', () => {
+  it('uses world X as forward0 and world Y as right for the default up-axis (ecliptic north, +Z)', () => {
+    const basis = orbitBasisForUpAxis([0, 0, 1])
+    expect(basis.forward0[0]).toBeCloseTo(1, 10)
+    expect(basis.forward0[1]).toBeCloseTo(0, 10)
+    expect(basis.forward0[2]).toBeCloseTo(0, 10)
+    expect(basis.right[0]).toBeCloseTo(0, 10)
+    expect(basis.right[1]).toBeCloseTo(1, 10)
+    expect(basis.right[2]).toBeCloseTo(0, 10)
+  })
+
+  it('falls back to world Y as the seed reference when up-axis is close to world X', () => {
+    const basis = orbitBasisForUpAxis([1, 0, 0])
+    expect(basis.forward0[0]).toBeCloseTo(0, 10)
+    expect(basis.forward0[1]).toBeCloseTo(1, 10)
+    expect(basis.forward0[2]).toBeCloseTo(0, 10)
+    expect(basis.right[0]).toBeCloseTo(0, 10)
+    expect(basis.right[1]).toBeCloseTo(0, 10)
+    expect(basis.right[2]).toBeCloseTo(1, 10)
+  })
+
+  it('produces an orthonormal frame for an arbitrary tilted up-axis (Uranus\'s real pole)', () => {
+    // Uranus's real pole direction (equatorialToEclipticPoleDirection(257.31, -15.18)) - the
+    // steepest tilt of any body in this app, ~82 degrees from world Z, and close to world Y,
+    // which is exactly why this is a meaningful case to exercise (see the design spec #3.1).
+    const upAxis: [number, number, number] = [-0.212, -0.968, 0.1343]
+    const basis = orbitBasisForUpAxis(upAxis)
+
+    const dot = (a: readonly number[], b: readonly number[]) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+    const length = (v: readonly number[]) => Math.hypot(v[0], v[1], v[2])
+
+    expect(length(basis.forward0)).toBeCloseTo(1, 10)
+    expect(length(basis.right)).toBeCloseTo(1, 10)
+    expect(dot(basis.forward0, upAxis)).toBeCloseTo(0, 10)
+    expect(dot(basis.right, upAxis)).toBeCloseTo(0, 10)
+    expect(dot(basis.forward0, basis.right)).toBeCloseTo(0, 10)
+  })
+})
 
 describe('OrbitCamera', () => {
   it('places the eye directly on the +Z axis at azimuth 0, elevation 0', () => {

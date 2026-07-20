@@ -21,6 +21,52 @@ export function minOrbitRadiusForBlend(blend: number): number {
   return geometricBlend(REALISTIC_MIN_ORBIT_RADIUS, EXPLORER_MIN_ORBIT_RADIUS, blend)
 }
 
+const REFERENCE_DEGENERACY_THRESHOLD = 0.999
+
+function dot3(a: readonly [number, number, number], b: readonly [number, number, number]): number {
+  return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+}
+
+function cross3(a: readonly [number, number, number], b: readonly [number, number, number]): [number, number, number] {
+  return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]
+}
+
+function normalize3(v: readonly [number, number, number]): [number, number, number] {
+  const length = Math.hypot(v[0], v[1], v[2])
+  return [v[0] / length, v[1] / length, v[2] / length]
+}
+
+export interface OrbitBasis {
+  right: [number, number, number]
+  forward0: [number, number, number]
+}
+
+// Builds an orthonormal (right, forward0) frame perpendicular to the given up-axis, so
+// OrbitCamera can orbit around any axis (not just world Y) and defaultFramingAzimuth
+// (cameraFollow.ts) can compute an azimuth relative to whatever's currently "up". forward0 is the
+// azimuth=0 eye-offset direction; right is the azimuth=PI/2 direction (see getEyePosition below).
+// World X is the primary Gram-Schmidt reference; world Y is the fallback for the rare case where
+// upAxis is itself close to X (none of this app's 9 real body poles are - the largest X-component
+// among them is Mars at 0.446 - but Uranus's real pole, [-0.212, -0.968, 0.1343], sits close to
+// world Y, which is exactly why Y isn't used as the PRIMARY reference: doing so would make the
+// most steeply-tilted body in this app's data degenerate). See
+// docs/superpowers/specs/2026-07-20-camera-north-up-orientation-design.md #3.1.
+export function orbitBasisForUpAxis(upAxis: readonly [number, number, number]): OrbitBasis {
+  const up = normalize3(upAxis)
+  const primaryReference: [number, number, number] = [1, 0, 0]
+  const fallbackReference: [number, number, number] = [0, 1, 0]
+  const reference =
+    Math.abs(dot3(up, primaryReference)) > REFERENCE_DEGENERACY_THRESHOLD ? fallbackReference : primaryReference
+  const referenceDotUp = dot3(reference, up)
+  const forward0 = normalize3([
+    reference[0] - referenceDotUp * up[0],
+    reference[1] - referenceDotUp * up[1],
+    reference[2] - referenceDotUp * up[2],
+  ])
+  const right = normalize3(cross3(up, forward0))
+  return { right, forward0 }
+}
+
 export interface OrbitCameraOptions {
   target?: [number, number, number]
   radius?: number
