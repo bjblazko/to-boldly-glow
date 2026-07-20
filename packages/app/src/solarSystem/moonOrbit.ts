@@ -1,14 +1,17 @@
 import { mat4, vec3 } from 'gl-matrix'
 import type { BodyDefinition } from './bodies'
 import type { MoonDefinition } from './moons'
-import { AU_TO_SCENE_UNITS } from './sceneScale'
+import { AU_TO_SCENE_UNITS, geometricBlend } from './sceneScale'
 import { axisAlignmentRotation, ECLIPTIC_NORTH, equatorialToEclipticPoleDirection } from './poleOrientation'
 
 // blend: 0 = fully realistic (the same true-AU-consistent scale used everywhere else), 1 = fully
 // explorer (a hand-picked explorerOrbitVisualRadius, in the same spirit as each body's own
-// explorerVisualRadius). Unlike scaledDistanceUnits, this has no log1p compression — moon-to-parent
-// distance ratios are far more uniform across this body set than the 0.39-30 AU spread between
-// planets, so a simple linear blend already looks reasonable without needing to compress outliers.
+// explorerVisualRadius). Uses the same geometric blend as scaledBodyRadiusUnits (see
+// geometricBlend in sceneScale.ts) rather than a linear one: the realistic and explorer endpoints
+// here differ by 1-2 orders of magnitude (e.g. the Moon's true orbit radius in scene units is
+// ~33x smaller than its hand-picked explorer radius), so a linear blend collapses to explorer-mode
+// proportions almost immediately off blend=0. Geometric blending keeps the moon-to-parent distance
+// proportional across the whole slider range instead.
 export function scaledMoonOrbitRadiusUnits(
   orbitDistanceKm: number,
   explorerOrbitVisualRadius: number,
@@ -16,7 +19,7 @@ export function scaledMoonOrbitRadiusUnits(
   auKm: number,
 ): number {
   const realistic = (orbitDistanceKm / auKm) * AU_TO_SCENE_UNITS
-  return realistic + (explorerOrbitVisualRadius - realistic) * blend
+  return geometricBlend(realistic, explorerOrbitVisualRadius, blend)
 }
 
 // Progress angle around the orbit, measured from an arbitrary epoch reference (this app doesn't

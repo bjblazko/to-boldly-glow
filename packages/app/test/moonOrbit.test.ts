@@ -28,12 +28,12 @@ describe('scaledMoonOrbitRadiusUnits', () => {
     expect(result).toBeCloseTo(1.7, 10)
   })
 
-  it('interpolates linearly (no log compression) between the two endpoints', () => {
+  it('interpolates geometrically (matching scaledBodyRadiusUnits) between the two endpoints', () => {
     const orbitDistanceKm = 384_400
     const explorerRadius = 1.7
     const realistic = (orbitDistanceKm / AU_KM) * AU_TO_SCENE_UNITS
     const atHalf = scaledMoonOrbitRadiusUnits(orbitDistanceKm, explorerRadius, 0.5, AU_KM)
-    expect(atHalf).toBeCloseTo((realistic + explorerRadius) / 2, 10)
+    expect(atHalf).toBeCloseTo(Math.sqrt(realistic * explorerRadius), 10)
   })
 })
 

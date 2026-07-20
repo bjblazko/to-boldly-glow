@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   AU_TO_SCENE_UNITS,
   explorerDistanceUnits,
+  geometricBlend,
   scaledBodyRadiusUnits,
   scaledDistanceUnits,
   scaledPosition,
@@ -33,6 +34,20 @@ describe('scaledDistanceUnits', () => {
   })
 })
 
+describe('geometricBlend', () => {
+  it('matches the realistic endpoint at blend 0', () => {
+    expect(geometricBlend(0.00085, 1.0, 0)).toBeCloseTo(0.00085, 10)
+  })
+
+  it('matches the explorer endpoint at blend 1', () => {
+    expect(geometricBlend(0.00085, 1.0, 1)).toBeCloseTo(1.0, 10)
+  })
+
+  it('is the geometric mean of the two endpoints at blend 0.5', () => {
+    expect(geometricBlend(0.00085, 1.0, 0.5)).toBeCloseTo(Math.sqrt(0.00085 * 1.0), 10)
+  })
+})
+
 describe('scaledBodyRadiusUnits', () => {
   it('matches the true-to-scale radius at blend 0', () => {
     const result = scaledBodyRadiusUnits(6371, 1.0, 0, AU_KM)
@@ -41,6 +56,13 @@ describe('scaledBodyRadiusUnits', () => {
 
   it('matches the hand-picked explorer radius at blend 1', () => {
     expect(scaledBodyRadiusUnits(6371, 1.0, 1, AU_KM)).toBeCloseTo(1.0, 10)
+  })
+
+  it('interpolates geometrically (not linearly) between the two endpoints at blend 0.5', () => {
+    const realistic = (6371 / AU_KM) * AU_TO_SCENE_UNITS
+    const explorer = 1.0
+    const atHalf = scaledBodyRadiusUnits(6371, explorer, 0.5, AU_KM)
+    expect(atHalf).toBeCloseTo(Math.sqrt(realistic * explorer), 10)
   })
 })
 

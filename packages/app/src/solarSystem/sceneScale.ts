@@ -20,6 +20,25 @@ export function scaledDistanceUnits(distanceAu: number, blend: number): number {
   return realistic + (explorer - realistic) * blend
 }
 
+// Interpolates between a "realistic" and "explorer" endpoint on a MULTIPLICATIVE (geometric)
+// scale rather than an additive one. Used for quantities (body radii, moon orbit radii) where the
+// realistic and explorer endpoints differ by 1-3 orders of magnitude — e.g. Earth's true radius in
+// scene units is ~1200x smaller than its hand-picked explorer radius. A plain linear blend
+// (realistic + (explorer - realistic) * blend) is dominated by the much larger explorer term for
+// almost the entire [0, 1] range, so the rendered scale collapses to explorer-mode proportions
+// after only a small nudge off blend=0. Geometric blending instead moves proportionally:
+// value(blend) = realistic * (explorer / realistic) ** blend, so the RATIO between any two
+// geometrically-blended quantities interpolates smoothly between their true ratio (blend=0) and
+// their explorer-mode ratio (blend=1) across the whole range. Matches the old linear formula's
+// endpoints exactly (blend=0 -> realistic, blend=1 -> explorer), so explorer mode's hand-tuned
+// look at blend=1 is unchanged.
+//
+// Requires realistic > 0 and explorer > 0 (true for every body/orbit currently defined in
+// bodies.ts/moons.ts).
+export function geometricBlend(realistic: number, explorer: number, blend: number): number {
+  return realistic * Math.pow(explorer / realistic, blend)
+}
+
 export function scaledBodyRadiusUnits(
   radiusKm: number,
   explorerVisualRadius: number,
@@ -27,7 +46,7 @@ export function scaledBodyRadiusUnits(
   auKm: number,
 ): number {
   const realistic = (radiusKm / auKm) * AU_TO_SCENE_UNITS
-  return realistic + (explorerVisualRadius - realistic) * blend
+  return geometricBlend(realistic, explorerVisualRadius, blend)
 }
 
 // Rescales an already-computed AU-space position (x, y, z with x²+y²+z² = distanceAu²) to scene
