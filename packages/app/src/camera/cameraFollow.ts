@@ -1,8 +1,8 @@
 import { vec3 } from 'gl-matrix'
 import { AU_KM } from '../solarSystem/bodies'
-import { entityWorldPosition, type SolarSystemEntity } from '../solarSystem/entities'
+import { entityPoleDirection, entityWorldPosition, type SolarSystemEntity } from '../solarSystem/entities'
 import { scaledBodyRadiusUnits } from '../solarSystem/sceneScale'
-import type { OrbitCamera } from './orbitCamera'
+import { orbitBasisForUpAxis, type OrbitBasis, type OrbitCamera } from './orbitCamera'
 import { easeInOutCubic, lerp, lerpAngle, lerpVec3 } from './easing'
 
 export interface CameraFollowOptions {
@@ -32,9 +32,11 @@ interface FlyToTween {
   startTarget: [number, number, number]
   startRadius: number
   startAzimuth: number
+  startUpAxis: [number, number, number]
   endTarget: [number, number, number]
   endRadius: number
   endAzimuth: number
+  endUpAxis: [number, number, number]
   elapsedSeconds: number
   durationSeconds: number
 }
@@ -46,16 +48,24 @@ function defaultFramingRadius(entity: SolarSystemEntity, scaleBlend: number, cam
   return Math.min(Math.max(framing, camera.minRadius), camera.maxRadius)
 }
 
-// Azimuth (horizontal facing direction) that positions the camera's eye roughly on the Sun's side
-// of the target, so the flight ends looking at a sunlit face rather than a silhouette. Only
-// reorients azimuth, not elevation - elevation stays whatever the user had, since deriving a
-// correct default elevation would require resolving which scene axis is "ecliptic north" (a
-// separate, not-yet-settled question). Falls back to the given azimuth when the target is at the
-// origin (the Sun itself), where there's no meaningful "direction toward the Sun" to face.
-export function defaultFramingAzimuth(targetPosition: readonly [number, number, number], fallbackAzimuth: number): number {
-  const [tx, , tz] = targetPosition
-  if (Math.abs(tx) < 1e-9 && Math.abs(tz) < 1e-9) return fallbackAzimuth
-  return Math.atan2(-tx, -tz)
+// Azimuth (horizontal facing direction, relative to the given up-axis basis) that positions the
+// camera's eye roughly on the Sun's side of the target, so the flight ends looking at a sunlit
+// face rather than a silhouette. Only reorients azimuth, not elevation - elevation stays whatever
+// the user had. Falls back to the given azimuth when the target is at the origin (the Sun
+// itself), where there's no meaningful "direction toward the Sun" to face. `basis` must be the
+// (right, forward0) frame for whichever up-axis is in effect when this is called - see
+// orbitBasisForUpAxis in orbitCamera.ts.
+export function defaultFramingAzimuth(
+  targetPosition: readonly [number, number, number],
+  fallbackAzimuth: number,
+  basis: OrbitBasis,
+): number {
+  const [tx, ty, tz] = targetPosition
+  if (Math.hypot(tx, ty, tz) < 1e-9) return fallbackAzimuth
+  const toEye: [number, number, number] = [-tx, -ty, -tz]
+  const rightComponent = toEye[0] * basis.right[0] + toEye[1] * basis.right[1] + toEye[2] * basis.right[2]
+  const forwardComponent = toEye[0] * basis.forward0[0] + toEye[1] * basis.forward0[1] + toEye[2] * basis.forward0[2]
+  return Math.atan2(rightComponent, forwardComponent)
 }
 
 // Flies the camera to a selected entity, then keeps OrbitCamera.target locked onto its live world
@@ -80,16 +90,24 @@ export class CameraFollowController {
       this.orbitCamera.target[1],
       this.orbitCamera.target[2],
     ]
+    const startUpAxis: [number, number, number] = [
+      this.orbitCamera.upAxis[0],
+      this.orbitCamera.upAxis[1],
+      this.orbitCamera.upAxis[2],
+    ]
     this.followedEntity = entity
     this.followedEntityId = entity.id
     const endTarget = entityWorldPosition(entity, T, daysSinceEpoch, scaleBlend)
+    const basis = orbitBasisForUpAxis(startUpAxis)
     this.flyTo = {
       startTarget,
       startRadius: this.orbitCamera.radius,
       startAzimuth: this.orbitCamera.azimuth,
+      startUpAxis,
       endTarget,
       endRadius: defaultFramingRadius(entity, scaleBlend, this.orbitCamera),
-      endAzimuth: defaultFramingAzimuth(endTarget, this.orbitCamera.azimuth),
+      endAzimuth: defaultFramingAzimuth(endTarget, this.orbitCamera.azimuth, basis),
+      endUpAxis: entityPoleDirection(entity),
       elapsedSeconds: 0,
       durationSeconds: this.flyToDurationSeconds,
     }
@@ -109,6 +127,9 @@ export class CameraFollowController {
       vec3.copy(this.orbitCamera.target, lerpVec3(this.flyTo.startTarget, this.flyTo.endTarget, eased))
       this.orbitCamera.radius = lerp(this.flyTo.startRadius, this.flyTo.endRadius, eased)
       this.orbitCamera.azimuth = lerpAngle(this.flyTo.startAzimuth, this.flyTo.endAzimuth, eased)
+      const upAxis = lerpVec3(this.flyTo.startUpAxis, this.flyTo.endUpAxis, eased)
+      const upAxisLength = Math.hypot(upAxis[0], upAxis[1], upAxis[2])
+      vec3.set(this.orbitCamera.upAxis, upAxis[0] / upAxisLength, upAxis[1] / upAxisLength, upAxis[2] / upAxisLength)
       if (t >= 1) this.flyTo = null
       return
     }

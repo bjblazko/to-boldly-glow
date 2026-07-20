@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { OrbitCamera } from '../src/camera/orbitCamera'
+import { OrbitCamera, orbitBasisForUpAxis } from '../src/camera/orbitCamera'
 import { CameraFollowController, defaultFramingAzimuth } from '../src/camera/cameraFollow'
-import { ALL_ENTITIES, entityWorldPosition } from '../src/solarSystem/entities'
+import { ALL_ENTITIES, entityPoleDirection, entityWorldPosition } from '../src/solarSystem/entities'
 
 function findEntity(id: string) {
   const entity = ALL_ENTITIES.find((e) => e.id === id)
@@ -19,19 +19,22 @@ function runPastFlyTo(controller: CameraFollowController, T: number, daysSinceEp
 
 describe('defaultFramingAzimuth', () => {
   it('faces the eye offset toward the Sun-relative direction for a target on the +X axis', () => {
-    const azimuth = defaultFramingAzimuth([10, 0, 0], 99)
-    expect(Math.sin(azimuth)).toBeCloseTo(-1, 10)
-    expect(Math.cos(azimuth)).toBeCloseTo(0, 10)
-  })
-
-  it('faces the eye offset toward the Sun-relative direction for a target on the +Z axis', () => {
-    const azimuth = defaultFramingAzimuth([0, 0, 5], 99)
+    const basis = orbitBasisForUpAxis([0, 0, 1]) // default up-axis, ecliptic north
+    const azimuth = defaultFramingAzimuth([10, 0, 0], 99, basis)
     expect(Math.sin(azimuth)).toBeCloseTo(0, 10)
     expect(Math.cos(azimuth)).toBeCloseTo(-1, 10)
   })
 
+  it('faces the eye offset toward the Sun-relative direction for a target on the +Y axis', () => {
+    const basis = orbitBasisForUpAxis([0, 0, 1])
+    const azimuth = defaultFramingAzimuth([0, 5, 0], 99, basis)
+    expect(Math.sin(azimuth)).toBeCloseTo(-1, 10)
+    expect(Math.cos(azimuth)).toBeCloseTo(0, 10)
+  })
+
   it('falls back to the given azimuth when the target is at the origin (the Sun itself)', () => {
-    expect(defaultFramingAzimuth([0, 0, 0], 1.234)).toBe(1.234)
+    const basis = orbitBasisForUpAxis([0, 0, 1])
+    expect(defaultFramingAzimuth([0, 0, 0], 1.234, basis)).toBe(1.234)
   })
 })
 
@@ -172,7 +175,8 @@ describe('CameraFollowController', () => {
     runPastFlyTo(controller, T, daysSinceEpoch, scaleBlend)
 
     const expectedTarget = entityWorldPosition(earth, T, daysSinceEpoch, scaleBlend)
-    const expectedAzimuth = defaultFramingAzimuth(expectedTarget, camera.azimuth)
+    const basis = orbitBasisForUpAxis([0, 0, 1]) // camera's up-axis before this fly-to started
+    const expectedAzimuth = defaultFramingAzimuth(expectedTarget, 0, basis)
     expect(Math.sin(camera.azimuth)).toBeCloseTo(Math.sin(expectedAzimuth), 6)
     expect(Math.cos(camera.azimuth)).toBeCloseTo(Math.cos(expectedAzimuth), 6)
   })
@@ -205,5 +209,35 @@ describe('CameraFollowController', () => {
     expect(camera.target[0]).toBe(targetAfterStop[0])
     expect(camera.target[1]).toBe(targetAfterStop[1])
     expect(camera.target[2]).toBe(targetAfterStop[2])
+  })
+
+  it("orients the camera's up-axis to the followed entity's own pole after the fly-to", () => {
+    const camera = new OrbitCamera()
+    const controller = new CameraFollowController(camera)
+    const earth = findEntity('earth')
+
+    controller.selectEntity(earth, 0.1, 500, 0.5)
+    runPastFlyTo(controller, 0.1, 500, 0.5)
+
+    const expectedPole = entityPoleDirection(earth)
+    expect(camera.upAxis[0]).toBeCloseTo(expectedPole[0], 6)
+    expect(camera.upAxis[1]).toBeCloseTo(expectedPole[1], 6)
+    expect(camera.upAxis[2]).toBeCloseTo(expectedPole[2], 6)
+  })
+
+  it('leaves the up-axis wherever it was after stopFollowing, matching target/radius/azimuth', () => {
+    const camera = new OrbitCamera()
+    const controller = new CameraFollowController(camera)
+    const earth = findEntity('earth')
+
+    controller.selectEntity(earth, 0.1, 500, 0.5)
+    runPastFlyTo(controller, 0.1, 500, 0.5)
+
+    const upAxisAfterFlyTo: [number, number, number] = [camera.upAxis[0], camera.upAxis[1], camera.upAxis[2]]
+    controller.stopFollowing()
+
+    expect(camera.upAxis[0]).toBe(upAxisAfterFlyTo[0])
+    expect(camera.upAxis[1]).toBe(upAxisAfterFlyTo[1])
+    expect(camera.upAxis[2]).toBe(upAxisAfterFlyTo[2])
   })
 })
