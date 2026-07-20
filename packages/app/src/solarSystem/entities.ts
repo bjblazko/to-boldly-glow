@@ -4,6 +4,7 @@ import { MOONS, type MoonDefinition } from './moons'
 import { scaledPosition } from './sceneScale'
 import { AU_KM } from './bodies'
 import { moonOrbitAngleRadians, moonOrbitReferencePoleDirection, moonRelativePosition, scaledMoonOrbitRadiusUnits } from './moonOrbit'
+import { equatorialToEclipticPoleDirection } from './poleOrientation'
 
 export type EntityKind = 'sun' | 'planet' | 'moon'
 
@@ -78,4 +79,19 @@ export function entityWorldPosition(
     referencePoleDirection,
   )
   return [px + rx, py + ry, pz + rz]
+}
+
+// An entity's own real north-pole direction - the same value already used to tilt its rendered
+// mesh (see main.ts's use of equatorialToEclipticPoleDirection for the Sun/planets and
+// moonOrbitReferencePoleDirection for moons). Used by CameraFollowController to orient the camera
+// to a followed entity's real "up" instead of the scene's generic ecliptic north.
+export function entityPoleDirection(entity: SolarSystemEntity): [number, number, number] {
+  if (entity.kind === 'moon') {
+    const moon = entity.definition as MoonDefinition
+    const parent = ALL_ENTITIES.find((e) => e.id === moon.parentId)
+    if (!parent) throw new Error(`${moon.id} has no known parent ${moon.parentId}.`)
+    return moonOrbitReferencePoleDirection(moon, parent.definition as BodyDefinition)
+  }
+  const body = entity.definition as BodyDefinition
+  return equatorialToEclipticPoleDirection(body.poleRightAscensionDegrees, body.poleDeclinationDegrees)
 }

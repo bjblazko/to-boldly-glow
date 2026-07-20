@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   ALL_ENTITIES,
+  entityPoleDirection,
   entityWorldPosition,
   matchesSearchQuery,
   planetAuPosition,
@@ -11,6 +12,7 @@ import { AU_KM, PLANETS } from '../src/solarSystem/bodies'
 import { MOONS } from '../src/solarSystem/moons'
 import { scaledPosition } from '../src/solarSystem/sceneScale'
 import { moonOrbitAngleRadians, moonOrbitReferencePoleDirection, moonRelativePosition, scaledMoonOrbitRadiusUnits } from '../src/solarSystem/moonOrbit'
+import { equatorialToEclipticPoleDirection } from '../src/solarSystem/poleOrientation'
 
 function findEntity(id: string): SolarSystemEntity {
   const entity = ALL_ENTITIES.find((e) => e.id === id)
@@ -101,5 +103,29 @@ describe('entityWorldPosition', () => {
     expect(actual[0]).toBeCloseTo(px + rx, 10)
     expect(actual[1]).toBeCloseTo(py + ry, 10)
     expect(actual[2]).toBeCloseTo(pz + rz, 10)
+  })
+})
+
+describe('entityPoleDirection', () => {
+  it('matches equatorialToEclipticPoleDirection for a planet', () => {
+    const mars = findEntity('mars')
+    const body = mars.definition as (typeof PLANETS)[number]
+    const expected = equatorialToEclipticPoleDirection(body.poleRightAscensionDegrees, body.poleDeclinationDegrees)
+    expect(entityPoleDirection(mars)).toEqual(expected)
+  })
+
+  it('matches equatorialToEclipticPoleDirection for the Sun', () => {
+    const sun = findEntity('sun')
+    const body = sun.definition as (typeof PLANETS)[number]
+    const expected = equatorialToEclipticPoleDirection(body.poleRightAscensionDegrees, body.poleDeclinationDegrees)
+    expect(entityPoleDirection(sun)).toEqual(expected)
+  })
+
+  it('matches moonOrbitReferencePoleDirection for a moon', () => {
+    const titan = findEntity('titan')
+    const saturn = findEntity('saturn')
+    const moon = titan.definition as (typeof MOONS)[number]
+    const expected = moonOrbitReferencePoleDirection(moon, saturn.definition as (typeof PLANETS)[number])
+    expect(entityPoleDirection(titan)).toEqual(expected)
   })
 })
