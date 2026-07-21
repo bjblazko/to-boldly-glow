@@ -29,10 +29,11 @@ import {
 } from './solarSystem/moonOrbit'
 import { worldToScreen, type ScreenPosition } from './renderer/screenProjection'
 import { computeCanvasSize } from './renderer/canvasSize'
-import { LIT_UNIFORM_FLOAT_COUNT } from './renderer/shaders'
+import { CLOUD_SHELL_UNIFORM_FLOAT_COUNT, LIT_UNIFORM_FLOAT_COUNT } from './renderer/shaders'
 import { circleOverlapFraction } from './renderer/circleOverlap'
 import {
   createBodySampler,
+  createCloudShellPipeline,
   createFlarePipeline,
   createLinePipeline,
   createLitPipeline,
@@ -331,6 +332,28 @@ async function main() {
       { binding: 2, resource: bodySampler },
     ],
   })
+  // Scoped to the four gas giants specifically (per the design spec) - Earth/Venus already have
+  // the additive rim-glow term in litSphereShaderCode instead. A small local constant, not a new
+  // BodyDefinition field, since this is a fixed, unlikely-to-change rendering-layer decision, not
+  // per-body data (mirrors RING_INNER_RADIUS_FACTOR/RING_OUTER_RADIUS_FACTOR just above).
+  const GAS_GIANT_IDS = ['jupiter', 'saturn', 'uranus', 'neptune']
+  const CLOUD_SHELL_RADIUS_FACTOR = 1.035
+  const cloudShellPipeline = await createCloudShellPipeline(device, sceneColorFormat)
+  const cloudShellRenderables = planetRenderables
+    .filter((renderable) => GAS_GIANT_IDS.includes(renderable.definition.id))
+    .map((renderable) => {
+      const uniformBuffer = device.createBuffer({
+        label: `${renderable.definition.id} cloud shell uniforms`,
+        size: CLOUD_SHELL_UNIFORM_FLOAT_COUNT * 4,
+        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+      })
+      const bindGroup = device.createBindGroup({
+        layout: cloudShellPipeline.getBindGroupLayout(0),
+        entries: [{ binding: 0, resource: { buffer: uniformBuffer } }],
+      })
+      return { planetId: renderable.definition.id, uniformBuffer, bindGroup }
+    })
+
   // Starts fully "Compact" (1) for a legible initial view — at "Realistic" (0), the inner
   // planets are indistinguishable from the Sun at any reasonable camera distance. The toggle
   // lets the user switch to "Realistic" to see true relative scale/distance; scaleBlendTween
@@ -839,6 +862,28 @@ async function main() {
       uniforms.set([bumpIntensity ?? 0, 0, 0, 0], 68)
       device.queue.writeBuffer(renderable.uniformBuffer, 0, uniforms)
 
+      const cloudShell = cloudShellRenderables.find((shell) => shell.planetId === renderable.definition.id)
+      if (cloudShell && atmosphereColor && atmosphereIntensity) {
+        const shellRadius = radius * CLOUD_SHELL_RADIUS_FACTOR
+        const shellWorld = mat4.multiply(
+          mat4.create(),
+          mat4.fromTranslation(mat4.create(), [sx, sy, sz]),
+          mat4.multiply(
+            mat4.create(),
+            tilt,
+            mat4.multiply(mat4.create(), mat4.fromZRotation(mat4.create(), rotation), mat4.fromScaling(mat4.create(), [shellRadius, shellRadius, shellRadius])),
+          ),
+        )
+        const shellWvp = mat4.multiply(mat4.create(), projection, mat4.multiply(mat4.create(), view, shellWorld))
+        const shellUniforms = new Float32Array(CLOUD_SHELL_UNIFORM_FLOAT_COUNT)
+        shellUniforms.set(shellWvp, 0)
+        shellUniforms.set(shellWorld, 16)
+        shellUniforms.set([...atmosphereColor, atmosphereIntensity], 32)
+        shellUniforms.set([...lightDirection, 0], 36)
+        shellUniforms.set([...cameraPosition, 0], 40)
+        device.queue.writeBuffer(cloudShell.uniformBuffer, 0, shellUniforms)
+      }
+
       if (isSaturn) {
         const ringWorld = mat4.multiply(
           mat4.create(),
@@ -919,6 +964,18 @@ async function main() {
     pass.setIndexBuffer(ringBuffers.indexBuffer, 'uint32')
     pass.setBindGroup(0, ringBindGroup)
     pass.drawIndexed(ringBuffers.indexCount)
+    // Drawn after every opaque sphere and the ring, same reasoning: alpha-blended and depth-tested
+    // but not depth-writing, so draw order relative to other transparent passes (orbit paths,
+    // flares) doesn't matter for correctness, only that it's after all opaque geometry.
+    pass.setPipeline(cloudShellPipeline)
+    for (const shell of cloudShellRenderables) {
+      pass.setVertexBuffer(0, meshBuffers.positionBuffer)
+      pass.setVertexBuffer(1, meshBuffers.normalBuffer)
+      pass.setVertexBuffer(2, meshBuffers.uvBuffer)
+      pass.setIndexBuffer(meshBuffers.indexBuffer, 'uint32')
+      pass.setBindGroup(0, shell.bindGroup)
+      pass.drawIndexed(meshBuffers.indexCount)
+    }
     if (showOrbitPaths) {
       pass.setPipeline(linePipeline)
       for (const path of orbitPathRenderables) {

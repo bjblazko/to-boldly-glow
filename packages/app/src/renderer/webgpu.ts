@@ -1,6 +1,7 @@
 import type { RingMesh } from '../geometry/ring'
 import type { SphereMesh } from '../geometry/sphere'
 import {
+  cloudShellShaderCode,
   flareShaderCode,
   lineShaderCode,
   litSphereShaderCode,
@@ -392,4 +393,33 @@ export function createRingBuffers(device: GPUDevice, mesh: RingMesh): RingBuffer
   device.queue.writeBuffer(indexBuffer, 0, mesh.indices as BufferSource)
 
   return { positionBuffer, uvBuffer, indexBuffer, indexCount: mesh.indices.length }
+}
+
+export async function createCloudShellPipeline(device: GPUDevice, format: GPUTextureFormat): Promise<GPURenderPipeline> {
+  const module = device.createShaderModule({ label: 'cloud shell shader', code: cloudShellShaderCode })
+  return await device.createRenderPipelineAsync({
+    label: 'cloud shell pipeline',
+    layout: 'auto',
+    vertex: { module, entryPoint: 'vs', buffers: [POSITION_BUFFER_LAYOUT, NORMAL_BUFFER_LAYOUT, UV_BUFFER_LAYOUT] },
+    fragment: {
+      module,
+      entryPoint: 'fs',
+      targets: [
+        {
+          format,
+          // Same non-premultiplied alpha blending as the ring pipeline.
+          blend: {
+            color: { srcFactor: 'src-alpha', dstFactor: 'one-minus-src-alpha', operation: 'add' },
+            alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },
+          },
+        },
+      ],
+    },
+    // Unlike the ring (a flat annulus visible from both sides), this is a solid convex sphere, so
+    // normal backface culling applies - same frontFace: 'cw' fix as createLitPipeline, since this
+    // reuses that exact mesh and winding.
+    primitive: { topology: 'triangle-list', cullMode: 'back', frontFace: 'cw' },
+    depthStencil: { depthWriteEnabled: false, depthCompare: 'less', format: 'depth24plus' },
+    multisample: { count: SAMPLE_COUNT },
+  })
 }
