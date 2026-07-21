@@ -5,13 +5,6 @@ Each entry here is a named future feature with just enough detail to pick up lat
 re-deriving requirements from scratch. Before implementation, each entry should go through its own
 brainstorming → design-spec → implementation-plan cycle.
 
-## Earth seasons visualization
-**What**: Show why Earth has seasons — axial tilt (23.4°) relative to orbital plane, and how
-sunlight angle/duration changes through the year at a chosen latitude.
-**Approach**: Animate Earth's tilt and orbit over a compressed year, with a marker for the
-observer's chosen latitude and a sun-angle indicator; sync to the main time controller.
-**Data needed**: none beyond what MVP already has (Earth's orbital elements, axial tilt constant).
-
 ## Moon phase / cycle deep-dive
 **What**: Explain the ~29.5-day synodic lunar cycle — why we see phases, the difference between
 sidereal and synodic month, supermoon/perigee-syzygy.
