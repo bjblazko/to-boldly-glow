@@ -755,6 +755,13 @@ async function main() {
 
   const lessonChapterText = requireElement<HTMLElement>('#lesson-chapter-text')
 
+  // Snapshots of the user's explore-mode Display-toggle state, taken right before forcing both off
+  // on learn-mode entry, and restored verbatim on exit - so visiting a lesson never permanently
+  // alters a user's own preferences (see the lesson-picker click handler and learnModeBtn exit
+  // branch below).
+  let preLearnOrbitPaths = true
+  let preLearnBodyLabels = true
+
   function refreshChapterUI(): void {
     const chapter = lessonPlayer.currentChapter
     seasonPhaseTween.retarget(chapter.seasonPhaseDegrees, currentSeasonPhase)
@@ -768,6 +775,13 @@ async function main() {
   learnModeBtn.addEventListener('click', () => {
     if (learnModeController.currentMode === 'learn') {
       learnModeController.exit()
+      showOrbitPaths = preLearnOrbitPaths
+      orbitPathsToggle.checked = preLearnOrbitPaths
+      canvas.dataset.orbitPaths = String(preLearnOrbitPaths)
+      showBodyLabels = preLearnBodyLabels
+      bodyLabelsToggle.checked = preLearnBodyLabels
+      labelsContainer.style.display = preLearnBodyLabels ? '' : 'none'
+      canvas.dataset.labelsVisible = String(preLearnBodyLabels)
       lessonPanel.hidden = true
       lessonPicker.hidden = true
       return
@@ -781,6 +795,15 @@ async function main() {
       if (!lesson) return
       lessonPicker.hidden = true
       lessonPlayer.load(lesson)
+      preLearnOrbitPaths = showOrbitPaths
+      preLearnBodyLabels = showBodyLabels
+      showOrbitPaths = false
+      orbitPathsToggle.checked = false
+      canvas.dataset.orbitPaths = 'false'
+      showBodyLabels = false
+      bodyLabelsToggle.checked = false
+      labelsContainer.style.display = 'none'
+      canvas.dataset.labelsVisible = 'false'
       learnModeController.enter(lesson.id)
       applyLearnCameraFraming()
       currentSeasonPhase = lesson.chapters[0].seasonPhaseDegrees
@@ -1248,6 +1271,7 @@ async function main() {
     }
     drawBody(pass, unlitPipeline, meshBuffers, sunRenderable.bindGroup)
     for (const renderable of planetRenderables) {
+      if (learnModeController.currentMode === 'learn' && renderable.definition.id !== 'earth') continue
       drawBody(pass, litPipeline, meshBuffers, renderable.bindGroup)
     }
     if (showMoons && learnModeController.currentMode !== 'learn') {
