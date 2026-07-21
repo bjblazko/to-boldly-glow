@@ -761,6 +761,7 @@ async function main() {
   // branch below).
   let preLearnOrbitPaths = true
   let preLearnBodyLabels = true
+  let preLearnFlares = true
 
   function refreshChapterUI(): void {
     const chapter = lessonPlayer.currentChapter
@@ -782,6 +783,9 @@ async function main() {
       bodyLabelsToggle.checked = preLearnBodyLabels
       labelsContainer.style.display = preLearnBodyLabels ? '' : 'none'
       canvas.dataset.labelsVisible = String(preLearnBodyLabels)
+      showFlares = preLearnFlares
+      flaresToggle.checked = preLearnFlares
+      canvas.dataset.flares = String(preLearnFlares)
       lessonPanel.hidden = true
       lessonPicker.hidden = true
       return
@@ -797,6 +801,7 @@ async function main() {
       lessonPlayer.load(lesson)
       preLearnOrbitPaths = showOrbitPaths
       preLearnBodyLabels = showBodyLabels
+      preLearnFlares = showFlares
       showOrbitPaths = false
       orbitPathsToggle.checked = false
       canvas.dataset.orbitPaths = 'false'
@@ -804,6 +809,9 @@ async function main() {
       bodyLabelsToggle.checked = false
       labelsContainer.style.display = 'none'
       canvas.dataset.labelsVisible = 'false'
+      showFlares = false
+      flaresToggle.checked = false
+      canvas.dataset.flares = 'false'
       learnModeController.enter(lesson.id)
       applyLearnCameraFraming()
       currentSeasonPhase = lesson.chapters[0].seasonPhaseDegrees
