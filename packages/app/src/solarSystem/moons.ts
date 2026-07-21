@@ -45,6 +45,14 @@ export interface MoonDefinition {
    * of them. Those moons render as a flat `color` sphere instead of a texture full of black gaps.
    */
   textureUrl?: string
+  /**
+   * Path (under public/) to a grayscale height map used for bump mapping (perturbing the shading
+   * normal only — no geometry change). Undefined means no relief. Sourced per-body; see
+   * CREDITS.md for provenance once populated.
+   */
+  bumpMapUrl?: string
+  /** Bump-mapping and ambient-occlusion strength, roughly 0-1. Undefined/0 means no effect. */
+  bumpIntensity?: number
 }
 
 export const MOONS: MoonDefinition[] = [

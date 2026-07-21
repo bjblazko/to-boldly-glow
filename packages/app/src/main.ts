@@ -48,7 +48,7 @@ import {
   updateOrbitPathBuffer,
   type MeshBuffers,
 } from './renderer/webgpu'
-import { createFallbackWhiteTexture, loadBodyTexture } from './renderer/textureLoader'
+import { createFallbackFlatBumpTexture, createFallbackWhiteTexture, loadBodyTexture } from './renderer/textureLoader'
 import { createMipmapPipeline, createMipmapSampler } from './renderer/mipmapGenerator'
 import { loadStarCatalog } from './starfield/starCatalog'
 import {
@@ -125,7 +125,7 @@ interface BodyRenderable<TDefinition extends { id: string } = BodyDefinition> {
 // Generic over the definition type so it works for both planets/Sun (BodyDefinition, always has a
 // textureUrl) and moons (MoonDefinition, textureUrl optional — see solarSystem/moons.ts for why
 // some moons have none).
-async function createBodyRenderable<TDefinition extends { id: string; textureUrl?: string }>(
+async function createBodyRenderable<TDefinition extends { id: string; textureUrl?: string; bumpMapUrl?: string }>(
   device: GPUDevice,
   pipeline: GPURenderPipeline,
   definition: TDefinition,
@@ -133,6 +133,7 @@ async function createBodyRenderable<TDefinition extends { id: string; textureUrl
   sampler: GPUSampler,
   mipPipeline: GPURenderPipeline,
   mipSampler: GPUSampler,
+  fallbackBumpTexture?: GPUTexture,
 ): Promise<BodyRenderable<TDefinition>> {
   const uniformBuffer = device.createBuffer({
     label: `${definition.id} uniforms`,
@@ -142,13 +143,25 @@ async function createBodyRenderable<TDefinition extends { id: string; textureUrl
   const texture = definition.textureUrl
     ? await loadBodyTexture(device, definition.textureUrl, mipPipeline, mipSampler)
     : createFallbackWhiteTexture(device)
+  const entries: GPUBindGroupEntry[] = [
+    { binding: 0, resource: { buffer: uniformBuffer } },
+    { binding: 1, resource: texture.createView() },
+    { binding: 2, resource: sampler },
+  ]
+  // Only planets/moons (litPipeline) declare a bumpTexture binding — the Sun's unlitPipeline has no
+  // such binding, so this entry must stay entirely absent for that call, not just point at a
+  // fallback: WebGPU's auto bind-group-layout requires entries to exactly match what the pipeline's
+  // shader actually declares. Callers signal "this pipeline expects one" by passing
+  // fallbackBumpTexture at all.
+  if (fallbackBumpTexture) {
+    const bumpTexture = definition.bumpMapUrl
+      ? await loadBodyTexture(device, definition.bumpMapUrl, mipPipeline, mipSampler)
+      : fallbackBumpTexture
+    entries.push({ binding: 3, resource: bumpTexture.createView() })
+  }
   const bindGroup = device.createBindGroup({
     layout: pipeline.getBindGroupLayout(0),
-    entries: [
-      { binding: 0, resource: { buffer: uniformBuffer } },
-      { binding: 1, resource: texture.createView() },
-      { binding: 2, resource: sampler },
-    ],
+    entries,
   })
   return { definition, uniformBuffer, bindGroup }
 }
@@ -197,15 +210,34 @@ async function main() {
   const mipmapPipeline = await createMipmapPipeline(device, 'rgba8unorm-srgb')
   const mipmapSampler = createMipmapSampler(device)
 
+  const fallbackBumpTexture = createFallbackFlatBumpTexture(device)
   const sunRenderable = await createBodyRenderable(device, unlitPipeline, SUN, 20, bodySampler, mipmapPipeline, mipmapSampler)
   const planetRenderables = await Promise.all(
     PLANETS.map((planet) =>
-      createBodyRenderable(device, litPipeline, planet, LIT_UNIFORM_FLOAT_COUNT, bodySampler, mipmapPipeline, mipmapSampler),
+      createBodyRenderable(
+        device,
+        litPipeline,
+        planet,
+        LIT_UNIFORM_FLOAT_COUNT,
+        bodySampler,
+        mipmapPipeline,
+        mipmapSampler,
+        fallbackBumpTexture,
+      ),
     ),
   )
   const moonRenderables = await Promise.all(
     MOONS.map((moon) =>
-      createBodyRenderable(device, litPipeline, moon, LIT_UNIFORM_FLOAT_COUNT, bodySampler, mipmapPipeline, mipmapSampler),
+      createBodyRenderable(
+        device,
+        litPipeline,
+        moon,
+        LIT_UNIFORM_FLOAT_COUNT,
+        bodySampler,
+        mipmapPipeline,
+        mipmapSampler,
+        fallbackBumpTexture,
+      ),
     ),
   )
   canvas.dataset.texturesLoaded = 'true'
@@ -688,6 +720,7 @@ async function main() {
         // its moon) - slot 0 holds the parent, the remaining 3 stay zero (unused).
         uniforms.set([px, py, pz, planetRadiusById.get(moon.parentId) ?? 0], 44)
         uniforms.set([sunRadius, 0, 0, 0], 60)
+        uniforms.set([moon.bumpIntensity ?? 0, 0, 0, 0], 68)
         device.queue.writeBuffer(renderable.uniformBuffer, 0, uniforms)
 
         const parentOccluders = moonOccludersByParentId.get(moon.parentId) ?? []
@@ -799,10 +832,11 @@ async function main() {
         [sunRadius, isSaturn ? radius * RING_INNER_RADIUS_FACTOR : 0, isSaturn ? radius * RING_OUTER_RADIUS_FACTOR : 0, 0],
         60,
       )
-      const { atmosphereColor, atmosphereIntensity } = renderable.definition
+      const { atmosphereColor, atmosphereIntensity, bumpIntensity } = renderable.definition
       if (atmosphereColor && atmosphereIntensity) {
         uniforms.set([...atmosphereColor, atmosphereIntensity], 64)
       }
+      uniforms.set([bumpIntensity ?? 0, 0, 0, 0], 68)
       device.queue.writeBuffer(renderable.uniformBuffer, 0, uniforms)
 
       if (isSaturn) {

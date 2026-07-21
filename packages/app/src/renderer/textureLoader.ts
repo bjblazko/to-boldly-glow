@@ -49,3 +49,17 @@ export function createFallbackWhiteTexture(device: GPUDevice): GPUTexture {
   device.queue.writeTexture({ texture }, new Uint8Array([255, 255, 255, 255]), { bytesPerRow: 4 }, [1, 1])
   return texture
 }
+
+// A neutral 1x1 "flat" height map for bodies with no bumpMapUrl — every finite-difference sample
+// applyBump takes from this texture is identical, so it perturbs nothing and contributes zero
+// ambient-occlusion darkening, exactly reproducing today's un-bumped appearance.
+export function createFallbackFlatBumpTexture(device: GPUDevice): GPUTexture {
+  const texture = device.createTexture({
+    label: 'fallback flat bump texture',
+    size: [1, 1],
+    format: 'rgba8unorm-srgb',
+    usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
+  })
+  device.queue.writeTexture({ texture }, new Uint8Array([128, 128, 128, 255]), { bytesPerRow: 4 }, [1, 1])
+  return texture
+}

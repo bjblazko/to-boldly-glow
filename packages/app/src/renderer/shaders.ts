@@ -2,7 +2,7 @@
 // (rather than a bare literal duplicated at every call site in main.ts) so growing this struct
 // can't silently drift out of sync with the Float32Array packing that feeds it: a mismatch here is
 // silently-wrong rendering, not a compile error.
-export const LIT_UNIFORM_FLOAT_COUNT = 68
+export const LIT_UNIFORM_FLOAT_COUNT = 72
 
 // Uniform layout (must match the Float32Array packing in main.ts exactly):
 //   [0..16)  worldViewProjection : mat4x4f
@@ -23,6 +23,8 @@ export const LIT_UNIFORM_FLOAT_COUNT = 68
 //                                 so the ring-plane shadow test below is a no-op elsewhere; w unused)
 //   [64..68) atmosphereParams    : vec4f (rgb = rim-glow color, a = intensity; a of 0 means no
 //                                 atmosphere - every moon and Mercury/Mars write this as all-zero)
+//   [68..72) bumpParams          : vec4f (x = bump/AO intensity, roughly 0-1; 0 means no effect;
+//                                 y/z/w unused)
 export const litSphereShaderCode = /* wgsl */ `
 struct Uniforms {
   worldViewProjection: mat4x4f,
@@ -33,6 +35,7 @@ struct Uniforms {
   occluders: array<vec4f, 4>,
   ringParams: vec4f,
   atmosphereParams: vec4f,
+  bumpParams: vec4f,
 };
 
 struct VertexInput {
@@ -51,6 +54,7 @@ struct VertexOutput {
 @group(0) @binding(0) var<uniform> uni: Uniforms;
 @group(0) @binding(1) var bodyTexture: texture_2d<f32>;
 @group(0) @binding(2) var bodySampler: sampler;
+@group(0) @binding(3) var bumpTexture: texture_2d<f32>;
 
 @vertex
 fn vs(vert: VertexInput) -> VertexOutput {
@@ -163,14 +167,80 @@ fn poleFadeFactor(v: f32) -> f32 {
   return smoothstep(0.0, POLE_FADE_WIDTH, v) * smoothstep(1.0, 1.0 - POLE_FADE_WIDTH, v);
 }
 
+// Tuning constants for the bump/AO effect — starting values, expect to adjust once running against
+// real height-map assets.
+const BUMP_STRENGTH_SCALE: f32 = 4.0;
+const AO_STRENGTH_SCALE: f32 = 8.0;
+const AO_MAX_DARKENING: f32 = 0.5;
+
+struct BumpResult {
+  normal: vec3f,
+  ao: f32,
+};
+
+// Perturbs the shading normal using a grayscale height map, and returns a cheap ambient-occlusion
+// darkening factor alongside it (see the AO comment in fs() for why this piggybacks on the same
+// height samples rather than being a separate pass). No per-vertex tangent attributes are needed:
+// for a UV-sphere, the tangent (longitude direction) is always perpendicular to both the surface
+// normal and the polar axis, so it's derived here via a cross product against the sphere's own
+// local +Z axis (transformed to world space through uni.world) — the same "transform a local axis,
+// drop translation" trick sunVisibleFraction's ring-plane test and ringShaderCode both already use
+// for their own normals, just with local Z instead of local Y.
+fn applyBump(worldPos: vec3f, normal: vec3f, uv: vec2f) -> BumpResult {
+  let intensity = uni.bumpParams.x;
+  if (intensity <= 0.0) {
+    return BumpResult(normal, 1.0);
+  }
+
+  let texelSize = 1.0 / vec2f(textureDimensions(bumpTexture));
+  let center = textureSampleLevel(bumpTexture, bodySampler, uv, 0.0).r;
+  let east = textureSampleLevel(bumpTexture, bodySampler, uv + vec2f(texelSize.x, 0.0), 0.0).r;
+  let west = textureSampleLevel(bumpTexture, bodySampler, uv - vec2f(texelSize.x, 0.0), 0.0).r;
+  let south = textureSampleLevel(bumpTexture, bodySampler, uv + vec2f(0.0, texelSize.y), 0.0).r;
+  let north = textureSampleLevel(bumpTexture, bodySampler, uv - vec2f(0.0, texelSize.y), 0.0).r;
+
+  let polarAxis = normalize((uni.world * vec4f(0.0, 0.0, 1.0, 0.0)).xyz);
+  var tangent = cross(polarAxis, normal);
+  let tangentLength = length(tangent);
+  if (tangentLength < 1e-4) {
+    // Exactly at a pole, where tangent direction is undefined (normal is parallel to polarAxis) —
+    // any consistent direction works here, since poleFadeFactor (Task 2) already fades this whole
+    // effect toward zero at the poles regardless.
+    tangent = vec3f(1.0, 0.0, 0.0);
+  } else {
+    tangent = tangent / tangentLength;
+  }
+  let bitangent = cross(normal, tangent);
+
+  let dHeightDu = (east - west) * 0.5;
+  let dHeightDv = (south - north) * 0.5;
+  let perturbedNormal = normalize(normal - (tangent * dHeightDu + bitangent * dHeightDv) * intensity * BUMP_STRENGTH_SCALE);
+
+  let neighborAvg = (east + west + north + south) * 0.25;
+  let cavity = max(0.0, neighborAvg - center);
+  let ao = 1.0 - clamp(cavity * intensity * AO_STRENGTH_SCALE, 0.0, AO_MAX_DARKENING);
+
+  return BumpResult(perturbedNormal, ao);
+}
+
 @fragment
 fn fs(in: VertexOutput) -> @location(0) vec4f {
-  let normal = normalize(in.normal);
+  let geometricNormal = normalize(in.normal);
+  let poleFade = poleFadeFactor(in.uv.y);
+
+  // Bump/AO perturbation is faded back toward "no effect" (raw normal, ao=1) near the poles via
+  // the same poleFade weight used for the color sample above it, rather than separately blurring
+  // the bump texture's own mip chain — a zero-magnitude perturbation can't show any artifact
+  // regardless of what the underlying height samples look like, which is simpler than duplicating
+  // Task 2's mip-blend technique for a second texture.
+  let bumpResult = applyBump(in.worldPosition, geometricNormal, in.uv);
+  let normal = normalize(mix(geometricNormal, bumpResult.normal, poleFade));
+  let aoFactor = mix(1.0, bumpResult.ao, poleFade);
+
   let toLight = -uni.lightDirection.xyz;
   let shadowFactor = sunVisibleFraction(in.worldPosition);
   let litFraction = max(dot(normal, toLight), 0.0) * shadowFactor;
   let diffuse = litFraction * 0.85 + 0.1;
-  let poleFade = poleFadeFactor(in.uv.y);
   let sharpColor = textureSample(bodyTexture, bodySampler, in.uv);
   let coarseLevel = f32(textureNumLevels(bodyTexture) - 1u);
   let blurryColor = textureSampleLevel(bodyTexture, bodySampler, in.uv, coarseLevel);
@@ -197,7 +267,10 @@ fn fs(in: VertexOutput) -> @location(0) vec4f {
   let sunFacingGate = smoothstep(-0.1, 0.3, dot(normal, toLight));
   let atmosphereGlow = uni.atmosphereParams.rgb * rimFactor * uni.atmosphereParams.a * sunFacingGate * shadowFactor;
 
-  return vec4f(sampled.rgb * uni.color.rgb * diffuse + vec3f(specular) + atmosphereGlow, uni.color.a);
+  // aoFactor darkens the surface-visible terms (diffuse color, specular) but NOT atmosphereGlow —
+  // the glow represents light scattered in the atmosphere above the surface, not something a
+  // surface-level cavity should occlude.
+  return vec4f(sampled.rgb * uni.color.rgb * diffuse * aoFactor + vec3f(specular) * aoFactor + atmosphereGlow, uni.color.a);
 }
 `
 
