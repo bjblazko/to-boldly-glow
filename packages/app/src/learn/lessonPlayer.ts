@@ -1,18 +1,17 @@
 import type { Chapter, Lesson } from './lessonTypes'
-import { dateAtScrubPosition } from './lessonTypes'
 
-// Holds which lesson/chapter/scrub-position/latitude-preset is currently active. Pure state - no
-// DOM access, no rendering - so main.ts's render loop and UI wiring can both read it each frame
-// without this class needing to know about either.
+// Holds which lesson/chapter is currently active. Pure state - no DOM access, no rendering - so
+// main.ts's render loop and UI wiring can both read it each frame without this class needing to
+// know about either. No scrub/date state here (unlike the original real-astronomical-position
+// design) - the staged redesign has nothing left for a user to scrub through; each chapter is a
+// fixed season-phase orientation (see lessons/seasons.ts), not a real date range.
 export class LessonPlayer {
   private lesson: Lesson | null = null
   private chapterIndex = 0
-  private _scrubT = 0
 
   load(lesson: Lesson): void {
     this.lesson = lesson
     this.chapterIndex = 0
-    this._scrubT = 0
   }
 
   get currentLesson(): Lesson {
@@ -28,14 +27,6 @@ export class LessonPlayer {
     return this.currentLesson.chapters[this.chapterIndex]
   }
 
-  get scrubT(): number {
-    return this._scrubT
-  }
-
-  get currentDate(): Date {
-    return dateAtScrubPosition(this.currentChapter.dateRange, this._scrubT)
-  }
-
   get hasPreviousChapter(): boolean {
     return this.chapterIndex > 0
   }
@@ -47,16 +38,10 @@ export class LessonPlayer {
   nextChapter(): void {
     if (!this.hasNextChapter) return
     this.chapterIndex += 1
-    this._scrubT = 0
   }
 
   previousChapter(): void {
     if (!this.hasPreviousChapter) return
     this.chapterIndex -= 1
-    this._scrubT = 0
-  }
-
-  setScrubT(t: number): void {
-    this._scrubT = Math.min(Math.max(t, 0), 1)
   }
 }
