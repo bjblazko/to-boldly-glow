@@ -94,17 +94,6 @@ performance tuning for mobile GPUs.
 mobile hardware.
 **Data needed**: none.
 
-## Planet texture mipmaps
-**What**: The 2K equirectangular planet/Sun textures added for the eye-candy pass ship without
-mipmaps. Small/distant spheres (especially at the "Explorer" end of the scale slider) may alias or
-shimmer under minification without them.
-**Approach**: Generate a mip chain per texture at load time via a manual blit-downsample render
-pass per level (`mipLevelCount` + repeated fullscreen-quad draws into successive mip views) — a
-well-known WebGPU pattern. The bloom pass's downsample-chain shader (dual-Kawase-style fullscreen
-blit) is structurally similar, so this could reuse that code path rather than being written from
-scratch.
-**Data needed**: none — existing textures, just an added GPU-side generation step.
-
 ## WebGL2 fallback (reconsideration)
 **What**: MVP is WebGPU-only by deliberate choice. If WebGPU adoption stalls or a significant
 portion of the target audience remains on unsupported browsers, revisit adding a WebGL2 fallback
