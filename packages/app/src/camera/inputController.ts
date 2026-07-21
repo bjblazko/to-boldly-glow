@@ -18,6 +18,7 @@ export class CameraInputController {
   private lastPointerX = 0
   private lastPointerY = 0
   private pressedKeys = new Set<string>()
+  private enabled = true
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
@@ -37,12 +38,21 @@ export class CameraInputController {
     this.mode = mode
   }
 
+  // Learn mode locks the camera to each chapter's authored framing — free drag/zoom/fly-keys must
+  // stop responding to input entirely while it's active, not just visually (a lingering drag could
+  // still fight the chapter's tween otherwise). Re-enabling on exit restores exactly the previous
+  // interactive behavior; no camera state is touched here.
+  setEnabled(enabled: boolean): void {
+    this.enabled = enabled
+    if (!enabled) this.isDragging = false
+  }
+
   getViewMatrix() {
     return this.mode === 'orbit' ? this.orbitCamera.getViewMatrix() : this.flyCamera.getViewMatrix()
   }
 
   update(deltaSeconds: number): void {
-    if (this.mode !== 'fly') return
+    if (!this.enabled || this.mode !== 'fly') return
     const distance = MOVE_SPEED * deltaSeconds
     if (this.pressedKeys.has('KeyW')) this.flyCamera.moveForward(distance)
     if (this.pressedKeys.has('KeyS')) this.flyCamera.moveForward(-distance)
@@ -51,6 +61,7 @@ export class CameraInputController {
   }
 
   private onPointerDown = (event: PointerEvent) => {
+    if (!this.enabled) return
     this.isDragging = true
     this.lastPointerX = event.clientX
     this.lastPointerY = event.clientY
@@ -58,7 +69,7 @@ export class CameraInputController {
   }
 
   private onPointerMove = (event: PointerEvent) => {
-    if (!this.isDragging) return
+    if (!this.enabled || !this.isDragging) return
     const deltaX = event.clientX - this.lastPointerX
     const deltaY = event.clientY - this.lastPointerY
     this.lastPointerX = event.clientX
@@ -77,7 +88,7 @@ export class CameraInputController {
   }
 
   private onWheel = (event: WheelEvent) => {
-    if (this.mode !== 'orbit') return
+    if (!this.enabled || this.mode !== 'orbit') return
     event.preventDefault()
 
     // Trackpad pinch gesture: browsers report this as a wheel event with ctrlKey set (a
@@ -104,6 +115,7 @@ export class CameraInputController {
   }
 
   private onKeyDown = (event: KeyboardEvent) => {
+    if (!this.enabled) return
     this.pressedKeys.add(event.code)
   }
 

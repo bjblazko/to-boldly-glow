@@ -12,6 +12,7 @@ import { AU_KM, PLANETS, SUN, type BodyDefinition } from './solarSystem/bodies'
 import { planetAuPosition } from './solarSystem/entities'
 import { EntitySearchUI } from './search/entitySearchUI'
 import { DockUI } from './hud/dockUI'
+import { LearnModeController } from './learn/learnModeController'
 import { initShuttleVisual } from './hud/shuttleVisual'
 import { scaledBodyRadiusUnits, scaledPosition } from './solarSystem/sceneScale'
 import { ScaleBlendTween } from './solarSystem/scaleBlendTween'
@@ -538,12 +539,35 @@ async function main() {
     requireElement<HTMLElement>('#time-display'),
   )
 
-  new DockUI(
+  const dockUI = new DockUI(
     document.querySelectorAll<HTMLButtonElement>('.hud-dock-btn'),
     requireElement<HTMLElement>('#hud-sheet'),
     document.querySelectorAll<HTMLElement>('.hud-sheet-panel'),
   )
   initShuttleVisual(requireElement<HTMLInputElement>('#time-shuttle'), requireElement<HTMLElement>('#time-shuttle-fill'))
+
+  const learnModeController = new LearnModeController(document.body, cameraInput, dockUI)
+  const learnModeBtn = requireElement<HTMLButtonElement>('#learn-mode-btn')
+  const lessonPicker = requireElement<HTMLElement>('#lesson-picker')
+  const lessonPanel = requireElement<HTMLElement>('#lesson-panel')
+  learnModeBtn.addEventListener('click', () => {
+    if (learnModeController.currentMode === 'learn') {
+      learnModeController.exit()
+      lessonPicker.hidden = true
+      lessonPanel.hidden = true
+      return
+    }
+    lessonPicker.hidden = !lessonPicker.hidden
+  })
+  lessonPicker.querySelectorAll<HTMLButtonElement>('.hud-lesson-picker-item').forEach((item) => {
+    item.addEventListener('click', () => {
+      const lessonId = item.dataset.lessonId
+      if (!lessonId) return
+      lessonPicker.hidden = true
+      learnModeController.enter(lessonId)
+      lessonPanel.hidden = false
+    })
+  })
 
   const cameraFollow = new CameraFollowController(orbitCamera)
   const entitySearchUI = new EntitySearchUI(

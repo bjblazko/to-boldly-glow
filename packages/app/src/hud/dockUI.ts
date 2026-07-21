@@ -15,6 +15,14 @@ export class DockUI {
     })
   }
 
+  // Closes whichever panel is currently open, if any — used when entering learn mode, so a sheet
+  // left open from free-roam use (e.g. the Display panel) doesn't linger open behind the lesson
+  // panel that now occupies the same screen position.
+  closeActivePanel(): void {
+    if (this.activePanel === null) return
+    this.togglePanel(this.activePanel)
+  }
+
   private togglePanel(panel: PanelName): void {
     const opening = this.activePanel !== panel
     this.activePanel = opening ? panel : null
