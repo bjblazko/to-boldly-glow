@@ -576,6 +576,31 @@ async function main() {
     )
   }
 
+  let selectedLatitudeId = 'equator'
+  const lessonLatitudeRow = requireElement<HTMLElement>('#lesson-latitude-row')
+  const lessonChapterText = requireElement<HTMLElement>('#lesson-chapter-text')
+
+  function currentLatitudePreset() {
+    const preset = lessonPlayer.currentLesson.latitudePresets.find((p) => p.id === selectedLatitudeId)
+    return preset ?? lessonPlayer.currentLesson.latitudePresets[0]
+  }
+
+  function refreshLatitudeRow(): void {
+    lessonLatitudeRow.innerHTML = ''
+    for (const preset of lessonPlayer.currentLesson.latitudePresets) {
+      const chip = document.createElement('button')
+      chip.type = 'button'
+      chip.className = 'hud-latitude-chip'
+      chip.textContent = preset.label
+      chip.classList.toggle('is-active', preset.id === selectedLatitudeId)
+      chip.addEventListener('click', () => {
+        selectedLatitudeId = preset.id
+        refreshChapterUI()
+      })
+      lessonLatitudeRow.appendChild(chip)
+    }
+  }
+
   function refreshChapterUI(): void {
     flyToCurrentChapterFraming()
     const chapter = lessonPlayer.currentChapter
@@ -584,8 +609,11 @@ async function main() {
     lessonNextBtn.disabled = !lessonPlayer.hasNextChapter
     lessonScrub.value = String(lessonPlayer.scrubT)
     lessonScrub.dispatchEvent(new Event('input')) // refreshes the shuttle-style fill via initShuttleVisual
+    lessonChapterText.textContent = chapter.text(lessonPlayer.scrubT, currentLatitudePreset())
+    refreshLatitudeRow()
     lessonPanel.dataset.chapterId = chapter.id
     lessonPanel.dataset.scrubT = String(lessonPlayer.scrubT)
+    lessonPanel.dataset.latitudeId = selectedLatitudeId
   }
 
   learnModeBtn.addEventListener('click', () => {
@@ -604,6 +632,7 @@ async function main() {
       if (!lesson) return
       lessonPicker.hidden = true
       lessonPlayer.load(lesson)
+      selectedLatitudeId = lesson.latitudePresets[0].id
       learnModeController.enter(lesson.id)
       lessonPanel.hidden = false
       refreshChapterUI()
@@ -619,6 +648,7 @@ async function main() {
   })
   lessonScrub.addEventListener('input', () => {
     lessonPlayer.setScrubT(Number(lessonScrub.value))
+    lessonChapterText.textContent = lessonPlayer.currentChapter.text(lessonPlayer.scrubT, currentLatitudePreset())
     lessonPanel.dataset.scrubT = String(lessonPlayer.scrubT)
   })
   initShuttleVisual(lessonScrub, requireElement<HTMLElement>('#lesson-scrub-fill'))

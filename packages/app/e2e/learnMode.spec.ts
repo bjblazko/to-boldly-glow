@@ -95,3 +95,25 @@ test('the canvas keeps rendering (camera locked, not frozen) across a chapter ch
 
   expect(errors).toEqual([])
 })
+
+test('selecting a latitude preset updates the lesson panel and the displayed text', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', (error) => errors.push(error.message))
+
+  await page.goto('/')
+  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+
+  await page.locator('#learn-mode-btn').click()
+  await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
+  await page.locator('#lesson-next-chapter').click() // march-equinox chapter has non-empty text
+
+  const beforeText = await page.locator('#lesson-chapter-text').textContent()
+
+  await page.locator('.hud-latitude-chip', { hasText: /^Arctic Circle$/ }).click()
+  await expect(page.locator('#lesson-panel')).toHaveAttribute('data-latitude-id', 'arctic-circle')
+
+  const afterText = await page.locator('#lesson-chapter-text').textContent()
+  expect(afterText).not.toBe(beforeText)
+
+  expect(errors).toEqual([])
+})
