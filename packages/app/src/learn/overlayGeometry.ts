@@ -105,19 +105,3 @@ export function latitudeMarkerPoints(
   }
   return points
 }
-
-// Two points: the latitude marker's own world position, and a point `length` world units toward
-// the Sun (always at the world origin in this app - see main.ts's sunWorld comment).
-export function sunAngleRayPoints(markerWorldPos: readonly [number, number, number], length: number): Float32Array {
-  const distanceToSun = Math.hypot(markerWorldPos[0], markerWorldPos[1], markerWorldPos[2])
-  const direction: [number, number, number] =
-    distanceToSun < 1e-9
-      ? [0, 0, 1] // degenerate (marker at the origin) - arbitrary direction, never hit in practice
-      : [-markerWorldPos[0] / distanceToSun, -markerWorldPos[1] / distanceToSun, -markerWorldPos[2] / distanceToSun]
-  const end: [number, number, number] = [
-    markerWorldPos[0] + direction[0] * length,
-    markerWorldPos[1] + direction[1] * length,
-    markerWorldPos[2] + direction[2] * length,
-  ]
-  return new Float32Array([...markerWorldPos, ...end])
-}

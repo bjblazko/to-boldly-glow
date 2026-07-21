@@ -20,7 +20,6 @@ import {
   latitudeMarkerCenter,
   latitudeMarkerPoints,
   rotationAxisPoints,
-  sunAngleRayPoints,
 } from './learn/overlayGeometry'
 import { initShuttleVisual } from './hud/shuttleVisual'
 import { scaledBodyRadiusUnits, scaledPosition } from './solarSystem/sceneScale'
@@ -434,10 +433,10 @@ async function main() {
     return { definition: planet, vertexBuffer, distanceBuffer, uniformBuffer, bindGroup }
   })
 
-  // Four overlay lines for learn mode's seasons lesson: equator, rotation axis, latitude marker,
-  // sun-angle ray. All four share one dashed-line uniform buffer shape/bind-group-layout, so they
-  // reuse the same small helper for setup.
-  const OVERLAY_LINE_IDS = ['equator', 'axis', 'latitude-marker', 'sun-ray'] as const
+  // Four overlay lines for learn mode's seasons lesson: equator, rotation axis, and two symmetric
+  // location markers (marker-a/marker-b, at +/-markerLatitudeDegrees). All four share one
+  // uniform buffer shape/bind-group-layout, so they reuse the same small helper for setup.
+  const OVERLAY_LINE_IDS = ['equator', 'axis', 'marker-a', 'marker-b'] as const
   type OverlayLineId = (typeof OVERLAY_LINE_IDS)[number]
   interface OverlayLineRenderable {
     id: OverlayLineId
@@ -476,21 +475,16 @@ async function main() {
   const overlayLineRenderables: Record<OverlayLineId, OverlayLineRenderable> = {
     equator: createOverlayLineRenderable('equator', new Float32Array((OVERLAY_EQUATOR_SEGMENTS + 1) * 3)),
     axis: createOverlayLineRenderable('axis', new Float32Array(6)),
-    'latitude-marker': createOverlayLineRenderable(
-      'latitude-marker',
-      new Float32Array((OVERLAY_LATITUDE_MARKER_SEGMENTS + 1) * 3),
-    ),
-    'sun-ray': createOverlayLineRenderable('sun-ray', new Float32Array(6)),
+    'marker-a': createOverlayLineRenderable('marker-a', new Float32Array((OVERLAY_LATITUDE_MARKER_SEGMENTS + 1) * 3)),
+    'marker-b': createOverlayLineRenderable('marker-b', new Float32Array((OVERLAY_LATITUDE_MARKER_SEGMENTS + 1) * 3)),
   }
-  const OVERLAY_DASH_LENGTH = 0.15 // world units per dash+gap period, tuned visually at Compact scale
-  const OVERLAY_DASH_SPEED = 0.4 // world units per second the dash pattern travels ("marching ants")
-  const OVERLAY_DASH_DUTY_CYCLE = 0.6
   const OVERLAY_COLORS: Record<OverlayLineId, [number, number, number, number]> = {
-    equator: [0.88, 0.37, 0.63, 0.85],
-    axis: [0.88, 0.75, 0.37, 0.85],
-    'latitude-marker': [0.37, 0.88, 0.63, 0.9],
-    'sun-ray': [0.88, 0.75, 0.37, 0.55],
+    equator: [0.16, 0.88, 0.79, 0.95], // neon teal
+    axis: [0.98, 0.25, 0.65, 0.95], // neon pink/magenta
+    'marker-a': [0.37, 0.88, 0.63, 0.95], // kept from the original marker color, distinct from both lines
+    'marker-b': [0.45, 0.68, 0.98, 0.95], // a second, distinct marker color so A and B are visually distinguishable
   }
+  const OVERLAY_PULSE_SPEED_RADIANS_PER_SECOND = 3
 
   let showOrbitPaths = true
 
@@ -557,6 +551,25 @@ async function main() {
     label.style.whiteSpace = 'nowrap'
     labelsContainer.appendChild(label)
     labelElements.set(moon.id, label)
+  }
+
+  // Learn-mode-only labels for the two fixed location markers (see the learn-mode overlay block in
+  // frame() below). Unlike the body/moon labels above, these two DOM elements already exist in
+  // index.html (not created here) - but `.body-label` itself is a bare marker class with no CSS
+  // rules at all (confirmed: no `.body-label` selector anywhere in index.html's stylesheet), so
+  // without these inline styles `updateLabelPosition`'s `left`/`top` writes would silently do
+  // nothing (no `position: absolute` means CSS `left`/`top` have no effect) and the labels would
+  // never visibly move to their marker positions. Mirrors the exact inline-style set used for the
+  // body labels created above.
+  const locationALabel = requireElement<HTMLDivElement>('#location-a-label')
+  const locationBLabel = requireElement<HTMLDivElement>('#location-b-label')
+  for (const label of [locationALabel, locationBLabel]) {
+    label.style.position = 'absolute'
+    label.style.transform = 'translate(-50%, 4px)'
+    label.style.color = 'white'
+    label.style.font = '12px sans-serif'
+    label.style.textShadow = '0 0 3px black, 0 0 3px black'
+    label.style.whiteSpace = 'nowrap'
   }
 
   function updateLabelPosition(label: HTMLDivElement, screen: ScreenPosition): void {
@@ -1145,26 +1158,22 @@ async function main() {
         // from seasonalPoleDirection, not real IAU pole data) so this overlay never drifts out of
         // sync with the planet it's drawn on.
         const earthWorld = mat4.multiply(mat4.create(), mat4.fromTranslation(mat4.create(), [earthEntry.x, earthEntry.y, earthEntry.z]), earthLearnTilt)
-        const markerLatitudeDegrees = lessonPlayer.currentLesson.markerLatitudeDegrees
         const ringRadius = earthEntry.radius * 1.02
-        // The true surface point at this latitude - NOT reconstructed from two of the ring's own
-        // vertices (which are adjacent points on its circumference, not opposite ends, so their
-        // midpoint sits off the surface by roughly the ring's own radius).
-        const markerCenterWorld = latitudeMarkerCenter(earthWorld, ringRadius, markerLatitudeDegrees)
+        const markerLatitude = lessonPlayer.currentLesson.markerLatitudeDegrees
         const now = performance.now() / 1000
         const pulse = 1 + 0.15 * Math.sin(now * 3)
+        const markerRadius = earthEntry.radius * 0.04 * pulse
+
+        // Two symmetric, mirror-opposite markers (+/-markerLatitude) replace the old single
+        // latitude-picker marker + sun-angle ray - see Task 5/6 for the id rename and the neon
+        // pulsing-glow shader mode these now use instead of the marching-ants dash.
         const geometryById: Record<OverlayLineId, Float32Array> = {
           equator: equatorRingPoints(earthWorld, ringRadius, OVERLAY_EQUATOR_SEGMENTS),
           axis: rotationAxisPoints(earthWorld, earthEntry.radius, 1.3),
-          'latitude-marker': latitudeMarkerPoints(
-            earthWorld,
-            ringRadius,
-            markerLatitudeDegrees,
-            earthEntry.radius * 0.04 * pulse,
-            OVERLAY_LATITUDE_MARKER_SEGMENTS,
-          ),
-          'sun-ray': sunAngleRayPoints(markerCenterWorld, earthEntry.radius * 1.5),
+          'marker-a': latitudeMarkerPoints(earthWorld, ringRadius, markerLatitude, markerRadius, OVERLAY_LATITUDE_MARKER_SEGMENTS),
+          'marker-b': latitudeMarkerPoints(earthWorld, ringRadius, -markerLatitude, markerRadius, OVERLAY_LATITUDE_MARKER_SEGMENTS),
         }
+        const pulsePhaseRadians = now * OVERLAY_PULSE_SPEED_RADIANS_PER_SECOND
         // Unlike every other worldViewProjection in this file, no separate world matrix multiply
         // is needed here: overlayGeometry.ts's functions already compute their points directly in
         // world space (they take `earthWorld` themselves), so `worldViewProjection` for these
@@ -1175,10 +1184,22 @@ async function main() {
           const uniforms = new Float32Array(LINE_UNIFORM_FLOAT_COUNT)
           uniforms.set(viewProjection, 0)
           uniforms.set(OVERLAY_COLORS[id], 16)
-          uniforms.set([OVERLAY_DASH_LENGTH, (now * OVERLAY_DASH_SPEED) % OVERLAY_DASH_LENGTH, OVERLAY_DASH_DUTY_CYCLE, 1.0], 20)
+          // dashParams: x/z unused in glow mode, y = live pulse phase, w = 2.0 (glow mode) - see
+          // shaders.ts's lineShaderCode for the shader's glow-mode branch.
+          uniforms.set([0, pulsePhaseRadians, 0, 2.0], 20)
           device.queue.writeBuffer(renderable.uniformBuffer, 0, uniforms)
         }
+
+        const markerACenter = latitudeMarkerCenter(earthWorld, ringRadius, markerLatitude)
+        const markerBCenter = latitudeMarkerCenter(earthWorld, ringRadius, -markerLatitude)
+        const markerAScreen = worldToScreen(viewProjection, ...markerACenter, canvas.clientWidth, canvas.clientHeight)
+        const markerBScreen = worldToScreen(viewProjection, ...markerBCenter, canvas.clientWidth, canvas.clientHeight)
+        updateLabelPosition(locationALabel, markerAScreen)
+        updateLabelPosition(locationBLabel, markerBScreen)
       }
+    } else {
+      locationALabel.style.display = 'none'
+      locationBLabel.style.display = 'none'
     }
 
     if (showOrbitPaths) {

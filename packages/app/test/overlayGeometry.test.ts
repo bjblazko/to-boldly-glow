@@ -5,7 +5,6 @@ import {
   latitudeMarkerCenter,
   latitudeMarkerPoints,
   rotationAxisPoints,
-  sunAngleRayPoints,
 } from '../src/learn/overlayGeometry'
 
 describe('overlay geometry (identity world transform, radius 1)', () => {
@@ -61,18 +60,5 @@ describe('overlay geometry (identity world transform, radius 1)', () => {
     expect(center[0]).toBeCloseTo(0, 5)
     expect(center[1]).toBeCloseTo(1, 5)
     expect(center[2]).toBeCloseTo(0, 5)
-  })
-
-  it('sunAngleRayPoints returns two points: the marker position, and a point toward the origin (Sun)', () => {
-    const markerWorldPos: [number, number, number] = [1, 0, 0]
-    const points = sunAngleRayPoints(markerWorldPos, 1.5)
-    expect(points.length).toBe(6)
-    expect(points[0]).toBeCloseTo(1, 5)
-    expect(points[1]).toBeCloseTo(0, 5)
-    expect(points[2]).toBeCloseTo(0, 5)
-    // Second point is 1.5 units from the marker, toward the origin: (1 - 1.5, 0, 0) = (-0.5, 0, 0).
-    expect(points[3]).toBeCloseTo(-0.5, 5)
-    expect(points[4]).toBeCloseTo(0, 5)
-    expect(points[5]).toBeCloseTo(0, 5)
   })
 })
