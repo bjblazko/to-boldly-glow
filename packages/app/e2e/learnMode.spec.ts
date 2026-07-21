@@ -52,7 +52,7 @@ test('the corner Display button still opens and closes its panel while in learn 
   expect(errors).toEqual([])
 })
 
-test('chapter navigation and scrubbing update lesson-panel state', async ({ page }) => {
+test('chapter navigation updates lesson-panel state', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
@@ -61,37 +61,14 @@ test('chapter navigation and scrubbing update lesson-panel state', async ({ page
 
   await page.locator('#learn-mode-btn').click()
   await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
-
   await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-id', 'intro')
-  await expect(page.locator('#lesson-prev-chapter')).toBeDisabled()
 
   await page.locator('#lesson-next-chapter').click()
   await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-id', 'march-equinox')
-  await expect(page.locator('#lesson-prev-chapter')).toBeEnabled()
-
-  await page.locator('#lesson-scrub').fill('0.75')
-  await expect(page.locator('#lesson-panel')).toHaveAttribute('data-scrub-t', '0.75')
 
   await page.locator('#lesson-prev-chapter').click()
-  // Navigating chapters resets scrub back to 0, per LessonPlayer.nextChapter/previousChapter.
-  await expect(page.locator('#lesson-panel')).toHaveAttribute('data-scrub-t', '0')
-
-  expect(errors).toEqual([])
-})
-
-test('the canvas keeps rendering (camera locked, not frozen) across a chapter change', async ({ page }) => {
-  const errors: string[] = []
-  page.on('pageerror', (error) => errors.push(error.message))
-
-  await page.goto('/')
-  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
-
-  await page.locator('#learn-mode-btn').click()
-  await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
-  await page.waitForTimeout(2000) // let the initial chapter's camera fly-to tween settle
-
-  await page.locator('#lesson-next-chapter').click()
-  await page.waitForTimeout(2000) // let the chapter-change fly-to tween settle
+  await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-id', 'intro')
+  await expect(page.locator('#lesson-prev-chapter')).toBeDisabled()
 
   expect(errors).toEqual([])
 })
@@ -117,55 +94,6 @@ test('orbit paths still render (via the shared, now dash-capable line pipeline) 
   await orbitPathsToggle.check()
   await expect(page.locator('#scene')).toHaveAttribute('data-orbit-paths', 'true')
   await page.waitForTimeout(200)
-
-  expect(errors).toEqual([])
-})
-
-test('selecting a latitude preset updates the lesson panel and the displayed text', async ({ page }) => {
-  const errors: string[] = []
-  page.on('pageerror', (error) => errors.push(error.message))
-
-  await page.goto('/')
-  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
-
-  await page.locator('#learn-mode-btn').click()
-  await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
-  await page.locator('#lesson-next-chapter').click() // march-equinox chapter has non-empty text
-
-  const beforeText = await page.locator('#lesson-chapter-text').textContent()
-
-  await page.locator('.hud-latitude-chip', { hasText: /^Arctic Circle$/ }).click()
-  await expect(page.locator('#lesson-panel')).toHaveAttribute('data-latitude-id', 'arctic-circle')
-
-  const afterText = await page.locator('#lesson-chapter-text').textContent()
-  expect(afterText).not.toBe(beforeText)
-
-  expect(errors).toEqual([])
-})
-
-test('camera target stays centered on Earth across a scrub, not frozen at the chapter-defining date (regression)', async ({ page }) => {
-  // Regression coverage for the bug where the camera's target was frozen at the chapter's fixed
-  // defining date while Earth's rendered position tracked the scrub position instead - so Earth
-  // drifted out of the locked framing across the scrub range, worst at scrubT=0 right after a
-  // chapter loads (see main.ts's data-camera-target-earth-offset, written each frame in learn mode
-  // as the world-space distance between orbitCamera.target and Earth's actual rendered position).
-  const errors: string[] = []
-  page.on('pageerror', (error) => errors.push(error.message))
-
-  await page.goto('/')
-  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
-
-  await page.locator('#learn-mode-btn').click()
-  await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
-  await page.locator('#lesson-next-chapter').click() // march-equinox: a non-intro chapter framing
-  await page.waitForTimeout(2000) // let the chapter's camera fly-to tween fully settle
-
-  for (const scrubT of ['0', '0.25', '0.5', '0.75', '1']) {
-    await page.locator('#lesson-scrub').fill(scrubT)
-    await page.waitForTimeout(150) // let a render frame pick up the new scrub position
-    const offset = await page.locator('#scene').getAttribute('data-camera-target-earth-offset')
-    expect(Number(offset)).toBeLessThan(0.01)
-  }
 
   expect(errors).toEqual([])
 })
@@ -198,7 +126,7 @@ test('entity search is explicitly disabled in learn mode, not just unreachable b
   expect(errors).toEqual([])
 })
 
-test('globe overlays render without WebGPU errors across a chapter and latitude change', async ({ page }) => {
+test('globe overlays and both location markers render without WebGPU errors across a chapter change', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
@@ -207,15 +135,15 @@ test('globe overlays render without WebGPU errors across a chapter and latitude 
 
   await page.locator('#learn-mode-btn').click()
   await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
-  await page.waitForTimeout(1500)
+  await page.waitForTimeout(1500) // let the initial season-phase tween settle
 
-  await page.locator('#lesson-next-chapter').click()
-  // Exact-match regex, not a plain substring: "Arctic Circle" is itself a substring of the
-  // "Antarctic Circle" preset's label, so a bare-string hasText filter matches both chips (see
-  // the existing latitude-preset test above, which already guards against this the same way).
-  await page.locator('.hud-latitude-chip', { hasText: /^Arctic Circle$/ }).click()
-  await page.locator('#lesson-scrub').fill('0.9')
-  await page.waitForTimeout(1500)
+  await expect(page.locator('#location-a-label')).toBeVisible()
+  await expect(page.locator('#location-b-label')).toBeVisible()
 
+  await page.locator('#lesson-next-chapter').click() // -> june-solstice's tilt tween begins
+  await page.waitForTimeout(1500) // let the tween settle
+
+  await expect(page.locator('#location-a-label')).toBeVisible()
+  await expect(page.locator('#location-b-label')).toBeVisible()
   expect(errors).toEqual([])
 })
