@@ -51,3 +51,30 @@ test('the corner Display button still opens and closes its panel while in learn 
 
   expect(errors).toEqual([])
 })
+
+test('chapter navigation and scrubbing update lesson-panel state', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', (error) => errors.push(error.message))
+
+  await page.goto('/')
+  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+
+  await page.locator('#learn-mode-btn').click()
+  await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
+
+  await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-id', 'intro')
+  await expect(page.locator('#lesson-prev-chapter')).toBeDisabled()
+
+  await page.locator('#lesson-next-chapter').click()
+  await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-id', 'march-equinox')
+  await expect(page.locator('#lesson-prev-chapter')).toBeEnabled()
+
+  await page.locator('#lesson-scrub').fill('0.75')
+  await expect(page.locator('#lesson-panel')).toHaveAttribute('data-scrub-t', '0.75')
+
+  await page.locator('#lesson-prev-chapter').click()
+  // Navigating chapters resets scrub back to 0, per LessonPlayer.nextChapter/previousChapter.
+  await expect(page.locator('#lesson-panel')).toHaveAttribute('data-scrub-t', '0')
+
+  expect(errors).toEqual([])
+})

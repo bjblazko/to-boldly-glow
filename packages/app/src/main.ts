@@ -13,6 +13,8 @@ import { planetAuPosition } from './solarSystem/entities'
 import { EntitySearchUI } from './search/entitySearchUI'
 import { DockUI } from './hud/dockUI'
 import { LearnModeController } from './learn/learnModeController'
+import { LessonPlayer } from './learn/lessonPlayer'
+import { LESSONS_BY_ID } from './learn/lessons/seasons'
 import { initShuttleVisual } from './hud/shuttleVisual'
 import { scaledBodyRadiusUnits, scaledPosition } from './solarSystem/sceneScale'
 import { ScaleBlendTween } from './solarSystem/scaleBlendTween'
@@ -546,15 +548,32 @@ async function main() {
   )
   initShuttleVisual(requireElement<HTMLInputElement>('#time-shuttle'), requireElement<HTMLElement>('#time-shuttle-fill'))
 
+  const lessonPlayer = new LessonPlayer()
   const learnModeController = new LearnModeController(document.body, cameraInput, dockUI)
   const learnModeBtn = requireElement<HTMLButtonElement>('#learn-mode-btn')
   const lessonPicker = requireElement<HTMLElement>('#lesson-picker')
   const lessonPanel = requireElement<HTMLElement>('#lesson-panel')
+  const lessonChapterTitle = requireElement<HTMLElement>('#lesson-chapter-title')
+  const lessonPrevBtn = requireElement<HTMLButtonElement>('#lesson-prev-chapter')
+  const lessonNextBtn = requireElement<HTMLButtonElement>('#lesson-next-chapter')
+  const lessonScrub = requireElement<HTMLInputElement>('#lesson-scrub')
+
+  function refreshChapterUI(): void {
+    const chapter = lessonPlayer.currentChapter
+    lessonChapterTitle.textContent = `${lessonPlayer.currentChapterIndex + 1} / ${lessonPlayer.currentLesson.chapters.length}: ${chapter.title}`
+    lessonPrevBtn.disabled = !lessonPlayer.hasPreviousChapter
+    lessonNextBtn.disabled = !lessonPlayer.hasNextChapter
+    lessonScrub.value = String(lessonPlayer.scrubT)
+    lessonScrub.dispatchEvent(new Event('input')) // refreshes the shuttle-style fill via initShuttleVisual
+    lessonPanel.dataset.chapterId = chapter.id
+    lessonPanel.dataset.scrubT = String(lessonPlayer.scrubT)
+  }
+
   learnModeBtn.addEventListener('click', () => {
     if (learnModeController.currentMode === 'learn') {
       learnModeController.exit()
-      lessonPicker.hidden = true
       lessonPanel.hidden = true
+      lessonPicker.hidden = true
       return
     }
     lessonPicker.hidden = !lessonPicker.hidden
@@ -562,12 +581,28 @@ async function main() {
   lessonPicker.querySelectorAll<HTMLButtonElement>('.hud-lesson-picker-item').forEach((item) => {
     item.addEventListener('click', () => {
       const lessonId = item.dataset.lessonId
-      if (!lessonId) return
+      const lesson = lessonId ? LESSONS_BY_ID[lessonId] : undefined
+      if (!lesson) return
       lessonPicker.hidden = true
-      learnModeController.enter(lessonId)
+      lessonPlayer.load(lesson)
+      learnModeController.enter(lesson.id)
       lessonPanel.hidden = false
+      refreshChapterUI()
     })
   })
+  lessonPrevBtn.addEventListener('click', () => {
+    lessonPlayer.previousChapter()
+    refreshChapterUI()
+  })
+  lessonNextBtn.addEventListener('click', () => {
+    lessonPlayer.nextChapter()
+    refreshChapterUI()
+  })
+  lessonScrub.addEventListener('input', () => {
+    lessonPlayer.setScrubT(Number(lessonScrub.value))
+    lessonPanel.dataset.scrubT = String(lessonPlayer.scrubT)
+  })
+  initShuttleVisual(lessonScrub, requireElement<HTMLElement>('#lesson-scrub-fill'))
 
   const cameraFollow = new CameraFollowController(orbitCamera)
   const entitySearchUI = new EntitySearchUI(

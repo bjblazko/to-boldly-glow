@@ -223,7 +223,39 @@
       </button>
     </div>
 
-    <div id="lesson-panel" class="hud-lesson-panel" hidden></div>
+    <div id="lesson-panel" class="hud-lesson-panel" hidden>
+      <div class="hud-row-between">
+        <button id="lesson-prev-chapter" class="hud-icon-btn" type="button" aria-label="Previous chapter">
+          <svg class="icon" aria-hidden="true"><use href="#icon-rewind"></use></svg>
+        </button>
+        <span id="lesson-chapter-title"></span>
+        <button id="lesson-next-chapter" class="hud-icon-btn" type="button" aria-label="Next chapter">
+          <svg class="icon" aria-hidden="true"><use href="#icon-forward"></use></svg>
+        </button>
+      </div>
+
+      <p id="lesson-chapter-text" class="hud-lesson-text"></p>
+
+      <div id="lesson-latitude-row" class="hud-row" role="group" aria-label="Latitude"></div>
+
+      <div class="hud-shuttle">
+        <div class="hud-shuttle-track-wrap">
+          <div class="hud-shuttle-track">
+            <div class="hud-shuttle-fill" id="lesson-scrub-fill"></div>
+          </div>
+          <input
+            id="lesson-scrub"
+            class="hud-range hud-shuttle-input"
+            type="range"
+            min="0"
+            max="1"
+            step="0.001"
+            value="0"
+            aria-label="Scrub through this chapter's date range"
+          />
+        </div>
+      </div>
+    </div>
 
     <script type="module" src="/src/main.ts"></script>
   </body>

@@ -582,3 +582,34 @@ body[data-app-mode='learn'] .hud-dock {
 body[data-app-mode='learn'] #learn-mode-btn-label::before {
   content: 'Exit ';
 }
+
+.hud-lesson-text {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--hud-text);
+}
+
+/* The lesson scrub bar represents absolute progress through a date range (0 = start, 1 = end),
+   not a signed rate around a center zero like the time shuttle it's visually based on - so its
+   fill grows from the left edge, not from a center tick. */
+#lesson-scrub-fill {
+  left: 0 !important;
+}
+
+.hud-latitude-chip {
+  appearance: none;
+  border: 1px solid var(--hud-control-border);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  color: var(--hud-dim);
+  background: var(--hud-control-bg);
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+.hud-latitude-chip.is-active {
+  color: #e6c9fb;
+  background: var(--hud-accent-learn-tint);
+  border-color: rgba(201, 138, 240, 0.3);
+}
