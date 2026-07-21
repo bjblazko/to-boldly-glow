@@ -8,42 +8,46 @@ describe('SEASONS_LESSON', () => {
     expect(ids).toEqual(['intro', 'march-equinox', 'june-solstice', 'september-equinox', 'december-solstice'])
   })
 
-  it('every non-intro chapter\'s defining date falls strictly inside its own dateRange', () => {
-    for (const chapter of SEASONS_LESSON.chapters.filter((c) => c.id !== 'intro')) {
-      const [start, end] = chapter.dateRange
-      const definingDate = chapter.cameraFraming.date
-      expect(definingDate.getTime()).toBeGreaterThan(start.getTime())
-      expect(definingDate.getTime()).toBeLessThan(end.getTime())
-    }
-  })
-
-  it('has at least 5 latitude presets including the Equator', () => {
-    expect(SEASONS_LESSON.latitudePresets.length).toBeGreaterThanOrEqual(5)
-    expect(SEASONS_LESSON.latitudePresets.some((p) => p.id === 'equator')).toBe(true)
-  })
-
-  it('every chapter\'s text() returns a non-empty string for the Equator preset at scrubT=0.5', () => {
-    const equator = SEASONS_LESSON.latitudePresets.find((p) => p.id === 'equator')!
+  it('every chapter has a season phase in [0, 360) degrees', () => {
     for (const chapter of SEASONS_LESSON.chapters) {
-      expect(chapter.text(0.5, equator).length).toBeGreaterThan(0)
+      expect(chapter.seasonPhaseDegrees).toBeGreaterThanOrEqual(0)
+      expect(chapter.seasonPhaseDegrees).toBeLessThan(360)
     }
+  })
+
+  it('the four solstice/equinox chapters use the four cardinal phases exactly once each', () => {
+    const nonIntro = SEASONS_LESSON.chapters.filter((c) => c.id !== 'intro')
+    const phases = nonIntro.map((c) => c.seasonPhaseDegrees).sort((a, b) => a - b)
+    expect(phases).toEqual([0, 90, 180, 270])
+  })
+
+  it('Intro uses a neutral (equinox-like) phase, matching one of the equinox chapters', () => {
+    const intro = SEASONS_LESSON.chapters.find((c) => c.id === 'intro')!
+    const septemberEquinox = SEASONS_LESSON.chapters.find((c) => c.id === 'september-equinox')!
+    expect(intro.seasonPhaseDegrees).toBe(septemberEquinox.seasonPhaseDegrees)
+  })
+
+  it('every chapter has non-empty text', () => {
+    for (const chapter of SEASONS_LESSON.chapters) {
+      expect(chapter.text.length).toBeGreaterThan(0)
+    }
+  })
+
+  it('June and December solstice text each mention both locations by name', () => {
+    const june = SEASONS_LESSON.chapters.find((c) => c.id === 'june-solstice')!
+    const december = SEASONS_LESSON.chapters.find((c) => c.id === 'december-solstice')!
+    for (const chapter of [june, december]) {
+      expect(chapter.text).toContain('Location A')
+      expect(chapter.text).toContain('Location B')
+    }
+  })
+
+  it('markerLatitudeDegrees is a single positive magnitude (the two markers are its +/- mirror)', () => {
+    expect(SEASONS_LESSON.markerLatitudeDegrees).toBeGreaterThan(0)
+    expect(SEASONS_LESSON.markerLatitudeDegrees).toBeLessThan(90)
   })
 
   it('is registered in LESSONS_BY_ID under "seasons"', () => {
     expect(LESSONS_BY_ID['seasons']).toBe(SEASONS_LESSON)
-  })
-
-  it('a latitude preset text override reads sensibly across multiple chapters, not just its own season', () => {
-    const tropicOfCancer = SEASONS_LESSON.latitudePresets.find((p) => p.id === 'tropic-of-cancer')!
-    const marchChapter = SEASONS_LESSON.chapters.find((c) => c.id === 'march-equinox')!
-    const decemberChapter = SEASONS_LESSON.chapters.find((c) => c.id === 'december-solstice')!
-
-    for (const chapter of [marchChapter, decemberChapter]) {
-      const text = chapter.text(0.5, tropicOfCancer)
-      // Must not read as a June-solstice-only sentence when shown during a different chapter -
-      // it should mention both solstices, like the Arctic/Antarctic Circle overrides do.
-      expect(text).toContain('June solstice')
-      expect(text).toContain('December solstice')
-    }
   })
 })
