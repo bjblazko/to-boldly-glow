@@ -134,7 +134,11 @@ fn sunVisibleFraction(worldPos: vec3f) -> f32 {
   let ringInner = uni.ringParams.y;
   let ringOuter = uni.ringParams.z;
   if (ringOuter > ringInner) {
-    let ringNormal = normalize((uni.world * vec4f(0.0, 1.0, 0.0, 0.0)).xyz);
+    // Local +Z, matching the ring mesh's actual flat plane (geometry/ring.ts generates it flat in
+    // the local XY plane, normal local +Z) - NOT local Y, which was this test's original (wrong)
+    // axis, copied from ringShaderCode's own same mistake below (now also fixed). The wrong axis
+    // put the shadow-casting plane 90 degrees off from the ring's real plane.
+    let ringNormal = normalize((uni.world * vec4f(0.0, 0.0, 1.0, 0.0)).xyz);
     let ringCenter = uni.world[3].xyz;
     let denom = dot(toSunDir, ringNormal);
     if (abs(denom) > 1e-4) {
@@ -184,8 +188,8 @@ struct BumpResult {
 // for a UV-sphere, the tangent (longitude direction) is always perpendicular to both the surface
 // normal and the polar axis, so it's derived here via a cross product against the sphere's own
 // local +Z axis (transformed to world space through uni.world) — the same "transform a local axis,
-// drop translation" trick sunVisibleFraction's ring-plane test and ringShaderCode both already use
-// for their own normals, just with local Z instead of local Y.
+// drop translation" trick sunVisibleFraction's ring-plane test and ringShaderCode both use for
+// their own normals (also local +Z, matching the ring mesh's real flat-XY-plane geometry).
 fn applyBump(worldPos: vec3f, normal: vec3f, uv: vec2f) -> BumpResult {
   let intensity = uni.bumpParams.x;
   if (intensity <= 0.0) {
@@ -604,10 +608,12 @@ fn fs(in: VertexOutput) -> @location(0) vec4f {
 //   [32..36) lightDirection      : vec4f (xyz used, w unused)
 //
 // A flat annulus (see geometry/ring.ts) with no per-vertex normal attribute — its local normal is
-// always (0,1,0), transformed by `world` in the fragment shader. Lit two-sided (abs() on the dot
-// product) since the ring is visible from both above and below and cullMode is 'none'. The ring
-// texture is a single radial gradient strip (color + transparency by distance from the planet,
-// e.g. the Cassini Division gap), so texture alpha drives real transparency via alpha blending.
+// always (0,0,1) (the ring mesh lies flat in the local XY plane; local +Z is its normal, matching
+// generateSphereMesh's own polar-axis convention), transformed by `world` in the fragment shader.
+// Lit two-sided (abs() on the dot product) since the ring is visible from both above and below and
+// cullMode is 'none'. The ring texture is a single radial gradient strip (color + transparency by
+// distance from the planet, e.g. the Cassini Division gap), so texture alpha drives real
+// transparency via alpha blending.
 export const ringShaderCode = /* wgsl */ `
 struct Uniforms {
   worldViewProjection: mat4x4f,
@@ -640,7 +646,7 @@ fn vs(vert: VertexInput) -> VertexOutput {
 @fragment
 fn fs(in: VertexOutput) -> @location(0) vec4f {
   let sampled = textureSample(ringTexture, ringSampler, in.uv);
-  let normal = normalize((uni.world * vec4f(0.0, 1.0, 0.0, 0.0)).xyz);
+  let normal = normalize((uni.world * vec4f(0.0, 0.0, 1.0, 0.0)).xyz);
   let brightness = abs(dot(normal, -uni.lightDirection.xyz)) * 0.85 + 0.15;
   return vec4f(sampled.rgb * brightness, sampled.a);
 }
