@@ -78,3 +78,20 @@ test('chapter navigation and scrubbing update lesson-panel state', async ({ page
 
   expect(errors).toEqual([])
 })
+
+test('the canvas keeps rendering (camera locked, not frozen) across a chapter change', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', (error) => errors.push(error.message))
+
+  await page.goto('/')
+  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+
+  await page.locator('#learn-mode-btn').click()
+  await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
+  await page.waitForTimeout(2000) // let the initial chapter's camera fly-to tween settle
+
+  await page.locator('#lesson-next-chapter').click()
+  await page.waitForTimeout(2000) // let the chapter-change fly-to tween settle
+
+  expect(errors).toEqual([])
+})

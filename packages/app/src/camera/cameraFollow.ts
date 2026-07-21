@@ -32,10 +32,12 @@ interface FlyToTween {
   startTarget: [number, number, number]
   startRadius: number
   startAzimuth: number
+  startElevation: number
   startUpAxis: [number, number, number]
   endTarget: [number, number, number]
   endRadius: number
   endAzimuth: number
+  endElevation: number
   endUpAxis: [number, number, number]
   elapsedSeconds: number
   durationSeconds: number
@@ -103,13 +105,57 @@ export class CameraFollowController {
       startTarget,
       startRadius: this.orbitCamera.radius,
       startAzimuth: this.orbitCamera.azimuth,
+      startElevation: this.orbitCamera.elevation,
       startUpAxis,
       endTarget,
       endRadius: defaultFramingRadius(entity, scaleBlend, this.orbitCamera),
       endAzimuth: defaultFramingAzimuth(endTarget, this.orbitCamera.azimuth, basis),
+      endElevation: this.orbitCamera.elevation,
       endUpAxis: entityPoleDirection(entity),
       elapsedSeconds: 0,
       durationSeconds: this.flyToDurationSeconds,
+    }
+  }
+
+  // Entity-independent counterpart to selectEntity: flies to a fixed, caller-supplied framing
+  // (target/radius/azimuth/elevation/upAxis) instead of one derived from a SolarSystemEntity's
+  // live position/pole. Used by learn-mode chapter framing, where the target is Earth's position
+  // on a lesson-authored date rather than "whatever a followed entity's live position is right
+  // now." Deliberately does NOT set followedEntity/followedEntityId, so update()'s live-tracking
+  // branch never engages afterward - the camera holds the tween's end framing exactly, since a
+  // chapter's own scrub-driven date changes are applied by re-deriving Earth's world transform
+  // directly in main.ts's render loop, not by continuously re-flying the camera.
+  flyToFraming(
+    endTarget: [number, number, number],
+    endRadius: number,
+    endAzimuth: number,
+    endElevation: number,
+    endUpAxis: [number, number, number],
+    durationSeconds?: number,
+  ): void {
+    const startTarget: [number, number, number] = [
+      this.orbitCamera.target[0],
+      this.orbitCamera.target[1],
+      this.orbitCamera.target[2],
+    ]
+    const startUpAxis: [number, number, number] = [
+      this.orbitCamera.upAxis[0],
+      this.orbitCamera.upAxis[1],
+      this.orbitCamera.upAxis[2],
+    ]
+    this.flyTo = {
+      startTarget,
+      startRadius: this.orbitCamera.radius,
+      startAzimuth: this.orbitCamera.azimuth,
+      startElevation: this.orbitCamera.elevation,
+      startUpAxis,
+      endTarget,
+      endRadius,
+      endAzimuth,
+      endElevation,
+      endUpAxis,
+      elapsedSeconds: 0,
+      durationSeconds: durationSeconds ?? this.flyToDurationSeconds,
     }
   }
 
@@ -127,6 +173,7 @@ export class CameraFollowController {
       vec3.copy(this.orbitCamera.target, lerpVec3(this.flyTo.startTarget, this.flyTo.endTarget, eased))
       this.orbitCamera.radius = lerp(this.flyTo.startRadius, this.flyTo.endRadius, eased)
       this.orbitCamera.azimuth = lerpAngle(this.flyTo.startAzimuth, this.flyTo.endAzimuth, eased)
+      this.orbitCamera.elevation = lerp(this.flyTo.startElevation, this.flyTo.endElevation, eased)
       const upAxis = vec3.create()
       vec3.slerp(upAxis, this.flyTo.startUpAxis, this.flyTo.endUpAxis, eased)
       vec3.copy(this.orbitCamera.upAxis, upAxis)

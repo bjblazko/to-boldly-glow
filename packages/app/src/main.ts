@@ -9,7 +9,7 @@ import { CameraFollowController } from './camera/cameraFollow'
 import { currentJulianDay, SimulationClock } from './time/simulationClock'
 import { TimeControlUI } from './time/timeControlUI'
 import { AU_KM, PLANETS, SUN, type BodyDefinition } from './solarSystem/bodies'
-import { planetAuPosition } from './solarSystem/entities'
+import { ALL_ENTITIES, entityWorldPosition, planetAuPosition } from './solarSystem/entities'
 import { EntitySearchUI } from './search/entitySearchUI'
 import { DockUI } from './hud/dockUI'
 import { LearnModeController } from './learn/learnModeController'
@@ -558,7 +558,26 @@ async function main() {
   const lessonNextBtn = requireElement<HTMLButtonElement>('#lesson-next-chapter')
   const lessonScrub = requireElement<HTMLInputElement>('#lesson-scrub')
 
+  function flyToCurrentChapterFraming(): void {
+    const chapter = lessonPlayer.currentChapter
+    const earthEntity = ALL_ENTITIES.find((e) => e.id === 'earth')!
+    const julianDay = currentJulianDay(chapter.cameraFraming.date)
+    const T = julianMillenniaSinceJ2000(julianDay)
+    const daysSinceEpoch = daysSinceJ2000(julianDay)
+    const target = entityWorldPosition(earthEntity, T, daysSinceEpoch, scaleBlend)
+    const earthRadius = scaledBodyRadiusUnits(6371.0, 1.0, scaleBlend, AU_KM) // matches bodies.ts's Earth entry (radiusKm 6371.0, compactVisualRadius 1.0)
+    const radius = Math.min(Math.max(earthRadius * chapter.cameraFraming.radiusMultiplier, orbitCamera.minRadius), orbitCamera.maxRadius)
+    cameraFollow.flyToFraming(
+      target,
+      radius,
+      chapter.cameraFraming.azimuth,
+      chapter.cameraFraming.elevation,
+      [...chapter.cameraFraming.upAxis],
+    )
+  }
+
   function refreshChapterUI(): void {
+    flyToCurrentChapterFraming()
     const chapter = lessonPlayer.currentChapter
     lessonChapterTitle.textContent = `${lessonPlayer.currentChapterIndex + 1} / ${lessonPlayer.currentLesson.chapters.length}: ${chapter.title}`
     lessonPrevBtn.disabled = !lessonPlayer.hasPreviousChapter
@@ -745,7 +764,15 @@ async function main() {
     const planetPositionsById = new Map<string, [number, number, number]>()
     const planetRadiusById = new Map<string, number>()
     const planetFrameData = planetRenderables.map((renderable) => {
-      const { x, y, z, distanceAu } = planetAuPosition(renderable.definition, T)
+      const isLearnEarth = learnModeController.currentMode === 'learn' && renderable.definition.id === 'earth'
+      let x: number, y: number, z: number, distanceAu: number
+      if (isLearnEarth) {
+        const learnJulianDay = currentJulianDay(lessonPlayer.currentDate)
+        const learnT = julianMillenniaSinceJ2000(learnJulianDay)
+        ;({ x, y, z, distanceAu } = planetAuPosition(renderable.definition, learnT))
+      } else {
+        ;({ x, y, z, distanceAu } = planetAuPosition(renderable.definition, T))
+      }
       const [sx, sy, sz] = scaledPosition(x, y, z, distanceAu, scaleBlend)
       planetPositionsById.set(renderable.definition.id, [sx, sy, sz])
       const radius = scaledBodyRadiusUnits(
@@ -763,7 +790,7 @@ async function main() {
     type Occluder = [number, number, number, number]
     const moonOccludersByParentId = new Map<string, Occluder[]>()
 
-    if (showMoons) {
+    if (showMoons && learnModeController.currentMode !== 'learn') {
       for (const renderable of moonRenderables) {
         const moon = renderable.definition
         const parentPosition = planetPositionsById.get(moon.parentId)
@@ -887,7 +914,9 @@ async function main() {
     }
 
     for (const { renderable, x: sx, y: sy, z: sz, radius } of planetFrameData) {
-      const rotation = rotationAngleRadians(daysSinceEpoch, renderable.definition.siderealRotationHours)
+      const isLearnEarth = learnModeController.currentMode === 'learn' && renderable.definition.id === 'earth'
+      const rotationDaysSinceEpoch = isLearnEarth ? daysSinceJ2000(currentJulianDay(lessonPlayer.currentDate)) : daysSinceEpoch
+      const rotation = rotationAngleRadians(rotationDaysSinceEpoch, renderable.definition.siderealRotationHours)
       const poleDirection = equatorialToEclipticPoleDirection(
         renderable.definition.poleRightAscensionDegrees,
         renderable.definition.poleDeclinationDegrees,
@@ -1015,7 +1044,7 @@ async function main() {
     for (const renderable of planetRenderables) {
       drawBody(pass, litPipeline, meshBuffers, renderable.bindGroup)
     }
-    if (showMoons) {
+    if (showMoons && learnModeController.currentMode !== 'learn') {
       for (const renderable of moonRenderables) {
         drawBody(pass, litPipeline, meshBuffers, renderable.bindGroup)
       }

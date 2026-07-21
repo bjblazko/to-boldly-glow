@@ -280,3 +280,31 @@ describe('CameraFollowController', () => {
     expect(camera.upAxis[2]).toBe(upAxisAfterFlyTo[2])
   })
 })
+
+describe('CameraFollowController.flyToFraming', () => {
+  it('tweens target/radius/azimuth/elevation/upAxis toward the given fixed framing, not an entity', () => {
+    const camera = new OrbitCamera({ target: [0, 0, 0], radius: 10, azimuth: 0, elevation: 0 })
+    const controller = new CameraFollowController(camera, { flyToDurationSeconds: 2 })
+
+    controller.flyToFraming([5, 0, 0], 20, Math.PI / 2, 0.5, [0, 0, 1])
+    controller.update(1, 0, 0, 1) // halfway through the 2s tween
+
+    expect(camera.target[0]).toBeGreaterThan(0)
+    expect(camera.target[0]).toBeLessThan(5)
+    expect(camera.radius).toBeGreaterThan(10)
+    expect(camera.radius).toBeLessThan(20)
+
+    controller.update(1, 0, 0, 1) // completes the tween
+    expect(camera.target[0]).toBeCloseTo(5, 5)
+    expect(camera.radius).toBeCloseTo(20, 5)
+    expect(camera.azimuth).toBeCloseTo(Math.PI / 2, 5)
+    expect(camera.elevation).toBeCloseTo(0.5, 5)
+  })
+
+  it('does not set followedEntityId, so live entity-tracking never kicks in afterward', () => {
+    const camera = new OrbitCamera()
+    const controller = new CameraFollowController(camera)
+    controller.flyToFraming([1, 1, 1], 10, 0, 0, [0, 0, 1])
+    expect(controller.followedEntityId).toBeNull()
+  })
+})
