@@ -3,8 +3,12 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "workspaces": ["packages/*"],
-  "engines": { "node": ">=20" },
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "npm run build --workspace=@toboldlyglow/engine && npm run build --workspace=@toboldlyglow/app",
     "test": "npm run test --workspace=@toboldlyglow/engine && npm run test --workspace=@toboldlyglow/app && npm run test --workspace=@toboldlyglow/data-pipeline",
@@ -16,5 +20,12 @@
     "eslint": "^9.10.0",
     "typescript": "^5.6.0",
     "typescript-eslint": "^8.5.0"
+  },
+  "allowScripts": {
+    "sharp@0.33.5": true,
+    "fsevents@2.3.3": true,
+    "fsevents@2.3.2": true,
+    "esbuild@0.28.1": true,
+    "esbuild@0.25.12": true
   }
 }

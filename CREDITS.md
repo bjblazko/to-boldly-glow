@@ -109,6 +109,15 @@ instead) — Voyager 2's brief flybys of Uranus and Neptune only imaged part of 
 leaving large gaps in any full-sphere equirectangular projection of them; no gap-free public-domain
 map exists to source instead.
 
+## Bump/height maps
+
+Jupiter/Saturn/Uranus/Neptune's bump maps
+(`packages/app/public/textures/{jupiter,saturn,uranus,neptune}_bump.png`) are **not real elevation
+data** — no such data exists for gas-giant cloud tops. They're synthetically derived from each
+planet's own already-licensed color texture (luminance + contrast enhancement, via
+`packages/data-pipeline/src/deriveGasGiantBumpMaps.ts`), inheriting the same Solar System Scope CC
+BY 4.0 license as the source textures. A stylization for visual depth, not a scientific claim.
+
 ## Star catalog
 
 The starfield's positions and brightness (`packages/app/public/stars/starCatalog.bin`) are

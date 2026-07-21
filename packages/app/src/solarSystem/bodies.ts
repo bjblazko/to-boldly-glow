@@ -172,6 +172,8 @@ export const PLANETS: BodyDefinition[] = [
     poleDeclinationDegrees: 64.50,
     atmosphereColor: [0.85, 0.75, 0.6],
     atmosphereIntensity: 0.4,
+    bumpMapUrl: '/textures/jupiter_bump.png',
+    bumpIntensity: 0.3,
   },
   {
     id: 'saturn',
@@ -187,6 +189,8 @@ export const PLANETS: BodyDefinition[] = [
     poleDeclinationDegrees: 83.54,
     atmosphereColor: [0.9, 0.85, 0.65],
     atmosphereIntensity: 0.4,
+    bumpMapUrl: '/textures/saturn_bump.png',
+    bumpIntensity: 0.3,
   },
   {
     id: 'uranus',
@@ -204,6 +208,8 @@ export const PLANETS: BodyDefinition[] = [
     // deeper-blue tints respectively.
     atmosphereColor: [0.6, 0.9, 0.95],
     atmosphereIntensity: 0.35,
+    bumpMapUrl: '/textures/uranus_bump.png',
+    bumpIntensity: 0.3,
   },
   {
     id: 'neptune',
@@ -223,5 +229,7 @@ export const PLANETS: BodyDefinition[] = [
     poleDeclinationDegrees: 42.95,
     atmosphereColor: [0.35, 0.5, 0.95],
     atmosphereIntensity: 0.4,
+    bumpMapUrl: '/textures/neptune_bump.png',
+    bumpIntensity: 0.3,
   },
 ]
