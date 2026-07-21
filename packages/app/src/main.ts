@@ -188,7 +188,7 @@ async function main() {
   const litPipeline = await createLitPipeline(device, sceneColorFormat)
   const unlitPipeline = await createUnlitPipeline(device, sceneColorFormat)
 
-  const sphereMesh = generateSphereMesh(1, 32, 32)
+  const sphereMesh = generateSphereMesh(1, 64, 64)
   const meshBuffers = createMeshBuffers(device, sphereMesh)
   const bodySampler = createBodySampler(device)
 
