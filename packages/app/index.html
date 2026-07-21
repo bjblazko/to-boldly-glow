@@ -26,6 +26,8 @@
     <div id="scene-wrapper">
       <canvas id="scene"></canvas>
       <div id="body-labels" style="position: absolute; inset: 0; pointer-events: none; overflow: hidden;"></div>
+      <div id="location-a-label" class="body-label" style="display: none;">Location A</div>
+      <div id="location-b-label" class="body-label" style="display: none;">Location B</div>
     </div>
 
     <!-- Monochrome line-icon set, referenced elsewhere via <svg class="icon"><use href="#icon-name"/></svg> -->
@@ -235,26 +237,6 @@
       </div>
 
       <p id="lesson-chapter-text" class="hud-lesson-text"></p>
-
-      <div id="lesson-latitude-row" class="hud-row" role="group" aria-label="Latitude"></div>
-
-      <div class="hud-shuttle">
-        <div class="hud-shuttle-track-wrap">
-          <div class="hud-shuttle-track">
-            <div class="hud-shuttle-fill" id="lesson-scrub-fill"></div>
-          </div>
-          <input
-            id="lesson-scrub"
-            class="hud-range hud-shuttle-input"
-            type="range"
-            min="0"
-            max="1"
-            step="0.001"
-            value="0"
-            aria-label="Scrub through this chapter's date range"
-          />
-        </div>
-      </div>
     </div>
 
     <script type="module" src="/src/main.ts"></script>
