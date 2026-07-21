@@ -315,24 +315,51 @@ fn fs(in: VertexOutput) -> @location(0) vec4f {
 }
 `
 
-// Uniform layout: [0..16) worldViewProjection : mat4x4f, [16..20) color : vec4f
-// Positions supplied to this pipeline are already in world space (see orbitPath.ts), so
-// worldViewProjection here is really just projection * view — no separate world matrix needed.
+// Uniform layout: [0..16) worldViewProjection : mat4x4f, [16..20) color : vec4f,
+// [20..24) dashParams : vec4f (x = dash length in world units, y = animated dash offset in world
+// units, z = duty cycle 0..1 - fraction of each dash period that's visible, w = 1.0 to enable
+// dashing / 0.0 to render solid).
+export const LINE_UNIFORM_FLOAT_COUNT = 24
+
+// Shared by orbit paths (dashParams.w = 0, solid, reproducing the pre-existing appearance exactly)
+// and learn-mode globe overlays (dashParams.w = 1, animated dashed "reference geometry" look) -
+// one pipeline, one shader, gated by a uniform flag rather than two near-duplicate shaders.
 export const lineShaderCode = /* wgsl */ `
 struct Uniforms {
   worldViewProjection: mat4x4f,
   color: vec4f,
+  dashParams: vec4f,
+};
+
+struct VertexInput {
+  @location(0) position: vec3f,
+  @location(1) lineDistance: f32,
+};
+
+struct VertexOutput {
+  @builtin(position) position: vec4f,
+  @location(0) lineDistance: f32,
 };
 
 @group(0) @binding(0) var<uniform> uni: Uniforms;
 
 @vertex
-fn vs(@location(0) position: vec3f) -> @builtin(position) vec4f {
-  return uni.worldViewProjection * vec4f(position, 1.0);
+fn vs(vert: VertexInput) -> VertexOutput {
+  var out: VertexOutput;
+  out.position = uni.worldViewProjection * vec4f(vert.position, 1.0);
+  out.lineDistance = vert.lineDistance;
+  return out;
 }
 
 @fragment
-fn fs() -> @location(0) vec4f {
+fn fs(in: VertexOutput) -> @location(0) vec4f {
+  if (uni.dashParams.w > 0.5) {
+    let dashLength = max(uni.dashParams.x, 0.0001);
+    let phase = fract((in.lineDistance - uni.dashParams.y) / dashLength);
+    if (phase > uni.dashParams.z) {
+      discard;
+    }
+  }
   return uni.color;
 }
 `

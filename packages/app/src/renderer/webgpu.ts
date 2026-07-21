@@ -212,12 +212,17 @@ const LINE_POSITION_BUFFER_LAYOUT: GPUVertexBufferLayout = {
   attributes: [{ shaderLocation: 0, offset: 0, format: 'float32x3' }],
 }
 
+const LINE_DISTANCE_BUFFER_LAYOUT: GPUVertexBufferLayout = {
+  arrayStride: 4,
+  attributes: [{ shaderLocation: 1, offset: 0, format: 'float32' }],
+}
+
 export async function createLinePipeline(device: GPUDevice, format: GPUTextureFormat): Promise<GPURenderPipeline> {
-  const module = device.createShaderModule({ label: 'orbit line shader', code: lineShaderCode })
+  const module = device.createShaderModule({ label: 'line shader', code: lineShaderCode })
   return await device.createRenderPipelineAsync({
-    label: 'orbit line pipeline',
+    label: 'line pipeline',
     layout: 'auto',
-    vertex: { module, entryPoint: 'vs', buffers: [LINE_POSITION_BUFFER_LAYOUT] },
+    vertex: { module, entryPoint: 'vs', buffers: [LINE_POSITION_BUFFER_LAYOUT, LINE_DISTANCE_BUFFER_LAYOUT] },
     fragment: { module, entryPoint: 'fs', targets: [{ format }] },
     primitive: { topology: 'line-strip' },
     multisample: { count: SAMPLE_COUNT },
@@ -228,18 +233,18 @@ export async function createLinePipeline(device: GPUDevice, format: GPUTextureFo
   })
 }
 
-export function createOrbitPathBuffer(device: GPUDevice, initialPoints: Float32Array): GPUBuffer {
+export function createLineVertexBuffer(device: GPUDevice, initialValues: Float32Array): GPUBuffer {
   const buffer = device.createBuffer({
-    label: 'orbit path positions',
-    size: initialPoints.byteLength,
+    label: 'line vertex buffer',
+    size: initialValues.byteLength,
     usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
   })
-  device.queue.writeBuffer(buffer, 0, initialPoints as BufferSource)
+  device.queue.writeBuffer(buffer, 0, initialValues as BufferSource)
   return buffer
 }
 
-export function updateOrbitPathBuffer(device: GPUDevice, buffer: GPUBuffer, points: Float32Array): void {
-  device.queue.writeBuffer(buffer, 0, points as BufferSource)
+export function updateLineVertexBuffer(device: GPUDevice, buffer: GPUBuffer, values: Float32Array): void {
+  device.queue.writeBuffer(buffer, 0, values as BufferSource)
 }
 
 // Per-instance (x, y, z, brightness), one instance per star — see starShaderCode for how each

@@ -96,6 +96,31 @@ test('the canvas keeps rendering (camera locked, not frozen) across a chapter ch
   expect(errors).toEqual([])
 })
 
+test('orbit paths still render (via the shared, now dash-capable line pipeline) with zero pageerrors', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', (error) => errors.push(error.message))
+
+  await page.goto('/')
+  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+
+  // Orbit paths are on by default; exercise the toggle off/on to force the (now two-vertex-buffer,
+  // dash-uniform-carrying) line pipeline to rebind and redraw in both states, catching any
+  // LINE_UNIFORM_FLOAT_COUNT/vertex-layout mismatch introduced by generalizing the pipeline beyond
+  // its original orbit-paths-only shape.
+  await page.locator('#display-corner-btn').click()
+  const orbitPathsToggle = page.locator('#orbit-paths-toggle')
+
+  await orbitPathsToggle.uncheck()
+  await expect(page.locator('#scene')).toHaveAttribute('data-orbit-paths', 'false')
+  await page.waitForTimeout(200)
+
+  await orbitPathsToggle.check()
+  await expect(page.locator('#scene')).toHaveAttribute('data-orbit-paths', 'true')
+  await page.waitForTimeout(200)
+
+  expect(errors).toEqual([])
+})
+
 test('selecting a latitude preset updates the lesson panel and the displayed text', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))

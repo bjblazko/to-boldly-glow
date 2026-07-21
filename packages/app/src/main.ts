@@ -32,16 +32,17 @@ import {
 } from './solarSystem/moonOrbit'
 import { worldToScreen, type ScreenPosition } from './renderer/screenProjection'
 import { computeCanvasSize } from './renderer/canvasSize'
-import { CLOUD_SHELL_UNIFORM_FLOAT_COUNT, LIT_UNIFORM_FLOAT_COUNT } from './renderer/shaders'
+import { CLOUD_SHELL_UNIFORM_FLOAT_COUNT, LINE_UNIFORM_FLOAT_COUNT, LIT_UNIFORM_FLOAT_COUNT } from './renderer/shaders'
 import { circleOverlapFraction } from './renderer/circleOverlap'
+import { computeCumulativeLineDistances } from './renderer/lineDistance'
 import {
   createBodySampler,
   createCloudShellPipeline,
   createFlarePipeline,
   createLinePipeline,
+  createLineVertexBuffer,
   createLitPipeline,
   createMeshBuffers,
-  createOrbitPathBuffer,
   createRenderTargets,
   createRingBuffers,
   createRingPipeline,
@@ -49,7 +50,7 @@ import {
   createStarPipeline,
   createUnlitPipeline,
   initWebGpu,
-  updateOrbitPathBuffer,
+  updateLineVertexBuffer,
   type MeshBuffers,
 } from './renderer/webgpu'
 import {
@@ -384,29 +385,34 @@ async function main() {
   interface OrbitPathRenderable {
     definition: BodyDefinition
     vertexBuffer: GPUBuffer
+    distanceBuffer: GPUBuffer
     uniformBuffer: GPUBuffer
     bindGroup: GPUBindGroup
   }
 
   const orbitPathRenderables: OrbitPathRenderable[] = PLANETS.map((planet) => {
-    const vertexBuffer = createOrbitPathBuffer(device, generateOrbitPathPositions(planet, scaleBlend))
+    const positions = generateOrbitPathPositions(planet, scaleBlend)
+    const vertexBuffer = createLineVertexBuffer(device, positions)
+    const distanceBuffer = createLineVertexBuffer(device, computeCumulativeLineDistances(positions))
     const uniformBuffer = device.createBuffer({
       label: `${planet.id} orbit path uniforms`,
-      size: 20 * 4,
+      size: LINE_UNIFORM_FLOAT_COUNT * 4,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     })
     const bindGroup = device.createBindGroup({
       layout: linePipeline.getBindGroupLayout(0),
       entries: [{ binding: 0, resource: { buffer: uniformBuffer } }],
     })
-    return { definition: planet, vertexBuffer, uniformBuffer, bindGroup }
+    return { definition: planet, vertexBuffer, distanceBuffer, uniformBuffer, bindGroup }
   })
 
   let showOrbitPaths = true
 
   function refreshOrbitPaths(): void {
     for (const path of orbitPathRenderables) {
-      updateOrbitPathBuffer(device, path.vertexBuffer, generateOrbitPathPositions(path.definition, scaleBlend))
+      const positions = generateOrbitPathPositions(path.definition, scaleBlend)
+      updateLineVertexBuffer(device, path.vertexBuffer, positions)
+      updateLineVertexBuffer(device, path.distanceBuffer, computeCumulativeLineDistances(positions))
     }
   }
 
@@ -1029,9 +1035,10 @@ async function main() {
 
     if (showOrbitPaths) {
       for (const path of orbitPathRenderables) {
-        const uniforms = new Float32Array(20)
+        const uniforms = new Float32Array(LINE_UNIFORM_FLOAT_COUNT)
         uniforms.set(viewProjection, 0)
         uniforms.set([...path.definition.color, 0.5], 16)
+        uniforms.set([0, 0, 0, 0], 20)
         device.queue.writeBuffer(path.uniformBuffer, 0, uniforms)
       }
     }
@@ -1103,6 +1110,7 @@ async function main() {
       pass.setPipeline(linePipeline)
       for (const path of orbitPathRenderables) {
         pass.setVertexBuffer(0, path.vertexBuffer)
+        pass.setVertexBuffer(1, path.distanceBuffer)
         pass.setBindGroup(0, path.bindGroup)
         pass.draw(129) // ORBIT_PATH_SEGMENTS + 1 points, see orbitPath.ts
       }
