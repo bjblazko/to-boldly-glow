@@ -142,3 +142,25 @@ test('selecting a latitude preset updates the lesson panel and the displayed tex
 
   expect(errors).toEqual([])
 })
+
+test('globe overlays render without WebGPU errors across a chapter and latitude change', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', (error) => errors.push(error.message))
+
+  await page.goto('/')
+  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+
+  await page.locator('#learn-mode-btn').click()
+  await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
+  await page.waitForTimeout(1500)
+
+  await page.locator('#lesson-next-chapter').click()
+  // Exact-match regex, not a plain substring: "Arctic Circle" is itself a substring of the
+  // "Antarctic Circle" preset's label, so a bare-string hasText filter matches both chips (see
+  // the existing latitude-preset test above, which already guards against this the same way).
+  await page.locator('.hud-latitude-chip', { hasText: /^Arctic Circle$/ }).click()
+  await page.locator('#lesson-scrub').fill('0.9')
+  await page.waitForTimeout(1500)
+
+  expect(errors).toEqual([])
+})

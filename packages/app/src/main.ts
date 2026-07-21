@@ -15,6 +15,7 @@ import { DockUI } from './hud/dockUI'
 import { LearnModeController } from './learn/learnModeController'
 import { LessonPlayer } from './learn/lessonPlayer'
 import { LESSONS_BY_ID } from './learn/lessons/seasons'
+import { equatorRingPoints, latitudeMarkerPoints, rotationAxisPoints, sunAngleRayPoints } from './learn/overlayGeometry'
 import { initShuttleVisual } from './hud/shuttleVisual'
 import { scaledBodyRadiusUnits, scaledPosition } from './solarSystem/sceneScale'
 import { ScaleBlendTween } from './solarSystem/scaleBlendTween'
@@ -405,6 +406,64 @@ async function main() {
     })
     return { definition: planet, vertexBuffer, distanceBuffer, uniformBuffer, bindGroup }
   })
+
+  // Four overlay lines for learn mode's seasons lesson: equator, rotation axis, latitude marker,
+  // sun-angle ray. All four share one dashed-line uniform buffer shape/bind-group-layout, so they
+  // reuse the same small helper for setup.
+  const OVERLAY_LINE_IDS = ['equator', 'axis', 'latitude-marker', 'sun-ray'] as const
+  type OverlayLineId = (typeof OVERLAY_LINE_IDS)[number]
+  interface OverlayLineRenderable {
+    id: OverlayLineId
+    vertexBuffer: GPUBuffer
+    distanceBuffer: GPUBuffer
+    uniformBuffer: GPUBuffer
+    bindGroup: GPUBindGroup
+    pointCount: number
+  }
+  function createOverlayLineRenderable(id: OverlayLineId, initialPoints: Float32Array): OverlayLineRenderable {
+    const vertexBuffer = createLineVertexBuffer(device, initialPoints)
+    const distanceBuffer = createLineVertexBuffer(device, computeCumulativeLineDistances(initialPoints))
+    const uniformBuffer = device.createBuffer({
+      label: `${id} overlay uniforms`,
+      size: LINE_UNIFORM_FLOAT_COUNT * 4,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    })
+    const bindGroup = device.createBindGroup({
+      layout: linePipeline.getBindGroupLayout(0),
+      entries: [{ binding: 0, resource: { buffer: uniformBuffer } }],
+    })
+    return { id, vertexBuffer, distanceBuffer, uniformBuffer, bindGroup, pointCount: initialPoints.length / 3 }
+  }
+  function updateOverlayLineRenderable(renderable: OverlayLineRenderable, points: Float32Array): void {
+    updateLineVertexBuffer(device, renderable.vertexBuffer, points)
+    updateLineVertexBuffer(device, renderable.distanceBuffer, computeCumulativeLineDistances(points))
+    renderable.pointCount = points.length / 3
+  }
+  // Segment counts for the two ring-shaped overlays. These are shared between the placeholder
+  // buffers created here and every frame's actual geometry computation below: createLineVertexBuffer
+  // sizes each GPU buffer to its *initial* array's byte length and updateLineVertexBuffer never
+  // resizes it, so the placeholder point count must exactly match what gets written every frame -
+  // otherwise a later, larger write overruns the buffer and Dawn reports a GPUValidationError.
+  const OVERLAY_EQUATOR_SEGMENTS = 64
+  const OVERLAY_LATITUDE_MARKER_SEGMENTS = 16
+  const overlayLineRenderables: Record<OverlayLineId, OverlayLineRenderable> = {
+    equator: createOverlayLineRenderable('equator', new Float32Array((OVERLAY_EQUATOR_SEGMENTS + 1) * 3)),
+    axis: createOverlayLineRenderable('axis', new Float32Array(6)),
+    'latitude-marker': createOverlayLineRenderable(
+      'latitude-marker',
+      new Float32Array((OVERLAY_LATITUDE_MARKER_SEGMENTS + 1) * 3),
+    ),
+    'sun-ray': createOverlayLineRenderable('sun-ray', new Float32Array(6)),
+  }
+  const OVERLAY_DASH_LENGTH = 0.15 // world units per dash+gap period, tuned visually at Compact scale
+  const OVERLAY_DASH_SPEED = 0.4 // world units per second the dash pattern travels ("marching ants")
+  const OVERLAY_DASH_DUTY_CYCLE = 0.6
+  const OVERLAY_COLORS: Record<OverlayLineId, [number, number, number, number]> = {
+    equator: [0.88, 0.37, 0.63, 0.85],
+    axis: [0.88, 0.75, 0.37, 0.85],
+    'latitude-marker': [0.37, 0.88, 0.63, 0.9],
+    'sun-ray': [0.88, 0.75, 0.37, 0.55],
+  }
 
   let showOrbitPaths = true
 
@@ -1033,6 +1092,59 @@ async function main() {
       }
     }
 
+    if (learnModeController.currentMode === 'learn') {
+      const earthEntry = planetFrameData.find((entry) => entry.renderable.definition.id === 'earth')
+      if (earthEntry) {
+        const earthPoleDirection = equatorialToEclipticPoleDirection(
+          earthEntry.renderable.definition.poleRightAscensionDegrees,
+          earthEntry.renderable.definition.poleDeclinationDegrees,
+        )
+        const earthTilt = axisAlignmentRotation(earthPoleDirection)
+        const earthWorld = mat4.multiply(mat4.create(), mat4.fromTranslation(mat4.create(), [earthEntry.x, earthEntry.y, earthEntry.z]), earthTilt)
+        const latitude = currentLatitudePreset()
+        const ringRadius = earthEntry.radius * 1.02
+        const markerWorld = latitudeMarkerPoints(
+          earthWorld,
+          ringRadius,
+          latitude.latitudeDegrees,
+          earthEntry.radius * 0.04,
+          OVERLAY_LATITUDE_MARKER_SEGMENTS,
+        )
+        const markerCenterWorld: [number, number, number] = [
+          (markerWorld[0] + markerWorld[3]) / 2,
+          (markerWorld[1] + markerWorld[4]) / 2,
+          (markerWorld[2] + markerWorld[5]) / 2,
+        ]
+        const now = performance.now() / 1000
+        const pulse = 1 + 0.15 * Math.sin(now * 3)
+        const geometryById: Record<OverlayLineId, Float32Array> = {
+          equator: equatorRingPoints(earthWorld, ringRadius, OVERLAY_EQUATOR_SEGMENTS),
+          axis: rotationAxisPoints(earthWorld, earthEntry.radius, 1.3),
+          'latitude-marker': latitudeMarkerPoints(
+            earthWorld,
+            ringRadius,
+            latitude.latitudeDegrees,
+            earthEntry.radius * 0.04 * pulse,
+            OVERLAY_LATITUDE_MARKER_SEGMENTS,
+          ),
+          'sun-ray': sunAngleRayPoints(markerCenterWorld, earthEntry.radius * 1.5),
+        }
+        // Unlike every other worldViewProjection in this file, no separate world matrix multiply
+        // is needed here: overlayGeometry.ts's functions already compute their points directly in
+        // world space (they take `earthWorld` themselves), so `worldViewProjection` for these
+        // uniforms really is just `viewProjection`, not `projection * view * world`.
+        for (const id of OVERLAY_LINE_IDS) {
+          const renderable = overlayLineRenderables[id]
+          updateOverlayLineRenderable(renderable, geometryById[id])
+          const uniforms = new Float32Array(LINE_UNIFORM_FLOAT_COUNT)
+          uniforms.set(viewProjection, 0)
+          uniforms.set(OVERLAY_COLORS[id], 16)
+          uniforms.set([OVERLAY_DASH_LENGTH, (now * OVERLAY_DASH_SPEED) % OVERLAY_DASH_LENGTH, OVERLAY_DASH_DUTY_CYCLE, 1.0], 20)
+          device.queue.writeBuffer(renderable.uniformBuffer, 0, uniforms)
+        }
+      }
+    }
+
     if (showOrbitPaths) {
       for (const path of orbitPathRenderables) {
         const uniforms = new Float32Array(LINE_UNIFORM_FLOAT_COUNT)
@@ -1113,6 +1225,16 @@ async function main() {
         pass.setVertexBuffer(1, path.distanceBuffer)
         pass.setBindGroup(0, path.bindGroup)
         pass.draw(129) // ORBIT_PATH_SEGMENTS + 1 points, see orbitPath.ts
+      }
+    }
+    if (learnModeController.currentMode === 'learn') {
+      pass.setPipeline(linePipeline)
+      for (const id of OVERLAY_LINE_IDS) {
+        const renderable = overlayLineRenderables[id]
+        pass.setVertexBuffer(0, renderable.vertexBuffer)
+        pass.setVertexBuffer(1, renderable.distanceBuffer)
+        pass.setBindGroup(0, renderable.bindGroup)
+        pass.draw(renderable.pointCount)
       }
     }
     if (sunFlareVisible) {
