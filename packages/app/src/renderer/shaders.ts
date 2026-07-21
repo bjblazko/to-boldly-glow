@@ -149,6 +149,20 @@ fn sunVisibleFraction(worldPos: vec3f) -> f32 {
   return clamp(visible, 0.0, 1.0);
 }
 
+// Equirectangular textures compress an enormous amount of image width into a physically tiny
+// sliver of image height near each pole (v=0 north, v=1 south — see geometry/sphere.ts's UV
+// convention). Viewed on the sphere from a near-polar camera angle, that sliver is stretched back
+// out to cover a large visible area, magnifying ordinary texture softness/compression noise into a
+// visible artifact (diagnosed on Saturn, but this is a property of every equirectangular texture
+// sampled this way, not a Saturn-specific bug). POLE_FADE_WIDTH is the fraction of latitude near
+// each pole this fades over; a starting guess, tune once running against how far the artifact
+// actually extends.
+const POLE_FADE_WIDTH: f32 = 0.05;
+
+fn poleFadeFactor(v: f32) -> f32 {
+  return smoothstep(0.0, POLE_FADE_WIDTH, v) * smoothstep(1.0, 1.0 - POLE_FADE_WIDTH, v);
+}
+
 @fragment
 fn fs(in: VertexOutput) -> @location(0) vec4f {
   let normal = normalize(in.normal);
@@ -156,7 +170,11 @@ fn fs(in: VertexOutput) -> @location(0) vec4f {
   let shadowFactor = sunVisibleFraction(in.worldPosition);
   let litFraction = max(dot(normal, toLight), 0.0) * shadowFactor;
   let diffuse = litFraction * 0.85 + 0.1;
-  let sampled = textureSample(bodyTexture, bodySampler, in.uv);
+  let poleFade = poleFadeFactor(in.uv.y);
+  let sharpColor = textureSample(bodyTexture, bodySampler, in.uv);
+  let coarseLevel = f32(textureNumLevels(bodyTexture) - 1u);
+  let blurryColor = textureSampleLevel(bodyTexture, bodySampler, in.uv, coarseLevel);
+  let sampled = mix(blurryColor, sharpColor, poleFade);
 
   // A small Blinn-Phong specular highlight — real planets aren't matte diffuse-only, and a
   // subtle sheen reads as "not flat" much more effectively than raising the diffuse/ambient terms
