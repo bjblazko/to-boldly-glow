@@ -11,6 +11,7 @@ const KIND_LABEL: Record<SolarSystemEntity['kind'], string> = {
 // entity selection itself, since the indicator reflects camera-follow state, not search UI state).
 export class EntitySearchUI {
   private results: SolarSystemEntity[] = []
+  private enabled = true
 
   constructor(
     private readonly input: HTMLInputElement,
@@ -35,12 +36,29 @@ export class EntitySearchUI {
     }
   }
 
+  // Explicitly disables search input/selection (rather than relying solely on the search box
+  // being unreachable while the Camera dock panel is hidden, e.g. in learn mode) - blurs and
+  // clears the box, drops any pending results, and ignores further input/keydown so a stray
+  // focus/hotkey path can't fire a fly-to that would fight a locked chapter framing.
+  setEnabled(enabled: boolean): void {
+    this.enabled = enabled
+    this.input.disabled = !enabled
+    if (!enabled) {
+      this.input.blur()
+      this.input.value = ''
+      this.results = []
+      this.renderResults()
+    }
+  }
+
   private onInput = () => {
+    if (!this.enabled) return
     this.results = searchEntities(this.input.value)
     this.renderResults()
   }
 
   private onKeyDown = (event: KeyboardEvent) => {
+    if (!this.enabled) return
     if (event.key === 'Enter' && this.results.length > 0) {
       this.choose(this.results[0])
     }

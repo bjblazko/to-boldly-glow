@@ -15,7 +15,13 @@ import { DockUI } from './hud/dockUI'
 import { LearnModeController } from './learn/learnModeController'
 import { LessonPlayer } from './learn/lessonPlayer'
 import { LESSONS_BY_ID } from './learn/lessons/seasons'
-import { equatorRingPoints, latitudeMarkerPoints, rotationAxisPoints, sunAngleRayPoints } from './learn/overlayGeometry'
+import {
+  equatorRingPoints,
+  latitudeMarkerCenter,
+  latitudeMarkerPoints,
+  rotationAxisPoints,
+  sunAngleRayPoints,
+} from './learn/overlayGeometry'
 import { initShuttleVisual } from './hud/shuttleVisual'
 import { scaledBodyRadiusUnits, scaledPosition } from './solarSystem/sceneScale'
 import { ScaleBlendTween } from './solarSystem/scaleBlendTween'
@@ -606,6 +612,33 @@ async function main() {
     requireElement<HTMLElement>('#time-display'),
   )
 
+  // Constructed here (ahead of learnModeController, just below) so LearnModeController.enter()/
+  // exit() can be handed entitySearchUI directly and disable it as part of the mode switch,
+  // rather than entity search being reachable only incidentally (via the hidden Camera dock
+  // panel) while in learn mode.
+  const cameraFollow = new CameraFollowController(orbitCamera)
+  const entitySearchUI = new EntitySearchUI(
+    requireElement<HTMLInputElement>('#entity-search-input'),
+    requireElement<HTMLDivElement>('#entity-search-results'),
+    requireElement<HTMLElement>('#follow-indicator'),
+    requireElement<HTMLElement>('#follow-indicator-label'),
+    requireElement<HTMLButtonElement>('#follow-stop-button'),
+    (entity) => {
+      if (cameraInput.mode === 'fly') setCameraMode('orbit')
+      const julianDay = currentJulianDay(simulationClock.getCurrentDate())
+      const T = julianMillenniaSinceJ2000(julianDay)
+      const daysSinceEpoch = daysSinceJ2000(julianDay)
+      cameraFollow.selectEntity(entity, T, daysSinceEpoch, scaleBlend)
+      canvas.dataset.followingId = entity.id
+      entitySearchUI.setFollowing(entity)
+    },
+    () => {
+      cameraFollow.stopFollowing()
+      delete canvas.dataset.followingId
+      entitySearchUI.setFollowing(null)
+    },
+  )
+
   const dockUI = new DockUI(
     document.querySelectorAll<HTMLButtonElement>('.hud-dock-btn'),
     requireElement<HTMLElement>('#hud-sheet'),
@@ -614,7 +647,7 @@ async function main() {
   initShuttleVisual(requireElement<HTMLInputElement>('#time-shuttle'), requireElement<HTMLElement>('#time-shuttle-fill'))
 
   const lessonPlayer = new LessonPlayer()
-  const learnModeController = new LearnModeController(document.body, cameraInput, dockUI)
+  const learnModeController = new LearnModeController(document.body, cameraInput, dockUI, entitySearchUI)
   const learnModeBtn = requireElement<HTMLButtonElement>('#learn-mode-btn')
   const lessonPicker = requireElement<HTMLElement>('#lesson-picker')
   const lessonPanel = requireElement<HTMLElement>('#lesson-panel')
@@ -717,29 +750,6 @@ async function main() {
     lessonPanel.dataset.scrubT = String(lessonPlayer.scrubT)
   })
   initShuttleVisual(lessonScrub, requireElement<HTMLElement>('#lesson-scrub-fill'))
-
-  const cameraFollow = new CameraFollowController(orbitCamera)
-  const entitySearchUI = new EntitySearchUI(
-    requireElement<HTMLInputElement>('#entity-search-input'),
-    requireElement<HTMLDivElement>('#entity-search-results'),
-    requireElement<HTMLElement>('#follow-indicator'),
-    requireElement<HTMLElement>('#follow-indicator-label'),
-    requireElement<HTMLButtonElement>('#follow-stop-button'),
-    (entity) => {
-      if (cameraInput.mode === 'fly') setCameraMode('orbit')
-      const julianDay = currentJulianDay(simulationClock.getCurrentDate())
-      const T = julianMillenniaSinceJ2000(julianDay)
-      const daysSinceEpoch = daysSinceJ2000(julianDay)
-      cameraFollow.selectEntity(entity, T, daysSinceEpoch, scaleBlend)
-      canvas.dataset.followingId = entity.id
-      entitySearchUI.setFollowing(entity)
-    },
-    () => {
-      cameraFollow.stopFollowing()
-      delete canvas.dataset.followingId
-      entitySearchUI.setFollowing(null)
-    },
-  )
 
   function drawBody(
     pass: GPURenderPassEncoder,
@@ -879,6 +889,37 @@ async function main() {
       planetRadiusById.set(renderable.definition.id, radius)
       return { renderable, x: sx, y: sy, z: sz, radius }
     })
+
+    // Keeps the camera's target centered on Earth's actual scrub-driven position throughout a
+    // learn-mode chapter, rather than the fixed position it had on the chapter's defining date
+    // (which is only what flyToCurrentChapterFraming's initial tween targets - see cameraFollow.ts's
+    // flyToFraming). Without this, Earth drifts out of the locked framing across the whole scrub
+    // range, since lessonPlayer.currentDate (driving Earth's rendered position just above) and
+    // chapter.cameraFraming.date (the tween's fixed target) only coincide at scrubT === 0.5.
+    // Only the target is touched - radius/azimuth/elevation/upAxis stay exactly as the chapter's
+    // fly-to tween set them, and the update is skipped while that tween is still in flight so this
+    // doesn't fight its own target interpolation (see CameraFollowController.isFlying).
+    if (learnModeController.currentMode === 'learn') {
+      const earthFrame = planetFrameData.find((entry) => entry.renderable.definition.id === 'earth')
+      if (earthFrame) {
+        if (!cameraFollow.isFlying) {
+          vec3.set(orbitCamera.target, earthFrame.x, earthFrame.y, earthFrame.z)
+        }
+        // Exposed for e2e coverage of this fix: the camera target's world-space distance from
+        // Earth's actual rendered position should stay ~0 once any in-flight chapter fly-to has
+        // settled, across the whole scrub range - see learnMode.spec.ts's camera-drift regression
+        // test.
+        canvas.dataset.cameraTargetEarthOffset = String(
+          Math.hypot(
+            orbitCamera.target[0] - earthFrame.x,
+            orbitCamera.target[1] - earthFrame.y,
+            orbitCamera.target[2] - earthFrame.z,
+          ),
+        )
+      }
+    } else {
+      delete canvas.dataset.cameraTargetEarthOffset
+    }
 
     // xyz = world-space center, w = world-space radius; the same [center, radius] shape written
     // into a lit body's `occluders` uniform slots (see shaders.ts's Uniforms layout comment).
@@ -1103,18 +1144,10 @@ async function main() {
         const earthWorld = mat4.multiply(mat4.create(), mat4.fromTranslation(mat4.create(), [earthEntry.x, earthEntry.y, earthEntry.z]), earthTilt)
         const latitude = currentLatitudePreset()
         const ringRadius = earthEntry.radius * 1.02
-        const markerWorld = latitudeMarkerPoints(
-          earthWorld,
-          ringRadius,
-          latitude.latitudeDegrees,
-          earthEntry.radius * 0.04,
-          OVERLAY_LATITUDE_MARKER_SEGMENTS,
-        )
-        const markerCenterWorld: [number, number, number] = [
-          (markerWorld[0] + markerWorld[3]) / 2,
-          (markerWorld[1] + markerWorld[4]) / 2,
-          (markerWorld[2] + markerWorld[5]) / 2,
-        ]
+        // The true surface point at this latitude - NOT reconstructed from two of the ring's own
+        // vertices (which are adjacent points on its circumference, not opposite ends, so their
+        // midpoint sits off the surface by roughly the ring's own radius).
+        const markerCenterWorld = latitudeMarkerCenter(earthWorld, ringRadius, latitude.latitudeDegrees)
         const now = performance.now() / 1000
         const pulse = 1 + 0.15 * Math.sin(now * 3)
         const geometryById: Record<OverlayLineId, Float32Array> = {

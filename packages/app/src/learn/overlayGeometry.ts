@@ -34,6 +34,32 @@ export function rotationAxisPoints(earthWorld: mat4, radius: number, overshootFa
   return new Float32Array([...south, ...north])
 }
 
+// Shared by latitudeMarkerPoints and latitudeMarkerCenter: the surface normal and surface point
+// (both in Earth-local space) at `latitudeDegrees`, longitude fixed at the local +Y meridian
+// (matching this project's sphere UV convention where phi=0 sits along +Y - see geometry/sphere.ts).
+function latitudeSurfaceNormalAndPoint(
+  radius: number,
+  latitudeDegrees: number,
+): { localNormal: [number, number, number]; localSurfacePoint: [number, number, number] } {
+  const colatitude = ((90 - latitudeDegrees) * Math.PI) / 180 // 0 at north pole, PI at south pole
+  const localNormal: [number, number, number] = [0, Math.sin(colatitude), Math.cos(colatitude)]
+  const localSurfacePoint: [number, number, number] = [
+    localNormal[0] * radius,
+    localNormal[1] * radius,
+    localNormal[2] * radius,
+  ]
+  return { localNormal, localSurfacePoint }
+}
+
+// The true surface point (in world space) that latitudeMarkerPoints draws its ring around - i.e.
+// the ring's actual center, not any particular vertex on its circumference. Callers that need "the
+// point on Earth's surface at this latitude" (e.g. the sun-angle ray's origin) should use this
+// rather than reconstructing it from two of the ring's own (adjacent, not opposite) vertices.
+export function latitudeMarkerCenter(earthWorld: mat4, radius: number, latitudeDegrees: number): [number, number, number] {
+  const { localSurfacePoint } = latitudeSurfaceNormalAndPoint(radius, latitudeDegrees)
+  return transformPoint(earthWorld, localSurfacePoint)
+}
+
 // A small closed loop centered on Earth's surface at `latitudeDegrees` (longitude fixed at the
 // local +Y meridian, matching this project's sphere UV convention where phi=0 sits along +Y - see
 // geometry/sphere.ts). Built from an orthonormal (tangent1, tangent2) basis perpendicular to the
@@ -46,13 +72,7 @@ export function latitudeMarkerPoints(
   markerRadius: number,
   segments: number,
 ): Float32Array {
-  const colatitude = ((90 - latitudeDegrees) * Math.PI) / 180 // 0 at north pole, PI at south pole
-  const localNormal: [number, number, number] = [0, Math.sin(colatitude), Math.cos(colatitude)]
-  const localSurfacePoint: [number, number, number] = [
-    localNormal[0] * radius,
-    localNormal[1] * radius,
-    localNormal[2] * radius,
-  ]
+  const { localNormal, localSurfacePoint } = latitudeSurfaceNormalAndPoint(radius, latitudeDegrees)
   // Gram-Schmidt against local +X, falling back to local +Y only at the poles (where normal is
   // parallel to +Z, making +X a valid, non-degenerate reference at every other latitude).
   const reference: [number, number, number] = Math.abs(localNormal[2]) > 0.999 ? [0, 1, 0] : [1, 0, 0]

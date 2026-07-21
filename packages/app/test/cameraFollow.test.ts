@@ -307,4 +307,31 @@ describe('CameraFollowController.flyToFraming', () => {
     controller.flyToFraming([1, 1, 1], 10, 0, 0, [0, 0, 1])
     expect(controller.followedEntityId).toBeNull()
   })
+
+  it('clears a pre-existing entity follow, so it cannot hijack the camera once the tween completes', () => {
+    // Regression test: flyToFraming used to leave a prior selectEntity() follow in place, so once
+    // its own tween finished, update()'s live-tracking branch would silently re-engage and re-lock
+    // the camera onto the stale followed entity's live position instead of holding the fixed
+    // framing flyToFraming just tweened to.
+    const camera = new OrbitCamera()
+    const controller = new CameraFollowController(camera)
+    const earth = findEntity('earth')
+    const T = 0.1
+    const daysSinceEpoch = 500
+    const scaleBlend = 0.5
+
+    controller.selectEntity(earth, T, daysSinceEpoch, scaleBlend)
+    runPastFlyTo(controller, T, daysSinceEpoch, scaleBlend)
+    expect(controller.followedEntityId).toBe('earth')
+
+    controller.flyToFraming([1, 1, 1], 10, 0, 0, [0, 0, 1])
+    expect(controller.followedEntityId).toBeNull()
+    runPastFlyTo(controller, T, daysSinceEpoch, scaleBlend)
+
+    // Held exactly at flyToFraming's fixed target, not re-tracking Earth's live position.
+    expect(camera.target[0]).toBeCloseTo(1, 5)
+    expect(camera.target[1]).toBeCloseTo(1, 5)
+    expect(camera.target[2]).toBeCloseTo(1, 5)
+    expect(controller.followedEntityId).toBeNull()
+  })
 })

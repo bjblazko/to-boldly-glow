@@ -2,6 +2,7 @@ import { mat4 } from 'gl-matrix'
 import { describe, expect, it } from 'vitest'
 import {
   equatorRingPoints,
+  latitudeMarkerCenter,
   latitudeMarkerPoints,
   rotationAxisPoints,
   sunAngleRayPoints,
@@ -51,6 +52,15 @@ describe('overlay geometry (identity world transform, radius 1)', () => {
     expect(sumX / 16).toBeCloseTo(0, 1)
     expect(sumY / 16).toBeGreaterThan(0.9) // clusters near y=1 (the equator surface point at longitude 0)
     expect(sumZ / 16).toBeCloseTo(0, 1)
+  })
+
+  it('latitudeMarkerCenter returns the exact surface point a latitude marker ring is centered on', () => {
+    // Equator (0 degrees) at radius 1, longitude 0: the exact surface point is (0, 1, 0) - unlike
+    // latitudeMarkerPoints' own ring vertices, this isn't an average/approximation.
+    const center = latitudeMarkerCenter(identity, 1, 0)
+    expect(center[0]).toBeCloseTo(0, 5)
+    expect(center[1]).toBeCloseTo(1, 5)
+    expect(center[2]).toBeCloseTo(0, 5)
   })
 
   it('sunAngleRayPoints returns two points: the marker position, and a point toward the origin (Sun)', () => {

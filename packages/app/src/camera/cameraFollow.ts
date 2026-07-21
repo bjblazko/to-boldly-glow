@@ -119,12 +119,15 @@ export class CameraFollowController {
 
   // Entity-independent counterpart to selectEntity: flies to a fixed, caller-supplied framing
   // (target/radius/azimuth/elevation/upAxis) instead of one derived from a SolarSystemEntity's
-  // live position/pole. Used by learn-mode chapter framing, where the target is Earth's position
-  // on a lesson-authored date rather than "whatever a followed entity's live position is right
-  // now." Deliberately does NOT set followedEntity/followedEntityId, so update()'s live-tracking
-  // branch never engages afterward - the camera holds the tween's end framing exactly, since a
-  // chapter's own scrub-driven date changes are applied by re-deriving Earth's world transform
-  // directly in main.ts's render loop, not by continuously re-flying the camera.
+  // live position/pole. Used by learn-mode chapter framing, where the initial target is Earth's
+  // position on the chapter's defining date - main.ts's per-frame render loop separately keeps
+  // the target re-centered on Earth's actual scrub-driven position once in learn mode (see
+  // isLearnEarth in main.ts), so this tween only needs to get radius/azimuth/elevation/upAxis
+  // into place. Explicitly clears followedEntity/followedEntityId (like stopFollowing() does)
+  // before starting the tween: without this, a stale entity-follow left over from a search
+  // selection made before entering learn mode would silently re-engage update()'s live-tracking
+  // branch the moment this tween completes, hijacking the camera away from the locked chapter
+  // framing.
   flyToFraming(
     endTarget: [number, number, number],
     endRadius: number,
@@ -143,6 +146,8 @@ export class CameraFollowController {
       this.orbitCamera.upAxis[1],
       this.orbitCamera.upAxis[2],
     ]
+    this.followedEntityId = null
+    this.followedEntity = null
     this.flyTo = {
       startTarget,
       startRadius: this.orbitCamera.radius,
@@ -163,6 +168,13 @@ export class CameraFollowController {
     this.followedEntityId = null
     this.followedEntity = null
     this.flyTo = null
+  }
+
+  // True while a flyToFraming/selectEntity tween is still interpolating toward its end framing.
+  // Lets callers (main.ts's learn-mode target re-centering) avoid stomping on the tween's own
+  // per-frame target interpolation with a competing direct assignment to orbitCamera.target.
+  get isFlying(): boolean {
+    return this.flyTo !== null
   }
 
   update(deltaSeconds: number, T: number, daysSinceEpoch: number, scaleBlend: number): void {

@@ -143,6 +143,61 @@ test('selecting a latitude preset updates the lesson panel and the displayed tex
   expect(errors).toEqual([])
 })
 
+test('camera target stays centered on Earth across a scrub, not frozen at the chapter-defining date (regression)', async ({ page }) => {
+  // Regression coverage for the bug where the camera's target was frozen at the chapter's fixed
+  // defining date while Earth's rendered position tracked the scrub position instead - so Earth
+  // drifted out of the locked framing across the scrub range, worst at scrubT=0 right after a
+  // chapter loads (see main.ts's data-camera-target-earth-offset, written each frame in learn mode
+  // as the world-space distance between orbitCamera.target and Earth's actual rendered position).
+  const errors: string[] = []
+  page.on('pageerror', (error) => errors.push(error.message))
+
+  await page.goto('/')
+  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+
+  await page.locator('#learn-mode-btn').click()
+  await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
+  await page.locator('#lesson-next-chapter').click() // march-equinox: a non-intro chapter framing
+  await page.waitForTimeout(2000) // let the chapter's camera fly-to tween fully settle
+
+  for (const scrubT of ['0', '0.25', '0.5', '0.75', '1']) {
+    await page.locator('#lesson-scrub').fill(scrubT)
+    await page.waitForTimeout(150) // let a render frame pick up the new scrub position
+    const offset = await page.locator('#scene').getAttribute('data-camera-target-earth-offset')
+    expect(Number(offset)).toBeLessThan(0.01)
+  }
+
+  expect(errors).toEqual([])
+})
+
+test('entity search is explicitly disabled in learn mode, not just unreachable behind the hidden dock', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', (error) => errors.push(error.message))
+
+  await page.goto('/')
+  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+
+  await page.locator('#learn-mode-btn').click()
+  await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
+  await expect(page.locator('body')).toHaveAttribute('data-app-mode', 'learn')
+
+  const searchInput = page.locator('#entity-search-input')
+  await expect(searchInput).toBeDisabled()
+
+  // Simulate a hotkey/focus path reaching the (hidden) search box directly, bypassing the hidden
+  // Camera dock entirely - dispatchEvent doesn't require the element to be visible/actionable,
+  // unlike fill()/type(), so this exercises EntitySearchUI.setEnabled's own guard rather than
+  // relying on the dock's hiddenness to keep the input unreachable.
+  await searchInput.evaluate((el: HTMLInputElement) => {
+    el.value = 'Earth'
+    el.dispatchEvent(new Event('input'))
+  })
+  await expect(page.locator('#entity-search-results')).toBeEmpty()
+  await expect(page.locator('#follow-indicator')).toBeHidden()
+
+  expect(errors).toEqual([])
+})
+
 test('globe overlays render without WebGPU errors across a chapter and latitude change', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
