@@ -64,6 +64,15 @@ rendering.
 **Data needed**: none beyond existing orbital mechanics — mostly content-authoring + a rendering
 pass.
 
+## NASA retro travel poster integration
+**What**: TBD — user has requested this feature and will provide details later. Placeholder entry
+so it isn't forgotten; likely involves NASA's public-domain "JPL Visions of the Future" retro
+travel poster series (or similar), possibly as in-app collectibles/easter eggs, a gallery view, or
+per-body artwork. Needs a licensing check per the project's data-provenance discipline (§5 of the
+MVP spec) once scoped, though NASA/JPL material is typically public domain.
+**Approach**: TBD.
+**Data needed**: TBD.
+
 ## Named star search
 **What**: Extend the entity search (Sun/planets/moons, with camera fly-to and orbit-follow lock-on)
 to also cover named stars from the starfield catalog, e.g. Sirius, Betelgeuse, Polaris.
