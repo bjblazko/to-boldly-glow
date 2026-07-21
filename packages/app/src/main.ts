@@ -9,12 +9,12 @@ import { CameraFollowController } from './camera/cameraFollow'
 import { currentJulianDay, SimulationClock } from './time/simulationClock'
 import { TimeControlUI } from './time/timeControlUI'
 import { AU_KM, PLANETS, SUN, type BodyDefinition } from './solarSystem/bodies'
-import { ALL_ENTITIES, entityWorldPosition, planetAuPosition } from './solarSystem/entities'
+import { planetAuPosition } from './solarSystem/entities'
 import { EntitySearchUI } from './search/entitySearchUI'
 import { DockUI } from './hud/dockUI'
 import { LearnModeController } from './learn/learnModeController'
 import { LessonPlayer } from './learn/lessonPlayer'
-import { LESSONS_BY_ID } from './learn/lessons/seasons'
+import { LESSONS_BY_ID, SEASONS_LESSON } from './learn/lessons/seasons'
 import {
   equatorRingPoints,
   latitudeMarkerCenter,
@@ -25,6 +25,7 @@ import {
 import { initShuttleVisual } from './hud/shuttleVisual'
 import { scaledBodyRadiusUnits, scaledPosition } from './solarSystem/sceneScale'
 import { ScaleBlendTween } from './solarSystem/scaleBlendTween'
+import { easeInOutCubic } from './camera/easing'
 import { generateOrbitPathPositions } from './solarSystem/orbitPath'
 import { rotationAngleRadians } from './solarSystem/rotation'
 import { axisAlignmentRotation, equatorialToEclipticPoleDirection } from './solarSystem/poleOrientation'
@@ -181,6 +182,26 @@ async function createBodyRenderable<TDefinition extends { id: string; textureUrl
     entries,
   })
   return { definition, uniformBuffer, bindGroup }
+}
+
+// The 23.4-degree real axial tilt, expressed as a pure function of an idealized "season phase"
+// (0 = June solstice, 90 = September equinox, 180 = December solstice, 270 = March equinox)
+// instead of a real calendar date. In this staged diagram, Earth's position never changes - only
+// its tilt orientation does - so the usual "axis is fixed in space, orbital position changes the
+// angle to the Sun" mechanism is inverted: here the axis itself rotates to represent each season,
+// with the Sun-Earth line fixed along local +X (see EARTH_STAGED_POSITION in main() below).
+//
+// The pole always makes a fixed angle (the obliquity, 23.4 degrees) from local +Y; phase controls
+// how that tilt's *lean* is distributed between the Sun-Earth line (local X - visible on screen as
+// leaning left/right) and local Z (perpendicular to the screen from this camera's side-on angle -
+// invisible as a left/right lean, reads as "upright" on screen). At phase=0 the lean is entirely
+// along X (visibly tilted toward/away from the Sun - a solstice); at phase=90/270 the lean is
+// entirely along Z (reads as upright on screen, no visible left/right tilt - an equinox), exactly
+// matching the standard textbook seasons-diagram convention.
+export function seasonalPoleDirection(phaseDegrees: number): [number, number, number] {
+  const obliquity = (23.4 * Math.PI) / 180
+  const phase = (phaseDegrees * Math.PI) / 180
+  return [Math.sin(obliquity) * Math.cos(phase), Math.cos(obliquity), Math.sin(obliquity) * Math.sin(phase)]
 }
 
 async function main() {
@@ -654,64 +675,81 @@ async function main() {
   const lessonChapterTitle = requireElement<HTMLElement>('#lesson-chapter-title')
   const lessonPrevBtn = requireElement<HTMLButtonElement>('#lesson-prev-chapter')
   const lessonNextBtn = requireElement<HTMLButtonElement>('#lesson-next-chapter')
-  const lessonScrub = requireElement<HTMLInputElement>('#lesson-scrub')
 
-  function flyToCurrentChapterFraming(): void {
-    const chapter = lessonPlayer.currentChapter
-    const earthEntity = ALL_ENTITIES.find((e) => e.id === 'earth')!
-    const julianDay = currentJulianDay(chapter.cameraFraming.date)
-    const T = julianMillenniaSinceJ2000(julianDay)
-    const daysSinceEpoch = daysSinceJ2000(julianDay)
-    const target = entityWorldPosition(earthEntity, T, daysSinceEpoch, scaleBlend)
-    const earthRadius = scaledBodyRadiusUnits(6371.0, 1.0, scaleBlend, AU_KM) // matches bodies.ts's Earth entry (radiusKm 6371.0, compactVisualRadius 1.0)
-    const radius = Math.min(Math.max(earthRadius * chapter.cameraFraming.radiusMultiplier, orbitCamera.minRadius), orbitCamera.maxRadius)
-    cameraFollow.flyToFraming(
-      target,
-      radius,
-      chapter.cameraFraming.azimuth,
-      chapter.cameraFraming.elevation,
-      [...chapter.cameraFraming.upAxis],
-    )
+  // Sun stays exactly where it already is (world origin, unmoved - see planetAuPosition/SUN's own
+  // rendering, untouched by this lesson). Earth is moved here, a fixed distance away along local +X,
+  // for the whole time the lesson is open - not derived from any real AU distance (this is a staged
+  // diagram, not a scale model; see the design spec's §3).
+  const EARTH_STAGED_POSITION: [number, number, number] = [6, 0, 0]
+  const EARTH_STAGED_RADIUS = 1 // matches Earth's own Compact-scale compactVisualRadius (bodies.ts)
+
+  // Set once on entering learn mode (see the lesson-picker click handler below) and never moved
+  // again - this is what structurally eliminates the old slide/jump camera artifact, rather than
+  // patching its timing. Tune these three visually once running: the goal is Sun and Earth both
+  // comfortably in frame with a clear gap between them (see the design spec's approved mockup).
+  const LEARN_CAMERA_TARGET: [number, number, number] = [EARTH_STAGED_POSITION[0] / 2, 0, 0]
+  const LEARN_CAMERA_RADIUS = 16
+  const LEARN_CAMERA_AZIMUTH = Math.PI / 2
+  const LEARN_CAMERA_ELEVATION = 0.12
+
+  function applyLearnCameraFraming(): void {
+    vec3.set(orbitCamera.target, ...LEARN_CAMERA_TARGET)
+    orbitCamera.radius = LEARN_CAMERA_RADIUS
+    orbitCamera.azimuth = LEARN_CAMERA_AZIMUTH
+    orbitCamera.elevation = LEARN_CAMERA_ELEVATION
   }
 
-  let selectedLatitudeId = 'equator'
-  const lessonLatitudeRow = requireElement<HTMLElement>('#lesson-latitude-row')
-  const lessonChapterText = requireElement<HTMLElement>('#lesson-chapter-text')
+  // Smoothly re-tilts Earth's axis when switching chapters (a rotation tween on Earth's own transform,
+  // never the camera - the camera is fixed for the whole lesson per applyLearnCameraFraming above).
+  // Mirrors ScaleBlendTween's retarget/update pattern (solarSystem/scaleBlendTween.ts).
+  class SeasonPhaseTween {
+    private startPhase = 0
+    private endPhase = 0
+    private elapsedSeconds = 0
+    private readonly durationSeconds = 1
 
-  function currentLatitudePreset() {
-    const preset = lessonPlayer.currentLesson.latitudePresets.find((p) => p.id === selectedLatitudeId)
-    return preset ?? lessonPlayer.currentLesson.latitudePresets[0]
-  }
+    retarget(newPhase: number, currentPhase: number): void {
+      this.startPhase = currentPhase
+      this.endPhase = newPhase
+      this.elapsedSeconds = 0
+    }
 
-  function refreshLatitudeRow(): void {
-    lessonLatitudeRow.innerHTML = ''
-    for (const preset of lessonPlayer.currentLesson.latitudePresets) {
-      const chip = document.createElement('button')
-      chip.type = 'button'
-      chip.className = 'hud-latitude-chip'
-      chip.textContent = preset.label
-      chip.classList.toggle('is-active', preset.id === selectedLatitudeId)
-      chip.addEventListener('click', () => {
-        selectedLatitudeId = preset.id
-        refreshChapterUI()
-      })
-      lessonLatitudeRow.appendChild(chip)
+    get isAnimating(): boolean {
+      return this.elapsedSeconds < this.durationSeconds
+    }
+
+    update(deltaSeconds: number): number {
+      this.elapsedSeconds = Math.min(this.elapsedSeconds + deltaSeconds, this.durationSeconds)
+      const t = this.elapsedSeconds / this.durationSeconds
+      return this.startPhase + (this.endPhase - this.startPhase) * easeInOutCubic(t)
     }
   }
+  const seasonPhaseTween = new SeasonPhaseTween()
+  let currentSeasonPhase = SEASONS_LESSON.chapters[0].seasonPhaseDegrees
+
+  // Accumulated spin angle (radians) while a chapter is open - continuous, elapsed-time-driven, never
+  // reset between chapters, so Earth keeps turning smoothly through chapter changes too. A full
+  // rotation every ~12 seconds is a starting pace; tune visually.
+  const LEARN_SPIN_RADIANS_PER_SECOND = (2 * Math.PI) / 12
+  let learnSpinRadians = 0
+
+  // The seasonal tilt matrix computed for learn-mode Earth each frame (see the planetFrameData
+  // rendering loop below) - null whenever learn mode isn't active. Exposed at this scope so the
+  // overlay-geometry block further down (equator ring/axis/latitude marker) can orient itself
+  // identically to Earth's own rendered tilt, rather than recomputing a (different, real-IAU-data)
+  // tilt of its own.
+  let earthLearnTilt: mat4 | null = null
+
+  const lessonChapterText = requireElement<HTMLElement>('#lesson-chapter-text')
 
   function refreshChapterUI(): void {
-    flyToCurrentChapterFraming()
     const chapter = lessonPlayer.currentChapter
+    seasonPhaseTween.retarget(chapter.seasonPhaseDegrees, currentSeasonPhase)
     lessonChapterTitle.textContent = `${lessonPlayer.currentChapterIndex + 1} / ${lessonPlayer.currentLesson.chapters.length}: ${chapter.title}`
     lessonPrevBtn.disabled = !lessonPlayer.hasPreviousChapter
     lessonNextBtn.disabled = !lessonPlayer.hasNextChapter
-    lessonScrub.value = String(lessonPlayer.scrubT)
-    lessonScrub.dispatchEvent(new Event('input')) // refreshes the shuttle-style fill via initShuttleVisual
-    lessonChapterText.textContent = chapter.text(lessonPlayer.scrubT, currentLatitudePreset())
-    refreshLatitudeRow()
+    lessonChapterText.textContent = chapter.text
     lessonPanel.dataset.chapterId = chapter.id
-    lessonPanel.dataset.scrubT = String(lessonPlayer.scrubT)
-    lessonPanel.dataset.latitudeId = selectedLatitudeId
   }
 
   learnModeBtn.addEventListener('click', () => {
@@ -730,8 +768,10 @@ async function main() {
       if (!lesson) return
       lessonPicker.hidden = true
       lessonPlayer.load(lesson)
-      selectedLatitudeId = lesson.latitudePresets[0].id
       learnModeController.enter(lesson.id)
+      applyLearnCameraFraming()
+      currentSeasonPhase = lesson.chapters[0].seasonPhaseDegrees
+      learnSpinRadians = 0
       lessonPanel.hidden = false
       refreshChapterUI()
     })
@@ -744,12 +784,6 @@ async function main() {
     lessonPlayer.nextChapter()
     refreshChapterUI()
   })
-  lessonScrub.addEventListener('input', () => {
-    lessonPlayer.setScrubT(Number(lessonScrub.value))
-    lessonChapterText.textContent = lessonPlayer.currentChapter.text(lessonPlayer.scrubT, currentLatitudePreset())
-    lessonPanel.dataset.scrubT = String(lessonPlayer.scrubT)
-  })
-  initShuttleVisual(lessonScrub, requireElement<HTMLElement>('#lesson-scrub-fill'))
 
   function drawBody(
     pass: GPURenderPassEncoder,
@@ -772,6 +806,11 @@ async function main() {
     const now = performance.now()
     const deltaSeconds = (now - lastFrameTime) / 1000
     lastFrameTime = now
+
+    if (learnModeController.currentMode === 'learn') {
+      currentSeasonPhase = seasonPhaseTween.isAnimating ? seasonPhaseTween.update(deltaSeconds) : currentSeasonPhase
+      learnSpinRadians += deltaSeconds * LEARN_SPIN_RADIANS_PER_SECOND
+    }
 
     // Advances the Realistic<->Compact scale toggle's animated transition, if one is in flight.
     // refreshOrbitPaths/refreshCameraZoomLimits/the projection rebuild must all run every tween
@@ -870,56 +909,23 @@ async function main() {
     const planetRadiusById = new Map<string, number>()
     const planetFrameData = planetRenderables.map((renderable) => {
       const isLearnEarth = learnModeController.currentMode === 'learn' && renderable.definition.id === 'earth'
-      let x: number, y: number, z: number, distanceAu: number
+      // Earth in learn mode bypasses the real orbital-position pipeline (planetAuPosition +
+      // scaledPosition) entirely - it sits at a fixed staged coordinate for as long as the lesson
+      // is open, never derived from a real date, per the design spec's §3.
+      let sx: number, sy: number, sz: number
       if (isLearnEarth) {
-        const learnJulianDay = currentJulianDay(lessonPlayer.currentDate)
-        const learnT = julianMillenniaSinceJ2000(learnJulianDay)
-        ;({ x, y, z, distanceAu } = planetAuPosition(renderable.definition, learnT))
+        ;[sx, sy, sz] = EARTH_STAGED_POSITION
       } else {
-        ;({ x, y, z, distanceAu } = planetAuPosition(renderable.definition, T))
+        const { x, y, z, distanceAu } = planetAuPosition(renderable.definition, T)
+        ;[sx, sy, sz] = scaledPosition(x, y, z, distanceAu, scaleBlend)
       }
-      const [sx, sy, sz] = scaledPosition(x, y, z, distanceAu, scaleBlend)
       planetPositionsById.set(renderable.definition.id, [sx, sy, sz])
-      const radius = scaledBodyRadiusUnits(
-        renderable.definition.radiusKm,
-        renderable.definition.compactVisualRadius,
-        scaleBlend,
-        AU_KM,
-      )
+      const radius = isLearnEarth
+        ? EARTH_STAGED_RADIUS
+        : scaledBodyRadiusUnits(renderable.definition.radiusKm, renderable.definition.compactVisualRadius, scaleBlend, AU_KM)
       planetRadiusById.set(renderable.definition.id, radius)
       return { renderable, x: sx, y: sy, z: sz, radius }
     })
-
-    // Keeps the camera's target centered on Earth's actual scrub-driven position throughout a
-    // learn-mode chapter, rather than the fixed position it had on the chapter's defining date
-    // (which is only what flyToCurrentChapterFraming's initial tween targets - see cameraFollow.ts's
-    // flyToFraming). Without this, Earth drifts out of the locked framing across the whole scrub
-    // range, since lessonPlayer.currentDate (driving Earth's rendered position just above) and
-    // chapter.cameraFraming.date (the tween's fixed target) only coincide at scrubT === 0.5.
-    // Only the target is touched - radius/azimuth/elevation/upAxis stay exactly as the chapter's
-    // fly-to tween set them, and the update is skipped while that tween is still in flight so this
-    // doesn't fight its own target interpolation (see CameraFollowController.isFlying).
-    if (learnModeController.currentMode === 'learn') {
-      const earthFrame = planetFrameData.find((entry) => entry.renderable.definition.id === 'earth')
-      if (earthFrame) {
-        if (!cameraFollow.isFlying) {
-          vec3.set(orbitCamera.target, earthFrame.x, earthFrame.y, earthFrame.z)
-        }
-        // Exposed for e2e coverage of this fix: the camera target's world-space distance from
-        // Earth's actual rendered position should stay ~0 once any in-flight chapter fly-to has
-        // settled, across the whole scrub range - see learnMode.spec.ts's camera-drift regression
-        // test.
-        canvas.dataset.cameraTargetEarthOffset = String(
-          Math.hypot(
-            orbitCamera.target[0] - earthFrame.x,
-            orbitCamera.target[1] - earthFrame.y,
-            orbitCamera.target[2] - earthFrame.z,
-          ),
-        )
-      }
-    } else {
-      delete canvas.dataset.cameraTargetEarthOffset
-    }
 
     // xyz = world-space center, w = world-space radius; the same [center, radius] shape written
     // into a lit body's `occluders` uniform slots (see shaders.ts's Uniforms layout comment).
@@ -1051,13 +1057,12 @@ async function main() {
 
     for (const { renderable, x: sx, y: sy, z: sz, radius } of planetFrameData) {
       const isLearnEarth = learnModeController.currentMode === 'learn' && renderable.definition.id === 'earth'
-      const rotationDaysSinceEpoch = isLearnEarth ? daysSinceJ2000(currentJulianDay(lessonPlayer.currentDate)) : daysSinceEpoch
-      const rotation = rotationAngleRadians(rotationDaysSinceEpoch, renderable.definition.siderealRotationHours)
-      const poleDirection = equatorialToEclipticPoleDirection(
-        renderable.definition.poleRightAscensionDegrees,
-        renderable.definition.poleDeclinationDegrees,
-      )
+      const rotation = isLearnEarth ? learnSpinRadians : rotationAngleRadians(daysSinceEpoch, renderable.definition.siderealRotationHours)
+      const poleDirection = isLearnEarth
+        ? seasonalPoleDirection(currentSeasonPhase)
+        : equatorialToEclipticPoleDirection(renderable.definition.poleRightAscensionDegrees, renderable.definition.poleDeclinationDegrees)
       const tilt = axisAlignmentRotation(poleDirection)
+      if (renderable.definition.id === 'earth') earthLearnTilt = isLearnEarth ? tilt : null
       const world = mat4.multiply(
         mat4.create(),
         mat4.fromTranslation(mat4.create(), [sx, sy, sz]),
@@ -1133,21 +1138,19 @@ async function main() {
       }
     }
 
-    if (learnModeController.currentMode === 'learn') {
+    if (learnModeController.currentMode === 'learn' && earthLearnTilt) {
       const earthEntry = planetFrameData.find((entry) => entry.renderable.definition.id === 'earth')
       if (earthEntry) {
-        const earthPoleDirection = equatorialToEclipticPoleDirection(
-          earthEntry.renderable.definition.poleRightAscensionDegrees,
-          earthEntry.renderable.definition.poleDeclinationDegrees,
-        )
-        const earthTilt = axisAlignmentRotation(earthPoleDirection)
-        const earthWorld = mat4.multiply(mat4.create(), mat4.fromTranslation(mat4.create(), [earthEntry.x, earthEntry.y, earthEntry.z]), earthTilt)
-        const latitude = currentLatitudePreset()
+        // Reuses the exact same tilt matrix Earth itself was just rendered with above (computed
+        // from seasonalPoleDirection, not real IAU pole data) so this overlay never drifts out of
+        // sync with the planet it's drawn on.
+        const earthWorld = mat4.multiply(mat4.create(), mat4.fromTranslation(mat4.create(), [earthEntry.x, earthEntry.y, earthEntry.z]), earthLearnTilt)
+        const markerLatitudeDegrees = lessonPlayer.currentLesson.markerLatitudeDegrees
         const ringRadius = earthEntry.radius * 1.02
         // The true surface point at this latitude - NOT reconstructed from two of the ring's own
         // vertices (which are adjacent points on its circumference, not opposite ends, so their
         // midpoint sits off the surface by roughly the ring's own radius).
-        const markerCenterWorld = latitudeMarkerCenter(earthWorld, ringRadius, latitude.latitudeDegrees)
+        const markerCenterWorld = latitudeMarkerCenter(earthWorld, ringRadius, markerLatitudeDegrees)
         const now = performance.now() / 1000
         const pulse = 1 + 0.15 * Math.sin(now * 3)
         const geometryById: Record<OverlayLineId, Float32Array> = {
@@ -1156,7 +1159,7 @@ async function main() {
           'latitude-marker': latitudeMarkerPoints(
             earthWorld,
             ringRadius,
-            latitude.latitudeDegrees,
+            markerLatitudeDegrees,
             earthEntry.radius * 0.04 * pulse,
             OVERLAY_LATITUDE_MARKER_SEGMENTS,
           ),
@@ -1290,8 +1293,14 @@ async function main() {
   requestAnimationFrame(frame)
 }
 
-main().catch((error) => {
-  const canvas = document.querySelector<HTMLCanvasElement>('#scene')
-  if (canvas) canvas.replaceWith(document.createTextNode(`Failed to start renderer: ${error.message}`))
-  console.error(error)
-})
+// Guarded so importing this module for its pure exports (e.g. seasonalPoleDirection, from
+// seasonalTilt.test.ts) doesn't also kick off the real app bootstrap in a non-browser environment -
+// main() reaches for `document`/WebGPU immediately, which don't exist under Vitest's default node
+// environment.
+if (typeof window !== 'undefined') {
+  main().catch((error) => {
+    const canvas = document.querySelector<HTMLCanvasElement>('#scene')
+    if (canvas) canvas.replaceWith(document.createTextNode(`Failed to start renderer: ${error.message}`))
+    console.error(error)
+  })
+}
