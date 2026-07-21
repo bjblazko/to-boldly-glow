@@ -204,7 +204,7 @@ fn applyBump(worldPos: vec3f, normal: vec3f, uv: vec2f) -> BumpResult {
   let north = textureSampleLevel(bumpTexture, bodySampler, uv - vec2f(0.0, texelSize.y), 0.0).r;
 
   let polarAxis = normalize((uni.world * vec4f(0.0, 0.0, 1.0, 0.0)).xyz);
-  var tangent = cross(polarAxis, normal);
+  var tangent = cross(normal, polarAxis);
   let tangentLength = length(tangent);
   if (tangentLength < 1e-4) {
     // Exactly at a pole, where tangent direction is undefined (normal is parallel to polarAxis) —

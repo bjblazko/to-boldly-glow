@@ -49,7 +49,12 @@ import {
   updateOrbitPathBuffer,
   type MeshBuffers,
 } from './renderer/webgpu'
-import { createFallbackFlatBumpTexture, createFallbackWhiteTexture, loadBodyTexture } from './renderer/textureLoader'
+import {
+  createFallbackFlatBumpTexture,
+  createFallbackWhiteTexture,
+  loadBodyTexture,
+  loadBumpTexture,
+} from './renderer/textureLoader'
 import { createMipmapPipeline, createMipmapSampler } from './renderer/mipmapGenerator'
 import { loadStarCatalog } from './starfield/starCatalog'
 import {
@@ -156,7 +161,7 @@ async function createBodyRenderable<TDefinition extends { id: string; textureUrl
   // fallbackBumpTexture at all.
   if (fallbackBumpTexture) {
     const bumpTexture = definition.bumpMapUrl
-      ? await loadBodyTexture(device, definition.bumpMapUrl, mipPipeline, mipSampler)
+      ? await loadBumpTexture(device, definition.bumpMapUrl)
       : fallbackBumpTexture
     entries.push({ binding: 3, resource: bumpTexture.createView() })
   }
