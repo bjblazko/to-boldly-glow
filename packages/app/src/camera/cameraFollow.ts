@@ -187,7 +187,18 @@ export class CameraFollowController {
       this.orbitCamera.azimuth = lerpAngle(this.flyTo.startAzimuth, this.flyTo.endAzimuth, eased)
       this.orbitCamera.elevation = lerp(this.flyTo.startElevation, this.flyTo.endElevation, eased)
       const upAxis = vec3.create()
-      vec3.slerp(upAxis, this.flyTo.startUpAxis, this.flyTo.endUpAxis, eased)
+      // vec3.slerp computes angle = acos(dot(a, b)) then divides by sin(angle); when start and end
+      // are (nearly) the same vector, sin(angle) is ~0 and the division produces NaN - a real bug
+      // hit in production, since OrbitCamera defaults its up-axis to ECLIPTIC_NORTH and every
+      // learn-mode chapter flies to ECLIPTIC_NORTH too, so the very first learn-mode fly-to always
+      // tweens "from ECLIPTIC_NORTH to ECLIPTIC_NORTH" - an exact-match pair. There's nothing to
+      // interpolate when start and end are the same direction anyway, so skip slerp entirely and
+      // copy the (identical) endpoint directly.
+      if (vec3.dot(this.flyTo.startUpAxis, this.flyTo.endUpAxis) > 0.9999999) {
+        vec3.copy(upAxis, this.flyTo.endUpAxis)
+      } else {
+        vec3.slerp(upAxis, this.flyTo.startUpAxis, this.flyTo.endUpAxis, eased)
+      }
       vec3.copy(this.orbitCamera.upAxis, upAxis)
       if (t >= 1) this.flyTo = null
       return

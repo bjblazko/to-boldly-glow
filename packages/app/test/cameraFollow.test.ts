@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { OrbitCamera, orbitBasisForUpAxis } from '../src/camera/orbitCamera'
 import { CameraFollowController, defaultFramingAzimuth } from '../src/camera/cameraFollow'
 import { ALL_ENTITIES, entityPoleDirection, entityWorldPosition } from '../src/solarSystem/entities'
+import { ECLIPTIC_NORTH } from '../src/solarSystem/poleOrientation'
 
 function findEntity(id: string) {
   const entity = ALL_ENTITIES.find((e) => e.id === id)
@@ -299,6 +300,36 @@ describe('CameraFollowController.flyToFraming', () => {
     expect(camera.radius).toBeCloseTo(20, 5)
     expect(camera.azimuth).toBeCloseTo(Math.PI / 2, 5)
     expect(camera.elevation).toBeCloseTo(0.5, 5)
+  })
+
+  it('keeps the up-axis a valid unit vector when the start and end up-axis are identical', () => {
+    // Regression test: gl-matrix's vec3.slerp computes angle = acos(dot(a, b)) then divides by
+    // sin(angle). When start and end are the exact same vector (dot = 1, angle = 0), sin(angle) is
+    // 0 and the division produces NaN - a real bug hit in production, since OrbitCamera defaults
+    // its up-axis to ECLIPTIC_NORTH and the seasons lesson's chapters all fly to ECLIPTIC_NORTH too,
+    // so the very first learn-mode fly-to always tweens "from ECLIPTIC_NORTH to ECLIPTIC_NORTH" -
+    // an identical start/end pair. The resulting NaN silently corrupts the camera's up-axis, then
+    // the view/projection matrices, and the entire WebGPU scene renders nothing (a black canvas),
+    // with no thrown error anywhere to surface it. This is a different degenerate case from the
+    // near-antipodal one already covered by the Venus test above (angle = π there, angle = 0 here) -
+    // both are sin(angle) = 0 singularities, but at opposite ends of slerp's domain.
+    const camera = new OrbitCamera() // defaults to upAxis: ECLIPTIC_NORTH
+    const controller = new CameraFollowController(camera, { flyToDurationSeconds: 2 })
+
+    controller.flyToFraming([5, 0, 0], 20, Math.PI / 2, 0.5, [...ECLIPTIC_NORTH])
+    controller.update(1, 0, 0, 1) // mid-tween
+    expect(Number.isFinite(camera.upAxis[0])).toBe(true)
+    expect(Number.isFinite(camera.upAxis[1])).toBe(true)
+    expect(Number.isFinite(camera.upAxis[2])).toBe(true)
+    expect(Math.hypot(camera.upAxis[0], camera.upAxis[1], camera.upAxis[2])).toBeCloseTo(1, 6)
+
+    controller.update(1, 0, 0, 1) // tween completes
+    expect(Number.isFinite(camera.upAxis[0])).toBe(true)
+    expect(Number.isFinite(camera.upAxis[1])).toBe(true)
+    expect(Number.isFinite(camera.upAxis[2])).toBe(true)
+    expect(camera.upAxis[0]).toBeCloseTo(ECLIPTIC_NORTH[0], 6)
+    expect(camera.upAxis[1]).toBeCloseTo(ECLIPTIC_NORTH[1], 6)
+    expect(camera.upAxis[2]).toBeCloseTo(ECLIPTIC_NORTH[2], 6)
   })
 
   it('does not set followedEntityId, so live entity-tracking never kicks in afterward', () => {
