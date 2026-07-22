@@ -5,6 +5,8 @@ import {
   latitudeMarkerCenter,
   latitudeMarkerPoints,
   rotationAxisPoints,
+  tiltAngleArcPoints,
+  verticalReferencePoints,
 } from '../src/learn/overlayGeometry'
 
 describe('overlay geometry (identity world transform, radius 1)', () => {
@@ -60,5 +62,44 @@ describe('overlay geometry (identity world transform, radius 1)', () => {
     expect(center[0]).toBeCloseTo(0, 5)
     expect(center[1]).toBeCloseTo(1, 5)
     expect(center[2]).toBeCloseTo(0, 5)
+  })
+
+  it('verticalReferencePoints returns two points straddling center along world +Y', () => {
+    const points = verticalReferencePoints([3, 0, 0], 1.5)
+    expect(points.length).toBe(6)
+    expect(points[0]).toBeCloseTo(3, 5)
+    expect(points[1]).toBeCloseTo(-1.5, 5)
+    expect(points[2]).toBeCloseTo(0, 5)
+    expect(points[3]).toBeCloseTo(3, 5)
+    expect(points[4]).toBeCloseTo(1.5, 5)
+    expect(points[5]).toBeCloseTo(0, 5)
+  })
+
+  it('tiltAngleArcPoints starts straight up from center and sweeps toward +X for a positive angle', () => {
+    const angle = (23.4 * Math.PI) / 180
+    const points = tiltAngleArcPoints([3, 0, 0], 2, angle, 16)
+    expect(points.length).toBe((16 + 1) * 3)
+    // First point: angle=0, straight up from center.
+    expect(points[0]).toBeCloseTo(3, 5)
+    expect(points[1]).toBeCloseTo(2, 5)
+    expect(points[2]).toBeCloseTo(0, 5)
+    // Last point: the full swept angle - x moves toward +X, y shrinks from the full radius.
+    const lastX = points[16 * 3]
+    const lastY = points[16 * 3 + 1]
+    expect(lastX).toBeCloseTo(3 + 2 * Math.sin(angle), 5)
+    expect(lastY).toBeCloseTo(2 * Math.cos(angle), 5)
+    expect(lastX).toBeGreaterThan(3) // swept toward +X, not -X
+    // Every point stays at exactly `radius` from center (a true circular arc).
+    for (let i = 0; i <= 16; i++) {
+      const dx = points[i * 3] - 3
+      const dy = points[i * 3 + 1] - 0
+      expect(Math.hypot(dx, dy)).toBeCloseTo(2, 5)
+    }
+  })
+
+  it('tiltAngleArcPoints sweeps toward -X for a negative angle', () => {
+    const points = tiltAngleArcPoints([0, 0, 0], 1, -0.5, 8)
+    const lastX = points[8 * 3]
+    expect(lastX).toBeLessThan(0)
   })
 })

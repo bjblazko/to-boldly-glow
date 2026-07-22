@@ -20,6 +20,8 @@ import {
   latitudeMarkerCenter,
   latitudeMarkerPoints,
   rotationAxisPoints,
+  tiltAngleArcPoints,
+  verticalReferencePoints,
 } from './learn/overlayGeometry'
 import { initShuttleVisual } from './hud/shuttleVisual'
 import { scaledBodyRadiusUnits, scaledPosition } from './solarSystem/sceneScale'
@@ -27,7 +29,7 @@ import { ScaleBlendTween } from './solarSystem/scaleBlendTween'
 import { easeInOutCubic } from './camera/easing'
 import { generateOrbitPathPositions } from './solarSystem/orbitPath'
 import { rotationAngleRadians } from './solarSystem/rotation'
-import { axisAlignmentRotation, equatorialToEclipticPoleDirection } from './solarSystem/poleOrientation'
+import { axisAlignmentRotation, ECLIPTIC_NORTH, equatorialToEclipticPoleDirection } from './solarSystem/poleOrientation'
 import { MOONS } from './solarSystem/moons'
 import {
   moonFlatOrbitPosition,
@@ -442,10 +444,12 @@ async function main() {
     return { definition: planet, vertexBuffer, distanceBuffer, uniformBuffer, bindGroup }
   })
 
-  // Four overlay lines for learn mode's seasons lesson: equator, rotation axis, and two symmetric
-  // location markers (marker-a/marker-b, at +/-markerLatitudeDegrees). All four share one
-  // uniform buffer shape/bind-group-layout, so they reuse the same small helper for setup.
-  const OVERLAY_LINE_IDS = ['equator', 'axis', 'marker-a', 'marker-b'] as const
+  // Six overlay lines for learn mode's seasons lesson: equator, rotation axis, two symmetric
+  // location markers (marker-a/marker-b, at +/-markerLatitudeDegrees), and a small "protractor" -
+  // a fixed vertical reference line plus an arc sweeping from it to the actual axis line, labeling
+  // the current tilt in degrees (axisTiltLabel below). All six share one uniform buffer
+  // shape/bind-group-layout, so they reuse the same small helper for setup.
+  const OVERLAY_LINE_IDS = ['equator', 'axis', 'marker-a', 'marker-b', 'reference', 'tilt-arc'] as const
   type OverlayLineId = (typeof OVERLAY_LINE_IDS)[number]
   interface OverlayLineRenderable {
     id: OverlayLineId
@@ -481,17 +485,22 @@ async function main() {
   // otherwise a later, larger write overruns the buffer and Dawn reports a GPUValidationError.
   const OVERLAY_EQUATOR_SEGMENTS = 64
   const OVERLAY_LATITUDE_MARKER_SEGMENTS = 16
+  const OVERLAY_TILT_ARC_SEGMENTS = 24
   const overlayLineRenderables: Record<OverlayLineId, OverlayLineRenderable> = {
     equator: createOverlayLineRenderable('equator', new Float32Array((OVERLAY_EQUATOR_SEGMENTS + 1) * 3)),
     axis: createOverlayLineRenderable('axis', new Float32Array(6)),
     'marker-a': createOverlayLineRenderable('marker-a', new Float32Array((OVERLAY_LATITUDE_MARKER_SEGMENTS + 1) * 3)),
     'marker-b': createOverlayLineRenderable('marker-b', new Float32Array((OVERLAY_LATITUDE_MARKER_SEGMENTS + 1) * 3)),
+    reference: createOverlayLineRenderable('reference', new Float32Array(6)),
+    'tilt-arc': createOverlayLineRenderable('tilt-arc', new Float32Array((OVERLAY_TILT_ARC_SEGMENTS + 1) * 3)),
   }
   const OVERLAY_COLORS: Record<OverlayLineId, [number, number, number, number]> = {
     equator: [0.16, 0.88, 0.79, 0.95], // neon teal
     axis: [0.98, 0.25, 0.65, 0.95], // neon pink/magenta
     'marker-a': [0.37, 0.88, 0.63, 0.95], // kept from the original marker color, distinct from both lines
     'marker-b': [0.45, 0.68, 0.98, 0.95], // a second, distinct marker color so A and B are visually distinguishable
+    reference: [0.75, 0.75, 0.8, 0.4], // faint neutral grey - a "construction line," not a teaching focus
+    'tilt-arc': [0.99, 0.78, 0.25, 0.95], // warm amber, distinct from every other overlay color
   }
   const OVERLAY_PULSE_SPEED_RADIANS_PER_SECOND = 3
 
@@ -572,7 +581,8 @@ async function main() {
   // body labels created above.
   const locationALabel = requireElement<HTMLDivElement>('#location-a-label')
   const locationBLabel = requireElement<HTMLDivElement>('#location-b-label')
-  for (const label of [locationALabel, locationBLabel]) {
+  const axisTiltLabel = requireElement<HTMLDivElement>('#axis-tilt-label')
+  for (const label of [locationALabel, locationBLabel, axisTiltLabel]) {
     label.style.position = 'absolute'
     label.style.transform = 'translate(-50%, 4px)'
     label.style.color = 'white'
@@ -703,22 +713,35 @@ async function main() {
   // for the whole time the lesson is open - not derived from any real AU distance (this is a staged
   // diagram, not a scale model; see the design spec's §3).
   const EARTH_STAGED_POSITION: [number, number, number] = [6, 0, 0]
-  const EARTH_STAGED_RADIUS = 1 // matches Earth's own Compact-scale compactVisualRadius (bodies.ts)
+  const EARTH_STAGED_RADIUS = 2.2 // enlarged for legibility - a staged diagram, not a scale model
 
   // Set once on entering learn mode (see the lesson-picker click handler below) and never moved
   // again - this is what structurally eliminates the old slide/jump camera artifact, rather than
-  // patching its timing. Tune these three visually once running: the goal is Sun and Earth both
+  // patching its timing. Tune these visually once running: the goal is Sun and Earth both
   // comfortably in frame with a clear gap between them (see the design spec's approved mockup).
+  //
+  // orbitCamera.upAxis defaults to ECLIPTIC_NORTH (world Z - see poleOrientation.ts), which put the
+  // camera almost directly above the scene along world Y for this azimuth/elevation - and Earth's
+  // pole also points mostly along world Y (seasonalPoleDirection's dominant component is
+  // cos(obliquity) on Y at every phase), so that default made every chapter look nearly pole-on:
+  // the two symmetric location markers, which sit on opposite sides of the pole, projected close
+  // together near the globe's screen-space limb instead of spreading across it. Overriding upAxis
+  // to world Y for this lesson only (restored to ECLIPTIC_NORTH on exit, below) makes world Y the
+  // screen-vertical axis instead - i.e. exactly the axis Earth's tilt leans away from - producing a
+  // true side profile where seasonalPoleDirection's own X-lean reads as an honest left/right tilt of
+  // the drawn axis line, at every chapter, not just the two solstices.
   const LEARN_CAMERA_TARGET: [number, number, number] = [EARTH_STAGED_POSITION[0] / 2, 0, 0]
-  const LEARN_CAMERA_RADIUS = 11
+  const LEARN_CAMERA_RADIUS = 10
   const LEARN_CAMERA_AZIMUTH = Math.PI / 2
-  const LEARN_CAMERA_ELEVATION = 0.12
+  const LEARN_CAMERA_ELEVATION = 0.08
+  const LEARN_CAMERA_UP_AXIS: [number, number, number] = [0, 1, 0]
 
   function applyLearnCameraFraming(): void {
     vec3.set(orbitCamera.target, ...LEARN_CAMERA_TARGET)
     orbitCamera.radius = LEARN_CAMERA_RADIUS
     orbitCamera.azimuth = LEARN_CAMERA_AZIMUTH
     orbitCamera.elevation = LEARN_CAMERA_ELEVATION
+    vec3.set(orbitCamera.upAxis, ...LEARN_CAMERA_UP_AXIS)
   }
 
   // Smoothly re-tilts Earth's axis when switching chapters (a rotation tween on Earth's own transform,
@@ -785,6 +808,10 @@ async function main() {
   learnModeBtn.addEventListener('click', () => {
     if (learnModeController.currentMode === 'learn') {
       learnModeController.exit()
+      // applyLearnCameraFraming overrode upAxis to world Y for this lesson's side-on profile view -
+      // restore the real astronomical default (see orbitCamera.ts's own doc comment) so explore
+      // mode's north-up camera convention isn't left pointed at the wrong "north".
+      vec3.set(orbitCamera.upAxis, ...ECLIPTIC_NORTH)
       showOrbitPaths = preLearnOrbitPaths
       orbitPathsToggle.checked = preLearnOrbitPaths
       canvas.dataset.orbitPaths = String(preLearnOrbitPaths)
@@ -1212,11 +1239,26 @@ async function main() {
         // Two symmetric, mirror-opposite markers (+/-markerLatitude) replace the old single
         // latitude-picker marker + sun-angle ray - see Task 5/6 for the id rename and the neon
         // pulsing-glow shader mode these now use instead of the marching-ants dash.
+        //
+        // The reference/tilt-arc pair is a small "protractor": a fixed world-+Y reference (the
+        // axis's zero-tilt baseline) and an arc sweeping from it to the actual axis line, both
+        // anchored on Earth's center (position only, not earthLearnTilt's rotation - see
+        // overlayGeometry.ts's own doc comments). The swept angle is the pole direction's own
+        // atan2(x, y): with the learn-mode camera's upAxis set to world Y (see
+        // applyLearnCameraFraming), this is the same angle the drawn axis line visibly leans by.
+        const earthCenter: [number, number, number] = [earthEntry.x, earthEntry.y, earthEntry.z]
+        const currentPoleDirection = seasonalPoleDirection(currentSeasonPhase)
+        const tiltAngleRadians = Math.atan2(currentPoleDirection[0], currentPoleDirection[1])
+        const referenceLength = earthEntry.radius * 1.3
+        const arcRadius = earthEntry.radius * 1.15
+
         const geometryById: Record<OverlayLineId, Float32Array> = {
           equator: equatorRingPoints(earthWorld, ringRadius, OVERLAY_EQUATOR_SEGMENTS),
           axis: rotationAxisPoints(earthWorld, earthEntry.radius, 1.3),
           'marker-a': latitudeMarkerPoints(earthWorld, ringRadius, markerLatitude, markerRadius, OVERLAY_LATITUDE_MARKER_SEGMENTS),
           'marker-b': latitudeMarkerPoints(earthWorld, ringRadius, -markerLatitude, markerRadius, OVERLAY_LATITUDE_MARKER_SEGMENTS),
+          reference: verticalReferencePoints(earthCenter, referenceLength),
+          'tilt-arc': tiltAngleArcPoints(earthCenter, arcRadius, tiltAngleRadians, OVERLAY_TILT_ARC_SEGMENTS),
         }
         const pulsePhaseRadians = now * OVERLAY_PULSE_SPEED_RADIANS_PER_SECOND
         // Unlike every other worldViewProjection in this file, no separate world matrix multiply
@@ -1230,8 +1272,11 @@ async function main() {
           uniforms.set(viewProjection, 0)
           uniforms.set(OVERLAY_COLORS[id], 16)
           // dashParams: x/z unused in glow mode, y = live pulse phase, w = 2.0 (glow mode) - see
-          // shaders.ts's lineShaderCode for the shader's glow-mode branch.
-          uniforms.set([0, pulsePhaseRadians, 0, 2.0], 20)
+          // shaders.ts's lineShaderCode for the shader's glow-mode branch. The reference/tilt-arc
+          // pair stays solid (w = 0) - a static protractor reads better without the pulse that
+          // helps the teaching-focus axis/equator/marker lines stand out.
+          const dashMode = id === 'reference' || id === 'tilt-arc' ? 0 : 2.0
+          uniforms.set([0, pulsePhaseRadians, 0, dashMode], 20)
           device.queue.writeBuffer(renderable.uniformBuffer, 0, uniforms)
         }
 
@@ -1241,10 +1286,20 @@ async function main() {
         const markerBScreen = worldToScreen(viewProjection, ...markerBCenter, canvas.clientWidth, canvas.clientHeight)
         updateLabelPosition(locationALabel, markerAScreen)
         updateLabelPosition(locationBLabel, markerBScreen)
+
+        const tiltLabelPoint: [number, number, number] = [
+          earthCenter[0] + arcRadius * Math.sin(tiltAngleRadians / 2),
+          earthCenter[1] + arcRadius * Math.cos(tiltAngleRadians / 2),
+          earthCenter[2],
+        ]
+        const tiltLabelScreen = worldToScreen(viewProjection, ...tiltLabelPoint, canvas.clientWidth, canvas.clientHeight)
+        axisTiltLabel.textContent = `${Math.abs((tiltAngleRadians * 180) / Math.PI).toFixed(1)}°`
+        updateLabelPosition(axisTiltLabel, tiltLabelScreen)
       }
     } else {
       locationALabel.style.display = 'none'
       locationBLabel.style.display = 'none'
+      axisTiltLabel.style.display = 'none'
     }
 
     if (showOrbitPaths) {

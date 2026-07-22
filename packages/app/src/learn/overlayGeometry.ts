@@ -34,6 +34,38 @@ export function rotationAxisPoints(earthWorld: mat4, radius: number, overshootFa
   return new Float32Array([...south, ...north])
 }
 
+// A short "true vertical" reference segment through `center`, in WORLD space (not Earth-local -
+// it deliberately does NOT rotate with Earth's tilt, since it represents the zero-tilt baseline
+// the tilt-angle arc below sweeps away from). Drawn along world +Y, the direction Earth's axis
+// would point if it had no seasonal lean at all - see seasonalPoleDirection in main.ts.
+export function verticalReferencePoints(center: readonly [number, number, number], length: number): Float32Array {
+  return new Float32Array([center[0], center[1] - length, center[2], center[0], center[1] + length, center[2]])
+}
+
+// A circular arc, centered on `center` and lying in the world XY plane (matching the learn-mode
+// camera's screen plane - see applyLearnCameraFraming's upAxis choice in main.ts), sweeping from
+// straight up (world +Y, angle 0 - the same direction verticalReferencePoints draws) through
+// `angleRadians` of rotation toward world +X. A positive angle sweeps toward +X, a negative angle
+// toward -X - callers pass the pole direction's own atan2(x, y) so the arc always sweeps the same
+// way the axis line itself leans. `segments` is always the full point count regardless of how
+// small `angleRadians` is (down to a zero-length arc at every point), matching this project's
+// fixed-size-overlay-buffer convention (see main.ts's OVERLAY_LATITUDE_MARKER_SEGMENTS comment).
+export function tiltAngleArcPoints(
+  center: readonly [number, number, number],
+  radius: number,
+  angleRadians: number,
+  segments: number,
+): Float32Array {
+  const points = new Float32Array((segments + 1) * 3)
+  for (let i = 0; i <= segments; i++) {
+    const t = (i / segments) * angleRadians
+    points[i * 3] = center[0] + radius * Math.sin(t)
+    points[i * 3 + 1] = center[1] + radius * Math.cos(t)
+    points[i * 3 + 2] = center[2]
+  }
+  return points
+}
+
 // Shared by latitudeMarkerPoints and latitudeMarkerCenter: the surface normal and surface point
 // (both in Earth-local space) at `latitudeDegrees`, longitude fixed at the local +Y meridian
 // (matching this project's sphere UV convention where phi=0 sits along +Y - see geometry/sphere.ts).

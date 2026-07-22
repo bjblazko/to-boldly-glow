@@ -179,11 +179,16 @@ test('globe overlays and both location markers render without WebGPU errors acro
 
   await expect(page.locator('#location-a-label')).toBeVisible()
   await expect(page.locator('#location-b-label')).toBeVisible()
+  await expect(page.locator('#axis-tilt-label')).toBeVisible()
 
-  await page.locator('#lesson-next-chapter').click() // -> june-solstice's tilt tween begins
+  await page.locator('#lesson-next-chapter').click() // intro -> march-equinox
+  await page.locator('#lesson-next-chapter').click() // march-equinox -> june-solstice's tilt tween begins
+  await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-id', 'june-solstice')
   await page.waitForTimeout(1500) // let the tween settle
 
   await expect(page.locator('#location-a-label')).toBeVisible()
   await expect(page.locator('#location-b-label')).toBeVisible()
+  // June solstice: the axis leans the full 23.4 degrees away from the vertical reference line.
+  await expect(page.locator('#axis-tilt-label')).toHaveText('23.4°')
   expect(errors).toEqual([])
 })
