@@ -243,8 +243,13 @@ fn fs(in: VertexOutput) -> @location(0) vec4f {
 
   let toLight = -uni.lightDirection.xyz;
   let shadowFactor = sunVisibleFraction(in.worldPosition);
-  let litFraction = max(dot(normal, toLight), 0.0) * shadowFactor;
-  let diffuse = litFraction * 0.85 + 0.1;
+  // A raw Lambertian max(dot,0) falls off gradually across nearly a full hemisphere before
+  // reaching the ambient floor, reading as a soft haze rather than a clear day/night boundary.
+  // smoothstep over a narrow band around the geometric terminator (dot == 0) compresses that
+  // falloff into a much narrower, harder-edged band instead, while the lit and unlit hemispheres
+  // still each reach their own flat extreme well before the actual terminator.
+  let litFraction = smoothstep(-0.12, 0.12, dot(normal, toLight)) * shadowFactor;
+  let diffuse = litFraction * 0.92 + 0.04;
   let sharpColor = textureSample(bodyTexture, bodySampler, in.uv);
   let coarseLevel = f32(textureNumLevels(bodyTexture) - 1u);
   let blurryColor = textureSampleLevel(bodyTexture, bodySampler, in.uv, coarseLevel);

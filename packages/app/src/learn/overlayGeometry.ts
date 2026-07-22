@@ -67,14 +67,23 @@ export function tiltAngleArcPoints(
 }
 
 // Shared by latitudeMarkerPoints and latitudeMarkerCenter: the surface normal and surface point
-// (both in Earth-local space) at `latitudeDegrees`, longitude fixed at the local +Y meridian
-// (matching this project's sphere UV convention where phi=0 sits along +Y - see geometry/sphere.ts).
+// (both in Earth-local space) at `latitudeDegrees`. `longitudeDegrees` (default 0) rotates around
+// the polar axis from the local +Y meridian (matching this project's sphere UV convention where
+// phi=0 sits along +Y - see geometry/sphere.ts) toward local +X - callers use this to place a
+// marker nearer the sunward meridian rather than always on the +Y one (see main.ts's
+// LEARN_MARKER_LONGITUDE_DEGREES).
 function latitudeSurfaceNormalAndPoint(
   radius: number,
   latitudeDegrees: number,
+  longitudeDegrees = 0,
 ): { localNormal: [number, number, number]; localSurfacePoint: [number, number, number] } {
   const colatitude = ((90 - latitudeDegrees) * Math.PI) / 180 // 0 at north pole, PI at south pole
-  const localNormal: [number, number, number] = [0, Math.sin(colatitude), Math.cos(colatitude)]
+  const longitude = (longitudeDegrees * Math.PI) / 180
+  const localNormal: [number, number, number] = [
+    Math.sin(colatitude) * Math.sin(longitude),
+    Math.sin(colatitude) * Math.cos(longitude),
+    Math.cos(colatitude),
+  ]
   const localSurfacePoint: [number, number, number] = [
     localNormal[0] * radius,
     localNormal[1] * radius,
@@ -87,24 +96,29 @@ function latitudeSurfaceNormalAndPoint(
 // the ring's actual center, not any particular vertex on its circumference. Callers that need "the
 // point on Earth's surface at this latitude" (e.g. the sun-angle ray's origin) should use this
 // rather than reconstructing it from two of the ring's own (adjacent, not opposite) vertices.
-export function latitudeMarkerCenter(earthWorld: mat4, radius: number, latitudeDegrees: number): [number, number, number] {
-  const { localSurfacePoint } = latitudeSurfaceNormalAndPoint(radius, latitudeDegrees)
+export function latitudeMarkerCenter(
+  earthWorld: mat4,
+  radius: number,
+  latitudeDegrees: number,
+  longitudeDegrees = 0,
+): [number, number, number] {
+  const { localSurfacePoint } = latitudeSurfaceNormalAndPoint(radius, latitudeDegrees, longitudeDegrees)
   return transformPoint(earthWorld, localSurfacePoint)
 }
 
-// A small closed loop centered on Earth's surface at `latitudeDegrees` (longitude fixed at the
-// local +Y meridian, matching this project's sphere UV convention where phi=0 sits along +Y - see
-// geometry/sphere.ts). Built from an orthonormal (tangent1, tangent2) basis perpendicular to the
-// surface normal at that point, so the loop lies flat against the surface rather than being an
-// arbitrary 3D circle.
+// A small closed loop centered on Earth's surface at `latitudeDegrees`/`longitudeDegrees` (see
+// latitudeSurfaceNormalAndPoint above for the longitude convention). Built from an orthonormal
+// (tangent1, tangent2) basis perpendicular to the surface normal at that point, so the loop lies
+// flat against the surface rather than being an arbitrary 3D circle.
 export function latitudeMarkerPoints(
   earthWorld: mat4,
   radius: number,
   latitudeDegrees: number,
   markerRadius: number,
   segments: number,
+  longitudeDegrees = 0,
 ): Float32Array {
-  const { localNormal, localSurfacePoint } = latitudeSurfaceNormalAndPoint(radius, latitudeDegrees)
+  const { localNormal, localSurfacePoint } = latitudeSurfaceNormalAndPoint(radius, latitudeDegrees, longitudeDegrees)
   // Gram-Schmidt against local +X, falling back to local +Y only at the poles (where normal is
   // parallel to +Z, making +X a valid, non-degenerate reference at every other latitude).
   const reference: [number, number, number] = Math.abs(localNormal[2]) > 0.999 ? [0, 1, 0] : [1, 0, 0]

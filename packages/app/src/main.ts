@@ -192,13 +192,23 @@ async function createBodyRenderable<TDefinition extends { id: string; textureUrl
 // angle to the Sun" mechanism is inverted: here the axis itself rotates to represent each season,
 // with the Sun-Earth line fixed along local +X (see EARTH_STAGED_POSITION in main() below).
 //
-// The pole always makes a fixed angle (the obliquity, 23.4 degrees) from local +Y; phase controls
-// how that tilt's *lean* is distributed between the Sun-Earth line (local X - visible on screen as
-// leaning left/right) and local Z (perpendicular to the screen from this camera's side-on angle -
-// invisible as a left/right lean, reads as "upright" on screen). At phase=0 the lean is entirely
-// along X (visibly tilted toward/away from the Sun - a solstice); at phase=90/270 the lean is
-// entirely along Z (reads as upright on screen, no visible left/right tilt - an equinox), exactly
-// matching the standard textbook seasons-diagram convention.
+// Deliberately confined to the X-Y plane (Z is always exactly 0) rather than a physically literal
+// rotation of a fixed-magnitude tilt vector - an earlier version let the "invisible" component of
+// the lean vary along local Z (perpendicular to the learn-mode camera's screen plane), reasoning
+// that depth would be invisible. It isn't: with a real perspective camera, any Z offset still
+// changes which hemisphere faces the camera and makes an otherwise-vertical line read as tilted at
+// varying screen depth, so the axis visibly leaned even at an equinox chapter's own "0.0deg"
+// reading. Confining the pole to X-Y guarantees the drawn axis line is geometrically exactly
+// parallel to the vertical reference line whenever the label reads 0.0 degrees, and the equator
+// ring's plane stays edge-on to the camera (a clean ellipse, not a wandering-depth loop) at every
+// phase - matching the classic flat textbook diagram this lesson is going for, not a literal orrery.
+//
+// X leans toward/away from the Sun (visible on screen as leaning left/right - a solstice at
+// phase=0/180); Y makes up the remainder needed to keep the vector unit-length (this is why Y is no
+// longer a phase-independent constant - it's exactly 1 at the equinoxes, cos(obliquity) at the
+// solstices, which is the deliberate trade this model makes: real Earth's tilt magnitude never
+// actually changes, but showing that here would require the very same Z-axis "invisible" lean that
+// causes the misleading foreshortening above).
 //
 // The X-term is negated relative to a naive cos(phase) because the Sun sits at the world origin
 // while Earth is staged on the +X side of it (EARTH_STAGED_POSITION below) - so the sunward
@@ -211,7 +221,9 @@ async function createBodyRenderable<TDefinition extends { id: string; textureUrl
 export function seasonalPoleDirection(phaseDegrees: number): [number, number, number] {
   const obliquity = (23.4 * Math.PI) / 180
   const phase = (phaseDegrees * Math.PI) / 180
-  return [-Math.sin(obliquity) * Math.cos(phase), Math.cos(obliquity), Math.sin(obliquity) * Math.sin(phase)]
+  const x = -Math.sin(obliquity) * Math.cos(phase)
+  const y = Math.sqrt(Math.max(0, 1 - x * x))
+  return [x, y, 0]
 }
 
 async function main() {
@@ -714,6 +726,12 @@ async function main() {
   // diagram, not a scale model; see the design spec's §3).
   const EARTH_STAGED_POSITION: [number, number, number] = [6, 0, 0]
   const EARTH_STAGED_RADIUS = 2.2 // enlarged for legibility - a staged diagram, not a scale model
+  // Longitude (see overlayGeometry.ts's latitudeSurfaceNormalAndPoint) shared by both location
+  // markers. earthLearnTilt (the transform this overlay uses) deliberately excludes Earth's spin,
+  // so this placement is stable for the whole lesson, not just at one instant - tuned empirically
+  // so both markers sit on/near the sunward-facing side rather than one of them permanently on the
+  // night side, which made a season's own "gets more sunlight" claim unreadable at a glance.
+  const LEARN_MARKER_LONGITUDE_DEGREES = -60
 
   // Set once on entering learn mode (see the lesson-picker click handler below) and never moved
   // again - this is what structurally eliminates the old slide/jump camera artifact, rather than
@@ -730,10 +748,22 @@ async function main() {
   // screen-vertical axis instead - i.e. exactly the axis Earth's tilt leans away from - producing a
   // true side profile where seasonalPoleDirection's own X-lean reads as an honest left/right tilt of
   // the drawn axis line, at every chapter, not just the two solstices.
-  const LEARN_CAMERA_TARGET: [number, number, number] = [EARTH_STAGED_POSITION[0] / 2, 0, 0]
-  const LEARN_CAMERA_RADIUS = 10
+  // Targets Earth's own center, not the Sun/Earth midpoint (an earlier version) - the real
+  // day/night terminator is a great circle lying in the plane x = EARTH_STAGED_POSITION[0]
+  // (perpendicular to the fixed Sun-Earth line, wherever Earth's own center is - independent of
+  // season/tilt). Viewed from a camera whose look-at target sits away from that plane, the
+  // terminator projects as a skewed curve (ordinary perspective parallax); aiming dead-on at
+  // Earth's center is the one target position with the least skew, rendering the terminator as a
+  // clean, nearly-straight line rather than something that reads as an unexplained diagonal smear.
+  // Radius bumped up alongside this so the Sun (now more off-center) still comfortably fits.
+  const LEARN_CAMERA_TARGET: [number, number, number] = [EARTH_STAGED_POSITION[0], 0, 0]
+  const LEARN_CAMERA_RADIUS = 12
   const LEARN_CAMERA_AZIMUTH = Math.PI / 2
-  const LEARN_CAMERA_ELEVATION = 0.08
+  // Exactly 0, not a small nonzero nudge - any elevation here tilts the camera down toward the
+  // scene, reading as "looking down at the equator from above" rather than a true side-on view,
+  // and (before the target was retargeted to Earth's own center, above) used to shift Earth off
+  // the vertical center of frame too.
+  const LEARN_CAMERA_ELEVATION = 0
   const LEARN_CAMERA_UP_AXIS: [number, number, number] = [0, 1, 0]
 
   function applyLearnCameraFraming(): void {
@@ -1255,8 +1285,22 @@ async function main() {
         const geometryById: Record<OverlayLineId, Float32Array> = {
           equator: equatorRingPoints(earthWorld, ringRadius, OVERLAY_EQUATOR_SEGMENTS),
           axis: rotationAxisPoints(earthWorld, earthEntry.radius, 1.3),
-          'marker-a': latitudeMarkerPoints(earthWorld, ringRadius, markerLatitude, markerRadius, OVERLAY_LATITUDE_MARKER_SEGMENTS),
-          'marker-b': latitudeMarkerPoints(earthWorld, ringRadius, -markerLatitude, markerRadius, OVERLAY_LATITUDE_MARKER_SEGMENTS),
+          'marker-a': latitudeMarkerPoints(
+            earthWorld,
+            ringRadius,
+            markerLatitude,
+            markerRadius,
+            OVERLAY_LATITUDE_MARKER_SEGMENTS,
+            LEARN_MARKER_LONGITUDE_DEGREES,
+          ),
+          'marker-b': latitudeMarkerPoints(
+            earthWorld,
+            ringRadius,
+            -markerLatitude,
+            markerRadius,
+            OVERLAY_LATITUDE_MARKER_SEGMENTS,
+            LEARN_MARKER_LONGITUDE_DEGREES,
+          ),
           reference: verticalReferencePoints(earthCenter, referenceLength),
           'tilt-arc': tiltAngleArcPoints(earthCenter, arcRadius, tiltAngleRadians, OVERLAY_TILT_ARC_SEGMENTS),
         }
@@ -1280,8 +1324,8 @@ async function main() {
           device.queue.writeBuffer(renderable.uniformBuffer, 0, uniforms)
         }
 
-        const markerACenter = latitudeMarkerCenter(earthWorld, ringRadius, markerLatitude)
-        const markerBCenter = latitudeMarkerCenter(earthWorld, ringRadius, -markerLatitude)
+        const markerACenter = latitudeMarkerCenter(earthWorld, ringRadius, markerLatitude, LEARN_MARKER_LONGITUDE_DEGREES)
+        const markerBCenter = latitudeMarkerCenter(earthWorld, ringRadius, -markerLatitude, LEARN_MARKER_LONGITUDE_DEGREES)
         const markerAScreen = worldToScreen(viewProjection, ...markerACenter, canvas.clientWidth, canvas.clientHeight)
         const markerBScreen = worldToScreen(viewProjection, ...markerBCenter, canvas.clientWidth, canvas.clientHeight)
         updateLabelPosition(locationALabel, markerAScreen)
