@@ -4,7 +4,10 @@ const CHAPTERS: Chapter[] = [
   {
     id: 'intro',
     title: 'Intro: A Tilted World',
-    seasonPhaseDegrees: 90, // neutral/equinox-like, per the design spec's Intro treatment
+    // Shows the full 23.4-degree lean (same phase as june-solstice) so the picture backs up this
+    // chapter's own opening sentence - an equinox-like 0-degree phase here would show a perfectly
+    // upright axis while the text claims a visible 23.4-degree tilt, directly contradicting it.
+    seasonPhaseDegrees: 0,
     text:
       "Earth's axis is tilted 23.4° relative to its orbit around the Sun. This tilt - not Earth's " +
       'distance from the Sun, which barely changes over a year - is what causes the seasons. Watch ' +

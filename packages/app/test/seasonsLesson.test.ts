@@ -21,10 +21,12 @@ describe('SEASONS_LESSON', () => {
     expect(phases).toEqual([0, 90, 180, 270])
   })
 
-  it('Intro uses a neutral (equinox-like) phase, matching one of the equinox chapters', () => {
+  // Intro's own text opens with "Earth's axis is tilted 23.4 degrees" - showing a neutral,
+  // equinox-like 0-degree phase here would render a perfectly upright axis, directly contradicting
+  // that opening sentence. Intro must show a visible tilt, matching one of the two solstices.
+  it('Intro uses a solstice phase, so the picture backs up its own "tilted 23.4 degrees" opening line', () => {
     const intro = SEASONS_LESSON.chapters.find((c) => c.id === 'intro')!
-    const septemberEquinox = SEASONS_LESSON.chapters.find((c) => c.id === 'september-equinox')!
-    expect(intro.seasonPhaseDegrees).toBe(septemberEquinox.seasonPhaseDegrees)
+    expect([0, 180]).toContain(intro.seasonPhaseDegrees)
   })
 
   it('every chapter has non-empty text', () => {
