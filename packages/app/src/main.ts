@@ -1115,6 +1115,11 @@ async function main() {
         ? seasonalPoleDirection(currentSeasonPhase)
         : equatorialToEclipticPoleDirection(renderable.definition.poleRightAscensionDegrees, renderable.definition.poleDeclinationDegrees)
       const tilt = axisAlignmentRotation(poleDirection)
+      // earthLearnTilt deliberately excludes the spin rotation (learnSpinRadians, applied below via
+      // fromZRotation only to the sphere mesh's own `world` matrix) - the axis/equator overlay lines
+      // and the two location markers are spin-invariant (axis and equator ring look identical at any
+      // spin angle) and the markers must stay fixed in place at their tilt-defined latitude rather
+      // than periodically spinning around to Earth's occluded far side.
       if (renderable.definition.id === 'earth') earthLearnTilt = isLearnEarth ? tilt : null
       const world = mat4.multiply(
         mat4.create(),

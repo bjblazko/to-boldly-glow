@@ -98,6 +98,46 @@ test('orbit paths still render (via the shared, now dash-capable line pipeline) 
   expect(errors).toEqual([])
 })
 
+test('lens flares are force-hidden on learn-mode entry and restored to their prior state on exit', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', (error) => errors.push(error.message))
+
+  await page.goto('/')
+  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+
+  // canvas.dataset.flares isn't written until the toggle first fires (see moonsAndFlares.spec.ts),
+  // so it has no attribute at all pre-toggle even though flares are ON (the underlying `showFlares`
+  // default) - the assertions below only check the attribute from the point learn-mode entry first
+  // writes it.
+
+  // Flares start ON (the default): entering learn mode must force them off, and exiting must
+  // restore ON - not leave them off, which would silently mutate the user's own explore-mode
+  // preference (the exact bug class Task 10's out-of-scope fix, commit bcbbdf9, addressed).
+  await page.locator('#learn-mode-btn').click()
+  await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
+  await expect(page.locator('body')).toHaveAttribute('data-app-mode', 'learn')
+  await expect(page.locator('#scene')).toHaveAttribute('data-flares', 'false')
+
+  await page.locator('#learn-mode-btn').click()
+  await expect(page.locator('body')).not.toHaveAttribute('data-app-mode', 'learn')
+  await expect(page.locator('#scene')).toHaveAttribute('data-flares', 'true')
+
+  // Now start from flares OFF (a user preference) and confirm learn mode doesn't flip it to true.
+  await page.locator('#display-corner-btn').click()
+  await page.locator('#flares-toggle').uncheck()
+  await expect(page.locator('#scene')).toHaveAttribute('data-flares', 'false')
+  await page.locator('#display-corner-btn').click()
+
+  await page.locator('#learn-mode-btn').click()
+  await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
+  await expect(page.locator('#scene')).toHaveAttribute('data-flares', 'false')
+
+  await page.locator('#learn-mode-btn').click()
+  await expect(page.locator('#scene')).toHaveAttribute('data-flares', 'false')
+
+  expect(errors).toEqual([])
+})
+
 test('entity search is explicitly disabled in learn mode, not just unreachable behind the hidden dock', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
