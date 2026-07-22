@@ -564,7 +564,7 @@
      exactly stable across every chapter; only the panel's bottom edge (which nothing depends on)
      moves as the text reflows. 300px reserves enough room for the longest chapter's text without
      the panel ever needing to grow past this position. */
-  top: max(16px, calc(100% - 300px));
+  top: max(16px, calc(100% - 260px));
   transform: translateX(-50%);
   width: min(560px, calc(100vw - 32px));
   background: var(--hud-panel);

@@ -248,6 +248,13 @@ export const ORBIT_FIXED_POLE_DIRECTION: [number, number, number] = [
   Math.cos(ORBIT_OBLIQUITY_RADIANS),
 ]
 
+// The rotation aligning a sphere's local +Z to ORBIT_FIXED_POLE_DIRECTION - computed once here
+// (not per-frame) since the direction itself never changes during the orbit chapter. Used only for
+// the orbit-chapter equator ring overlay (main()'s per-frame orbit block below), which needs a
+// tilt-only world matrix (translation to Earth's current position, no spin) the same way the
+// staged chapters' own equator ring uses earthLearnTilt - see that overlay block's own comments.
+const ORBIT_FIXED_TILT_MATRIX = axisAlignmentRotation(ORBIT_FIXED_POLE_DIRECTION)
+
 async function main() {
   const canvasElement = document.querySelector<HTMLCanvasElement>('#scene')
   if (!canvasElement) throw new Error('Canvas element #scene not found.')
@@ -543,18 +550,20 @@ async function main() {
   // the arc between them. A separate set from OVERLAY_LINE_IDS above (the staged chapters' own
   // equator/axis/markers/protractor) - the two chapter kinds never render simultaneously and use
   // genuinely different geometry (world-space-direct here, vs earthWorld-matrix-transformed there).
-  const ORBIT_OVERLAY_LINE_IDS = ['orbit-path', 'orbit-axis', 'orbit-reference', 'orbit-arc'] as const
+  const ORBIT_OVERLAY_LINE_IDS = ['orbit-path', 'orbit-axis', 'orbit-equator', 'orbit-reference', 'orbit-arc'] as const
   type OrbitOverlayLineId = (typeof ORBIT_OVERLAY_LINE_IDS)[number]
   const ORBIT_PATH_SEGMENTS = 64
   const orbitOverlayLineRenderables: Record<OrbitOverlayLineId, OverlayLineRenderable> = {
     'orbit-path': createOverlayLineRenderable('orbit-path', new Float32Array((ORBIT_PATH_SEGMENTS + 1) * 3)),
     'orbit-axis': createOverlayLineRenderable('orbit-axis', new Float32Array(6)),
+    'orbit-equator': createOverlayLineRenderable('orbit-equator', new Float32Array((OVERLAY_EQUATOR_SEGMENTS + 1) * 3)),
     'orbit-reference': createOverlayLineRenderable('orbit-reference', new Float32Array(6)),
     'orbit-arc': createOverlayLineRenderable('orbit-arc', new Float32Array((OVERLAY_TILT_ARC_SEGMENTS + 1) * 3)),
   }
   const ORBIT_OVERLAY_COLORS: Record<OrbitOverlayLineId, [number, number, number, number]> = {
     'orbit-path': [0.5, 0.5, 0.55, 0.5], // faint neutral grey - a construction guide, not a teaching focus
     'orbit-axis': [0.98, 0.25, 0.65, 0.95], // same neon pink/magenta as the staged axis line - same concept, same color
+    'orbit-equator': [0.16, 0.88, 0.79, 0.95], // same neon teal as the staged equator line - same concept, same color
     'orbit-reference': [0.3, 0.7, 1.0, 0.95], // bright sky blue - the moving Sun-Earth line, the other half of this chapter's teaching point
     'orbit-arc': [0.99, 0.78, 0.25, 0.95], // same warm amber as the staged tilt-arc
   }
@@ -767,7 +776,7 @@ async function main() {
   // rendering, untouched by this lesson). Earth is moved here, a fixed distance away along local +X,
   // for the whole time the lesson is open - not derived from any real AU distance (this is a staged
   // diagram, not a scale model; see the design spec's §3).
-  const EARTH_STAGED_POSITION: [number, number, number] = [6, 0, 0]
+  const EARTH_STAGED_POSITION: [number, number, number] = [9, 0, 0]
   const EARTH_STAGED_RADIUS = 2.2 // enlarged for legibility - a staged diagram, not a scale model
   // Longitude (see overlayGeometry.ts's latitudeSurfaceNormalAndPoint) shared by both location
   // markers. earthLearnTilt (the transform this overlay uses) deliberately excludes Earth's spin,
@@ -791,16 +800,17 @@ async function main() {
   // screen-vertical axis instead - i.e. exactly the axis Earth's tilt leans away from - producing a
   // true side profile where seasonalPoleDirection's own X-lean reads as an honest left/right tilt of
   // the drawn axis line, at every chapter, not just the two solstices.
-  // Targets Earth's own center, not the Sun/Earth midpoint (an earlier version) - the real
-  // day/night terminator is a great circle lying in the plane x = EARTH_STAGED_POSITION[0]
-  // (perpendicular to the fixed Sun-Earth line, wherever Earth's own center is - independent of
-  // season/tilt). Viewed from a camera whose look-at target sits away from that plane, the
-  // terminator projects as a skewed curve (ordinary perspective parallax); aiming dead-on at
-  // Earth's center is the one target position with the least skew, rendering the terminator as a
-  // clean, nearly-straight line rather than something that reads as an unexplained diagonal smear.
+  // Targeting Earth's own exact center keeps the day/night terminator (a great circle in the
+  // plane x = EARTH_STAGED_POSITION[0]) rendering as a clean, unskewed vertical line - but it also
+  // pins Earth to dead screen-center, where its own southern hemisphere (Location B) ends up
+  // hidden behind the bottom lesson panel. Targeting a few units back toward the Sun instead
+  // shifts Earth to the left side of the frame, clearing Location B - at the cost of a small,
+  // deliberately-accepted terminator skew (the target no longer sits exactly on Earth's own
+  // perpendicular plane). The skew stays subtle at this shift distance; verify live if this is
+  // ever retuned further, since a large shift here trades directly against terminator straightness.
   // Radius bumped up alongside this so the Sun (now more off-center) still comfortably fits.
-  const LEARN_CAMERA_TARGET: [number, number, number] = [EARTH_STAGED_POSITION[0], 0, 0]
-  const LEARN_CAMERA_RADIUS = 12
+  const LEARN_CAMERA_TARGET: [number, number, number] = [EARTH_STAGED_POSITION[0] - 4, 0, 0]
+  const LEARN_CAMERA_RADIUS = 13
   const LEARN_CAMERA_AZIMUTH = Math.PI / 2
   // Exactly 0, not a small nonzero nudge - any elevation here tilts the camera down toward the
   // scene, reading as "looking down at the equator from above" rather than a true side-on view,
@@ -844,10 +854,22 @@ async function main() {
   //
   // With a fixed azimuth, Earth (which sweeps through every angle as it revolves) is at its most
   // clearly visible - off to one side of the Sun - when its own orbital angle is 90 degrees away
-  // from the camera's azimuth, and briefly hidden directly behind the Sun once per lap, when its
-  // orbital angle matches the camera's azimuth plus 180 degrees. That momentary disappearance is
-  // expected and explained in the chapter's own text - a real consequence of viewing a 3D orbit
-  // from a single fixed angle, not a bug to design around.
+  // from the camera's azimuth, and briefly hidden directly behind the Sun (or nearest the camera,
+  // low in frame near the lesson panel) once per lap each, when its orbital angle matches the
+  // camera's azimuth plus/minus 180 or 0 degrees. That momentary disappearance is expected and
+  // explained in the chapter's own text - a real consequence of viewing a 3D orbit from a single
+  // fixed angle, not a bug to design around.
+  //
+  // The azimuth itself is offset 45 degrees from the "obvious" choice of PI/2, for a second reason
+  // beyond the axis-lean one below: ORBIT_FIXED_POLE_DIRECTION's own X-Z-plane lean means the
+  // "reads as upright, 0 degrees" moments always occur when Earth's orbital angle is 90/270
+  // degrees (independent of camera azimuth - that's purely a property of the fixed axis and
+  // Earth's phase). At azimuth exactly PI/2, those are EXACTLY the same two angles where Earth is
+  // occluded (front-of-Sun/behind-Sun) - the two most pedagogically important readings (the
+  // equinox-like "0 degree" moments) would always land on the two least visible screen positions.
+  // Offsetting the azimuth by 45 degrees moves the occlusion angles away from 90/270 without
+  // giving up the axis-lean visibility the PI/2 choice was originally about (see below) - so the
+  // 0-degree moments now land at a clearly visible off-to-the-side position instead.
   const ORBIT_CAMERA_TARGET: [number, number, number] = [0, 0, 0]
   const ORBIT_CAMERA_RADIUS = 22
   // A shallow angle, not a top-down one. At this low an elevation the orbit circle projects as a
@@ -856,7 +878,7 @@ async function main() {
   // chapter text already establish that Earth is orbiting; this view's job is to sell the axis, not
   // the orbit's shape).
   const ORBIT_CAMERA_ELEVATION = 0.32
-  const ORBIT_CAMERA_AZIMUTH = Math.PI / 2
+  const ORBIT_CAMERA_AZIMUTH = (Math.PI * 3) / 4
   // The Sun's own rendered radius is a fixed ~3 units (SUN.compactVisualRadius), unaffected by this
   // scene - so ORBIT_PATH_RADIUS needs enough margin over that to keep Earth clearly clear of the
   // Sun's disc while passing nearby it (front/behind), not just while off to the sides.
@@ -937,6 +959,16 @@ async function main() {
   // learnSpinRadians just above), only when a lesson is freshly loaded.
   let orbitRevolutionDegrees = 0
 
+  // A separate, much faster spin than LEARN_SPIN_RADIANS_PER_SECOND, used ONLY for Earth's sphere
+  // mesh during the orbit chapter (see the per-frame update and the rotation computation below) -
+  // at this small scale and viewing distance, the staged chapters' slower 12-second spin is too
+  // subtle to notice, defeating its purpose here: letting a viewer visually confirm which of the
+  // several drawn lines (axis/equator/reference/arc) is the TRUE rotation axis, by literally
+  // watching the globe turn around it. A full rotation every 3 seconds is fast enough to notice at
+  // a glance without being distracting.
+  const ORBIT_SPIN_RADIANS_PER_SECOND = (2 * Math.PI) / 3
+  let orbitSpinRadians = 0
+
   // The seasonal tilt matrix computed for learn-mode Earth each frame (see the planetFrameData
   // rendering loop below) - null whenever learn mode isn't active. Exposed at this scope so the
   // overlay-geometry block further down (equator ring/axis/latitude marker) can orient itself
@@ -1014,6 +1046,7 @@ async function main() {
       seasonPhaseTween.retarget(firstChapter.seasonPhaseDegrees, firstChapter.seasonPhaseDegrees)
       learnSpinRadians = 0
       orbitRevolutionDegrees = 0
+      orbitSpinRadians = 0
       lessonPanel.hidden = false
       refreshChapterUI()
     })
@@ -1071,6 +1104,7 @@ async function main() {
       // orbital position, neither of which this variable drives.
       if (lessonPlayer.currentChapter.kind === 'orbit') {
         orbitRevolutionDegrees += deltaSeconds * ORBIT_REVOLUTION_DEGREES_PER_SECOND
+        orbitSpinRadians += deltaSeconds * ORBIT_SPIN_RADIANS_PER_SECOND
       }
     }
 
@@ -1327,7 +1361,11 @@ async function main() {
     for (const { renderable, x: sx, y: sy, z: sz, radius } of planetFrameData) {
       const isLearnEarth = learnModeController.currentMode === 'learn' && renderable.definition.id === 'earth'
       const isOrbitChapter = isLearnEarth && lessonPlayer.currentChapter.kind === 'orbit'
-      const rotation = isLearnEarth ? learnSpinRadians : rotationAngleRadians(daysSinceEpoch, renderable.definition.siderealRotationHours)
+      const rotation = isOrbitChapter
+        ? orbitSpinRadians
+        : isLearnEarth
+          ? learnSpinRadians
+          : rotationAngleRadians(daysSinceEpoch, renderable.definition.siderealRotationHours)
       const poleDirection = isOrbitChapter
         ? ORBIT_FIXED_POLE_DIRECTION
         : isLearnEarth
@@ -1521,11 +1559,24 @@ async function main() {
         const referenceLength = earthEntry.radius * 4
         const arcRadius = earthEntry.radius * 3
         const arcAngleRadians = angleBetweenDirections(ORBIT_FIXED_POLE_DIRECTION, perpendicularToSunward)
+        // Translation-only (no spin) combined with the fixed tilt, matching how the staged
+        // chapters' own equator ring uses earthLearnTilt (position + tilt, spin excluded) so the
+        // ring stays fixed in place on the globe rather than visibly spinning with the surface.
+        const orbitEarthWorld = mat4.multiply(mat4.create(), mat4.fromTranslation(mat4.create(), earthPosition), ORBIT_FIXED_TILT_MATRIX)
+        const equatorRadius = earthEntry.radius * 1.02
 
         const orbitGeometryById: Record<OrbitOverlayLineId, Float32Array> = {
           'orbit-path': ORBIT_PATH_CIRCLE_POINTS,
           'orbit-axis': directedLinePoints(earthPosition, ORBIT_FIXED_POLE_DIRECTION, axisLength),
-          'orbit-reference': directedLinePoints(earthPosition, sunwardDirection, referenceLength),
+          'orbit-equator': equatorRingPoints(orbitEarthWorld, equatorRadius, OVERLAY_EQUATOR_SEGMENTS),
+          // Drawn along perpendicularToSunward, NOT the raw sunwardDirection - this line's whole
+          // purpose is to show the "zero-tilt" baseline the arc/label actually measure the fixed
+          // axis against (matching the staged chapters' own reference line, which is the vertical
+          // zero-tilt baseline, not a line pointing at anything else). Drawing it along the raw
+          // sunward direction instead (an earlier version) made it visually disagree with the arc,
+          // which has always swept from perpendicularToSunward - the two would appear misaligned
+          // rather than the arc looking like it connects the reference line to the axis line.
+          'orbit-reference': directedLinePoints(earthPosition, perpendicularToSunward, referenceLength),
           'orbit-arc': greatCircleArcPoints(earthPosition, perpendicularToSunward, ORBIT_FIXED_POLE_DIRECTION, arcRadius, OVERLAY_TILT_ARC_SEGMENTS),
         }
         const pulsePhaseRadians = (performance.now() / 1000) * OVERLAY_PULSE_SPEED_RADIANS_PER_SECOND
@@ -1535,10 +1586,11 @@ async function main() {
           const uniforms = new Float32Array(LINE_UNIFORM_FLOAT_COUNT)
           uniforms.set(viewProjection, 0)
           uniforms.set(ORBIT_OVERLAY_COLORS[id], 16)
-          // The fixed axis and the current Sun-Earth reference are this chapter's teaching focus
-          // (pulsing, like the staged chapters' own axis/equator/markers); the orbit path and the
-          // angle arc are construction/measurement aids (solid, like the staged reference/tilt-arc).
-          const dashMode = id === 'orbit-axis' || id === 'orbit-reference' ? 2.0 : 0
+          // The fixed axis, equator, and the current Sun-Earth reference are this chapter's
+          // teaching focus (pulsing, like the staged chapters' own axis/equator/markers); the
+          // orbit path and the angle arc are construction/measurement aids (solid, like the staged
+          // reference/tilt-arc).
+          const dashMode = id === 'orbit-axis' || id === 'orbit-equator' || id === 'orbit-reference' ? 2.0 : 0
           uniforms.set([0, pulsePhaseRadians, 0, dashMode], 20)
           device.queue.writeBuffer(renderable.uniformBuffer, 0, uniforms)
         }
