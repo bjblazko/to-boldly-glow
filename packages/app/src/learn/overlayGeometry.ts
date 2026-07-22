@@ -243,3 +243,28 @@ export function orbitPositionForPhase(phaseDegrees: number, orbitRadius: number)
   const phase = (phaseDegrees * Math.PI) / 180
   return [orbitRadius * Math.cos(phase), orbitRadius * Math.sin(phase), 0]
 }
+
+// The component of `vector` perpendicular to `referenceDirection` (neither needs to be
+// unit-length - both normalized internally), itself normalized to unit length. Used by the orbit
+// chapters' angle arc: the "zero-tilt" reference for "how far does the fixed axis lean away from
+// perpendicular-to-the-Sun" is not the sunward direction itself (a perfectly upright axis would be
+// 90 degrees from sunward, not 0) but the axis's own component perpendicular to sunward - drawing
+// the arc from THIS to the axis sweeps exactly the angle the label displays, instead of the raw
+// angle to the sunward direction (which is 90 degrees at the equinoxes and 90 +/- 23.4 degrees at
+// the solstices - correct as a number after Task 3's own fix, but visually mismatched with an arc
+// that swept the raw angle instead).
+export function perpendicularComponent(
+  vector: readonly [number, number, number],
+  referenceDirection: readonly [number, number, number],
+): [number, number, number] {
+  const unitVector = vec3.normalize(vec3.create(), vector)
+  const unitReference = vec3.normalize(vec3.create(), referenceDirection)
+  const dot = unitVector[0] * unitReference[0] + unitVector[1] * unitReference[1] + unitVector[2] * unitReference[2]
+  const perp: [number, number, number] = [
+    unitVector[0] - dot * unitReference[0],
+    unitVector[1] - dot * unitReference[1],
+    unitVector[2] - dot * unitReference[2],
+  ]
+  const unitPerp = vec3.normalize(vec3.create(), perp)
+  return [unitPerp[0], unitPerp[1], unitPerp[2]]
+}

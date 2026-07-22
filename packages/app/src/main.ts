@@ -24,6 +24,7 @@ import {
   latitudeMarkerPoints,
   orbitPathCirclePoints,
   orbitPositionForPhase,
+  perpendicularComponent,
   rotationAxisPoints,
   tiltAngleArcPoints,
   verticalReferencePoints,
@@ -851,6 +852,10 @@ async function main() {
   const ORBIT_CAMERA_ELEVATION = 1.2
   const ORBIT_PATH_RADIUS = 6.5 // the compact circle Earth's position moves along
   const ORBIT_EARTH_RADIUS = 0.6 // deliberately smaller than EARTH_STAGED_RADIUS - this is a wide establishing shot, not the close-up
+  // The orbit-chapter overlay's static orbit-path circle geometry, computed once: ORBIT_PATH_RADIUS
+  // and ORBIT_PATH_SEGMENTS never change and the Sun/orbit circle never moves, so recomputing this
+  // every frame (as the per-frame orbit-chapter overlay block used to) was wasted work.
+  const ORBIT_PATH_CIRCLE_POINTS = orbitPathCirclePoints(ORBIT_PATH_RADIUS, ORBIT_PATH_SEGMENTS)
 
   function applyOrbitCameraFraming(): void {
     vec3.set(orbitCamera.target, ...ORBIT_CAMERA_TARGET)
@@ -879,7 +884,14 @@ async function main() {
 
     retarget(newPhase: number, currentPhase: number): void {
       this.startPhase = currentPhase
-      this.endPhase = newPhase
+      // Wraps the raw delta into (-180, 180] before adding it back to currentPhase, so the tween
+      // always sweeps the shortest way around the circle (e.g. orbit-march (270) -> orbit-june (0)
+      // sweeps 90° forward, not 270° backward) instead of interpolating the raw phase numbers
+      // directly. endPhase may now fall outside [0, 360) - fine and expected, since both
+      // seasonalPoleDirection and orbitPositionForPhase are built from Math.cos/Math.sin, which
+      // handle any real-number input correctly regardless of range.
+      const shortestDelta = ((newPhase - currentPhase + 540) % 360) - 180
+      this.endPhase = currentPhase + shortestDelta
       this.elapsedSeconds = 0
     }
 
@@ -1468,16 +1480,21 @@ async function main() {
       if (earthEntry) {
         const earthPosition: [number, number, number] = [earthEntry.x, earthEntry.y, earthEntry.z]
         const sunwardDirection: [number, number, number] = [-earthEntry.x, -earthEntry.y, -earthEntry.z]
+        // The "zero-tilt" reference for the angle arc/label below: not the sunward direction itself
+        // (a perfectly upright axis would be 90° from sunward, not 0°) but the fixed axis's own
+        // component perpendicular to sunward - see perpendicularComponent's own comment in
+        // overlayGeometry.ts for why this makes the drawn arc match the displayed number.
+        const perpendicularToSunward = perpendicularComponent(ORBIT_FIXED_POLE_DIRECTION, sunwardDirection)
         const axisLength = earthEntry.radius * 4
         const referenceLength = earthEntry.radius * 4
         const arcRadius = earthEntry.radius * 3
-        const arcAngleRadians = angleBetweenDirections(ORBIT_FIXED_POLE_DIRECTION, sunwardDirection)
+        const arcAngleRadians = angleBetweenDirections(ORBIT_FIXED_POLE_DIRECTION, perpendicularToSunward)
 
         const orbitGeometryById: Record<OrbitOverlayLineId, Float32Array> = {
-          'orbit-path': orbitPathCirclePoints(ORBIT_PATH_RADIUS, ORBIT_PATH_SEGMENTS),
+          'orbit-path': ORBIT_PATH_CIRCLE_POINTS,
           'orbit-axis': directedLinePoints(earthPosition, ORBIT_FIXED_POLE_DIRECTION, axisLength),
           'orbit-reference': directedLinePoints(earthPosition, sunwardDirection, referenceLength),
-          'orbit-arc': greatCircleArcPoints(earthPosition, sunwardDirection, ORBIT_FIXED_POLE_DIRECTION, arcRadius, OVERLAY_TILT_ARC_SEGMENTS),
+          'orbit-arc': greatCircleArcPoints(earthPosition, perpendicularToSunward, ORBIT_FIXED_POLE_DIRECTION, arcRadius, OVERLAY_TILT_ARC_SEGMENTS),
         }
         const pulsePhaseRadians = (performance.now() / 1000) * OVERLAY_PULSE_SPEED_RADIANS_PER_SECOND
         for (const id of ORBIT_OVERLAY_LINE_IDS) {
@@ -1494,14 +1511,13 @@ async function main() {
           device.queue.writeBuffer(renderable.uniformBuffer, 0, uniforms)
         }
 
-        const arcMidpoint = greatCircleArcPoints(earthPosition, sunwardDirection, ORBIT_FIXED_POLE_DIRECTION, arcRadius, 2)
+        const arcMidpoint = greatCircleArcPoints(earthPosition, perpendicularToSunward, ORBIT_FIXED_POLE_DIRECTION, arcRadius, 2)
         const tiltLabelScreen = worldToScreen(viewProjection, arcMidpoint[3], arcMidpoint[4], arcMidpoint[5], canvas.clientWidth, canvas.clientHeight)
-        // The arc itself spans the raw angle between the fixed axis and the sunward direction
-        // (90° at equinoxes, 90°±23.4° at solstices). The label should instead read how far that
-        // deviates from perpendicular - 0° at equinoxes, 23.4° at solstices - matching the lesson's
-        // own "leans 23.4° toward/away from the Sun" text.
-        const tiltFromPerpendicularDegrees = Math.abs(90 - (arcAngleRadians * 180) / Math.PI)
-        axisTiltLabel.textContent = `${tiltFromPerpendicularDegrees.toFixed(1)}°`
+        // arcAngleRadians is the angle between the fixed axis and its own perpendicular-to-sunward
+        // component - i.e. already how far the axis deviates from perpendicular-to-the-Sun (0° at
+        // equinoxes, 23.4° at solstices), matching the lesson's own "leans 23.4° toward/away from
+        // the Sun" text. No further transform needed - see perpendicularToSunward's comment above.
+        axisTiltLabel.textContent = `${((arcAngleRadians * 180) / Math.PI).toFixed(1)}°`
         updateLabelPosition(axisTiltLabel, tiltLabelScreen)
       }
       locationALabel.style.display = 'none'

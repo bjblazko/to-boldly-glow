@@ -5,6 +5,7 @@ import {
   greatCircleArcPoints,
   orbitPathCirclePoints,
   orbitPositionForPhase,
+  perpendicularComponent,
 } from '../src/learn/overlayGeometry'
 import { ORBIT_FIXED_POLE_DIRECTION } from '../src/main'
 
@@ -128,5 +129,21 @@ describe('ORBIT_FIXED_POLE_DIRECTION', () => {
       // 0 at the equinoxes, matching seasonalTilt.test.ts's own subsolar-latitude-style check.
       expect(Math.abs(90 - angleDegrees)).toBeCloseTo(expected, 5)
     }
+  })
+})
+
+describe('perpendicularComponent', () => {
+  it('removes the reference-aligned component, leaving a unit vector perpendicular to it', () => {
+    const result = perpendicularComponent([1, 1, 0], [0, 1, 0])
+    expect(result[0]).toBeCloseTo(1, 9)
+    expect(result[1]).toBeCloseTo(0, 9)
+    expect(result[2]).toBeCloseTo(0, 9)
+  })
+
+  it('returns the vector unchanged (normalized) when it is already perpendicular to the reference', () => {
+    const result = perpendicularComponent([2, 0, 0], [0, 1, 0])
+    expect(result[0]).toBeCloseTo(1, 9)
+    expect(result[1]).toBeCloseTo(0, 9)
+    expect(result[2]).toBeCloseTo(0, 9)
   })
 })
