@@ -817,39 +817,41 @@ async function main() {
     vec3.set(orbitCamera.upAxis, ...LEARN_CAMERA_UP_AXIS)
   }
 
-  // Wide, mostly top-down shot for the orbit chapters (design spec's §3) - centered on the Sun
-  // (which never moves), framed to show the whole compact orbit circle with Earth visible
-  // wherever it currently sits on it. Deliberately does NOT override upAxis (contrast with
+  // A shallow, side-on shot for the orbit chapters (design spec's §3) - centered on the Sun (which
+  // never moves), at a low elevation so the axis's lean and the day/night split are both plainly
+  // visible (the same "look at Sun and Earth from the side" convention the staged chapters already
+  // use), not a top-down establishing shot. Deliberately does NOT override upAxis (contrast with
   // applyLearnCameraFraming's own upAxis override, above) - this view wants the app's normal
-  // ecliptic-north-up convention (world Z), matching how every other body's real orbital position
-  // already lies in the world X-Y plane, so a high elevation here genuinely reads as "looking down
-  // from above." Still explicitly sets upAxis (rather than relying on it already being correct)
-  // so this framing function is self-contained regardless of what state the camera was left in.
-  // Tune these visually once running, same as LEARN_CAMERA_* above.
+  // ecliptic-north-up convention (world Z). Still explicitly sets upAxis (rather than relying on it
+  // already being correct) so this framing function is self-contained regardless of what state the
+  // camera was left in.
   const ORBIT_CAMERA_TARGET: [number, number, number] = [0, 0, 0]
-  // At azimuth 0 (below) the camera's world-X offset is exactly the axis whose foreshortening
-  // (via sin(elevation)) drives a point's vertical screen position - so the two equinox chapters
-  // (Earth's orbital X ~ 0) sit near mid-screen, while the two solstice chapters (Earth's orbital X
-  // at its extreme, 90° further around ORBIT_PATH_RADIUS) get pushed toward the very top or bottom
-  // edge of the screen. At radius 20 this pushed the solstice-phase Earth far enough down to land
-  // fully behind the bottom lesson panel. Lowering elevation alone barely helps (sin(elevation)
-  // drops only slowly near-vertical), so radius is raised too: distance-to-target grows the
-  // "depth" term of the screen-space ratio without changing the vertical offset term, pulling the
-  // solstice extremes back into view while keeping this same elevation angle (i.e. without giving
-  // up the top-down feel). Verified live across all 4 orbit chapters at these values - Earth and
-  // its angle arc/label stay comfortably clear of the panel at both solstices, and the equinox
-  // framing (already fine before) is unaffected.
   const ORBIT_CAMERA_RADIUS = 28
-  const ORBIT_CAMERA_AZIMUTH = 0
-  // Deliberately well short of MAX_ELEVATION (PI/2 - 0.01, ~1.5608) for a second, independent
-  // reason: this framing does NOT override upAxis (see comment above), so at near-vertical
-  // elevations the camera's forward direction approaches anti-parallel to its own upAxis (world Z /
-  // ECLIPTIC_NORTH), shrinking the cross product mat4.lookAt uses to build its basis and eroding
-  // precision. 1.2 rad (~68.8°) keeps a comfortable margin from that (cos(1.2) ~ 0.36, vs. ~0.01 at
-  // MAX_ELEVATION), comparable to explore mode's own default camera (67°), while still reading as a
-  // wide, mostly top-down establishing shot. Note this angle alone does not solve the panel-overlap
-  // problem above - see ORBIT_CAMERA_RADIUS's comment for that.
-  const ORBIT_CAMERA_ELEVATION = 1.2
+  // A shallow angle, not a top-down one. At this low an elevation the orbit circle projects as a
+  // flattened ellipse rather than a clean circle - an acceptable, deliberate trade, since conveying
+  // "the axis leans" matters more here than "the path is a circle" (the orbit-path line and the
+  // chapter text already establish that Earth is orbiting; this view's job is to sell the axis, not
+  // the orbit's shape).
+  const ORBIT_CAMERA_ELEVATION = 0.32
+  // Unlike every other camera preset in this file, azimuth is NOT set once here and left alone -
+  // it's recomputed every frame from the CURRENT orbital phase (see the per-frame block in frame()
+  // below, gated on the chapter being kind 'orbit') as `phaseRadians + ORBIT_CAMERA_AZIMUTH_OFFSET`.
+  // A fixed azimuth was tried first and failed for a real geometric reason, not a style
+  // preference: ORBIT_FIXED_POLE_DIRECTION's 23.4-degree lean lives entirely in the world X-Z plane
+  // (zero Y component), so whichever single plane the camera's line of sight is confined to, the
+  // axis reads as a flat foreshortened line whenever Earth's own orbital position also happens to
+  // lie near that same plane - which happens twice per orbit for ANY fixed azimuth (the two phases
+  // where Earth's radial direction lines up with the camera's viewing direction, at which point
+  // either the axis foreshortens to a point, or the Sun and Earth become nearly collinear with the
+  // camera and occlude each other). Instead, this offset is added to the CURRENT phase, so the
+  // camera azimuth always trails 90 degrees behind Earth's own orbital angle - i.e. the camera
+  // always views the current Sun-Earth line exactly edge-on (perpendicular to it), at every phase,
+  // not just the two it happens to have been tuned for. This guarantees the axis lean is never
+  // foreshortened away and the Sun and Earth are never collinear with the camera (so neither can
+  // ever occlude the other), and it smoothly follows the existing per-chapter phase tween (the same
+  // one that already animates Earth's own position), so the camera glides in sync with Earth
+  // rather than snapping - no new tween machinery needed.
+  const ORBIT_CAMERA_AZIMUTH_OFFSET = Math.PI / 2
   const ORBIT_PATH_RADIUS = 6.5 // the compact circle Earth's position moves along
   const ORBIT_EARTH_RADIUS = 0.6 // deliberately smaller than EARTH_STAGED_RADIUS - this is a wide establishing shot, not the close-up
   // The orbit-chapter overlay's static orbit-path circle geometry, computed once: ORBIT_PATH_RADIUS
@@ -857,19 +859,25 @@ async function main() {
   // every frame (as the per-frame orbit-chapter overlay block used to) was wasted work.
   const ORBIT_PATH_CIRCLE_POINTS = orbitPathCirclePoints(ORBIT_PATH_RADIUS, ORBIT_PATH_SEGMENTS)
 
-  function applyOrbitCameraFraming(): void {
+  // `azimuth` is set here too (not left to the next frame's per-frame update, see frame() below)
+  // so the camera is already correctly oriented for `phaseDegrees` the instant this framing is
+  // applied - otherwise the very first rendered frame after a hard cut into an orbit chapter would
+  // briefly show the previous azimuth before the per-frame update corrects it one frame later.
+  function applyOrbitCameraFraming(phaseDegrees: number): void {
     vec3.set(orbitCamera.target, ...ORBIT_CAMERA_TARGET)
     orbitCamera.radius = ORBIT_CAMERA_RADIUS
-    orbitCamera.azimuth = ORBIT_CAMERA_AZIMUTH
+    orbitCamera.azimuth = (phaseDegrees * Math.PI) / 180 + ORBIT_CAMERA_AZIMUTH_OFFSET
     orbitCamera.elevation = ORBIT_CAMERA_ELEVATION
     vec3.set(orbitCamera.upAxis, ...ECLIPTIC_NORTH)
   }
 
   // Applies whichever one-time camera preset matches `kind` - called only when the chapter kind
   // actually changes (see goToChapter below), never every navigation, so the camera stays
-  // perfectly still across same-kind chapter changes exactly like it always has.
-  function applyCameraFramingForKind(kind: 'orbit' | 'staged'): void {
-    if (kind === 'orbit') applyOrbitCameraFraming()
+  // perfectly still across same-kind chapter changes exactly like it always has (target/radius/
+  // elevation/upAxis are all still a true one-time preset; only the orbit camera's own azimuth
+  // continues tracking every frame afterward, per the per-frame block in frame() below).
+  function applyCameraFramingForKind(kind: 'orbit' | 'staged', phaseDegrees: number): void {
+    if (kind === 'orbit') applyOrbitCameraFraming(phaseDegrees)
     else applyLearnCameraFraming()
   }
 
@@ -986,7 +994,7 @@ async function main() {
       canvas.dataset.flares = 'false'
       learnModeController.enter(lesson.id)
       const firstChapter = lesson.chapters[0]
-      applyCameraFramingForKind(firstChapter.kind)
+      applyCameraFramingForKind(firstChapter.kind, firstChapter.seasonPhaseDegrees)
       currentSeasonPhase = firstChapter.seasonPhaseDegrees
       seasonPhaseTween.retarget(firstChapter.seasonPhaseDegrees, firstChapter.seasonPhaseDegrees)
       learnSpinRadians = 0
@@ -1005,7 +1013,7 @@ async function main() {
     navigate()
     const chapter = lessonPlayer.currentChapter
     if (chapter.kind !== previousKind) {
-      applyCameraFramingForKind(chapter.kind)
+      applyCameraFramingForKind(chapter.kind, chapter.seasonPhaseDegrees)
       currentSeasonPhase = chapter.seasonPhaseDegrees
       seasonPhaseTween.retarget(chapter.seasonPhaseDegrees, chapter.seasonPhaseDegrees)
     } else {
@@ -1041,6 +1049,14 @@ async function main() {
     if (learnModeController.currentMode === 'learn') {
       currentSeasonPhase = seasonPhaseTween.isAnimating ? seasonPhaseTween.update(deltaSeconds) : currentSeasonPhase
       learnSpinRadians += deltaSeconds * LEARN_SPIN_RADIANS_PER_SECOND
+      // Keeps the orbit camera's azimuth tracking the current orbital phase every frame (see
+      // applyOrbitCameraFraming's own comment for why a fixed azimuth doesn't work) - including
+      // while seasonPhaseTween is mid-animation, so the camera glides in sync with Earth's own
+      // position rather than snapping once the tween settles. A no-op outside orbit chapters
+      // (target/radius/elevation there are the staged camera's own fixed values, untouched here).
+      if (lessonPlayer.currentChapter.kind === 'orbit') {
+        orbitCamera.azimuth = (currentSeasonPhase * Math.PI) / 180 + ORBIT_CAMERA_AZIMUTH_OFFSET
+      }
     }
 
     // Advances the Realistic<->Compact scale toggle's animated transition, if one is in flight.
@@ -1582,25 +1598,34 @@ async function main() {
         drawBody(pass, litPipeline, meshBuffers, renderable.bindGroup)
       }
     }
-    // Drawn after every opaque sphere (including Saturn's own and any moon) so its depth test
-    // correctly hides the portion of the ring that passes behind them.
-    pass.setPipeline(ringPipeline)
-    pass.setVertexBuffer(0, ringBuffers.positionBuffer)
-    pass.setVertexBuffer(1, ringBuffers.uvBuffer)
-    pass.setIndexBuffer(ringBuffers.indexBuffer, 'uint32')
-    pass.setBindGroup(0, ringBindGroup)
-    pass.drawIndexed(ringBuffers.indexCount)
-    // Drawn after every opaque sphere and the ring, same reasoning: alpha-blended and depth-tested
-    // but not depth-writing, so draw order relative to other transparent passes (orbit paths,
-    // flares) doesn't matter for correctness, only that it's after all opaque geometry.
-    pass.setPipeline(cloudShellPipeline)
-    for (const shell of cloudShellRenderables) {
-      pass.setVertexBuffer(0, meshBuffers.positionBuffer)
-      pass.setVertexBuffer(1, meshBuffers.normalBuffer)
-      pass.setVertexBuffer(2, meshBuffers.uvBuffer)
-      pass.setIndexBuffer(meshBuffers.indexBuffer, 'uint32')
-      pass.setBindGroup(0, shell.bindGroup)
-      pass.drawIndexed(meshBuffers.indexCount)
+    // Saturn's ring and every gas giant's cloud shell belong to planets other than Earth, so they
+    // must stay hidden during learn mode exactly like those planets' own spheres already do (see
+    // the `continue` a few lines up, in the main body-draw loop) - previously this draw call had
+    // no such gate, so the ring/cloud shells kept rendering at their real orbital positions even
+    // during learn mode. This went unnoticed while the staged/orbit cameras were tightly framed on
+    // just Sun+Earth, but became visible once the orbit chapters' camera was widened to show more
+    // of the scene, revealing Saturn (and other gas giants) still drifting through the background.
+    if (learnModeController.currentMode !== 'learn') {
+      // Drawn after every opaque sphere (including Saturn's own and any moon) so its depth test
+      // correctly hides the portion of the ring that passes behind them.
+      pass.setPipeline(ringPipeline)
+      pass.setVertexBuffer(0, ringBuffers.positionBuffer)
+      pass.setVertexBuffer(1, ringBuffers.uvBuffer)
+      pass.setIndexBuffer(ringBuffers.indexBuffer, 'uint32')
+      pass.setBindGroup(0, ringBindGroup)
+      pass.drawIndexed(ringBuffers.indexCount)
+      // Drawn after every opaque sphere and the ring, same reasoning: alpha-blended and depth-tested
+      // but not depth-writing, so draw order relative to other transparent passes (orbit paths,
+      // flares) doesn't matter for correctness, only that it's after all opaque geometry.
+      pass.setPipeline(cloudShellPipeline)
+      for (const shell of cloudShellRenderables) {
+        pass.setVertexBuffer(0, meshBuffers.positionBuffer)
+        pass.setVertexBuffer(1, meshBuffers.normalBuffer)
+        pass.setVertexBuffer(2, meshBuffers.uvBuffer)
+        pass.setIndexBuffer(meshBuffers.indexBuffer, 'uint32')
+        pass.setBindGroup(0, shell.bindGroup)
+        pass.drawIndexed(meshBuffers.indexCount)
+      }
     }
     if (showOrbitPaths) {
       pass.setPipeline(linePipeline)
