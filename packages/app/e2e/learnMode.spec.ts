@@ -61,24 +61,19 @@ test('chapter navigation updates lesson-panel state, including the kind change a
 
   await page.locator('#learn-mode-btn').click()
   await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
-  await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-id', 'orbit-march')
+  await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-id', 'orbit')
   await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-kind', 'orbit')
-
-  await page.locator('#lesson-next-chapter').click()
-  await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-id', 'orbit-june')
-  await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-kind', 'orbit')
-
-  await page.locator('#lesson-prev-chapter').click()
-  await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-id', 'orbit-march')
   await expect(page.locator('#lesson-prev-chapter')).toBeDisabled()
 
-  // Step all the way to the orbit/staged boundary and confirm the kind flips (a hard camera cut,
-  // not an animated one - see main.ts's goToChapter).
-  for (let i = 0; i < 4; i++) {
-    await page.locator('#lesson-next-chapter').click()
-  }
+  // Step to the orbit/staged boundary (the single orbit chapter's only Next) and confirm the kind
+  // flips (a hard camera cut, not an animated one - see main.ts's goToChapter).
+  await page.locator('#lesson-next-chapter').click()
   await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-id', 'intro')
   await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-kind', 'staged')
+
+  await page.locator('#lesson-prev-chapter').click()
+  await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-id', 'orbit')
+  await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-kind', 'orbit')
 
   expect(errors).toEqual([])
 })
@@ -185,17 +180,15 @@ test('globe overlays and both location markers render without WebGPU errors acro
 
   await page.locator('#learn-mode-btn').click()
   await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
-  await page.waitForTimeout(1500) // let the initial orbit-position tween settle
+  await page.waitForTimeout(1500) // let the orbit chapter's continuous revolution get going
 
-  // Location A/B are staged-chapter-only - hidden during every orbit chapter.
-  await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-id', 'orbit-march')
+  // Location A/B are staged-chapter-only - hidden during the orbit chapter.
+  await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-id', 'orbit')
   await expect(page.locator('#location-a-label')).toBeHidden()
   await expect(page.locator('#location-b-label')).toBeHidden()
   await expect(page.locator('#axis-tilt-label')).toBeVisible()
 
-  for (let i = 0; i < 4; i++) {
-    await page.locator('#lesson-next-chapter').click()
-  }
+  await page.locator('#lesson-next-chapter').click() // orbit -> intro (the only orbit/staged boundary now)
   await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-id', 'intro')
   await page.waitForTimeout(1500) // let the tilt tween settle
 

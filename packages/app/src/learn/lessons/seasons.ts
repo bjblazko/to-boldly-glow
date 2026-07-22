@@ -2,44 +2,22 @@ import type { Chapter, Lesson } from '../lessonTypes'
 
 const CHAPTERS: Chapter[] = [
   {
-    id: 'orbit-march',
-    title: 'Real March Equinox',
+    id: 'orbit',
+    title: 'Real Orbit: Earth Around the Sun',
     kind: 'orbit',
-    seasonPhaseDegrees: 270,
-    text:
-      "This is Earth's real position in its orbit around the Sun in March. Its axis points the " +
-      'same fixed direction in space it always does - what changes as Earth orbits is not the ' +
-      'axis, but where Earth is relative to the Sun.',
-  },
-  {
-    id: 'orbit-june',
-    title: 'Real June Solstice',
-    kind: 'orbit',
+    // Unused by this chapter - unlike every other chapter, this one's Earth position isn't a fixed
+    // per-chapter phase at all. It continuously animates instead (see main.ts's
+    // orbitRevolutionDegrees), so there's no single "this chapter's phase" to record here. Kept at
+    // 0 only because every Chapter needs a value for this field.
     seasonPhaseDegrees: 0,
     text:
-      "Three months later, Earth has moved to this point in its orbit. Its axis hasn't moved at " +
-      "all - it points the exact same fixed direction as before. But because Earth is now here, " +
-      'that same axis leans 23.4° toward the Sun.',
-  },
-  {
-    id: 'orbit-september',
-    title: 'Real September Equinox',
-    kind: 'orbit',
-    seasonPhaseDegrees: 90,
-    text:
-      "Another three months on, and Earth's axis still hasn't moved - same fixed direction as " +
-      'every chapter so far. From here, though, it leans neither toward nor away from the Sun.',
-  },
-  {
-    id: 'orbit-december',
-    title: 'Real December Solstice',
-    kind: 'orbit',
-    seasonPhaseDegrees: 180,
-    text:
-      'Half a year after June, Earth has orbited around to the opposite side of the Sun. The ' +
-      "axis is still pointing the same fixed direction it always has - now that puts it 23.4° " +
-      'away from the Sun instead of toward it. Watch how the next chapters show the same idea a ' +
-      'different way.',
+      "Watch Earth actually orbit the Sun. Its axis always points the same fixed direction in " +
+      "space - it never tips toward the Sun and never straightens up to face it. But because " +
+      "Earth's position keeps changing, the angle between that fixed axis and the Sun keeps " +
+      'changing too: sometimes leaning toward the Sun, sometimes away from it, and twice a lap ' +
+      "exactly side-on. That changing angle - not the axis itself moving - is the real reason " +
+      "Earth has seasons. (Earth briefly passes behind the Sun from this camera's angle once per " +
+      "lap - that's just this viewpoint, not anything unusual happening in space.)",
   },
   {
     id: 'intro',

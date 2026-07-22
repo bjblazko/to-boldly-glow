@@ -2,28 +2,15 @@ import { describe, expect, it } from 'vitest'
 import { LESSONS_BY_ID, SEASONS_LESSON } from '../src/learn/lessons/seasons'
 
 describe('SEASONS_LESSON', () => {
-  it('has exactly 9 chapters in chronological order (4 real-orbit chapters, then the 5 staged ones)', () => {
-    expect(SEASONS_LESSON.chapters).toHaveLength(9)
+  it('has exactly 6 chapters in chronological order (1 continuously-animating real-orbit chapter, then the 5 staged ones)', () => {
+    expect(SEASONS_LESSON.chapters).toHaveLength(6)
     const ids = SEASONS_LESSON.chapters.map((c) => c.id)
-    expect(ids).toEqual([
-      'orbit-march',
-      'orbit-june',
-      'orbit-september',
-      'orbit-december',
-      'intro',
-      'march-equinox',
-      'june-solstice',
-      'september-equinox',
-      'december-solstice',
-    ])
+    expect(ids).toEqual(['orbit', 'intro', 'march-equinox', 'june-solstice', 'september-equinox', 'december-solstice'])
   })
 
-  it('the 4 orbit chapters are tagged kind "orbit" and the 5 staged chapters are tagged kind "staged"', () => {
-    const orbitIds = ['orbit-march', 'orbit-june', 'orbit-september', 'orbit-december']
+  it('the orbit chapter is tagged kind "orbit" and the 5 staged chapters are tagged kind "staged"', () => {
     const stagedIds = ['intro', 'march-equinox', 'june-solstice', 'september-equinox', 'december-solstice']
-    for (const id of orbitIds) {
-      expect(SEASONS_LESSON.chapters.find((c) => c.id === id)!.kind).toBe('orbit')
-    }
+    expect(SEASONS_LESSON.chapters.find((c) => c.id === 'orbit')!.kind).toBe('orbit')
     for (const id of stagedIds) {
       expect(SEASONS_LESSON.chapters.find((c) => c.id === id)!.kind).toBe('staged')
     }
@@ -42,10 +29,12 @@ describe('SEASONS_LESSON', () => {
     expect(phases).toEqual([0, 90, 180, 270])
   })
 
-  it('the four orbit chapters use the four cardinal phases exactly once each', () => {
-    const orbitChapters = SEASONS_LESSON.chapters.filter((c) => c.kind === 'orbit')
-    const phases = orbitChapters.map((c) => c.seasonPhaseDegrees).sort((a, b) => a - b)
-    expect(phases).toEqual([0, 90, 180, 270])
+  // The orbit chapter's position isn't driven by seasonPhaseDegrees at all (see main.ts's
+  // orbitRevolutionDegrees, a continuously incrementing angle) - this test just documents that its
+  // seasonPhaseDegrees is present but genuinely unused, not asserting anything about its value.
+  it('the orbit chapter has a seasonPhaseDegrees value present (required by the Chapter type) even though it goes unused', () => {
+    const orbit = SEASONS_LESSON.chapters.find((c) => c.id === 'orbit')!
+    expect(typeof orbit.seasonPhaseDegrees).toBe('number')
   })
 
   // Intro's own text opens with "Earth's axis is tilted 23.4 degrees" - showing a neutral,

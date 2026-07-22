@@ -556,7 +556,15 @@
 .hud-lesson-panel {
   position: fixed;
   left: 50%;
-  bottom: 16px;
+  /* Anchored from the top, not the bottom - chapter text length varies a lot (the orbit chapter's
+     text is roughly 4x longer than the shortest staged chapter's), so a bottom-anchored panel
+     would grow upward by a different amount per chapter, moving the Prev/Next buttons (the row's
+     first children, right below the panel's own top edge) up and down between clicks and forcing
+     the user to re-aim their mouse. Anchoring from a fixed top keeps that row's screen position
+     exactly stable across every chapter; only the panel's bottom edge (which nothing depends on)
+     moves as the text reflows. 300px reserves enough room for the longest chapter's text without
+     the panel ever needing to grow past this position. */
+  top: max(16px, calc(100% - 300px));
   transform: translateX(-50%);
   width: min(560px, calc(100vw - 32px));
   background: var(--hud-panel);

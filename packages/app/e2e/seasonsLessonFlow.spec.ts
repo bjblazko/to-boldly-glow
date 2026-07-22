@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-test('full seasons lesson flow: enter, all 9 chapters, exit', async ({ page }) => {
+test('full seasons lesson flow: enter, all 6 chapters, exit', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
@@ -11,17 +11,7 @@ test('full seasons lesson flow: enter, all 9 chapters, exit', async ({ page }) =
   await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
   await expect(page.locator('body')).toHaveAttribute('data-app-mode', 'learn')
 
-  const expectedChapterIds = [
-    'orbit-march',
-    'orbit-june',
-    'orbit-september',
-    'orbit-december',
-    'intro',
-    'march-equinox',
-    'june-solstice',
-    'september-equinox',
-    'december-solstice',
-  ]
+  const expectedChapterIds = ['orbit', 'intro', 'march-equinox', 'june-solstice', 'september-equinox', 'december-solstice']
   for (const chapterId of expectedChapterIds) {
     await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-id', chapterId)
     if (chapterId !== expectedChapterIds[expectedChapterIds.length - 1]) {

@@ -817,7 +817,7 @@ async function main() {
     vec3.set(orbitCamera.upAxis, ...LEARN_CAMERA_UP_AXIS)
   }
 
-  // A shallow, side-on shot for the orbit chapters (design spec's §3) - centered on the Sun (which
+  // A shallow, side-on shot for the orbit chapter (design spec's §3) - centered on the Sun (which
   // never moves), at a low elevation so the axis's lean and the day/night split are both plainly
   // visible (the same "look at Sun and Earth from the side" convention the staged chapters already
   // use), not a top-down establishing shot. Deliberately does NOT override upAxis (contrast with
@@ -825,59 +825,67 @@ async function main() {
   // ecliptic-north-up convention (world Z). Still explicitly sets upAxis (rather than relying on it
   // already being correct) so this framing function is self-contained regardless of what state the
   // camera was left in.
+  //
+  // Fully fixed - never moves, not even while Earth orbits (see orbitRevolutionDegrees below).
+  // Camera motion was tried first (an azimuth that tracked Earth's own orbital angle every frame,
+  // so the camera always stayed perpendicular to the current Sun-Earth line) and rejected: with
+  // the camera itself moving to stay "front-on" to Earth, Earth barely appeared to move at all
+  // relative to the frame - it read as "the axis turns in place," the exact confusion this whole
+  // prelude exists to dispel. A still camera with Earth visibly gliding across it is what actually
+  // sells "Earth is orbiting."
+  //
+  // Azimuth PI/2 is still deliberate, not arbitrary: ORBIT_FIXED_POLE_DIRECTION's 23.4-degree lean
+  // lives entirely in the world X-Z plane (zero Y component - see its own comment), so a camera
+  // whose forward direction also lies in that same X-Z plane (azimuth 0) can only ever see the
+  // axis foreshortened to a near-vertical line, never leaning left/right. At azimuth PI/2 the
+  // camera's forward direction lies in the world Y-Z plane instead - orthogonal to the axis's own
+  // plane - so the axis's lean projects as a genuine, unforeshortened diagonal at every point in
+  // Earth's orbit, not just at the two phases a fixed azimuth would otherwise have to be tuned for.
+  //
+  // With a fixed azimuth, Earth (which sweeps through every angle as it revolves) is at its most
+  // clearly visible - off to one side of the Sun - when its own orbital angle is 90 degrees away
+  // from the camera's azimuth, and briefly hidden directly behind the Sun once per lap, when its
+  // orbital angle matches the camera's azimuth plus 180 degrees. That momentary disappearance is
+  // expected and explained in the chapter's own text - a real consequence of viewing a 3D orbit
+  // from a single fixed angle, not a bug to design around.
   const ORBIT_CAMERA_TARGET: [number, number, number] = [0, 0, 0]
-  const ORBIT_CAMERA_RADIUS = 28
+  const ORBIT_CAMERA_RADIUS = 22
   // A shallow angle, not a top-down one. At this low an elevation the orbit circle projects as a
   // flattened ellipse rather than a clean circle - an acceptable, deliberate trade, since conveying
   // "the axis leans" matters more here than "the path is a circle" (the orbit-path line and the
   // chapter text already establish that Earth is orbiting; this view's job is to sell the axis, not
   // the orbit's shape).
   const ORBIT_CAMERA_ELEVATION = 0.32
-  // Unlike every other camera preset in this file, azimuth is NOT set once here and left alone -
-  // it's recomputed every frame from the CURRENT orbital phase (see the per-frame block in frame()
-  // below, gated on the chapter being kind 'orbit') as `phaseRadians + ORBIT_CAMERA_AZIMUTH_OFFSET`.
-  // A fixed azimuth was tried first and failed for a real geometric reason, not a style
-  // preference: ORBIT_FIXED_POLE_DIRECTION's 23.4-degree lean lives entirely in the world X-Z plane
-  // (zero Y component), so whichever single plane the camera's line of sight is confined to, the
-  // axis reads as a flat foreshortened line whenever Earth's own orbital position also happens to
-  // lie near that same plane - which happens twice per orbit for ANY fixed azimuth (the two phases
-  // where Earth's radial direction lines up with the camera's viewing direction, at which point
-  // either the axis foreshortens to a point, or the Sun and Earth become nearly collinear with the
-  // camera and occlude each other). Instead, this offset is added to the CURRENT phase, so the
-  // camera azimuth always trails 90 degrees behind Earth's own orbital angle - i.e. the camera
-  // always views the current Sun-Earth line exactly edge-on (perpendicular to it), at every phase,
-  // not just the two it happens to have been tuned for. This guarantees the axis lean is never
-  // foreshortened away and the Sun and Earth are never collinear with the camera (so neither can
-  // ever occlude the other), and it smoothly follows the existing per-chapter phase tween (the same
-  // one that already animates Earth's own position), so the camera glides in sync with Earth
-  // rather than snapping - no new tween machinery needed.
-  const ORBIT_CAMERA_AZIMUTH_OFFSET = Math.PI / 2
-  const ORBIT_PATH_RADIUS = 6.5 // the compact circle Earth's position moves along
-  const ORBIT_EARTH_RADIUS = 0.6 // deliberately smaller than EARTH_STAGED_RADIUS - this is a wide establishing shot, not the close-up
+  const ORBIT_CAMERA_AZIMUTH = Math.PI / 2
+  // The Sun's own rendered radius is a fixed ~3 units (SUN.compactVisualRadius), unaffected by this
+  // scene - so ORBIT_PATH_RADIUS needs enough margin over that to keep Earth clearly clear of the
+  // Sun's disc while passing nearby it (front/behind), not just while off to the sides.
+  const ORBIT_PATH_RADIUS = 11 // the compact circle Earth's position moves along
+  const ORBIT_EARTH_RADIUS = 0.8 // deliberately smaller than EARTH_STAGED_RADIUS - this is a wide establishing shot, not the close-up
   // The orbit-chapter overlay's static orbit-path circle geometry, computed once: ORBIT_PATH_RADIUS
   // and ORBIT_PATH_SEGMENTS never change and the Sun/orbit circle never moves, so recomputing this
   // every frame (as the per-frame orbit-chapter overlay block used to) was wasted work.
   const ORBIT_PATH_CIRCLE_POINTS = orbitPathCirclePoints(ORBIT_PATH_RADIUS, ORBIT_PATH_SEGMENTS)
+  // Degrees per second Earth's position sweeps around ORBIT_PATH_CIRCLE_POINTS while the orbit
+  // chapter is open (see orbitRevolutionDegrees below) - a full lap every 28 seconds, slow enough
+  // to read the live angle label as it continuously changes, fast enough to be watchable rather
+  // than static-feeling.
+  const ORBIT_REVOLUTION_DEGREES_PER_SECOND = 360 / 28
 
-  // `azimuth` is set here too (not left to the next frame's per-frame update, see frame() below)
-  // so the camera is already correctly oriented for `phaseDegrees` the instant this framing is
-  // applied - otherwise the very first rendered frame after a hard cut into an orbit chapter would
-  // briefly show the previous azimuth before the per-frame update corrects it one frame later.
-  function applyOrbitCameraFraming(phaseDegrees: number): void {
+  function applyOrbitCameraFraming(): void {
     vec3.set(orbitCamera.target, ...ORBIT_CAMERA_TARGET)
     orbitCamera.radius = ORBIT_CAMERA_RADIUS
-    orbitCamera.azimuth = (phaseDegrees * Math.PI) / 180 + ORBIT_CAMERA_AZIMUTH_OFFSET
+    orbitCamera.azimuth = ORBIT_CAMERA_AZIMUTH
     orbitCamera.elevation = ORBIT_CAMERA_ELEVATION
     vec3.set(orbitCamera.upAxis, ...ECLIPTIC_NORTH)
   }
 
   // Applies whichever one-time camera preset matches `kind` - called only when the chapter kind
   // actually changes (see goToChapter below), never every navigation, so the camera stays
-  // perfectly still across same-kind chapter changes exactly like it always has (target/radius/
-  // elevation/upAxis are all still a true one-time preset; only the orbit camera's own azimuth
-  // continues tracking every frame afterward, per the per-frame block in frame() below).
-  function applyCameraFramingForKind(kind: 'orbit' | 'staged', phaseDegrees: number): void {
-    if (kind === 'orbit') applyOrbitCameraFraming(phaseDegrees)
+  // perfectly still across same-kind chapter changes and while the orbit chapter's own animation
+  // plays, exactly like it always has for the staged chapters.
+  function applyCameraFramingForKind(kind: 'orbit' | 'staged'): void {
+    if (kind === 'orbit') applyOrbitCameraFraming()
     else applyLearnCameraFraming()
   }
 
@@ -921,6 +929,13 @@ async function main() {
   // rotation every ~12 seconds is a starting pace; tune visually.
   const LEARN_SPIN_RADIANS_PER_SECOND = (2 * Math.PI) / 12
   let learnSpinRadians = 0
+
+  // Earth's continuously-incrementing position (degrees) around ORBIT_PATH_CIRCLE_POINTS while the
+  // orbit chapter is open (see ORBIT_REVOLUTION_DEGREES_PER_SECOND above and the per-frame update
+  // in frame() below) - unlike every other chapter, this one has no fixed per-chapter phase to jump
+  // to, so this is a running total, not a tween target. Never reset on chapter navigation (mirrors
+  // learnSpinRadians just above), only when a lesson is freshly loaded.
+  let orbitRevolutionDegrees = 0
 
   // The seasonal tilt matrix computed for learn-mode Earth each frame (see the planetFrameData
   // rendering loop below) - null whenever learn mode isn't active. Exposed at this scope so the
@@ -994,10 +1009,11 @@ async function main() {
       canvas.dataset.flares = 'false'
       learnModeController.enter(lesson.id)
       const firstChapter = lesson.chapters[0]
-      applyCameraFramingForKind(firstChapter.kind, firstChapter.seasonPhaseDegrees)
+      applyCameraFramingForKind(firstChapter.kind)
       currentSeasonPhase = firstChapter.seasonPhaseDegrees
       seasonPhaseTween.retarget(firstChapter.seasonPhaseDegrees, firstChapter.seasonPhaseDegrees)
       learnSpinRadians = 0
+      orbitRevolutionDegrees = 0
       lessonPanel.hidden = false
       refreshChapterUI()
     })
@@ -1013,7 +1029,7 @@ async function main() {
     navigate()
     const chapter = lessonPlayer.currentChapter
     if (chapter.kind !== previousKind) {
-      applyCameraFramingForKind(chapter.kind, chapter.seasonPhaseDegrees)
+      applyCameraFramingForKind(chapter.kind)
       currentSeasonPhase = chapter.seasonPhaseDegrees
       seasonPhaseTween.retarget(chapter.seasonPhaseDegrees, chapter.seasonPhaseDegrees)
     } else {
@@ -1049,13 +1065,12 @@ async function main() {
     if (learnModeController.currentMode === 'learn') {
       currentSeasonPhase = seasonPhaseTween.isAnimating ? seasonPhaseTween.update(deltaSeconds) : currentSeasonPhase
       learnSpinRadians += deltaSeconds * LEARN_SPIN_RADIANS_PER_SECOND
-      // Keeps the orbit camera's azimuth tracking the current orbital phase every frame (see
-      // applyOrbitCameraFraming's own comment for why a fixed azimuth doesn't work) - including
-      // while seasonPhaseTween is mid-animation, so the camera glides in sync with Earth's own
-      // position rather than snapping once the tween settles. A no-op outside orbit chapters
-      // (target/radius/elevation there are the staged camera's own fixed values, untouched here).
+      // Continuously sweeps Earth's position around the orbit chapter's path (see
+      // ORBIT_REVOLUTION_DEGREES_PER_SECOND above) - a no-op outside the orbit chapter, where
+      // Earth's position is either the staged chapters' fixed coordinate or a real body's own
+      // orbital position, neither of which this variable drives.
       if (lessonPlayer.currentChapter.kind === 'orbit') {
-        orbitCamera.azimuth = (currentSeasonPhase * Math.PI) / 180 + ORBIT_CAMERA_AZIMUTH_OFFSET
+        orbitRevolutionDegrees += deltaSeconds * ORBIT_REVOLUTION_DEGREES_PER_SECOND
       }
     }
 
@@ -1158,12 +1173,13 @@ async function main() {
       const isLearnEarth = learnModeController.currentMode === 'learn' && renderable.definition.id === 'earth'
       const isOrbitChapter = isLearnEarth && lessonPlayer.currentChapter.kind === 'orbit'
       // Earth in learn mode bypasses the real orbital-position pipeline (planetAuPosition +
-      // scaledPosition) entirely - during 'orbit' chapters it sits on the compact orbit path
-      // (orbitPositionForPhase); during 'staged' chapters it sits at a fixed staged coordinate.
-      // Neither is ever derived from a real date, per the design spec's §3.
+      // scaledPosition) entirely - during the 'orbit' chapter it continuously sweeps around the
+      // compact orbit path (orbitPositionForPhase, driven by orbitRevolutionDegrees, not a fixed
+      // per-chapter phase); during 'staged' chapters it sits at a fixed staged coordinate. Neither
+      // is ever derived from a real date, per the design spec's §3.
       let sx: number, sy: number, sz: number
       if (isOrbitChapter) {
-        ;[sx, sy, sz] = orbitPositionForPhase(currentSeasonPhase, ORBIT_PATH_RADIUS)
+        ;[sx, sy, sz] = orbitPositionForPhase(orbitRevolutionDegrees, ORBIT_PATH_RADIUS)
       } else if (isLearnEarth) {
         ;[sx, sy, sz] = EARTH_STAGED_POSITION
       } else {
