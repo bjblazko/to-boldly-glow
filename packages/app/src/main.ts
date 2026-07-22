@@ -485,14 +485,14 @@ async function main() {
   const OVERLAY_LINE_IDS = ['equator', 'axis', 'marker-a', 'marker-b', 'reference', 'tilt-arc'] as const
   type OverlayLineId = (typeof OVERLAY_LINE_IDS)[number]
   interface OverlayLineRenderable {
-    id: OverlayLineId
+    id: string
     vertexBuffer: GPUBuffer
     distanceBuffer: GPUBuffer
     uniformBuffer: GPUBuffer
     bindGroup: GPUBindGroup
     pointCount: number
   }
-  function createOverlayLineRenderable(id: OverlayLineId, initialPoints: Float32Array): OverlayLineRenderable {
+  function createOverlayLineRenderable(id: string, initialPoints: Float32Array): OverlayLineRenderable {
     const vertexBuffer = createLineVertexBuffer(device, initialPoints)
     const distanceBuffer = createLineVertexBuffer(device, computeCumulativeLineDistances(initialPoints))
     const uniformBuffer = device.createBuffer({
@@ -536,6 +536,27 @@ async function main() {
     'tilt-arc': [0.99, 0.78, 0.25, 0.95], // warm amber, distinct from every other overlay color
   }
   const OVERLAY_PULSE_SPEED_RADIANS_PER_SECOND = 3
+
+  // Four overlay lines for the orbit chapters (design spec's §4): the compact circular orbit path
+  // Earth's position moves along, the fixed axis line, the current Sun-Earth reference line, and
+  // the arc between them. A separate set from OVERLAY_LINE_IDS above (the staged chapters' own
+  // equator/axis/markers/protractor) - the two chapter kinds never render simultaneously and use
+  // genuinely different geometry (world-space-direct here, vs earthWorld-matrix-transformed there).
+  const ORBIT_OVERLAY_LINE_IDS = ['orbit-path', 'orbit-axis', 'orbit-reference', 'orbit-arc'] as const
+  type OrbitOverlayLineId = (typeof ORBIT_OVERLAY_LINE_IDS)[number]
+  const ORBIT_PATH_SEGMENTS = 64
+  const orbitOverlayLineRenderables: Record<OrbitOverlayLineId, OverlayLineRenderable> = {
+    'orbit-path': createOverlayLineRenderable('orbit-path', new Float32Array((ORBIT_PATH_SEGMENTS + 1) * 3)),
+    'orbit-axis': createOverlayLineRenderable('orbit-axis', new Float32Array(6)),
+    'orbit-reference': createOverlayLineRenderable('orbit-reference', new Float32Array(6)),
+    'orbit-arc': createOverlayLineRenderable('orbit-arc', new Float32Array((OVERLAY_TILT_ARC_SEGMENTS + 1) * 3)),
+  }
+  const ORBIT_OVERLAY_COLORS: Record<OrbitOverlayLineId, [number, number, number, number]> = {
+    'orbit-path': [0.5, 0.5, 0.55, 0.5], // faint neutral grey - a construction guide, not a teaching focus
+    'orbit-axis': [0.98, 0.25, 0.65, 0.95], // same neon pink/magenta as the staged axis line - same concept, same color
+    'orbit-reference': [0.3, 0.7, 1.0, 0.95], // bright sky blue - the moving Sun-Earth line, the other half of this chapter's teaching point
+    'orbit-arc': [0.99, 0.78, 0.25, 0.95], // same warm amber as the staged tilt-arc
+  }
 
   let showOrbitPaths = true
 
@@ -795,6 +816,38 @@ async function main() {
     vec3.set(orbitCamera.upAxis, ...LEARN_CAMERA_UP_AXIS)
   }
 
+  // Wide, mostly top-down shot for the orbit chapters (design spec's §3) - centered on the Sun
+  // (which never moves), framed to show the whole compact orbit circle with Earth visible
+  // wherever it currently sits on it. Deliberately does NOT override upAxis (contrast with
+  // applyLearnCameraFraming's own upAxis override, above) - this view wants the app's normal
+  // ecliptic-north-up convention (world Z), matching how every other body's real orbital position
+  // already lies in the world X-Y plane, so a high elevation here genuinely reads as "looking down
+  // from above." Still explicitly sets upAxis (rather than relying on it already being correct)
+  // so this framing function is self-contained regardless of what state the camera was left in.
+  // Tune these visually once running, same as LEARN_CAMERA_* above.
+  const ORBIT_CAMERA_TARGET: [number, number, number] = [0, 0, 0]
+  const ORBIT_CAMERA_RADIUS = 20
+  const ORBIT_CAMERA_AZIMUTH = 0
+  const ORBIT_CAMERA_ELEVATION = 1.45 // near-vertical (MAX_ELEVATION is PI/2 - 0.01, ~1.5608) - top-down, not degenerate
+  const ORBIT_PATH_RADIUS = 6.5 // the compact circle Earth's position moves along
+  const ORBIT_EARTH_RADIUS = 0.6 // deliberately smaller than EARTH_STAGED_RADIUS - this is a wide establishing shot, not the close-up
+
+  function applyOrbitCameraFraming(): void {
+    vec3.set(orbitCamera.target, ...ORBIT_CAMERA_TARGET)
+    orbitCamera.radius = ORBIT_CAMERA_RADIUS
+    orbitCamera.azimuth = ORBIT_CAMERA_AZIMUTH
+    orbitCamera.elevation = ORBIT_CAMERA_ELEVATION
+    vec3.set(orbitCamera.upAxis, ...ECLIPTIC_NORTH)
+  }
+
+  // Applies whichever one-time camera preset matches `kind` - called only when the chapter kind
+  // actually changes (see goToChapter below), never every navigation, so the camera stays
+  // perfectly still across same-kind chapter changes exactly like it always has.
+  function applyCameraFramingForKind(kind: 'orbit' | 'staged'): void {
+    if (kind === 'orbit') applyOrbitCameraFraming()
+    else applyLearnCameraFraming()
+  }
+
   // Smoothly re-tilts Earth's axis when switching chapters (a rotation tween on Earth's own transform,
   // never the camera - the camera is fixed for the whole lesson per applyLearnCameraFraming above).
   // Mirrors ScaleBlendTween's retarget/update pattern (solarSystem/scaleBlendTween.ts).
@@ -848,12 +901,12 @@ async function main() {
 
   function refreshChapterUI(): void {
     const chapter = lessonPlayer.currentChapter
-    seasonPhaseTween.retarget(chapter.seasonPhaseDegrees, currentSeasonPhase)
     lessonChapterTitle.textContent = `${lessonPlayer.currentChapterIndex + 1} / ${lessonPlayer.currentLesson.chapters.length}: ${chapter.title}`
     lessonPrevBtn.disabled = !lessonPlayer.hasPreviousChapter
     lessonNextBtn.disabled = !lessonPlayer.hasNextChapter
     lessonChapterText.textContent = chapter.text
     lessonPanel.dataset.chapterId = chapter.id
+    lessonPanel.dataset.chapterKind = chapter.kind
   }
 
   learnModeBtn.addEventListener('click', () => {
@@ -900,21 +953,36 @@ async function main() {
       flaresToggle.checked = false
       canvas.dataset.flares = 'false'
       learnModeController.enter(lesson.id)
-      applyLearnCameraFraming()
-      currentSeasonPhase = lesson.chapters[0].seasonPhaseDegrees
+      const firstChapter = lesson.chapters[0]
+      applyCameraFramingForKind(firstChapter.kind)
+      currentSeasonPhase = firstChapter.seasonPhaseDegrees
+      seasonPhaseTween.retarget(firstChapter.seasonPhaseDegrees, firstChapter.seasonPhaseDegrees)
       learnSpinRadians = 0
       lessonPanel.hidden = false
       refreshChapterUI()
     })
   })
-  lessonPrevBtn.addEventListener('click', () => {
-    lessonPlayer.previousChapter()
+
+  // Shared by both Prev/Next: navigates, then either hard-snaps (no tween) if the chapter kind
+  // changed - since a "position phase" and a "tilt phase" are different physical quantities, an
+  // interpolation between them would mean nothing - or smoothly tweens as before if it didn't,
+  // matching this lesson's existing "camera never moves, only re-tilts smoothly" chapter-change
+  // behavior for the common case.
+  function goToChapter(navigate: () => void): void {
+    const previousKind = lessonPlayer.currentChapter.kind
+    navigate()
+    const chapter = lessonPlayer.currentChapter
+    if (chapter.kind !== previousKind) {
+      applyCameraFramingForKind(chapter.kind)
+      currentSeasonPhase = chapter.seasonPhaseDegrees
+      seasonPhaseTween.retarget(chapter.seasonPhaseDegrees, chapter.seasonPhaseDegrees)
+    } else {
+      seasonPhaseTween.retarget(chapter.seasonPhaseDegrees, currentSeasonPhase)
+    }
     refreshChapterUI()
-  })
-  lessonNextBtn.addEventListener('click', () => {
-    lessonPlayer.nextChapter()
-    refreshChapterUI()
-  })
+  }
+  lessonPrevBtn.addEventListener('click', () => goToChapter(() => lessonPlayer.previousChapter()))
+  lessonNextBtn.addEventListener('click', () => goToChapter(() => lessonPlayer.nextChapter()))
 
   function drawBody(
     pass: GPURenderPassEncoder,
@@ -1040,20 +1108,26 @@ async function main() {
     const planetRadiusById = new Map<string, number>()
     const planetFrameData = planetRenderables.map((renderable) => {
       const isLearnEarth = learnModeController.currentMode === 'learn' && renderable.definition.id === 'earth'
+      const isOrbitChapter = isLearnEarth && lessonPlayer.currentChapter.kind === 'orbit'
       // Earth in learn mode bypasses the real orbital-position pipeline (planetAuPosition +
-      // scaledPosition) entirely - it sits at a fixed staged coordinate for as long as the lesson
-      // is open, never derived from a real date, per the design spec's §3.
+      // scaledPosition) entirely - during 'orbit' chapters it sits on the compact orbit path
+      // (orbitPositionForPhase); during 'staged' chapters it sits at a fixed staged coordinate.
+      // Neither is ever derived from a real date, per the design spec's §3.
       let sx: number, sy: number, sz: number
-      if (isLearnEarth) {
+      if (isOrbitChapter) {
+        ;[sx, sy, sz] = orbitPositionForPhase(currentSeasonPhase, ORBIT_PATH_RADIUS)
+      } else if (isLearnEarth) {
         ;[sx, sy, sz] = EARTH_STAGED_POSITION
       } else {
         const { x, y, z, distanceAu } = planetAuPosition(renderable.definition, T)
         ;[sx, sy, sz] = scaledPosition(x, y, z, distanceAu, scaleBlend)
       }
       planetPositionsById.set(renderable.definition.id, [sx, sy, sz])
-      const radius = isLearnEarth
-        ? EARTH_STAGED_RADIUS
-        : scaledBodyRadiusUnits(renderable.definition.radiusKm, renderable.definition.compactVisualRadius, scaleBlend, AU_KM)
+      const radius = isOrbitChapter
+        ? ORBIT_EARTH_RADIUS
+        : isLearnEarth
+          ? EARTH_STAGED_RADIUS
+          : scaledBodyRadiusUnits(renderable.definition.radiusKm, renderable.definition.compactVisualRadius, scaleBlend, AU_KM)
       planetRadiusById.set(renderable.definition.id, radius)
       return { renderable, x: sx, y: sy, z: sz, radius }
     })
@@ -1188,17 +1262,23 @@ async function main() {
 
     for (const { renderable, x: sx, y: sy, z: sz, radius } of planetFrameData) {
       const isLearnEarth = learnModeController.currentMode === 'learn' && renderable.definition.id === 'earth'
+      const isOrbitChapter = isLearnEarth && lessonPlayer.currentChapter.kind === 'orbit'
       const rotation = isLearnEarth ? learnSpinRadians : rotationAngleRadians(daysSinceEpoch, renderable.definition.siderealRotationHours)
-      const poleDirection = isLearnEarth
-        ? seasonalPoleDirection(currentSeasonPhase)
-        : equatorialToEclipticPoleDirection(renderable.definition.poleRightAscensionDegrees, renderable.definition.poleDeclinationDegrees)
+      const poleDirection = isOrbitChapter
+        ? ORBIT_FIXED_POLE_DIRECTION
+        : isLearnEarth
+          ? seasonalPoleDirection(currentSeasonPhase)
+          : equatorialToEclipticPoleDirection(renderable.definition.poleRightAscensionDegrees, renderable.definition.poleDeclinationDegrees)
       const tilt = axisAlignmentRotation(poleDirection)
-      // earthLearnTilt deliberately excludes the spin rotation (learnSpinRadians, applied below via
-      // fromZRotation only to the sphere mesh's own `world` matrix) - the axis/equator overlay lines
-      // and the two location markers are spin-invariant (axis and equator ring look identical at any
-      // spin angle) and the markers must stay fixed in place at their tilt-defined latitude rather
-      // than periodically spinning around to Earth's occluded far side.
-      if (renderable.definition.id === 'earth') earthLearnTilt = isLearnEarth ? tilt : null
+      // earthLearnTilt is only set for 'staged' chapters (null during 'orbit' chapters and
+      // outside learn mode) - the staged-chapter overlay block below is gated on it being
+      // non-null, so this alone correctly skips that block during orbit chapters without needing
+      // to touch that block's own condition at all. earthLearnTilt deliberately excludes the spin
+      // rotation (learnSpinRadians, applied below via fromZRotation only to the sphere mesh's own
+      // `world` matrix) - the axis/equator overlay lines and the two location markers are
+      // spin-invariant and must stay fixed in place at their tilt-defined latitude rather than
+      // periodically spinning around to Earth's occluded far side.
+      if (renderable.definition.id === 'earth') earthLearnTilt = isLearnEarth && !isOrbitChapter ? tilt : null
       const world = mat4.multiply(
         mat4.create(),
         mat4.fromTranslation(mat4.create(), [sx, sy, sz]),
@@ -1273,6 +1353,8 @@ async function main() {
         updateLabelPosition(labelElements.get(renderable.definition.id)!, screen)
       }
     }
+
+    const currentChapterKind = learnModeController.currentMode === 'learn' ? lessonPlayer.currentChapter.kind : null
 
     if (learnModeController.currentMode === 'learn' && earthLearnTilt) {
       const earthEntry = planetFrameData.find((entry) => entry.renderable.definition.id === 'earth')
@@ -1361,6 +1443,44 @@ async function main() {
         axisTiltLabel.textContent = `${Math.abs((tiltAngleRadians * 180) / Math.PI).toFixed(1)}°`
         updateLabelPosition(axisTiltLabel, tiltLabelScreen)
       }
+    } else if (currentChapterKind === 'orbit') {
+      const earthEntry = planetFrameData.find((entry) => entry.renderable.definition.id === 'earth')
+      if (earthEntry) {
+        const earthPosition: [number, number, number] = [earthEntry.x, earthEntry.y, earthEntry.z]
+        const sunwardDirection: [number, number, number] = [-earthEntry.x, -earthEntry.y, -earthEntry.z]
+        const axisLength = earthEntry.radius * 4
+        const referenceLength = earthEntry.radius * 4
+        const arcRadius = earthEntry.radius * 3
+        const arcAngleRadians = angleBetweenDirections(ORBIT_FIXED_POLE_DIRECTION, sunwardDirection)
+
+        const orbitGeometryById: Record<OrbitOverlayLineId, Float32Array> = {
+          'orbit-path': orbitPathCirclePoints(ORBIT_PATH_RADIUS, ORBIT_PATH_SEGMENTS),
+          'orbit-axis': directedLinePoints(earthPosition, ORBIT_FIXED_POLE_DIRECTION, axisLength),
+          'orbit-reference': directedLinePoints(earthPosition, sunwardDirection, referenceLength),
+          'orbit-arc': greatCircleArcPoints(earthPosition, sunwardDirection, ORBIT_FIXED_POLE_DIRECTION, arcRadius, OVERLAY_TILT_ARC_SEGMENTS),
+        }
+        const pulsePhaseRadians = (performance.now() / 1000) * OVERLAY_PULSE_SPEED_RADIANS_PER_SECOND
+        for (const id of ORBIT_OVERLAY_LINE_IDS) {
+          const renderable = orbitOverlayLineRenderables[id]
+          updateOverlayLineRenderable(renderable, orbitGeometryById[id])
+          const uniforms = new Float32Array(LINE_UNIFORM_FLOAT_COUNT)
+          uniforms.set(viewProjection, 0)
+          uniforms.set(ORBIT_OVERLAY_COLORS[id], 16)
+          // The fixed axis and the current Sun-Earth reference are this chapter's teaching focus
+          // (pulsing, like the staged chapters' own axis/equator/markers); the orbit path and the
+          // angle arc are construction/measurement aids (solid, like the staged reference/tilt-arc).
+          const dashMode = id === 'orbit-axis' || id === 'orbit-reference' ? 2.0 : 0
+          uniforms.set([0, pulsePhaseRadians, 0, dashMode], 20)
+          device.queue.writeBuffer(renderable.uniformBuffer, 0, uniforms)
+        }
+
+        const arcMidpoint = greatCircleArcPoints(earthPosition, sunwardDirection, ORBIT_FIXED_POLE_DIRECTION, arcRadius, 2)
+        const tiltLabelScreen = worldToScreen(viewProjection, arcMidpoint[3], arcMidpoint[4], arcMidpoint[5], canvas.clientWidth, canvas.clientHeight)
+        axisTiltLabel.textContent = `${((arcAngleRadians * 180) / Math.PI).toFixed(1)}°`
+        updateLabelPosition(axisTiltLabel, tiltLabelScreen)
+      }
+      locationALabel.style.display = 'none'
+      locationBLabel.style.display = 'none'
     } else {
       locationALabel.style.display = 'none'
       locationBLabel.style.display = 'none'
@@ -1452,12 +1572,22 @@ async function main() {
     }
     if (learnModeController.currentMode === 'learn') {
       pass.setPipeline(linePipeline)
-      for (const id of OVERLAY_LINE_IDS) {
-        const renderable = overlayLineRenderables[id]
-        pass.setVertexBuffer(0, renderable.vertexBuffer)
-        pass.setVertexBuffer(1, renderable.distanceBuffer)
-        pass.setBindGroup(0, renderable.bindGroup)
-        pass.draw(renderable.pointCount)
+      if (currentChapterKind === 'orbit') {
+        for (const id of ORBIT_OVERLAY_LINE_IDS) {
+          const renderable = orbitOverlayLineRenderables[id]
+          pass.setVertexBuffer(0, renderable.vertexBuffer)
+          pass.setVertexBuffer(1, renderable.distanceBuffer)
+          pass.setBindGroup(0, renderable.bindGroup)
+          pass.draw(renderable.pointCount)
+        }
+      } else {
+        for (const id of OVERLAY_LINE_IDS) {
+          const renderable = overlayLineRenderables[id]
+          pass.setVertexBuffer(0, renderable.vertexBuffer)
+          pass.setVertexBuffer(1, renderable.distanceBuffer)
+          pass.setBindGroup(0, renderable.bindGroup)
+          pass.draw(renderable.pointCount)
+        }
       }
     }
     if (sunFlareVisible) {
