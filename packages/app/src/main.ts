@@ -701,7 +701,7 @@ async function main() {
   // patching its timing. Tune these three visually once running: the goal is Sun and Earth both
   // comfortably in frame with a clear gap between them (see the design spec's approved mockup).
   const LEARN_CAMERA_TARGET: [number, number, number] = [EARTH_STAGED_POSITION[0] / 2, 0, 0]
-  const LEARN_CAMERA_RADIUS = 16
+  const LEARN_CAMERA_RADIUS = 11
   const LEARN_CAMERA_AZIMUTH = Math.PI / 2
   const LEARN_CAMERA_ELEVATION = 0.12
 
