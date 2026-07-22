@@ -2,10 +2,31 @@ import { describe, expect, it } from 'vitest'
 import { LESSONS_BY_ID, SEASONS_LESSON } from '../src/learn/lessons/seasons'
 
 describe('SEASONS_LESSON', () => {
-  it('has exactly 5 chapters in chronological order', () => {
-    expect(SEASONS_LESSON.chapters).toHaveLength(5)
+  it('has exactly 9 chapters in chronological order (4 real-orbit chapters, then the 5 staged ones)', () => {
+    expect(SEASONS_LESSON.chapters).toHaveLength(9)
     const ids = SEASONS_LESSON.chapters.map((c) => c.id)
-    expect(ids).toEqual(['intro', 'march-equinox', 'june-solstice', 'september-equinox', 'december-solstice'])
+    expect(ids).toEqual([
+      'orbit-march',
+      'orbit-june',
+      'orbit-september',
+      'orbit-december',
+      'intro',
+      'march-equinox',
+      'june-solstice',
+      'september-equinox',
+      'december-solstice',
+    ])
+  })
+
+  it('the 4 orbit chapters are tagged kind "orbit" and the 5 staged chapters are tagged kind "staged"', () => {
+    const orbitIds = ['orbit-march', 'orbit-june', 'orbit-september', 'orbit-december']
+    const stagedIds = ['intro', 'march-equinox', 'june-solstice', 'september-equinox', 'december-solstice']
+    for (const id of orbitIds) {
+      expect(SEASONS_LESSON.chapters.find((c) => c.id === id)!.kind).toBe('orbit')
+    }
+    for (const id of stagedIds) {
+      expect(SEASONS_LESSON.chapters.find((c) => c.id === id)!.kind).toBe('staged')
+    }
   })
 
   it('every chapter has a season phase in [0, 360) degrees', () => {
@@ -15,9 +36,15 @@ describe('SEASONS_LESSON', () => {
     }
   })
 
-  it('the four solstice/equinox chapters use the four cardinal phases exactly once each', () => {
-    const nonIntro = SEASONS_LESSON.chapters.filter((c) => c.id !== 'intro')
-    const phases = nonIntro.map((c) => c.seasonPhaseDegrees).sort((a, b) => a - b)
+  it('the four staged solstice/equinox chapters use the four cardinal phases exactly once each', () => {
+    const stagedNonIntro = SEASONS_LESSON.chapters.filter((c) => c.kind === 'staged' && c.id !== 'intro')
+    const phases = stagedNonIntro.map((c) => c.seasonPhaseDegrees).sort((a, b) => a - b)
+    expect(phases).toEqual([0, 90, 180, 270])
+  })
+
+  it('the four orbit chapters use the four cardinal phases exactly once each', () => {
+    const orbitChapters = SEASONS_LESSON.chapters.filter((c) => c.kind === 'orbit')
+    const phases = orbitChapters.map((c) => c.seasonPhaseDegrees).sort((a, b) => a - b)
     expect(phases).toEqual([0, 90, 180, 270])
   })
 
