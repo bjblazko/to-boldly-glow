@@ -197,10 +197,19 @@ async function createBodyRenderable<TDefinition extends { id: string; textureUrl
 // along X (visibly tilted toward/away from the Sun - a solstice); at phase=90/270 the lean is
 // entirely along Z (reads as upright on screen, no visible left/right tilt - an equinox), exactly
 // matching the standard textbook seasons-diagram convention.
+//
+// The X-term is negated relative to a naive cos(phase) because the Sun sits at the world origin
+// while Earth is staged on the +X side of it (EARTH_STAGED_POSITION below) - so the sunward
+// direction as seen FROM Earth is -X, not +X. Subsolar latitude = asin(dot(northPole, sunward)),
+// so a pole leaning toward +X (positive cos(phase)) actually leans AWAY from the Sun without this
+// negation, inverting which hemisphere each solstice chapter's own text claims is favored. Verified
+// numerically: at phase=0 ("june-solstice"), this must yield a positive subsolar latitude (north
+// favored, matching real June); phase=180 ("december-solstice") must yield negative (south
+// favored). See seasonalTilt.test.ts's "matches the sunward-facing hemisphere" test.
 export function seasonalPoleDirection(phaseDegrees: number): [number, number, number] {
   const obliquity = (23.4 * Math.PI) / 180
   const phase = (phaseDegrees * Math.PI) / 180
-  return [Math.sin(obliquity) * Math.cos(phase), Math.cos(obliquity), Math.sin(obliquity) * Math.sin(phase)]
+  return [-Math.sin(obliquity) * Math.cos(phase), Math.cos(obliquity), Math.sin(obliquity) * Math.sin(phase)]
 }
 
 async function main() {

@@ -13,7 +13,7 @@ describe('seasonalPoleDirection', () => {
 
   it('at phase=0 (June solstice), the pole leans maximally along the Sun-Earth axis (local X)', () => {
     const [x, , z] = seasonalPoleDirection(0)
-    expect(x).toBeCloseTo(Math.sin(OBLIQUITY_RADIANS), 9)
+    expect(x).toBeCloseTo(-Math.sin(OBLIQUITY_RADIANS), 9)
     expect(z).toBeCloseTo(0, 9)
   })
 
@@ -35,5 +35,26 @@ describe('seasonalPoleDirection', () => {
     for (const y of ys) {
       expect(y).toBeCloseTo(Math.cos(OBLIQUITY_RADIANS), 9)
     }
+  })
+
+  // EARTH_STAGED_POSITION in main.ts places Earth on the +X side of the Sun (which sits at the
+  // world origin), so the sunward direction as seen FROM Earth is -X, not +X. Subsolar latitude
+  // (the latitude directly under the Sun) equals asin(dot(northPole, sunwardDirection)). This test
+  // encodes that convention directly rather than trusting seasonalPoleDirection's own sign choices,
+  // so a reintroduced sign inversion (which previously shipped and depicted the wrong hemisphere as
+  // sunlit at both solstices) fails here even if the phase=0/180 lean-direction tests above did not
+  // independently catch it.
+  it('matches the sunward-facing hemisphere: June solstice favors the north, December favors the south', () => {
+    const sunwardFromEarth: [number, number, number] = [-1, 0, 0]
+    const dot = (a: [number, number, number], b: [number, number, number]) =>
+      a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+
+    const juneSubsolarLatitude = Math.asin(dot(seasonalPoleDirection(0), sunwardFromEarth))
+    const decemberSubsolarLatitude = Math.asin(dot(seasonalPoleDirection(180), sunwardFromEarth))
+
+    expect(juneSubsolarLatitude).toBeGreaterThan(0)
+    expect(juneSubsolarLatitude).toBeCloseTo(OBLIQUITY_RADIANS, 9)
+    expect(decemberSubsolarLatitude).toBeLessThan(0)
+    expect(decemberSubsolarLatitude).toBeCloseTo(-OBLIQUITY_RADIANS, 9)
   })
 })
