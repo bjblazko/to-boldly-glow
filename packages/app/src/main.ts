@@ -826,9 +826,29 @@ async function main() {
   // so this framing function is self-contained regardless of what state the camera was left in.
   // Tune these visually once running, same as LEARN_CAMERA_* above.
   const ORBIT_CAMERA_TARGET: [number, number, number] = [0, 0, 0]
-  const ORBIT_CAMERA_RADIUS = 20
+  // At azimuth 0 (below) the camera's world-X offset is exactly the axis whose foreshortening
+  // (via sin(elevation)) drives a point's vertical screen position - so the two equinox chapters
+  // (Earth's orbital X ~ 0) sit near mid-screen, while the two solstice chapters (Earth's orbital X
+  // at its extreme, 90° further around ORBIT_PATH_RADIUS) get pushed toward the very top or bottom
+  // edge of the screen. At radius 20 this pushed the solstice-phase Earth far enough down to land
+  // fully behind the bottom lesson panel. Lowering elevation alone barely helps (sin(elevation)
+  // drops only slowly near-vertical), so radius is raised too: distance-to-target grows the
+  // "depth" term of the screen-space ratio without changing the vertical offset term, pulling the
+  // solstice extremes back into view while keeping this same elevation angle (i.e. without giving
+  // up the top-down feel). Verified live across all 4 orbit chapters at these values - Earth and
+  // its angle arc/label stay comfortably clear of the panel at both solstices, and the equinox
+  // framing (already fine before) is unaffected.
+  const ORBIT_CAMERA_RADIUS = 28
   const ORBIT_CAMERA_AZIMUTH = 0
-  const ORBIT_CAMERA_ELEVATION = 1.45 // near-vertical (MAX_ELEVATION is PI/2 - 0.01, ~1.5608) - top-down, not degenerate
+  // Deliberately well short of MAX_ELEVATION (PI/2 - 0.01, ~1.5608) for a second, independent
+  // reason: this framing does NOT override upAxis (see comment above), so at near-vertical
+  // elevations the camera's forward direction approaches anti-parallel to its own upAxis (world Z /
+  // ECLIPTIC_NORTH), shrinking the cross product mat4.lookAt uses to build its basis and eroding
+  // precision. 1.2 rad (~68.8°) keeps a comfortable margin from that (cos(1.2) ~ 0.36, vs. ~0.01 at
+  // MAX_ELEVATION), comparable to explore mode's own default camera (67°), while still reading as a
+  // wide, mostly top-down establishing shot. Note this angle alone does not solve the panel-overlap
+  // problem above - see ORBIT_CAMERA_RADIUS's comment for that.
+  const ORBIT_CAMERA_ELEVATION = 1.2
   const ORBIT_PATH_RADIUS = 6.5 // the compact circle Earth's position moves along
   const ORBIT_EARTH_RADIUS = 0.6 // deliberately smaller than EARTH_STAGED_RADIUS - this is a wide establishing shot, not the close-up
 
@@ -1476,7 +1496,12 @@ async function main() {
 
         const arcMidpoint = greatCircleArcPoints(earthPosition, sunwardDirection, ORBIT_FIXED_POLE_DIRECTION, arcRadius, 2)
         const tiltLabelScreen = worldToScreen(viewProjection, arcMidpoint[3], arcMidpoint[4], arcMidpoint[5], canvas.clientWidth, canvas.clientHeight)
-        axisTiltLabel.textContent = `${((arcAngleRadians * 180) / Math.PI).toFixed(1)}°`
+        // The arc itself spans the raw angle between the fixed axis and the sunward direction
+        // (90° at equinoxes, 90°±23.4° at solstices). The label should instead read how far that
+        // deviates from perpendicular - 0° at equinoxes, 23.4° at solstices - matching the lesson's
+        // own "leans 23.4° toward/away from the Sun" text.
+        const tiltFromPerpendicularDegrees = Math.abs(90 - (arcAngleRadians * 180) / Math.PI)
+        axisTiltLabel.textContent = `${tiltFromPerpendicularDegrees.toFixed(1)}°`
         updateLabelPosition(axisTiltLabel, tiltLabelScreen)
       }
       locationALabel.style.display = 'none'
