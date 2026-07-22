@@ -16,9 +16,14 @@ import { LearnModeController } from './learn/learnModeController'
 import { LessonPlayer } from './learn/lessonPlayer'
 import { LESSONS_BY_ID, SEASONS_LESSON } from './learn/lessons/seasons'
 import {
+  angleBetweenDirections,
+  directedLinePoints,
   equatorRingPoints,
+  greatCircleArcPoints,
   latitudeMarkerCenter,
   latitudeMarkerPoints,
+  orbitPathCirclePoints,
+  orbitPositionForPhase,
   rotationAxisPoints,
   tiltAngleArcPoints,
   verticalReferencePoints,
@@ -225,6 +230,22 @@ export function seasonalPoleDirection(phaseDegrees: number): [number, number, nu
   const y = Math.sqrt(Math.max(0, 1 - x * x))
   return [x, y, 0]
 }
+
+// The fixed direction Earth's real rotation axis points in space, expressed in this app's own
+// ecliptic-plane convention (world Z = "ecliptic north" - see poleOrientation.ts's ECLIPTIC_NORTH
+// and axisAlignmentRotation's own contract, which every real body's pole already uses) - unlike
+// seasonalPoleDirection's Y-up convention, built specifically for the staged chapters' different
+// camera upAxis. Computed once and reused unchanged across all four orbit chapters: the entire
+// visual point of this lesson's prelude is that this vector does NOT depend on phase, unlike
+// seasonalPoleDirection's pole. Uses the same obliquity constant and the same "X leans, remainder
+// makes up the rest" shape as seasonalPoleDirection(0)'s own lean, just re-expressed with the
+// "remainder" on Z (this convention's up axis) instead of Y.
+const ORBIT_OBLIQUITY_RADIANS = (23.4 * Math.PI) / 180
+export const ORBIT_FIXED_POLE_DIRECTION: [number, number, number] = [
+  -Math.sin(ORBIT_OBLIQUITY_RADIANS),
+  0,
+  Math.cos(ORBIT_OBLIQUITY_RADIANS),
+]
 
 async function main() {
   const canvasElement = document.querySelector<HTMLCanvasElement>('#scene')

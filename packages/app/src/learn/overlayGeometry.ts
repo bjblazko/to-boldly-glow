@@ -151,3 +151,95 @@ export function latitudeMarkerPoints(
   }
   return points
 }
+
+// The angle (radians, always in [0, PI]) between any two arbitrary directions, via the standard
+// acos-of-normalized-dot-product formula - normalizes both inputs internally, so callers don't
+// need to pre-normalize. Used by the orbit chapters to display "how far apart" the fixed axis and
+// the current Sun-Earth direction are (main.ts's per-frame orbit-chapter overlay block), the same
+// way the staged chapters' atan2-based tilt angle does for its own fixed-plane case.
+export function angleBetweenDirections(a: readonly [number, number, number], b: readonly [number, number, number]): number {
+  const unitA = vec3.normalize(vec3.create(), a)
+  const unitB = vec3.normalize(vec3.create(), b)
+  const dot = unitA[0] * unitB[0] + unitA[1] * unitB[1] + unitA[2] * unitB[2]
+  return Math.acos(Math.min(1, Math.max(-1, dot)))
+}
+
+// A geodesic arc from `fromDirection` to `toDirection` (need not be unit-length - normalized
+// internally), centered on `center` at `radius`. Built with spherical linear interpolation
+// (gl-matrix's vec3.slerp) rather than a fixed-plane sin/cos parameterization like
+// tiltAngleArcPoints above, since the orbit chapters' two directions (the current Sun-Earth line
+// and the fixed axis) are only coplanar with a shared fixed world plane at the solstice phases,
+// not generally. Guards the case where the two directions already coincide (slerp divides by zero
+// there - see cameraFollow.ts's own identical guard, added for the same reason) by returning every
+// point at `fromDirection` since there's nothing to sweep.
+export function greatCircleArcPoints(
+  center: readonly [number, number, number],
+  fromDirection: readonly [number, number, number],
+  toDirection: readonly [number, number, number],
+  radius: number,
+  segments: number,
+): Float32Array {
+  const points = new Float32Array((segments + 1) * 3)
+  const from = vec3.normalize(vec3.create(), fromDirection)
+  const to = vec3.normalize(vec3.create(), toDirection)
+  const nearlyIdentical = vec3.dot(from, to) > 0.9999999
+  for (let i = 0; i <= segments; i++) {
+    const t = i / segments
+    const direction = nearlyIdentical ? from : vec3.slerp(vec3.create(), from, to, t)
+    points[i * 3] = center[0] + radius * direction[0]
+    points[i * 3 + 1] = center[1] + radius * direction[1]
+    points[i * 3 + 2] = center[2] + radius * direction[2]
+  }
+  return points
+}
+
+// A short line segment through `center`, extending `length` in both directions along `direction`
+// (need not be unit-length - normalized internally). Used by the orbit chapters for two roles that
+// share this same shape: the fixed axis line (main.ts's ORBIT_FIXED_POLE_DIRECTION, already
+// expressed directly in world space, unlike rotationAxisPoints' local +Z which needs a per-body
+// matrix transform) and the current Sun-Earth reference line (which rotates chapter to chapter,
+// unlike the staged chapters' always-vertical verticalReferencePoints).
+export function directedLinePoints(
+  center: readonly [number, number, number],
+  direction: readonly [number, number, number],
+  length: number,
+): Float32Array {
+  const unit = vec3.normalize(vec3.create(), direction)
+  return new Float32Array([
+    center[0] - unit[0] * length,
+    center[1] - unit[1] * length,
+    center[2] - unit[2] * length,
+    center[0] + unit[0] * length,
+    center[1] + unit[1] * length,
+    center[2] + unit[2] * length,
+  ])
+}
+
+// A closed loop tracing the compact circular path Earth's position moves along during the orbit
+// chapters (see orbitPositionForPhase below) - centered on the Sun (the world origin, which this
+// lesson never moves - see EARTH_STAGED_POSITION's own comment in main.ts), lying flat in the
+// world X-Y plane (matching how every real body's own orbital position in this app already lies
+// close to that plane - world Z is "ecliptic north", see poleOrientation.ts's ECLIPTIC_NORTH).
+// Unlike equatorRingPoints above, this needs no world-matrix transform: the orbit circle doesn't
+// rotate or tilt at any phase.
+export function orbitPathCirclePoints(radius: number, segments: number): Float32Array {
+  const points = new Float32Array((segments + 1) * 3)
+  for (let i = 0; i <= segments; i++) {
+    const angle = (i / segments) * 2 * Math.PI
+    points[i * 3] = radius * Math.cos(angle)
+    points[i * 3 + 1] = radius * Math.sin(angle)
+    points[i * 3 + 2] = 0
+  }
+  return points
+}
+
+// Earth's position on the compact, circular "real orbit" path used by this lesson's orbit
+// chapters - NOT the real elliptical orbit-path renderer used in explore mode, and not to any real
+// AU scale. Uses the exact same phase convention seasonalPoleDirection uses for its own lean (0 =
+// June solstice, 90 = September equinox, 180 = December solstice, 270 = March equinox), applied
+// here to a position on a circle instead of a tilt: the Sun-Earth radial direction at phase P is
+// [cos(P), sin(P), 0], lying flat in the world X-Y plane (see orbitPathCirclePoints above).
+export function orbitPositionForPhase(phaseDegrees: number, orbitRadius: number): [number, number, number] {
+  const phase = (phaseDegrees * Math.PI) / 180
+  return [orbitRadius * Math.cos(phase), orbitRadius * Math.sin(phase), 0]
+}
