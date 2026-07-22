@@ -52,7 +52,7 @@ test('the corner Display button still opens and closes its panel while in learn 
   expect(errors).toEqual([])
 })
 
-test('chapter navigation updates lesson-panel state', async ({ page }) => {
+test('chapter navigation updates lesson-panel state, including the kind change at the orbit/staged boundary', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
@@ -61,14 +61,24 @@ test('chapter navigation updates lesson-panel state', async ({ page }) => {
 
   await page.locator('#learn-mode-btn').click()
   await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
-  await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-id', 'intro')
+  await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-id', 'orbit-march')
+  await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-kind', 'orbit')
 
   await page.locator('#lesson-next-chapter').click()
-  await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-id', 'march-equinox')
+  await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-id', 'orbit-june')
+  await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-kind', 'orbit')
 
   await page.locator('#lesson-prev-chapter').click()
-  await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-id', 'intro')
+  await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-id', 'orbit-march')
   await expect(page.locator('#lesson-prev-chapter')).toBeDisabled()
+
+  // Step all the way to the orbit/staged boundary and confirm the kind flips (a hard camera cut,
+  // not an animated one - see main.ts's goToChapter).
+  for (let i = 0; i < 4; i++) {
+    await page.locator('#lesson-next-chapter').click()
+  }
+  await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-id', 'intro')
+  await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-kind', 'staged')
 
   expect(errors).toEqual([])
 })
@@ -166,7 +176,7 @@ test('entity search is explicitly disabled in learn mode, not just unreachable b
   expect(errors).toEqual([])
 })
 
-test('globe overlays and both location markers render without WebGPU errors across a chapter change', async ({ page }) => {
+test('globe overlays and both location markers render without WebGPU errors across the orbit-to-staged transition', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
@@ -175,11 +185,22 @@ test('globe overlays and both location markers render without WebGPU errors acro
 
   await page.locator('#learn-mode-btn').click()
   await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
-  await page.waitForTimeout(1500) // let the initial season-phase tween settle
+  await page.waitForTimeout(1500) // let the initial orbit-position tween settle
+
+  // Location A/B are staged-chapter-only - hidden during every orbit chapter.
+  await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-id', 'orbit-march')
+  await expect(page.locator('#location-a-label')).toBeHidden()
+  await expect(page.locator('#location-b-label')).toBeHidden()
+  await expect(page.locator('#axis-tilt-label')).toBeVisible()
+
+  for (let i = 0; i < 4; i++) {
+    await page.locator('#lesson-next-chapter').click()
+  }
+  await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-id', 'intro')
+  await page.waitForTimeout(1500) // let the tilt tween settle
 
   await expect(page.locator('#location-a-label')).toBeVisible()
   await expect(page.locator('#location-b-label')).toBeVisible()
-  await expect(page.locator('#axis-tilt-label')).toBeVisible()
 
   await page.locator('#lesson-next-chapter').click() // intro -> march-equinox
   await page.locator('#lesson-next-chapter').click() // march-equinox -> june-solstice's tilt tween begins
