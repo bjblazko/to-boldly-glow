@@ -671,7 +671,17 @@ async function main() {
   const equatorLineLabel = requireElement<HTMLDivElement>('#equator-line-label')
   const referenceLineLabel = requireElement<HTMLDivElement>('#reference-line-label')
   const towardSunLabel = requireElement<HTMLDivElement>('#toward-sun-label')
-  for (const label of [locationALabel, locationBLabel, axisTiltLabel, axisLineLabel, equatorLineLabel, referenceLineLabel, towardSunLabel]) {
+  const rightAngleLabel = requireElement<HTMLDivElement>('#right-angle-label')
+  for (const label of [
+    locationALabel,
+    locationBLabel,
+    axisTiltLabel,
+    axisLineLabel,
+    equatorLineLabel,
+    referenceLineLabel,
+    towardSunLabel,
+    rightAngleLabel,
+  ]) {
     label.style.position = 'absolute'
     label.style.transform = 'translate(-50%, 4px)'
     label.style.color = 'white'
@@ -958,12 +968,23 @@ async function main() {
   // 0-degree moments now land at a clearly visible off-to-the-side position instead.
   const ORBIT_CAMERA_TARGET: [number, number, number] = [0, 0, 0]
   const ORBIT_CAMERA_RADIUS = 22
-  // A shallow angle, not a top-down one. At this low an elevation the orbit circle projects as a
-  // flattened ellipse rather than a clean circle - an acceptable, deliberate trade, since conveying
-  // "the axis leans" matters more here than "the path is a circle" (the orbit-path line and the
-  // chapter text already establish that Earth is orbiting; this view's job is to sell the axis, not
-  // the orbit's shape).
-  const ORBIT_CAMERA_ELEVATION = 0.32
+  // A shallow-ish angle, not a top-down one. At this elevation the orbit circle still projects as
+  // a flattened ellipse rather than a clean circle - an acceptable, deliberate trade, since
+  // conveying "the axis leans" matters more here than "the path is a circle" (the orbit-path line
+  // and the chapter text already establish that Earth is orbiting; this view's job is to sell the
+  // axis, not the orbit's shape).
+  //
+  // ORBIT_FIXED_POLE_DIRECTION is dominated by its Z component (cos(23.4deg) ~ 0.92 vs
+  // sin(23.4deg) ~ 0.40) - and this camera's upAxis is also world Z (ECLIPTIC_NORTH) - so a HIGHER
+  // elevation points the camera's own view direction more directly along Z, foreshortening the
+  // (mostly-Z) axis line MORE, not less. A shallow elevation, closer to the orbital plane, keeps
+  // the axis closer to perpendicular-to-view, i.e. closer to its true length on screen. This alone
+  // doesn't fix every moment - the plane containing the fixed axis and the current Sun-Earth
+  // direction still rotates in 3D as Earth orbits, so some foreshortening of THAT relationship
+  // (reference and axis visually bunching at some phases) is unavoidable for any fixed camera - but
+  // it keeps the axis line itself legible throughout. The numeric degree label and the explicit
+  // "90°" annotation stay correct regardless of how foreshortened the lines look at a given moment.
+  const ORBIT_CAMERA_ELEVATION = 0.18
   const ORBIT_CAMERA_AZIMUTH = (Math.PI * 3) / 4
   // The Sun's own rendered radius is a fixed ~3 units (SUN.compactVisualRadius), unaffected by this
   // scene - so ORBIT_PATH_RADIUS needs enough margin over that to keep Earth clearly clear of the
@@ -1587,10 +1608,13 @@ async function main() {
         const tiltAngleRadians = Math.atan2(currentPoleDirection[0], currentPoleDirection[1])
         const referenceLength = earthEntry.radius * 1.3
         const arcRadius = earthEntry.radius * 1.15
+        // Axis overshoots further than reference/sun-direction (1.3x) so its label lands further
+        // away even at the equinoxes, where axis and reference are exactly collinear (0deg tilt).
+        const axisOvershootFactor = 1.8
 
         const geometryById: Record<OverlayLineId, Float32Array> = {
           equator: equatorRingPoints(earthWorld, ringRadius, OVERLAY_EQUATOR_SEGMENTS),
-          axis: rotationAxisPoints(earthWorld, earthEntry.radius, 1.3),
+          axis: rotationAxisPoints(earthWorld, earthEntry.radius, axisOvershootFactor),
           'marker-a': latitudeMarkerPoints(
             earthWorld,
             ringRadius,
@@ -1682,6 +1706,25 @@ async function main() {
           towardSunLabel,
           worldToScreen(viewProjection, sunDirectionLine[3], sunDirectionLine[4], sunDirectionLine[5], canvas.clientWidth, canvas.clientHeight),
         )
+        // Reference is world +Y and sun-direction is world -X in the staged chapters' fixed
+        // convention (see verticalReferencePoints' own comment and the 'sun-direction' geometry
+        // above) - always exactly perpendicular by construction, so this "90°" is stated outright
+        // rather than left for the viewer to judge from the drawing (which can look skewed under
+        // perspective).
+        const rightAngleBisector: [number, number, number] = [-Math.SQRT1_2, Math.SQRT1_2, 0]
+        // Placed just outside the globe's own surface (radius, not referenceLength - referenceLength
+        // is only 1.3x radius here, too close in to clear surface labels like Location A/B) so it
+        // doesn't land on top of the globe's surface features or markers.
+        const rightAngleDistance = earthEntry.radius * 1.2
+        const rightAnglePoint: [number, number, number] = [
+          earthCenter[0] + rightAngleBisector[0] * rightAngleDistance,
+          earthCenter[1] + rightAngleBisector[1] * rightAngleDistance,
+          earthCenter[2],
+        ]
+        updateLabelPosition(
+          rightAngleLabel,
+          worldToScreen(viewProjection, ...rightAnglePoint, canvas.clientWidth, canvas.clientHeight),
+        )
       }
     } else if (currentChapterKind === 'orbit') {
       const earthEntry = planetFrameData.find((entry) => entry.renderable.definition.id === 'earth')
@@ -1698,7 +1741,10 @@ async function main() {
         // component perpendicular to sunward - see perpendicularComponent's own comment in
         // overlayGeometry.ts for why this makes the drawn arc match the displayed number.
         const perpendicularToSunward = perpendicularComponent(ORBIT_FIXED_POLE_DIRECTION, sunwardDirection)
-        const axisLength = earthEntry.radius * 4
+        // Axis is drawn deliberately longer than reference/sun-direction so its label lands
+        // further from the other two even when all three lines bunch together on screen at a
+        // foreshortened phase (see the camera-angle comment on ORBIT_CAMERA_ELEVATION above).
+        const axisLength = earthEntry.radius * 5.5
         const referenceLength = earthEntry.radius * 4
         const arcRadius = earthEntry.radius * 3
         const arcAngleRadians = angleBetweenDirections(ORBIT_FIXED_POLE_DIRECTION, perpendicularToSunward)
@@ -1777,6 +1823,23 @@ async function main() {
           towardSunLabel,
           worldToScreen(viewProjection, orbitSunDirectionLine[3], orbitSunDirectionLine[4], orbitSunDirectionLine[5], canvas.clientWidth, canvas.clientHeight),
         )
+        // perpendicularToSunward and unitSunwardDirection are always exactly perpendicular by
+        // construction (see perpendicularComponent's own comment) - stating "90°" outright here,
+        // like the staged chapters' own right-angle label above, instead of leaving it for the
+        // viewer to judge from lines that can look skewed under this fixed camera's perspective.
+        const orbitRightAngleBisector = vec3.normalize(
+          vec3.create(),
+          vec3.add(vec3.create(), unitSunwardDirection, perpendicularToSunward),
+        )
+        const orbitRightAnglePoint: [number, number, number] = [
+          earthPosition[0] + orbitRightAngleBisector[0] * referenceLength * 0.55,
+          earthPosition[1] + orbitRightAngleBisector[1] * referenceLength * 0.55,
+          earthPosition[2] + orbitRightAngleBisector[2] * referenceLength * 0.55,
+        ]
+        updateLabelPosition(
+          rightAngleLabel,
+          worldToScreen(viewProjection, ...orbitRightAnglePoint, canvas.clientWidth, canvas.clientHeight),
+        )
       }
       locationALabel.style.display = 'none'
       locationBLabel.style.display = 'none'
@@ -1788,6 +1851,7 @@ async function main() {
       equatorLineLabel.style.display = 'none'
       referenceLineLabel.style.display = 'none'
       towardSunLabel.style.display = 'none'
+      rightAngleLabel.style.display = 'none'
     }
 
     if (showOrbitPaths) {
