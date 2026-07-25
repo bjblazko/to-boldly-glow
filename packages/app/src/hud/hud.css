@@ -580,6 +580,42 @@
 .hud-lesson-panel[hidden] {
   display: none;
 }
+.hud-lesson-panel.is-dragging {
+  /* A slightly deeper shadow while actively dragged - the same "lifted off the surface" cue
+     used by native bottom-sheet/card drag interactions - plus disabling the backdrop blur's own
+     transition so it doesn't visibly lag behind fast pointer movement. */
+  box-shadow: 0 24px 48px -16px rgba(0, 0, 0, 0.75);
+  transition: none;
+}
+
+.hud-lesson-panel-grip {
+  display: flex;
+  justify-content: center;
+  padding: 2px 0 10px;
+  margin: -6px 0 0;
+  cursor: grab;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.hud-lesson-panel-grip:active,
+.hud-lesson-panel.is-dragging .hud-lesson-panel-grip {
+  cursor: grabbing;
+}
+.hud-lesson-panel-grip-bar {
+  width: 44px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.28);
+  transition: background 0.15s ease;
+}
+.hud-lesson-panel-grip:hover .hud-lesson-panel-grip-bar {
+  background: rgba(255, 255, 255, 0.45);
+}
+.hud-lesson-panel-grip:active .hud-lesson-panel-grip-bar,
+.hud-lesson-panel.is-dragging .hud-lesson-panel-grip-bar {
+  background: rgba(255, 255, 255, 0.65);
+}
 
 /* The free-roam dock/sheet are fully replaced by the lesson panel while in learn mode - Camera and
    Time make no sense here (no free camera, no live simulation clock control), and Display has

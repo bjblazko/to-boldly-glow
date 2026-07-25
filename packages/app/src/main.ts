@@ -771,6 +771,63 @@ async function main() {
   const lessonChapterTitle = requireElement<HTMLElement>('#lesson-chapter-title')
   const lessonPrevBtn = requireElement<HTMLButtonElement>('#lesson-prev-chapter')
   const lessonNextBtn = requireElement<HTMLButtonElement>('#lesson-next-chapter')
+  const lessonPanelGrip = requireElement<HTMLDivElement>('#lesson-panel-grip')
+
+  // Lets the user drag the lesson panel out of the way of the 3D scene by its grip handle. The
+  // panel's default CSS position (centered horizontally, anchored from a fixed top - see
+  // hud.css's own comment on .hud-lesson-panel) applies only until the first drag; from then on,
+  // an explicit pixel left/top (set here as inline styles, which override the CSS) takes over and
+  // persists for the rest of the page session, including across chapter navigation and re-entering
+  // the lesson - deliberately not reset anywhere, so a user who drags the panel aside once doesn't
+  // have to redo it on every chapter change.
+  let isDraggingLessonPanel = false
+  let dragPointerOffsetX = 0
+  let dragPointerOffsetY = 0
+
+  function clampLessonPanelToViewport(left: number, top: number): { left: number; top: number } {
+    const rect = lessonPanel.getBoundingClientRect()
+    const maxLeft = Math.max(0, window.innerWidth - rect.width)
+    const maxTop = Math.max(0, window.innerHeight - rect.height)
+    return { left: Math.min(Math.max(left, 0), maxLeft), top: Math.min(Math.max(top, 0), maxTop) }
+  }
+
+  lessonPanelGrip.addEventListener('pointerdown', (event) => {
+    const rect = lessonPanel.getBoundingClientRect()
+    // Switches from the default centered/top-anchored CSS position to an explicit pixel position
+    // matching where the panel already is, so starting a drag never causes a jump.
+    lessonPanel.style.left = `${rect.left}px`
+    lessonPanel.style.top = `${rect.top}px`
+    lessonPanel.style.transform = 'none'
+    dragPointerOffsetX = event.clientX - rect.left
+    dragPointerOffsetY = event.clientY - rect.top
+    isDraggingLessonPanel = true
+    lessonPanel.classList.add('is-dragging')
+    lessonPanelGrip.setPointerCapture(event.pointerId)
+  })
+  lessonPanelGrip.addEventListener('pointermove', (event) => {
+    if (!isDraggingLessonPanel) return
+    const { left, top } = clampLessonPanelToViewport(event.clientX - dragPointerOffsetX, event.clientY - dragPointerOffsetY)
+    lessonPanel.style.left = `${left}px`
+    lessonPanel.style.top = `${top}px`
+  })
+  function endLessonPanelDrag(event: PointerEvent): void {
+    if (!isDraggingLessonPanel) return
+    isDraggingLessonPanel = false
+    lessonPanel.classList.remove('is-dragging')
+    lessonPanelGrip.releasePointerCapture(event.pointerId)
+  }
+  lessonPanelGrip.addEventListener('pointerup', endLessonPanelDrag)
+  lessonPanelGrip.addEventListener('pointercancel', endLessonPanelDrag)
+  // Re-clamps after a manual drag if the window shrinks enough to leave the panel partly or fully
+  // off-screen (e.g. the browser window is resized down) - a no-op before the first drag, since
+  // style.left is only ever set once dragging begins.
+  window.addEventListener('resize', () => {
+    if (!lessonPanel.style.left) return
+    const rect = lessonPanel.getBoundingClientRect()
+    const { left, top } = clampLessonPanelToViewport(rect.left, rect.top)
+    lessonPanel.style.left = `${left}px`
+    lessonPanel.style.top = `${top}px`
+  })
 
   // Sun stays exactly where it already is (world origin, unmoved - see planetAuPosition/SUN's own
   // rendering, untouched by this lesson). Earth is moved here, a fixed distance away along local +X,

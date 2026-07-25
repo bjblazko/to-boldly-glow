@@ -206,3 +206,45 @@ test('globe overlays and both location markers render without WebGPU errors acro
   await expect(page.locator('#axis-tilt-label')).toHaveText('23.4°')
   expect(errors).toEqual([])
 })
+
+test('the lesson panel can be dragged by its grip handle, clamped to the viewport, and stays put across chapter navigation', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', (error) => errors.push(error.message))
+
+  await page.goto('/')
+  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+
+  await page.locator('#learn-mode-btn').click()
+  await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
+
+  const panel = page.locator('#lesson-panel')
+  const grip = page.locator('#lesson-panel-grip')
+  const beforeBox = await panel.boundingBox()
+  if (!beforeBox) throw new Error('lesson panel has no bounding box')
+
+  // Drag the grip a good distance up and to the left - the panel starts anchored near the bottom
+  // center, so this should land it clearly away from its starting position (not clamped there).
+  const gripBox = await grip.boundingBox()
+  if (!gripBox) throw new Error('lesson panel grip has no bounding box')
+  await page.mouse.move(gripBox.x + gripBox.width / 2, gripBox.y + gripBox.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(60, 60, { steps: 10 })
+  await page.mouse.up()
+
+  const afterDragBox = await panel.boundingBox()
+  if (!afterDragBox) throw new Error('lesson panel has no bounding box after drag')
+  expect(afterDragBox.x).toBeLessThan(beforeBox.x)
+  expect(afterDragBox.y).toBeLessThan(beforeBox.y)
+  // Clamped to the viewport, not dragged off the top-left edge.
+  expect(afterDragBox.x).toBeGreaterThanOrEqual(0)
+  expect(afterDragBox.y).toBeGreaterThanOrEqual(0)
+
+  // The dragged position must persist across chapter navigation, not reset.
+  await page.locator('#lesson-next-chapter').click()
+  const afterNavBox = await panel.boundingBox()
+  if (!afterNavBox) throw new Error('lesson panel has no bounding box after navigation')
+  expect(Math.round(afterNavBox.x)).toBe(Math.round(afterDragBox.x))
+  expect(Math.round(afterNavBox.y)).toBe(Math.round(afterDragBox.y))
+
+  expect(errors).toEqual([])
+})
