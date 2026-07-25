@@ -485,12 +485,13 @@ async function main() {
     return { definition: planet, vertexBuffer, distanceBuffer, uniformBuffer, bindGroup }
   })
 
-  // Six overlay lines for learn mode's seasons lesson: equator, rotation axis, two symmetric
+  // Seven overlay lines for learn mode's seasons lesson: equator, rotation axis, two symmetric
   // location markers (marker-a/marker-b, at +/-markerLatitudeDegrees), and a small "protractor" -
   // a fixed vertical reference line plus an arc sweeping from it to the actual axis line, labeling
-  // the current tilt in degrees (axisTiltLabel below). All six share one uniform buffer
-  // shape/bind-group-layout, so they reuse the same small helper for setup.
-  const OVERLAY_LINE_IDS = ['equator', 'axis', 'marker-a', 'marker-b', 'reference', 'tilt-arc'] as const
+  // the current tilt in degrees (axisTiltLabel below) - plus sun-direction, the actual Sun-Earth
+  // line the reference line is drawn perpendicular to (see its own comment below). All seven share
+  // one uniform buffer shape/bind-group-layout, so they reuse the same small helper for setup.
+  const OVERLAY_LINE_IDS = ['equator', 'axis', 'marker-a', 'marker-b', 'reference', 'tilt-arc', 'sun-direction'] as const
   type OverlayLineId = (typeof OVERLAY_LINE_IDS)[number]
   interface OverlayLineRenderable {
     id: string
@@ -534,6 +535,7 @@ async function main() {
     'marker-b': createOverlayLineRenderable('marker-b', new Float32Array((OVERLAY_LATITUDE_MARKER_SEGMENTS + 1) * 3)),
     reference: createOverlayLineRenderable('reference', new Float32Array(6)),
     'tilt-arc': createOverlayLineRenderable('tilt-arc', new Float32Array((OVERLAY_TILT_ARC_SEGMENTS + 1) * 3)),
+    'sun-direction': createOverlayLineRenderable('sun-direction', new Float32Array(6)),
   }
   const OVERLAY_COLORS: Record<OverlayLineId, [number, number, number, number]> = {
     equator: [0.16, 0.88, 0.79, 0.95], // neon teal
@@ -542,6 +544,7 @@ async function main() {
     'marker-b': [0.45, 0.68, 0.98, 0.95], // a second, distinct marker color so A and B are visually distinguishable
     reference: [0.75, 0.75, 0.8, 0.4], // faint neutral grey - a "construction line," not a teaching focus
     'tilt-arc': [0.99, 0.78, 0.25, 0.95], // warm amber, distinct from every other overlay color
+    'sun-direction': [1.0, 0.85, 0.3, 0.85], // sunlight gold - makes the reference line's own "perpendicular to this" relationship visible instead of implied
   }
   const OVERLAY_PULSE_SPEED_RADIANS_PER_SECOND = 3
 
@@ -556,12 +559,13 @@ async function main() {
   const NORTH_HEMISPHERE_TINT_COLOR: [number, number, number] = [1.0, 0.55, 0.15] // warm amber - more direct sun
   const SOUTH_HEMISPHERE_TINT_COLOR: [number, number, number] = [0.25, 0.55, 1.0] // cool blue - less direct sun
 
-  // Four overlay lines for the orbit chapters (design spec's §4): the compact circular orbit path
-  // Earth's position moves along, the fixed axis line, the current Sun-Earth reference line, and
-  // the arc between them. A separate set from OVERLAY_LINE_IDS above (the staged chapters' own
+  // Six overlay lines for the orbit chapters (design spec's §4): the compact circular orbit path
+  // Earth's position moves along, the fixed axis line, the equator, the "if untilted" reference line
+  // and the arc between it and the axis, and the actual Sun-Earth line the reference line is drawn
+  // perpendicular to. A separate set from OVERLAY_LINE_IDS above (the staged chapters' own
   // equator/axis/markers/protractor) - the two chapter kinds never render simultaneously and use
   // genuinely different geometry (world-space-direct here, vs earthWorld-matrix-transformed there).
-  const ORBIT_OVERLAY_LINE_IDS = ['orbit-path', 'orbit-axis', 'orbit-equator', 'orbit-reference', 'orbit-arc'] as const
+  const ORBIT_OVERLAY_LINE_IDS = ['orbit-path', 'orbit-axis', 'orbit-equator', 'orbit-reference', 'orbit-arc', 'orbit-sun-direction'] as const
   type OrbitOverlayLineId = (typeof ORBIT_OVERLAY_LINE_IDS)[number]
   const ORBIT_PATH_SEGMENTS = 64
   const orbitOverlayLineRenderables: Record<OrbitOverlayLineId, OverlayLineRenderable> = {
@@ -570,13 +574,19 @@ async function main() {
     'orbit-equator': createOverlayLineRenderable('orbit-equator', new Float32Array((OVERLAY_EQUATOR_SEGMENTS + 1) * 3)),
     'orbit-reference': createOverlayLineRenderable('orbit-reference', new Float32Array(6)),
     'orbit-arc': createOverlayLineRenderable('orbit-arc', new Float32Array((OVERLAY_TILT_ARC_SEGMENTS + 1) * 3)),
+    'orbit-sun-direction': createOverlayLineRenderable('orbit-sun-direction', new Float32Array(6)),
   }
   const ORBIT_OVERLAY_COLORS: Record<OrbitOverlayLineId, [number, number, number, number]> = {
     'orbit-path': [0.5, 0.5, 0.55, 0.5], // faint neutral grey - a construction guide, not a teaching focus
     'orbit-axis': [0.98, 0.25, 0.65, 0.95], // same neon pink/magenta as the staged axis line - same concept, same color
     'orbit-equator': [0.16, 0.88, 0.79, 0.95], // same neon teal as the staged equator line - same concept, same color
-    'orbit-reference': [0.3, 0.7, 1.0, 0.95], // bright sky blue - the moving Sun-Earth line, the other half of this chapter's teaching point
+    // NOT literally the Sun-Earth line - it's the fixed axis's own component perpendicular to the
+    // Sun-Earth line (see perpendicularToSunward below), i.e. "where the axis would point if it had
+    // zero tilt." orbit-sun-direction (new) draws the actual Sun-Earth line, so the two together
+    // show the right angle this line is defined against, instead of leaving it implied.
+    'orbit-reference': [0.3, 0.7, 1.0, 0.95], // bright sky blue
     'orbit-arc': [0.99, 0.78, 0.25, 0.95], // same warm amber as the staged tilt-arc
+    'orbit-sun-direction': [1.0, 0.85, 0.3, 0.85], // sunlight gold, matching the staged chapters' own sun-direction line
   }
 
   let showOrbitPaths = true
@@ -660,7 +670,8 @@ async function main() {
   const axisLineLabel = requireElement<HTMLDivElement>('#axis-line-label')
   const equatorLineLabel = requireElement<HTMLDivElement>('#equator-line-label')
   const referenceLineLabel = requireElement<HTMLDivElement>('#reference-line-label')
-  for (const label of [locationALabel, locationBLabel, axisTiltLabel, axisLineLabel, equatorLineLabel, referenceLineLabel]) {
+  const towardSunLabel = requireElement<HTMLDivElement>('#toward-sun-label')
+  for (const label of [locationALabel, locationBLabel, axisTiltLabel, axisLineLabel, equatorLineLabel, referenceLineLabel, towardSunLabel]) {
     label.style.position = 'absolute'
     label.style.transform = 'translate(-50%, 4px)'
     label.style.color = 'white'
@@ -1598,6 +1609,18 @@ async function main() {
           ),
           reference: verticalReferencePoints(earthCenter, referenceLength),
           'tilt-arc': tiltAngleArcPoints(earthCenter, arcRadius, tiltAngleRadians, OVERLAY_TILT_ARC_SEGMENTS),
+          // A one-directional segment toward the Sun's actual position (world origin), making the
+          // reference line's own "perpendicular to this" relationship visible on screen instead of
+          // implied - see verticalReferencePoints' own comment for why world +Y is that perpendicular
+          // in the staged chapters' fixed camera convention.
+          'sun-direction': new Float32Array([
+            earthCenter[0],
+            earthCenter[1],
+            earthCenter[2],
+            earthCenter[0] - referenceLength,
+            earthCenter[1],
+            earthCenter[2],
+          ]),
         }
         const pulsePhaseRadians = now * OVERLAY_PULSE_SPEED_RADIANS_PER_SECOND
         // Unlike every other worldViewProjection in this file, no separate world matrix multiply
@@ -1611,10 +1634,10 @@ async function main() {
           uniforms.set(viewProjection, 0)
           uniforms.set(OVERLAY_COLORS[id], 16)
           // dashParams: x/z unused in glow mode, y = live pulse phase, w = 2.0 (glow mode) - see
-          // shaders.ts's lineShaderCode for the shader's glow-mode branch. The reference/tilt-arc
-          // pair stays solid (w = 0) - a static protractor reads better without the pulse that
-          // helps the teaching-focus axis/equator/marker lines stand out.
-          const dashMode = id === 'reference' || id === 'tilt-arc' ? 0 : 2.0
+          // shaders.ts's lineShaderCode for the shader's glow-mode branch. The reference/tilt-arc/
+          // sun-direction trio stays solid (w = 0) - a static protractor reads better without the
+          // pulse that helps the teaching-focus axis/equator/marker lines stand out.
+          const dashMode = id === 'reference' || id === 'tilt-arc' || id === 'sun-direction' ? 0 : 2.0
           uniforms.set([0, pulsePhaseRadians, 0, dashMode], 20)
           device.queue.writeBuffer(renderable.uniformBuffer, 0, uniforms)
         }
@@ -1654,12 +1677,22 @@ async function main() {
           referenceLineLabel,
           worldToScreen(viewProjection, referenceLine[3], referenceLine[4], referenceLine[5], canvas.clientWidth, canvas.clientHeight),
         )
+        const sunDirectionLine = geometryById['sun-direction']
+        updateLabelPosition(
+          towardSunLabel,
+          worldToScreen(viewProjection, sunDirectionLine[3], sunDirectionLine[4], sunDirectionLine[5], canvas.clientWidth, canvas.clientHeight),
+        )
       }
     } else if (currentChapterKind === 'orbit') {
       const earthEntry = planetFrameData.find((entry) => entry.renderable.definition.id === 'earth')
       if (earthEntry) {
         const earthPosition: [number, number, number] = [earthEntry.x, earthEntry.y, earthEntry.z]
         const sunwardDirection: [number, number, number] = [-earthEntry.x, -earthEntry.y, -earthEntry.z]
+        const orbitRadiusForSunDirection = Math.hypot(...sunwardDirection)
+        const unitSunwardDirection: [number, number, number] =
+          orbitRadiusForSunDirection > 1e-6
+            ? [sunwardDirection[0] / orbitRadiusForSunDirection, sunwardDirection[1] / orbitRadiusForSunDirection, sunwardDirection[2] / orbitRadiusForSunDirection]
+            : [0, 0, 0]
         // The "zero-tilt" reference for the angle arc/label below: not the sunward direction itself
         // (a perfectly upright axis would be 90° from sunward, not 0°) but the fixed axis's own
         // component perpendicular to sunward - see perpendicularComponent's own comment in
@@ -1688,6 +1721,16 @@ async function main() {
           // rather than the arc looking like it connects the reference line to the axis line.
           'orbit-reference': directedLinePoints(earthPosition, perpendicularToSunward, referenceLength),
           'orbit-arc': greatCircleArcPoints(earthPosition, perpendicularToSunward, ORBIT_FIXED_POLE_DIRECTION, arcRadius, OVERLAY_TILT_ARC_SEGMENTS),
+          // The actual Sun-Earth line (one-directional, toward the Sun only) - makes orbit-reference's
+          // own "perpendicular to this" relationship visible instead of implied.
+          'orbit-sun-direction': new Float32Array([
+            earthPosition[0],
+            earthPosition[1],
+            earthPosition[2],
+            earthPosition[0] + unitSunwardDirection[0] * referenceLength,
+            earthPosition[1] + unitSunwardDirection[1] * referenceLength,
+            earthPosition[2] + unitSunwardDirection[2] * referenceLength,
+          ]),
         }
         const pulsePhaseRadians = (performance.now() / 1000) * OVERLAY_PULSE_SPEED_RADIANS_PER_SECOND
         for (const id of ORBIT_OVERLAY_LINE_IDS) {
@@ -1700,7 +1743,7 @@ async function main() {
           // teaching focus (pulsing, like the staged chapters' own axis/equator/markers); the
           // orbit path and the angle arc are construction/measurement aids (solid, like the staged
           // reference/tilt-arc).
-          const dashMode = id === 'orbit-axis' || id === 'orbit-equator' || id === 'orbit-reference' ? 2.0 : 0
+          const dashMode = id === 'orbit-axis' || id === 'orbit-equator' || id === 'orbit-reference' ? 2.0 : 0 // orbit-sun-direction stays solid, like orbit-arc
           uniforms.set([0, pulsePhaseRadians, 0, dashMode], 20)
           device.queue.writeBuffer(renderable.uniformBuffer, 0, uniforms)
         }
@@ -1729,6 +1772,11 @@ async function main() {
           referenceLineLabel,
           worldToScreen(viewProjection, orbitReferenceLine[3], orbitReferenceLine[4], orbitReferenceLine[5], canvas.clientWidth, canvas.clientHeight),
         )
+        const orbitSunDirectionLine = orbitGeometryById['orbit-sun-direction']
+        updateLabelPosition(
+          towardSunLabel,
+          worldToScreen(viewProjection, orbitSunDirectionLine[3], orbitSunDirectionLine[4], orbitSunDirectionLine[5], canvas.clientWidth, canvas.clientHeight),
+        )
       }
       locationALabel.style.display = 'none'
       locationBLabel.style.display = 'none'
@@ -1739,6 +1787,7 @@ async function main() {
       axisLineLabel.style.display = 'none'
       equatorLineLabel.style.display = 'none'
       referenceLineLabel.style.display = 'none'
+      towardSunLabel.style.display = 'none'
     }
 
     if (showOrbitPaths) {
