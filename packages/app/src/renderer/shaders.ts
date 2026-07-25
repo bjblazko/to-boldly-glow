@@ -2,7 +2,7 @@
 // (rather than a bare literal duplicated at every call site in main.ts) so growing this struct
 // can't silently drift out of sync with the Float32Array packing that feeds it: a mismatch here is
 // silently-wrong rendering, not a compile error.
-export const LIT_UNIFORM_FLOAT_COUNT = 72
+export const LIT_UNIFORM_FLOAT_COUNT = 80
 
 // Uniform layout (must match the Float32Array packing in main.ts exactly):
 //   [0..16)  worldViewProjection : mat4x4f
@@ -25,6 +25,11 @@ export const LIT_UNIFORM_FLOAT_COUNT = 72
 //                                 atmosphere - every moon and Mercury/Mars write this as all-zero)
 //   [68..72) bumpParams          : vec4f (x = bump/AO intensity, roughly 0-1; 0 means no effect;
 //                                 y/z/w unused)
+//   [72..76) northHemisphereTint : vec4f (rgb = tint color, a = blend strength; a of 0 means no
+//                                 tint - every body writes this as all-zero except learn mode's
+//                                 seasons-lesson Earth)
+//   [76..80) southHemisphereTint : vec4f (same shape as northHemisphereTint, for the hemisphere on
+//                                 the opposite side of this body's own local +Z/pole axis)
 export const litSphereShaderCode = /* wgsl */ `
 struct Uniforms {
   worldViewProjection: mat4x4f,
@@ -36,6 +41,8 @@ struct Uniforms {
   ringParams: vec4f,
   atmosphereParams: vec4f,
   bumpParams: vec4f,
+  northHemisphereTint: vec4f,
+  southHemisphereTint: vec4f,
 };
 
 struct VertexInput {
@@ -279,7 +286,18 @@ fn fs(in: VertexOutput) -> @location(0) vec4f {
   // aoFactor darkens the surface-visible terms (diffuse color, specular) but NOT atmosphereGlow —
   // the glow represents light scattered in the atmosphere above the surface, not something a
   // surface-level cavity should occlude.
-  return vec4f(sampled.rgb * uni.color.rgb * diffuse * aoFactor + vec3f(specular) * aoFactor + atmosphereGlow, uni.color.a);
+  let litColor = sampled.rgb * uni.color.rgb * diffuse * aoFactor + vec3f(specular) * aoFactor + atmosphereGlow;
+
+  // Learn-mode hemisphere overlay: a translucent wash over the whole northern or southern half of
+  // the globe (split at the body's own local +Z/pole axis, the same axis applyBump above reads),
+  // independent of the day/night terminator - the point is to show which hemisphere is tilted
+  // toward the Sun THIS season, not which side is lit at this instant. Zero alpha (every body
+  // outside the seasons lesson's Earth) makes this a no-op.
+  let polarAxis = normalize((uni.world * vec4f(0.0, 0.0, 1.0, 0.0)).xyz);
+  let hemisphereTint = select(uni.southHemisphereTint, uni.northHemisphereTint, dot(geometricNormal, polarAxis) > 0.0);
+  let finalColor = mix(litColor, hemisphereTint.rgb, hemisphereTint.a);
+
+  return vec4f(finalColor, uni.color.a);
 }
 `
 

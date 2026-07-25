@@ -545,6 +545,17 @@ async function main() {
   }
   const OVERLAY_PULSE_SPEED_RADIANS_PER_SECOND = 3
 
+  // Hemisphere-tint overlay (litSphereShaderCode's northHemisphereTint/southHemisphereTint): a
+  // translucent wash covering the whole northern or southern half of learn-mode Earth, distinct
+  // from the day/night terminator - shows which hemisphere is tilted toward the Sun THIS chapter,
+  // not which side happens to be lit at this instant. Base alpha keeps both hemispheres faintly
+  // visible even at the equinoxes/orbit quarter-phases (favor = 0); the range scales up to full
+  // strength on the favored hemisphere at the solstices (favor = +/-1).
+  const HEMISPHERE_BASE_ALPHA = 0.08
+  const HEMISPHERE_ALPHA_RANGE = 0.24
+  const NORTH_HEMISPHERE_TINT_COLOR: [number, number, number] = [1.0, 0.55, 0.15] // warm amber - more direct sun
+  const SOUTH_HEMISPHERE_TINT_COLOR: [number, number, number] = [0.25, 0.55, 1.0] // cool blue - less direct sun
+
   // Four overlay lines for the orbit chapters (design spec's §4): the compact circular orbit path
   // Earth's position moves along, the fixed axis line, the current Sun-Earth reference line, and
   // the arc between them. A separate set from OVERLAY_LINE_IDS above (the staged chapters' own
@@ -646,7 +657,10 @@ async function main() {
   const locationALabel = requireElement<HTMLDivElement>('#location-a-label')
   const locationBLabel = requireElement<HTMLDivElement>('#location-b-label')
   const axisTiltLabel = requireElement<HTMLDivElement>('#axis-tilt-label')
-  for (const label of [locationALabel, locationBLabel, axisTiltLabel]) {
+  const axisLineLabel = requireElement<HTMLDivElement>('#axis-line-label')
+  const equatorLineLabel = requireElement<HTMLDivElement>('#equator-line-label')
+  const referenceLineLabel = requireElement<HTMLDivElement>('#reference-line-label')
+  for (const label of [locationALabel, locationBLabel, axisTiltLabel, axisLineLabel, equatorLineLabel, referenceLineLabel]) {
     label.style.position = 'absolute'
     label.style.transform = 'translate(-50%, 4px)'
     label.style.color = 'white'
@@ -654,6 +668,10 @@ async function main() {
     label.style.textShadow = '0 0 3px black, 0 0 3px black'
     label.style.whiteSpace = 'nowrap'
   }
+  // At the equinox chapters the axis and reference lines coincide exactly (0deg tilt), so their
+  // label anchors land on the same screen point - a vertical nudge keeps both readable instead of
+  // overlapping into garbled text.
+  axisLineLabel.style.transform = 'translate(-50%, -14px)'
 
   function updateLabelPosition(label: HTMLDivElement, screen: ScreenPosition): void {
     if (!screen.visible) {
@@ -1469,6 +1487,21 @@ async function main() {
         uniforms.set([...atmosphereColor, atmosphereIntensity], 64)
       }
       uniforms.set([bumpIntensity ?? 0, 0, 0, 0], 68)
+      if (isLearnEarth) {
+        // Which hemisphere is tilted toward the Sun this chapter: same subsolar-latitude formula
+        // as seasonalTilt.test.ts's own check (asin(dot(northPole, sunwardFromEarth))), reusing
+        // poleDirection/lightDirection already computed above for both chapter kinds - positive
+        // means north favored, negative means south, 0 at the equinoxes/orbit's quarter-phases.
+        const sunwardFromEarth: [number, number, number] = [-lightDirection[0], -lightDirection[1], -lightDirection[2]]
+        const subsolarLatitudeRadians = Math.asin(
+          Math.max(-1, Math.min(1, poleDirection[0] * sunwardFromEarth[0] + poleDirection[1] * sunwardFromEarth[1] + poleDirection[2] * sunwardFromEarth[2])),
+        )
+        const favor = Math.max(-1, Math.min(1, subsolarLatitudeRadians / ORBIT_OBLIQUITY_RADIANS))
+        const northAlpha = HEMISPHERE_BASE_ALPHA + HEMISPHERE_ALPHA_RANGE * Math.max(0, favor)
+        const southAlpha = HEMISPHERE_BASE_ALPHA + HEMISPHERE_ALPHA_RANGE * Math.max(0, -favor)
+        uniforms.set([...NORTH_HEMISPHERE_TINT_COLOR, northAlpha], 72)
+        uniforms.set([...SOUTH_HEMISPHERE_TINT_COLOR, southAlpha], 76)
+      }
       device.queue.writeBuffer(renderable.uniformBuffer, 0, uniforms)
 
       const cloudShell = cloudShellRenderables.find((shell) => shell.planetId === renderable.definition.id)
@@ -1601,6 +1634,26 @@ async function main() {
         const tiltLabelScreen = worldToScreen(viewProjection, ...tiltLabelPoint, canvas.clientWidth, canvas.clientHeight)
         axisTiltLabel.textContent = `${Math.abs((tiltAngleRadians * 180) / Math.PI).toFixed(1)}°`
         updateLabelPosition(axisTiltLabel, tiltLabelScreen)
+
+        // Anchor each explanatory label on its own line's own geometry: the axis line's north
+        // endpoint (index 1 of geometryById.axis), a fixed point on the equator ring (index 0,
+        // angle=0), and the reference line's +Y endpoint (index 1 of geometryById.reference) - see
+        // rotationAxisPoints/verticalReferencePoints' own point-order comments in overlayGeometry.ts.
+        const axisLine = geometryById.axis
+        updateLabelPosition(
+          axisLineLabel,
+          worldToScreen(viewProjection, axisLine[3], axisLine[4], axisLine[5], canvas.clientWidth, canvas.clientHeight),
+        )
+        const equatorLine = geometryById.equator
+        updateLabelPosition(
+          equatorLineLabel,
+          worldToScreen(viewProjection, equatorLine[0], equatorLine[1], equatorLine[2], canvas.clientWidth, canvas.clientHeight),
+        )
+        const referenceLine = geometryById.reference
+        updateLabelPosition(
+          referenceLineLabel,
+          worldToScreen(viewProjection, referenceLine[3], referenceLine[4], referenceLine[5], canvas.clientWidth, canvas.clientHeight),
+        )
       }
     } else if (currentChapterKind === 'orbit') {
       const earthEntry = planetFrameData.find((entry) => entry.renderable.definition.id === 'earth')
@@ -1660,6 +1713,22 @@ async function main() {
         // the Sun" text. No further transform needed - see perpendicularToSunward's comment above.
         axisTiltLabel.textContent = `${((arcAngleRadians * 180) / Math.PI).toFixed(1)}°`
         updateLabelPosition(axisTiltLabel, tiltLabelScreen)
+
+        const orbitAxisLine = orbitGeometryById['orbit-axis']
+        updateLabelPosition(
+          axisLineLabel,
+          worldToScreen(viewProjection, orbitAxisLine[3], orbitAxisLine[4], orbitAxisLine[5], canvas.clientWidth, canvas.clientHeight),
+        )
+        const orbitEquatorLine = orbitGeometryById['orbit-equator']
+        updateLabelPosition(
+          equatorLineLabel,
+          worldToScreen(viewProjection, orbitEquatorLine[0], orbitEquatorLine[1], orbitEquatorLine[2], canvas.clientWidth, canvas.clientHeight),
+        )
+        const orbitReferenceLine = orbitGeometryById['orbit-reference']
+        updateLabelPosition(
+          referenceLineLabel,
+          worldToScreen(viewProjection, orbitReferenceLine[3], orbitReferenceLine[4], orbitReferenceLine[5], canvas.clientWidth, canvas.clientHeight),
+        )
       }
       locationALabel.style.display = 'none'
       locationBLabel.style.display = 'none'
@@ -1667,6 +1736,9 @@ async function main() {
       locationALabel.style.display = 'none'
       locationBLabel.style.display = 'none'
       axisTiltLabel.style.display = 'none'
+      axisLineLabel.style.display = 'none'
+      equatorLineLabel.style.display = 'none'
+      referenceLineLabel.style.display = 'none'
     }
 
     if (showOrbitPaths) {
