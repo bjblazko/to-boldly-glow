@@ -187,7 +187,7 @@
             </span>
           </label>
           <label class="hud-toggle-chip">
-            <input id="flares-toggle" type="checkbox" checked />
+            <input id="flares-toggle" type="checkbox" />
             <span class="hud-toggle-visual">
               <svg class="icon icon-check" aria-hidden="true"><use href="#icon-check"></use></svg>
               Lens flares
@@ -213,17 +213,15 @@
         <svg class="icon" aria-hidden="true"><use href="#icon-clock"></use></svg>
         <span class="hud-dock-label">Time</span>
       </button>
-    </nav>
-
-    <div class="hud-corner-controls">
-      <button id="display-corner-btn" class="hud-corner-btn hud-dock-btn" data-panel="display" type="button" aria-label="Display options">
+      <button id="display-corner-btn" class="hud-dock-btn" data-panel="display" type="button">
         <svg class="icon" aria-hidden="true"><use href="#icon-layers"></use></svg>
+        <span class="hud-dock-label">Display</span>
       </button>
-      <button id="learn-mode-btn" class="hud-corner-btn hud-corner-btn-learn" type="button">
+      <button id="learn-mode-btn" class="hud-dock-btn" data-panel="learn" type="button">
         <svg class="icon" aria-hidden="true"><use href="#icon-book"></use></svg>
-        <span id="learn-mode-btn-label">Learn</span>
+        <span class="hud-dock-label" id="learn-mode-btn-label">Learn</span>
       </button>
-    </div>
+    </nav>
 
     <div id="lesson-picker" class="hud-lesson-picker" hidden>
       <button class="hud-lesson-picker-item" data-lesson-id="seasons" type="button">

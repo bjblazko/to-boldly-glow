@@ -367,7 +367,7 @@ async function main() {
   // Independent of showBloom/bloomSupported — the flare pipeline is a depth-tested screen-space
   // billboard technique that doesn't depend on the HDR/bloom pipeline at all, so it stays
   // available (and toggleable) even when bloom itself is unsupported or turned off.
-  let showFlares = true
+  let showFlares = false
   const flaresToggle = requireElement<HTMLInputElement>('#flares-toggle')
   flaresToggle.addEventListener('change', () => {
     showFlares = flaresToggle.checked
@@ -796,7 +796,7 @@ async function main() {
   )
 
   const dockUI = new DockUI(
-    document.querySelectorAll<HTMLButtonElement>('.hud-dock-btn'),
+    document.querySelectorAll<HTMLButtonElement>('.hud-dock-btn:not(#learn-mode-btn)'),
     requireElement<HTMLElement>('#hud-sheet'),
     document.querySelectorAll<HTMLElement>('.hud-sheet-panel'),
   )
@@ -1101,7 +1101,7 @@ async function main() {
   // branch below).
   let preLearnOrbitPaths = true
   let preLearnBodyLabels = true
-  let preLearnFlares = true
+  let preLearnFlares = false
 
   function refreshChapterUI(): void {
     const chapter = lessonPlayer.currentChapter
@@ -1132,9 +1132,11 @@ async function main() {
       canvas.dataset.flares = String(preLearnFlares)
       lessonPanel.hidden = true
       lessonPicker.hidden = true
+      learnModeBtn.classList.remove('is-active')
       return
     }
     lessonPicker.hidden = !lessonPicker.hidden
+    learnModeBtn.classList.toggle('is-active', !lessonPicker.hidden)
   })
   lessonPicker.querySelectorAll<HTMLButtonElement>('.hud-lesson-picker-item').forEach((item) => {
     item.addEventListener('click', () => {
@@ -1157,6 +1159,7 @@ async function main() {
       flaresToggle.checked = false
       canvas.dataset.flares = 'false'
       learnModeController.enter(lesson.id)
+      learnModeBtn.classList.add('is-active')
       const firstChapter = lesson.chapters[0]
       applyCameraFramingForKind(firstChapter.kind)
       currentSeasonPhase = firstChapter.seasonPhaseDegrees

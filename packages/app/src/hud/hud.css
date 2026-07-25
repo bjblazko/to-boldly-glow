@@ -62,7 +62,7 @@
   border-radius: 20px;
   padding: 8px;
   box-shadow: 0 16px 32px -16px rgba(0, 0, 0, 0.65);
-  z-index: 2;
+  z-index: 3;
 }
 .hud-dock-btn {
   appearance: none;
@@ -99,6 +99,10 @@
 .hud-dock-btn[data-panel='display'].is-active {
   background: var(--hud-accent-display-tint);
   color: #a9f3e7;
+}
+.hud-dock-btn[data-panel='learn'].is-active {
+  background: var(--hud-accent-learn-tint);
+  color: #e6c9fb;
 }
 
 /* -------------------- sheet -------------------- */
@@ -495,28 +499,6 @@
 }
 
 /* -------------------- app mode: learn -------------------- */
-.hud-corner-controls {
-  position: fixed;
-  top: 16px;
-  right: 16px;
-  display: flex;
-  gap: 8px;
-  z-index: 2;
-}
-.hud-corner-btn {
-  min-width: 0;
-  padding: 9px 14px;
-}
-.hud-corner-btn-learn {
-  flex-direction: row;
-  background: var(--hud-accent-learn-tint);
-  color: #e6c9fb;
-  border-radius: 999px;
-}
-.hud-corner-btn-learn:hover {
-  background: rgba(201, 138, 240, 0.26);
-}
-
 .hud-lesson-picker {
   position: fixed;
   top: 60px;
@@ -617,10 +599,11 @@
   background: rgba(255, 255, 255, 0.65);
 }
 
-/* The free-roam dock/sheet are fully replaced by the lesson panel while in learn mode - Camera and
-   Time make no sense here (no free camera, no live simulation clock control), and Display has
-   already been relocated to the always-visible corner cluster above. */
-body[data-app-mode='learn'] .hud-dock {
+/* The free-roam sheet is fully replaced by the lesson panel while in learn mode - Camera and Time
+   make no sense here (no free camera, no live simulation clock control) - so those two dock
+   buttons hide, leaving Display and Learn (the exit control) visible in the dock. */
+body[data-app-mode='learn'] .hud-dock-btn[data-panel='camera'],
+body[data-app-mode='learn'] .hud-dock-btn[data-panel='time'] {
   display: none;
 }
 body[data-app-mode='learn'] #learn-mode-btn-label::before {
