@@ -985,7 +985,17 @@ async function main() {
   // it keeps the axis line itself legible throughout. The numeric degree label and the explicit
   // "90°" annotation stay correct regardless of how foreshortened the lines look at a given moment.
   const ORBIT_CAMERA_ELEVATION = 0.18
-  const ORBIT_CAMERA_AZIMUTH = (Math.PI * 3) / 4
+  // The fixed axis's own baseline screen-space lean (independent of orbital phase - even when
+  // reference and axis are exactly collinear, at the equinox-like moments) works out to
+  // atan2(sin(obliquity)*cos(azimuth), sin(obliquity)*sin(azimuth)*sin(elevation) +
+  // cos(obliquity)*cos(elevation)) for this camera's upAxis=world-Z convention - derived from how
+  // OrbitCamera builds its screen-space right/up basis. That's zero only when cos(azimuth) = 0, i.e.
+  // azimuth = +/-90deg - any other azimuth (the previous 3*PI/4 included) makes the whole
+  // axis/reference pair appear to lean away from true vertical even at zero relative tilt, which
+  // reads as a confusing extra angle that isn't really there. -PI/2 was chosen over +PI/2 to keep
+  // the reference-at-0deg moments (the equinox-like phases) clearly visible rather than nearly
+  // edge-on to the camera - see the reference-line-visibility fix earlier this project's history.
+  const ORBIT_CAMERA_AZIMUTH = -Math.PI / 2
   // The Sun's own rendered radius is a fixed ~3 units (SUN.compactVisualRadius), unaffected by this
   // scene - so ORBIT_PATH_RADIUS needs enough margin over that to keep Earth clearly clear of the
   // Sun's disc while passing nearby it (front/behind), not just while off to the sides.
@@ -1633,18 +1643,14 @@ async function main() {
           ),
           reference: verticalReferencePoints(earthCenter, referenceLength),
           'tilt-arc': tiltAngleArcPoints(earthCenter, arcRadius, tiltAngleRadians, OVERLAY_TILT_ARC_SEGMENTS),
-          // A one-directional segment toward the Sun's actual position (world origin), making the
+          // A one-directional segment reaching all the way to the Sun's actual position (world
+          // origin, since the Sun always renders there in the staged chapters), making the
           // reference line's own "perpendicular to this" relationship visible on screen instead of
           // implied - see verticalReferencePoints' own comment for why world +Y is that perpendicular
-          // in the staged chapters' fixed camera convention.
-          'sun-direction': new Float32Array([
-            earthCenter[0],
-            earthCenter[1],
-            earthCenter[2],
-            earthCenter[0] - referenceLength,
-            earthCenter[1],
-            earthCenter[2],
-          ]),
+          // in the staged chapters' fixed camera convention. Unlike every other overlay line here,
+          // this one deliberately reaches its actual target rather than stopping at a short
+          // indicator length, so it visibly connects to the Sun instead of pointing vaguely toward it.
+          'sun-direction': new Float32Array([earthCenter[0], earthCenter[1], earthCenter[2], 0, 0, 0]),
         }
         const pulsePhaseRadians = now * OVERLAY_PULSE_SPEED_RADIANS_PER_SECOND
         // Unlike every other worldViewProjection in this file, no separate world matrix multiply
@@ -1702,9 +1708,19 @@ async function main() {
           worldToScreen(viewProjection, referenceLine[3], referenceLine[4], referenceLine[5], canvas.clientWidth, canvas.clientHeight),
         )
         const sunDirectionLine = geometryById['sun-direction']
+        // Anchored at a fixed distance from Earth (not the line's far end, which now reaches the
+        // Sun's own center and would sit on top of the Sun's body/label) - a point 1.3x Earth's
+        // radius out, matching the other nearby labels' distance from Earth.
         updateLabelPosition(
           towardSunLabel,
-          worldToScreen(viewProjection, sunDirectionLine[3], sunDirectionLine[4], sunDirectionLine[5], canvas.clientWidth, canvas.clientHeight),
+          worldToScreen(
+            viewProjection,
+            earthCenter[0] - referenceLength,
+            earthCenter[1],
+            earthCenter[2],
+            canvas.clientWidth,
+            canvas.clientHeight,
+          ),
         )
         // Reference is world +Y and sun-direction is world -X in the staged chapters' fixed
         // convention (see verticalReferencePoints' own comment and the 'sun-direction' geometry
@@ -1767,15 +1783,17 @@ async function main() {
           // rather than the arc looking like it connects the reference line to the axis line.
           'orbit-reference': directedLinePoints(earthPosition, perpendicularToSunward, referenceLength),
           'orbit-arc': greatCircleArcPoints(earthPosition, perpendicularToSunward, ORBIT_FIXED_POLE_DIRECTION, arcRadius, OVERLAY_TILT_ARC_SEGMENTS),
-          // The actual Sun-Earth line (one-directional, toward the Sun only) - makes orbit-reference's
-          // own "perpendicular to this" relationship visible instead of implied.
+          // The actual Sun-Earth line (one-directional, toward the Sun only), reaching all the way
+          // to the Sun's actual position (world origin) rather than stopping at a short indicator
+          // length - makes orbit-reference's own "perpendicular to this" relationship visible
+          // instead of implied, and visibly connects to the Sun instead of pointing vaguely at it.
           'orbit-sun-direction': new Float32Array([
             earthPosition[0],
             earthPosition[1],
             earthPosition[2],
-            earthPosition[0] + unitSunwardDirection[0] * referenceLength,
-            earthPosition[1] + unitSunwardDirection[1] * referenceLength,
-            earthPosition[2] + unitSunwardDirection[2] * referenceLength,
+            earthPosition[0] + unitSunwardDirection[0] * orbitRadiusForSunDirection,
+            earthPosition[1] + unitSunwardDirection[1] * orbitRadiusForSunDirection,
+            earthPosition[2] + unitSunwardDirection[2] * orbitRadiusForSunDirection,
           ]),
         }
         const pulsePhaseRadians = (performance.now() / 1000) * OVERLAY_PULSE_SPEED_RADIANS_PER_SECOND
@@ -1818,10 +1836,19 @@ async function main() {
           referenceLineLabel,
           worldToScreen(viewProjection, orbitReferenceLine[3], orbitReferenceLine[4], orbitReferenceLine[5], canvas.clientWidth, canvas.clientHeight),
         )
-        const orbitSunDirectionLine = orbitGeometryById['orbit-sun-direction']
+        // Anchored at a fixed distance from Earth (not the line's far end, which now reaches the
+        // Sun's own center and would sit on top of the Sun's body/label) - matching referenceLength,
+        // the other nearby labels' distance from Earth.
         updateLabelPosition(
           towardSunLabel,
-          worldToScreen(viewProjection, orbitSunDirectionLine[3], orbitSunDirectionLine[4], orbitSunDirectionLine[5], canvas.clientWidth, canvas.clientHeight),
+          worldToScreen(
+            viewProjection,
+            earthPosition[0] + unitSunwardDirection[0] * referenceLength,
+            earthPosition[1] + unitSunwardDirection[1] * referenceLength,
+            earthPosition[2] + unitSunwardDirection[2] * referenceLength,
+            canvas.clientWidth,
+            canvas.clientHeight,
+          ),
         )
         // perpendicularToSunward and unitSunwardDirection are always exactly perpendicular by
         // construction (see perpendicularComponent's own comment) - stating "90°" outright here,
