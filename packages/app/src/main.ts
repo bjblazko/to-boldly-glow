@@ -749,6 +749,12 @@ async function main() {
   const modeToggleButton = document.querySelector<HTMLButtonElement>('#camera-mode-toggle')
   const modeToggleLabel = modeToggleButton?.querySelector<HTMLElement>('.btn-label')
   function setCameraMode(mode: 'orbit' | 'fly') {
+    if (mode === 'fly' && cameraInput.mode === 'orbit') {
+      const eye = orbitCamera.getEyePosition()
+      const forward = vec3.subtract(vec3.create(), orbitCamera.target, eye)
+      flyCamera.setPose(eye, forward, orbitCamera.upAxis)
+      flyCamera.speed = 0
+    }
     cameraInput.setMode(mode)
     if (modeToggleLabel) {
       modeToggleLabel.textContent = mode === 'orbit' ? 'Switch to Free-fly Camera' : 'Switch to Orbit Camera'

@@ -3,7 +3,8 @@ import type { FlyCamera } from './flyCamera'
 
 export type CameraMode = 'orbit' | 'fly'
 
-const MOVE_SPEED = 20 // scene units per second
+const ROTATE_SPEED = 1.5 // radians per second, for keyboard-driven yaw/pitch
+const SPEED_ACCEL = 40 // scene units per second^2, for arrow-key cruise speed changes
 
 // Wires pointer (mouse + single-finger touch, unified via the Pointer Events API), wheel, and
 // keyboard events to whichever camera is active, and exposes one getViewMatrix()/update() pair
@@ -53,11 +54,17 @@ export class CameraInputController {
 
   update(deltaSeconds: number): void {
     if (!this.enabled || this.mode !== 'fly') return
-    const distance = MOVE_SPEED * deltaSeconds
-    if (this.pressedKeys.has('KeyW')) this.flyCamera.moveForward(distance)
-    if (this.pressedKeys.has('KeyS')) this.flyCamera.moveForward(-distance)
-    if (this.pressedKeys.has('KeyD')) this.flyCamera.moveRight(distance)
-    if (this.pressedKeys.has('KeyA')) this.flyCamera.moveRight(-distance)
+    const rotateAmount = ROTATE_SPEED * deltaSeconds
+    if (this.pressedKeys.has('KeyW')) this.flyCamera.turnPitch(rotateAmount)
+    if (this.pressedKeys.has('KeyS')) this.flyCamera.turnPitch(-rotateAmount)
+    if (this.pressedKeys.has('KeyD')) this.flyCamera.turnRoll(rotateAmount)
+    if (this.pressedKeys.has('KeyA')) this.flyCamera.turnRoll(-rotateAmount)
+
+    const speedAccel = SPEED_ACCEL * deltaSeconds
+    if (this.pressedKeys.has('ArrowUp')) this.flyCamera.changeSpeed(speedAccel)
+    if (this.pressedKeys.has('ArrowDown')) this.flyCamera.changeSpeed(-speedAccel)
+
+    this.flyCamera.moveForward(this.flyCamera.speed * deltaSeconds)
   }
 
   private onPointerDown = (event: PointerEvent) => {
@@ -69,17 +76,13 @@ export class CameraInputController {
   }
 
   private onPointerMove = (event: PointerEvent) => {
-    if (!this.enabled || !this.isDragging) return
+    if (!this.enabled || !this.isDragging || this.mode !== 'orbit') return
     const deltaX = event.clientX - this.lastPointerX
     const deltaY = event.clientY - this.lastPointerY
     this.lastPointerX = event.clientX
     this.lastPointerY = event.clientY
 
-    if (this.mode === 'orbit') {
-      this.orbitCamera.applyDrag(deltaX, deltaY)
-    } else {
-      this.flyCamera.applyLook(deltaX, deltaY)
-    }
+    this.orbitCamera.applyDrag(deltaX, deltaY)
   }
 
   private onPointerUp = (event: PointerEvent) => {
