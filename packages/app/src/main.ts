@@ -929,6 +929,65 @@ async function main() {
     vec3.set(orbitCamera.upAxis, ...LEARN_CAMERA_UP_AXIS)
   }
 
+  // The 'sizes' chapter's lineup: Sun + all 8 planets at TRUE real-scale radii (blend=0, unlike
+  // every other body render which follows the user's Realistic<->Compact toggle) sorted largest to
+  // smallest, laid edge-to-edge along -X (planets extend LEFT of the Sun) with a small constant
+  // gap. The Sun deliberately keeps its real position too (world origin, x=0) rather than joining
+  // the lineup as just another sphere - this reuses the Sun's existing origin-anchored rendering
+  // untouched (flare disc-coverage math, its screen-space label, sunClipW's simplified
+  // translation-column shortcut - see the per-frame Sun block above) AND means every planet's
+  // existing lightDirection = normalize(position) shading term (see the planetFrameData loop
+  // below) already points back at the Sun's true position, so the lineup lights correctly with
+  // zero shader changes or per-chapter light-direction override. The camera below frames the
+  // PLANETS' own cluster only, deliberately excluding the Sun from that framing math - at true
+  // scale the Sun is far larger than is useful to fully fit in frame alongside 8 much smaller
+  // planets, so it's left to bulge in large from the right/near edge instead, exactly as it would
+  // dominate the view of a real observer near the inner planets.
+  const SIZES_LINEUP_GAP_UNITS = 0.015
+  const sizesLineupById = new Map<string, { x: number; radius: number }>()
+  {
+    const sizesLineupBodies = [...PLANETS].sort((a, b) => b.radiusKm - a.radiusKm)
+    let cursor = scaledBodyRadiusUnits(SUN.radiusKm, SUN.compactVisualRadius, 0, AU_KM) + SIZES_LINEUP_GAP_UNITS
+    for (const body of sizesLineupBodies) {
+      const radius = scaledBodyRadiusUnits(body.radiusKm, body.compactVisualRadius, 0, AU_KM)
+      const centerX = -(cursor + radius)
+      sizesLineupById.set(body.id, { x: centerX, radius })
+      cursor = cursor + radius * 2 + SIZES_LINEUP_GAP_UNITS
+    }
+  }
+  // Left/right extent of the planets-only cluster (Jupiter's own right edge, nearest the Sun, to
+  // Mercury's own left edge, farthest away) - used to center the camera target and size the
+  // framing distance below. Deliberately excludes the Sun (see the block comment above).
+  const SIZES_PLANETS_MAX_X = Math.max(...[...sizesLineupById.values()].map((entry) => entry.x + entry.radius))
+  const SIZES_PLANETS_MIN_X = Math.min(...[...sizesLineupById.values()].map((entry) => entry.x - entry.radius))
+  const SIZES_PLANETS_WIDTH = SIZES_PLANETS_MAX_X - SIZES_PLANETS_MIN_X
+
+  // A small margin so the outermost spheres (Mercury's own limb on the left, Jupiter's on the
+  // right) don't touch the viewport edge.
+  const SIZES_CAMERA_FRAMING_MARGIN = 1.15
+
+  function applySizesCameraFraming(): void {
+    // Same upAxis/azimuth convention as applyLearnCameraFraming (world Y up, azimuth PI/2): the
+    // lineup runs along world X, so this puts X horizontal on screen with the camera offset along
+    // -Z, looking straight down +Z at the row - see that function's own doc comment for the basis
+    // derivation this relies on (orbitBasisForUpAxis in orbitCamera.ts).
+    const targetX = (SIZES_PLANETS_MIN_X + SIZES_PLANETS_MAX_X) / 2
+    vec3.set(orbitCamera.target, targetX, 0, 0)
+    orbitCamera.azimuth = Math.PI / 2
+    orbitCamera.elevation = 0.1
+    vec3.set(orbitCamera.upAxis, 0, 1, 0)
+    const verticalFovRadians = Math.PI / 4
+    const aspect = canvas.width / canvas.height
+    const halfWidthPerUnitDistance = Math.tan(verticalFovRadians / 2) * aspect
+    orbitCamera.radius = (SIZES_PLANETS_WIDTH * SIZES_CAMERA_FRAMING_MARGIN) / 2 / halfWidthPerUnitDistance
+    // The default zoom-in floor/near-plane pairing (tied to the explore-mode scale toggle) is
+    // orders of magnitude too coarse for this chapter's true real-scale radii (the Sun's own
+    // real radius here is ~0.09 scene units) - derive both directly from the lineup's own scale
+    // instead, mirroring refreshScaleDependentState's near-plane derivation below.
+    orbitCamera.minRadius = orbitCamera.radius * 0.01
+    projection = mat4.perspective(mat4.create(), Math.PI / 4, canvas.width / canvas.height, nearPlaneDistance(), 1000)
+  }
+
   // A shallow, side-on shot for the orbit chapter (design spec's §3) - centered on the Sun (which
   // never moves), at a low elevation so the axis's lean and the day/night split are both plainly
   // visible (the same "look at Sun and Earth from the side" convention the staged chapters already
@@ -1029,8 +1088,9 @@ async function main() {
   // actually changes (see goToChapter below), never every navigation, so the camera stays
   // perfectly still across same-kind chapter changes and while the orbit chapter's own animation
   // plays, exactly like it always has for the staged chapters.
-  function applyCameraFramingForKind(kind: 'orbit' | 'staged'): void {
+  function applyCameraFramingForKind(kind: 'orbit' | 'staged' | 'sizes'): void {
     if (kind === 'orbit') applyOrbitCameraFraming()
+    else if (kind === 'sizes') applySizesCameraFraming()
     else applyLearnCameraFraming()
   }
 
@@ -1254,6 +1314,11 @@ async function main() {
     const julianDay = currentJulianDay(currentDate)
     const T = julianMillenniaSinceJ2000(julianDay)
     const daysSinceEpoch = daysSinceJ2000(julianDay)
+    const isSizesChapter = learnModeController.currentMode === 'learn' && lessonPlayer.currentChapter.kind === 'sizes'
+    // The lesson-picker click handler forces labelsContainer hidden on entering ANY lesson (labels
+    // are seasons-lesson clutter there) - but for the sizes lineup, per-body name labels are the
+    // point, so force it back on every frame this chapter is open, overriding that teardown.
+    labelsContainer.style.display = isSizesChapter || showBodyLabels ? '' : 'none'
     // Must run before getViewMatrix() below, so a followed entity's target reflects this frame's
     // position rather than the previous frame's.
     cameraFollow.update(deltaSeconds, T, daysSinceEpoch, scaleBlend)
@@ -1280,7 +1345,7 @@ async function main() {
       device.queue.writeBuffer(starUniformBuffer, 0, starUniforms)
     }
 
-    const sunRadius = scaledBodyRadiusUnits(SUN.radiusKm, SUN.compactVisualRadius, scaleBlend, AU_KM)
+    const sunRadius = scaledBodyRadiusUnits(SUN.radiusKm, SUN.compactVisualRadius, isSizesChapter ? 0 : scaleBlend, AU_KM)
     const sunRotation = rotationAngleRadians(daysSinceEpoch, SUN.siderealRotationHours)
     const sunPoleDirection = equatorialToEclipticPoleDirection(SUN.poleRightAscensionDegrees, SUN.poleDeclinationDegrees)
     const sunTilt = axisAlignmentRotation(sunPoleDirection)
@@ -1308,7 +1373,7 @@ async function main() {
     const sunNdcY = sunClipW > 0 ? viewProjection[13] / sunClipW : 0
     const sunNdcZ = sunClipW > 0 ? viewProjection[14] / sunClipW : 0
 
-    if (showBodyLabels) {
+    if (showBodyLabels || isSizesChapter) {
       // Label positions feed CSS `left`/`top` on DOM elements, so they need CSS pixels
       // (clientWidth/clientHeight), not the canvas's backing-store pixels (canvas.width/height,
       // which include devicePixelRatio scaling and would place every label off by that factor —
@@ -1330,15 +1395,19 @@ async function main() {
     const planetPositionsById = new Map<string, [number, number, number]>()
     const planetRadiusById = new Map<string, number>()
     const planetFrameData = planetRenderables.map((renderable) => {
-      const isLearnEarth = learnModeController.currentMode === 'learn' && renderable.definition.id === 'earth'
+      const isLearnEarth = learnModeController.currentMode === 'learn' && renderable.definition.id === 'earth' && !isSizesChapter
       const isOrbitChapter = isLearnEarth && lessonPlayer.currentChapter.kind === 'orbit'
       // Earth in learn mode bypasses the real orbital-position pipeline (planetAuPosition +
       // scaledPosition) entirely - during the 'orbit' chapter it continuously sweeps around the
       // compact orbit path (orbitPositionForPhase, driven by orbitRevolutionDegrees, not a fixed
       // per-chapter phase); during 'staged' chapters it sits at a fixed staged coordinate. Neither
-      // is ever derived from a real date, per the design spec's §3.
+      // is ever derived from a real date, per the design spec's §3. A 'sizes' chapter overrides
+      // EVERY planet (not just Earth) to its precomputed lineup position instead - see
+      // sizesLineupById above.
       let sx: number, sy: number, sz: number
-      if (isOrbitChapter) {
+      if (isSizesChapter) {
+        ;[sx, sy, sz] = [sizesLineupById.get(renderable.definition.id)!.x, 0, 0]
+      } else if (isOrbitChapter) {
         ;[sx, sy, sz] = orbitPositionForPhase(orbitRevolutionDegrees, ORBIT_PATH_RADIUS)
       } else if (isLearnEarth) {
         ;[sx, sy, sz] = EARTH_STAGED_POSITION
@@ -1347,11 +1416,13 @@ async function main() {
         ;[sx, sy, sz] = scaledPosition(x, y, z, distanceAu, scaleBlend)
       }
       planetPositionsById.set(renderable.definition.id, [sx, sy, sz])
-      const radius = isOrbitChapter
-        ? ORBIT_EARTH_RADIUS
-        : isLearnEarth
-          ? EARTH_STAGED_RADIUS
-          : scaledBodyRadiusUnits(renderable.definition.radiusKm, renderable.definition.compactVisualRadius, scaleBlend, AU_KM)
+      const radius = isSizesChapter
+        ? sizesLineupById.get(renderable.definition.id)!.radius
+        : isOrbitChapter
+          ? ORBIT_EARTH_RADIUS
+          : isLearnEarth
+            ? EARTH_STAGED_RADIUS
+            : scaledBodyRadiusUnits(renderable.definition.radiusKm, renderable.definition.compactVisualRadius, scaleBlend, AU_KM)
       planetRadiusById.set(renderable.definition.id, radius)
       return { renderable, x: sx, y: sy, z: sz, radius }
     })
@@ -1485,7 +1556,7 @@ async function main() {
     }
 
     for (const { renderable, x: sx, y: sy, z: sz, radius } of planetFrameData) {
-      const isLearnEarth = learnModeController.currentMode === 'learn' && renderable.definition.id === 'earth'
+      const isLearnEarth = learnModeController.currentMode === 'learn' && renderable.definition.id === 'earth' && !isSizesChapter
       const isOrbitChapter = isLearnEarth && lessonPlayer.currentChapter.kind === 'orbit'
       const rotation = isOrbitChapter
         ? orbitSpinRadians
@@ -1591,7 +1662,7 @@ async function main() {
         device.queue.writeBuffer(ringUniformBuffer, 0, ringUniforms)
       }
 
-      if (showBodyLabels) {
+      if (showBodyLabels || isSizesChapter) {
         const screen = worldToScreen(viewProjection, sx, sy, sz, canvas.clientWidth, canvas.clientHeight)
         updateLabelPosition(labelElements.get(renderable.definition.id)!, screen)
       }
@@ -1936,7 +2007,7 @@ async function main() {
     }
     drawBody(pass, unlitPipeline, meshBuffers, sunRenderable.bindGroup)
     for (const renderable of planetRenderables) {
-      if (learnModeController.currentMode === 'learn' && renderable.definition.id !== 'earth') continue
+      if (learnModeController.currentMode === 'learn' && !isSizesChapter && renderable.definition.id !== 'earth') continue
       drawBody(pass, litPipeline, meshBuffers, renderable.bindGroup)
     }
     if (showMoons && learnModeController.currentMode !== 'learn') {
@@ -1951,7 +2022,7 @@ async function main() {
     // during learn mode. This went unnoticed while the staged/orbit cameras were tightly framed on
     // just Sun+Earth, but became visible once the orbit chapters' camera was widened to show more
     // of the scene, revealing Saturn (and other gas giants) still drifting through the background.
-    if (learnModeController.currentMode !== 'learn') {
+    if (learnModeController.currentMode !== 'learn' || isSizesChapter) {
       // Drawn after every opaque sphere (including Saturn's own and any moon) so its depth test
       // correctly hides the portion of the ring that passes behind them.
       pass.setPipeline(ringPipeline)
@@ -1992,7 +2063,7 @@ async function main() {
           pass.setBindGroup(0, renderable.bindGroup)
           pass.draw(renderable.pointCount)
         }
-      } else {
+      } else if (currentChapterKind === 'staged') {
         for (const id of OVERLAY_LINE_IDS) {
           const renderable = overlayLineRenderables[id]
           pass.setVertexBuffer(0, renderable.vertexBuffer)

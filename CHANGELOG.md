@@ -72,6 +72,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   fast-forwards" visible instead of implicit in a number.
 - Expanded the README with a screenshot, a fuller project description, and "For users"/"For
   developers" chapters.
+- A "How big are the planets?" Learn-mode lesson: the Sun and all 8 planets rendered at their true
+  real-scale relative sizes in a single largest-to-smallest lineup (no orbital distances involved),
+  with one page per planet giving its diameter, circumference, and average distance to the Sun in
+  km and AU. Now the first item in the lesson picker.
 
 ### Fixed
 

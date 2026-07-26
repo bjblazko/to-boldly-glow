@@ -1,4 +1,5 @@
 import type { Chapter, Lesson } from '../lessonTypes'
+import { PLANET_SIZES_LESSON } from './planetSizes'
 
 const CHAPTERS: Chapter[] = [
   {
@@ -81,4 +82,5 @@ export const SEASONS_LESSON: Lesson = {
 
 export const LESSONS_BY_ID: Record<string, Lesson> = {
   [SEASONS_LESSON.id]: SEASONS_LESSON,
+  [PLANET_SIZES_LESSON.id]: PLANET_SIZES_LESSON,
 }
