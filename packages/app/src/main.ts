@@ -6,10 +6,11 @@ import { minOrbitRadiusForBlend, OrbitCamera } from './camera/orbitCamera'
 import { FlyCamera } from './camera/flyCamera'
 import { CameraInputController } from './camera/inputController'
 import { CameraFollowController } from './camera/cameraFollow'
-import { currentJulianDay, SimulationClock } from './time/simulationClock'
+import { TourController } from './camera/tourController'
+import { currentJulianDay, SimulationClock, TIME_SCALE_PRESETS } from './time/simulationClock'
 import { TimeControlUI } from './time/timeControlUI'
 import { AU_KM, PLANETS, SUN, type BodyDefinition } from './solarSystem/bodies'
-import { planetAuPosition } from './solarSystem/entities'
+import { ALL_ENTITIES, planetAuPosition } from './solarSystem/entities'
 import { EntitySearchUI } from './search/entitySearchUI'
 import { DockUI } from './hud/dockUI'
 import { LearnModeController } from './learn/learnModeController'
@@ -765,6 +766,64 @@ async function main() {
   })
 
   const simulationClock = new SimulationClock()
+
+  const tourController = new TourController(ALL_ENTITIES.filter((entity) => entity.kind === 'planet'))
+  let isTouring = false
+  const tourToggleButton = document.querySelector<HTMLButtonElement>('#camera-tour-toggle')
+  const tourToggleLabel = tourToggleButton?.querySelector<HTMLElement>('.btn-label')
+
+  function stopTour(): void {
+    if (!isTouring) return
+    isTouring = false
+    const eye = vec3.fromValues(...tourController.getEyePosition())
+    const forward = vec3.subtract(vec3.create(), vec3.fromValues(...tourController.getLookAt()), eye)
+    flyCamera.setPose(eye, forward, [0, 1, 0])
+    flyCamera.speed = 0
+    tourController.stop()
+    cameraInput.setEnabled(true)
+    cameraInput.setMode('fly')
+    if (modeToggleLabel) modeToggleLabel.textContent = 'Switch to Orbit Camera'
+    if (tourToggleLabel) tourToggleLabel.textContent = 'Start Tour'
+  }
+
+  function startTour(): void {
+    if (isTouring) return
+    isTouring = true
+    cameraFollow.stopFollowing()
+    delete canvas.dataset.followingId
+    entitySearchUI.setFollowing(null)
+    cameraInput.setEnabled(false)
+    // A freshly loaded/paused clock ticks too slowly (or not at all) to visibly show planet
+    // rotation or moon motion during a flyby - bump it to a moderate preset so the tour reads as
+    // alive, without overriding a rate the user already dialed in themselves.
+    if (simulationClock.isPaused() || simulationClock.getTimeScale() === 1) {
+      simulationClock.play()
+      simulationClock.setTimeScale(TIME_SCALE_PRESETS[2].secondsPerSecond) // '1 hr/s'
+    }
+    const julianDay = currentJulianDay(simulationClock.getCurrentDate())
+    const T = julianMillenniaSinceJ2000(julianDay)
+    const daysSinceEpoch = daysSinceJ2000(julianDay)
+    tourController.start([0, 0, 0], T, daysSinceEpoch, scaleBlend)
+    if (tourToggleLabel) tourToggleLabel.textContent = 'Stop Tour'
+  }
+
+  tourToggleButton?.addEventListener('click', () => {
+    if (isTouring) stopTour()
+    else startTour()
+  })
+
+  // Any manual camera input while touring should hand control straight back to the pilot -
+  // cameraInput.setEnabled(false) already blocks it from moving the (inactive) fly/orbit cameras,
+  // but these listeners are what actually cancels the tour itself.
+  canvas.addEventListener('pointerdown', () => {
+    if (isTouring) stopTour()
+  })
+  canvas.addEventListener('wheel', () => {
+    if (isTouring) stopTour()
+  })
+  window.addEventListener('keydown', () => {
+    if (isTouring) stopTour()
+  })
   const timeControlUI = new TimeControlUI(
     simulationClock,
     requireElement<HTMLButtonElement>('#time-play-pause'),
@@ -1322,8 +1381,9 @@ async function main() {
     // Must run before getViewMatrix() below, so a followed entity's target reflects this frame's
     // position rather than the previous frame's.
     cameraFollow.update(deltaSeconds, T, daysSinceEpoch, scaleBlend)
+    if (isTouring) tourController.update(deltaSeconds, T, daysSinceEpoch, scaleBlend)
 
-    const view = cameraInput.getViewMatrix()
+    const view = isTouring ? tourController.getViewMatrix() : cameraInput.getViewMatrix()
     // A view matrix's translation column isn't the eye position directly (it's rotated into view
     // space), so extract it by inverting instead — works identically for both orbit and fly mode
     // without either camera class needing to expose its own position.
