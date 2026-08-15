@@ -1,6 +1,7 @@
 import { mat4, vec3 } from 'gl-matrix'
 import { AU_KM, type BodyDefinition } from '../solarSystem/bodies'
 import { entityWorldPosition, type SolarSystemEntity } from '../solarSystem/entities'
+import { ECLIPTIC_NORTH } from '../solarSystem/poleOrientation'
 import { scaledBodyRadiusUnits } from '../solarSystem/sceneScale'
 
 // Roughly how long a transit between two planets should take, used only to derive this leg's
@@ -50,7 +51,15 @@ const LOOKAT_SMOOTHING_RATE = 2.5
 const MIN_CRUISE_SPEED = 0.5
 
 
-const WORLD_UP: vec3 = vec3.fromValues(0, 1, 0)
+// The scene's real "up" is ECLIPTIC_NORTH (world Z), not world Y - see poleOrientation.ts and
+// docs/superpowers/specs/2026-07-20-camera-north-up-orientation-design.md, which migrated
+// OrbitCamera off a hardcoded Y-up for the same reason. Using Y here (as this file originally did)
+// put the tour's loop/lookAt basis 90 degrees off the rest of the scene's orientation, and let the
+// camera's forward direction pass close enough to this "up" vector during normal flight (most
+// orbital motion lies in the real X/Y ecliptic plane, which contains world Y) to make
+// mat4.lookAt's internal cross product near-degenerate - producing the reported sudden view
+// "jumps" on top of the 90-degree misorientation.
+const WORLD_UP: vec3 = vec3.fromValues(...ECLIPTIC_NORTH)
 
 // 'approach': pursuit-steering toward a point on the planet's loop circle, from far away - this is
 // only ever chasing a *distant* aim point, which is numerically stable (see the loop-entry angle

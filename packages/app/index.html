@@ -146,21 +146,14 @@
           </div>
         </div>
 
-        <div class="hud-row-between">
-          <span>Realistic</span>
-          <label class="hud-toggle-chip">
-            <input id="scale-toggle" type="checkbox" checked aria-label="Scale mode: Realistic or Compact" />
-            <span class="hud-toggle-visual">
-              <svg class="icon icon-check" aria-hidden="true"><use href="#icon-check"></use></svg>
-            </span>
-          </label>
-          <span>Compact</span>
-        </div>
-
         <div id="time-display" class="hud-readout">—</div>
       </div>
 
       <div class="hud-sheet-panel" data-panel="display">
+        <div class="hud-segmented" role="group" aria-label="Scale mode">
+          <button id="scale-mode-realistic-btn" class="hud-segmented-btn" type="button" aria-pressed="false">Realistic</button>
+          <button id="scale-mode-compact-btn" class="hud-segmented-btn" type="button" aria-pressed="true">Compact</button>
+        </div>
         <div class="hud-toggle-grid">
           <label class="hud-toggle-chip">
             <input id="orbit-paths-toggle" type="checkbox" checked />

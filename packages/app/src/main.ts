@@ -617,10 +617,19 @@ async function main() {
     projection = mat4.perspective(mat4.create(), Math.PI / 4, canvas.width / canvas.height, nearPlaneDistance(), 1000)
   }
 
-  const scaleToggle = requireElement<HTMLInputElement>('#scale-toggle')
-  scaleToggle.addEventListener('change', () => {
-    scaleBlendTween.retarget(scaleToggle.checked ? 1 : 0, scaleBlend)
-  })
+  // A segmented pair of buttons (not a single ambiguous checkbox) - each press unambiguously
+  // asserts its own mode rather than toggling relative to whatever state the control happened to
+  // already be in, and aria-pressed makes which mode is active explicit rather than implied by a
+  // shared checkmark sitting between two labels.
+  const scaleModeRealisticButton = requireElement<HTMLButtonElement>('#scale-mode-realistic-btn')
+  const scaleModeCompactButton = requireElement<HTMLButtonElement>('#scale-mode-compact-btn')
+  function setScaleMode(target: 0 | 1): void {
+    scaleBlendTween.retarget(target, scaleBlend)
+    scaleModeRealisticButton.setAttribute('aria-pressed', String(target === 0))
+    scaleModeCompactButton.setAttribute('aria-pressed', String(target === 1))
+  }
+  scaleModeRealisticButton.addEventListener('click', () => setScaleMode(0))
+  scaleModeCompactButton.addEventListener('click', () => setScaleMode(1))
 
   const orbitPathsToggle = requireElement<HTMLInputElement>('#orbit-paths-toggle')
   orbitPathsToggle.addEventListener('change', () => {
@@ -777,7 +786,7 @@ async function main() {
     isTouring = false
     const eye = vec3.fromValues(...tourController.getEyePosition())
     const forward = vec3.subtract(vec3.create(), vec3.fromValues(...tourController.getLookAt()), eye)
-    flyCamera.setPose(eye, forward, [0, 1, 0])
+    flyCamera.setPose(eye, forward, orbitCamera.upAxis)
     flyCamera.speed = 0
     tourController.stop()
     cameraInput.setEnabled(true)

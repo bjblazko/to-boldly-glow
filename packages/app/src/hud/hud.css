@@ -419,6 +419,43 @@
   color: var(--hud-text);
 }
 
+/* -------------------- scale mode segmented control -------------------- */
+.hud-segmented {
+  display: flex;
+  gap: 3px;
+  background: var(--hud-control-bg);
+  border: 1px solid var(--hud-control-border);
+  border-radius: 12px;
+  padding: 3px;
+}
+.hud-segmented-btn {
+  appearance: none;
+  flex: 1;
+  border: none;
+  cursor: pointer;
+  background: transparent;
+  color: var(--hud-dim);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 9px 0;
+  border-radius: 9px;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+.hud-segmented-btn:hover {
+  color: var(--hud-text);
+}
+.hud-segmented-btn[aria-pressed='true'] {
+  color: #a9f3e7;
+  background: var(--hud-accent-display-tint);
+}
+.hud-segmented-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
 /* -------------------- display toggles -------------------- */
 .hud-toggle-grid {
   display: grid;

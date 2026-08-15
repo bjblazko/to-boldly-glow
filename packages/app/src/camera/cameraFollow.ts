@@ -78,6 +78,13 @@ export class CameraFollowController {
   private followedEntity: SolarSystemEntity | null = null
   private flyTo: FlyToTween | null = null
   private readonly flyToDurationSeconds: number
+  // The framing radius (see defaultFramingRadius) the camera's current radius was last rescaled
+  // for. Realistic/Compact endpoints put a body's rendered radius orders of magnitude apart (see
+  // geometricBlend in sceneScale.ts) - without rescaling orbitCamera.radius by how much this
+  // reference framing radius itself changes as scaleBlend animates, a followed body shrinks to an
+  // invisible speck (Compact -> Realistic) or swells past the camera (Realistic -> Compact) while
+  // the camera's distance to it stays fixed at whatever it was framed for before the toggle.
+  private lastFramingRadius: number | null = null
 
   constructor(
     private readonly orbitCamera: OrbitCamera,
@@ -101,6 +108,7 @@ export class CameraFollowController {
     this.followedEntityId = entity.id
     const endTarget = entityWorldPosition(entity, T, daysSinceEpoch, scaleBlend)
     const basis = orbitBasisForUpAxis(startUpAxis)
+    const endRadius = defaultFramingRadius(entity, scaleBlend, this.orbitCamera)
     this.flyTo = {
       startTarget,
       startRadius: this.orbitCamera.radius,
@@ -108,13 +116,14 @@ export class CameraFollowController {
       startElevation: this.orbitCamera.elevation,
       startUpAxis,
       endTarget,
-      endRadius: defaultFramingRadius(entity, scaleBlend, this.orbitCamera),
+      endRadius,
       endAzimuth: defaultFramingAzimuth(endTarget, this.orbitCamera.azimuth, basis),
       endElevation: this.orbitCamera.elevation,
       endUpAxis: entityPoleDirection(entity),
       elapsedSeconds: 0,
       durationSeconds: this.flyToDurationSeconds,
     }
+    this.lastFramingRadius = endRadius
   }
 
   // Entity-independent counterpart to selectEntity: flies to a fixed, caller-supplied framing
@@ -148,6 +157,7 @@ export class CameraFollowController {
     ]
     this.followedEntityId = null
     this.followedEntity = null
+    this.lastFramingRadius = null
     this.flyTo = {
       startTarget,
       startRadius: this.orbitCamera.radius,
@@ -167,6 +177,7 @@ export class CameraFollowController {
   stopFollowing(): void {
     this.followedEntityId = null
     this.followedEntity = null
+    this.lastFramingRadius = null
     this.flyTo = null
   }
 
@@ -212,6 +223,17 @@ export class CameraFollowController {
         this.orbitCamera.target[2],
       ]
       vec3.copy(this.orbitCamera.target, lerpVec3(currentTarget, livePosition, followSmoothingFactor(deltaSeconds)))
+
+      // Rescale the camera's distance by however much the reference framing radius itself moved
+      // since last frame, so a Realistic<->Compact toggle (or its animated tween) keeps the
+      // followed body framed the same way instead of shrinking to a speck or blowing out past the
+      // camera - see lastFramingRadius's own comment. Multiplicative rescaling (rather than
+      // snapping straight to the new framing radius) preserves any zoom the user dialed in by hand.
+      const currentFramingRadius = defaultFramingRadius(this.followedEntity, scaleBlend, this.orbitCamera)
+      if (this.lastFramingRadius !== null && this.lastFramingRadius > 0) {
+        this.orbitCamera.radius *= currentFramingRadius / this.lastFramingRadius
+      }
+      this.lastFramingRadius = currentFramingRadius
     }
   }
 }

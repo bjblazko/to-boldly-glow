@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { OrbitCamera, orbitBasisForUpAxis } from '../src/camera/orbitCamera'
+import { minOrbitRadiusForBlend, OrbitCamera, orbitBasisForUpAxis } from '../src/camera/orbitCamera'
 import { CameraFollowController, defaultFramingAzimuth } from '../src/camera/cameraFollow'
 import { ALL_ENTITIES, entityPoleDirection, entityWorldPosition } from '../src/solarSystem/entities'
 import { ECLIPTIC_NORTH } from '../src/solarSystem/poleOrientation'
+import { AU_KM } from '../src/solarSystem/bodies'
+import { scaledBodyRadiusUnits } from '../src/solarSystem/sceneScale'
 
 function findEntity(id: string) {
   const entity = ALL_ENTITIES.find((e) => e.id === id)
@@ -141,6 +143,51 @@ describe('CameraFollowController', () => {
     expect(camera.target[0]).toBeCloseTo(expected[0], 3)
     expect(camera.target[1]).toBeCloseTo(expected[1], 3)
     expect(camera.target[2]).toBeCloseTo(expected[2], 3)
+  })
+
+  it('keeps a followed body framed as scaleBlend changes, instead of leaving it at a stale Compact-mode zoom distance', () => {
+    // Reproduces the reported bug: follow a planet, then toggle Realistic<->Compact. Jupiter's true
+    // physical radius in scene units is ~100x smaller than its hand-tuned Compact visual radius
+    // (see geometricBlend's comment in sceneScale.ts), so if orbitCamera.radius is never rescaled
+    // for the new scale, the planet shrinks to an invisible speck while the camera sits exactly
+    // where it was, still framed for the old (much larger) Compact-mode sphere.
+    const camera = new OrbitCamera()
+    const controller = new CameraFollowController(camera)
+    const jupiter = findEntity('jupiter')
+    const T = 0.1
+    const daysSinceEpoch = 500
+
+    camera.minRadius = minOrbitRadiusForBlend(1)
+    controller.selectEntity(jupiter, T, daysSinceEpoch, 1) // start fully Compact
+    runPastFlyTo(controller, T, daysSinceEpoch, 1)
+    const radiusAtCompact = camera.radius
+
+    // Animate scaleBlend from Compact (1) down to Realistic (0), the same way main.ts's
+    // ScaleBlendTween drives it frame by frame - including main.ts's own per-frame
+    // refreshCameraZoomLimits() call, which is what actually lets the camera zoom in this close
+    // (see minOrbitRadiusForBlend's own comment: the zoom-in floor must shrink with scaleBlend too,
+    // or it - not this fix - becomes the bottleneck preventing a close Realistic-mode framing).
+    for (let i = 0; i <= 20; i++) {
+      const scaleBlend = 1 - i / 20
+      camera.minRadius = minOrbitRadiusForBlend(scaleBlend)
+      controller.update(0.05, T, daysSinceEpoch, scaleBlend)
+    }
+
+    const bodyRadiusAtRealistic = scaledBodyRadiusUnits(
+      jupiter.definition.radiusKm,
+      (jupiter.definition as { compactVisualRadius: number }).compactVisualRadius,
+      0,
+      AU_KM,
+    )
+
+    // The camera should have zoomed in to stay proportionally framed on the now-tiny real body,
+    // not stayed at (or anywhere near) its old Compact-mode distance.
+    expect(camera.radius).toBeLessThan(radiusAtCompact * 0.5)
+    // And it should still be a sane, positive multiple of the body's actual (now tiny) radius -
+    // i.e. actually framed on it, not just "smaller than before" by coincidence.
+    expect(camera.radius).toBeGreaterThan(0)
+    expect(camera.radius / bodyRadiusAtRealistic).toBeGreaterThan(1)
+    expect(camera.radius / bodyRadiusAtRealistic).toBeLessThan(50)
   })
 
   it('leaves azimuth/elevation/radius free for manual orbiting once locked', () => {
