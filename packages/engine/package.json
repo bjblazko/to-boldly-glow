@@ -11,6 +11,6 @@
   },
   "devDependencies": {
     "assemblyscript": "^0.27.29",
-    "vitest": "^3.2.6"
+    "vitest": "^5.0.0"
   }
 }
