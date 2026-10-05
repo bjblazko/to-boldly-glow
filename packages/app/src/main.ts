@@ -4,7 +4,7 @@ import { generateSphereMesh } from './geometry/sphere'
 import { generateRingMesh } from './geometry/ring'
 import { minOrbitRadiusForBlend, OrbitCamera } from './camera/orbitCamera'
 import { FlyCamera } from './camera/flyCamera'
-import { CameraInputController } from './camera/inputController'
+import { CameraInputController, isTextEntryTarget } from './camera/inputController'
 import { CameraFollowController } from './camera/cameraFollow'
 import { TourController } from './camera/tourController'
 import { currentJulianDay, SimulationClock, TIME_SCALE_PRESETS } from './time/simulationClock'
@@ -767,8 +767,10 @@ async function main() {
 
   const modeToggleButton = document.querySelector<HTMLButtonElement>('#camera-mode-toggle')
   const modeToggleLabel = modeToggleButton?.querySelector<HTMLElement>('.btn-label')
-  function setCameraMode(mode: 'orbit' | 'fly') {
-    if (mode === 'fly' && cameraInput.mode === 'orbit') {
+  // syncFlyPose: false switches back to free-fly exactly where the fly camera was left, instead of
+  // snapping it to the orbit camera's current view (used when leaving a lesson).
+  function setCameraMode(mode: 'orbit' | 'fly', options: { syncFlyPose?: boolean } = {}) {
+    if (mode === 'fly' && cameraInput.mode === 'orbit' && (options.syncFlyPose ?? true)) {
       const eye = orbitCamera.getEyePosition()
       const forward = vec3.subtract(vec3.create(), orbitCamera.target, eye)
       flyCamera.setPose(eye, forward, orbitCamera.upAxis)
@@ -847,8 +849,13 @@ async function main() {
   canvas.addEventListener('wheel', () => {
     if (isTouring) stopTour()
   })
-  window.addEventListener('keydown', () => {
-    if (isTouring) stopTour()
+  window.addEventListener('keydown', (event) => {
+    if (!isTouring || isTextEntryTarget(event.target)) return
+    // Enter/Space on a focused button activate that button, whose own click handler decides what
+    // happens. Stopping here first made the "Stop Tour" button unusable from the keyboard: this
+    // listener stopped the tour, then the button's click immediately started it again.
+    if ((event.key === 'Enter' || event.key === ' ') && event.target instanceof HTMLButtonElement) return
+    stopTour()
   })
   const timeControlUI = new TimeControlUI(
     simulationClock,
@@ -871,6 +878,9 @@ async function main() {
     requireElement<HTMLElement>('#follow-indicator-label'),
     requireElement<HTMLButtonElement>('#follow-stop-button'),
     (entity) => {
+      // Typing in the search box doesn't stop the tour (see the keydown listener above), so a
+      // selection has to - otherwise the tour keeps owning the view and the fly-to never shows.
+      stopTour()
       if (cameraInput.mode === 'fly') setCameraMode('orbit')
       const julianDay = currentJulianDay(simulationClock.getCurrentDate())
       const T = julianMillenniaSinceJ2000(julianDay)
@@ -1174,8 +1184,15 @@ async function main() {
   // perfectly still across same-kind chapter changes and while the orbit chapter's own animation
   // plays, exactly like it always has for the staged chapters.
   function applyCameraFramingForKind(kind: 'orbit' | 'staged' | 'sizes'): void {
+    if (kind === 'sizes') {
+      applySizesCameraFraming()
+      return
+    }
+    // Undo the sizes lineup's own zoom floor/near plane (see applySizesCameraFraming) in case the
+    // previous chapter was one.
+    refreshCameraZoomLimits()
+    projection = perspectiveProjection()
     if (kind === 'orbit') applyOrbitCameraFraming()
-    else if (kind === 'sizes') applySizesCameraFraming()
     else applyLearnCameraFraming()
   }
 
@@ -1253,6 +1270,18 @@ async function main() {
   let preLearnOrbitPaths = true
   let preLearnBodyLabels = true
   let preLearnFlares = false
+  // Same idea for the camera: lessons re-frame the orbit camera (and the sizes lineup also shrinks
+  // its zoom floor and near plane), so the explore-mode camera is snapshotted on entry and put back
+  // on exit - otherwise leaving the sizes lesson stranded the camera inside the Sun at Compact
+  // scale, with a near plane ~4000x too small for it (z-fighting everywhere).
+  let preLearnCamera: {
+    mode: 'orbit' | 'fly'
+    target: vec3
+    radius: number
+    azimuth: number
+    elevation: number
+    upAxis: vec3
+  } | null = null
 
   function refreshChapterUI(): void {
     const chapter = lessonPlayer.currentChapter
@@ -1267,10 +1296,24 @@ async function main() {
   learnModeBtn.addEventListener('click', () => {
     if (learnModeController.currentMode === 'learn') {
       learnModeController.exit()
-      // applyLearnCameraFraming overrode upAxis to world Y for this lesson's side-on profile view -
-      // restore the real astronomical default (see orbitCamera.ts's own doc comment) so explore
-      // mode's north-up camera convention isn't left pointed at the wrong "north".
-      vec3.set(orbitCamera.upAxis, ...ECLIPTIC_NORTH)
+      // Lessons overrode upAxis (world Y for the side-on profile views), target/radius/angles, and
+      // for the sizes lineup the zoom floor and near plane too - restore the explore-mode camera
+      // (see preLearnCamera) and the scale-derived limits, rather than leaving explore mode with a
+      // lesson's framing and the wrong "north".
+      if (preLearnCamera) {
+        vec3.copy(orbitCamera.target, preLearnCamera.target)
+        orbitCamera.radius = preLearnCamera.radius
+        orbitCamera.azimuth = preLearnCamera.azimuth
+        orbitCamera.elevation = preLearnCamera.elevation
+        vec3.copy(orbitCamera.upAxis, preLearnCamera.upAxis)
+        setCameraMode(preLearnCamera.mode, { syncFlyPose: false })
+        preLearnCamera = null
+      } else {
+        vec3.set(orbitCamera.upAxis, ...ECLIPTIC_NORTH)
+      }
+      refreshCameraZoomLimits()
+      orbitCamera.radius = Math.max(orbitCamera.radius, orbitCamera.minRadius)
+      projection = perspectiveProjection()
       showOrbitPaths = preLearnOrbitPaths
       orbitPathsToggle.checked = preLearnOrbitPaths
       canvas.dataset.orbitPaths = String(preLearnOrbitPaths)
@@ -1296,6 +1339,23 @@ async function main() {
       if (!lesson) return
       lessonPicker.hidden = true
       lessonPlayer.load(lesson)
+      // Lessons drive the orbit camera directly, so nothing else may own the view: a running tour
+      // kept rendering its own view over the lesson, free-fly mode rendered the fly camera instead
+      // of the lesson framing, and an active entity follow kept dragging the camera target back to
+      // the followed body every frame.
+      stopTour()
+      cameraFollow.stopFollowing()
+      delete canvas.dataset.followingId
+      entitySearchUI.setFollowing(null)
+      preLearnCamera = {
+        mode: cameraInput.mode,
+        target: vec3.clone(orbitCamera.target),
+        radius: orbitCamera.radius,
+        azimuth: orbitCamera.azimuth,
+        elevation: orbitCamera.elevation,
+        upAxis: vec3.clone(orbitCamera.upAxis),
+      }
+      setCameraMode('orbit')
       preLearnOrbitPaths = showOrbitPaths
       preLearnBodyLabels = showBodyLabels
       preLearnFlares = showFlares

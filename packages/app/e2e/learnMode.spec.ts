@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-test('entering and exiting learn mode toggles app-mode state and hides/restores the free-roam dock', async ({ page }) => {
+test('entering and exiting learn mode toggles app-mode state and hides/restores the free-roam dock buttons', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
@@ -15,13 +15,18 @@ test('entering and exiting learn mode toggles app-mode state and hides/restores 
 
   await expect(page.locator('body')).toHaveAttribute('data-app-mode', 'learn')
   await expect(page.locator('body')).toHaveAttribute('data-lesson-id', 'seasons')
-  await expect(page.locator('.hud-dock')).toBeHidden()
+  // The dock itself stays (it holds Display and the Learn/exit button); only the free-roam Camera
+  // and Time buttons hide - see hud.css's body[data-app-mode='learn'] rules.
+  await expect(page.locator('.hud-dock-btn[data-panel="camera"]')).toBeHidden()
+  await expect(page.locator('.hud-dock-btn[data-panel="time"]')).toBeHidden()
   await expect(page.locator('#display-corner-btn')).toBeVisible()
+  await expect(page.locator('#learn-mode-btn')).toBeVisible()
 
   await page.locator('#learn-mode-btn').click()
 
   await expect(page.locator('body')).not.toHaveAttribute('data-app-mode', 'learn')
-  await expect(page.locator('.hud-dock')).toBeVisible()
+  await expect(page.locator('.hud-dock-btn[data-panel="camera"]')).toBeVisible()
+  await expect(page.locator('.hud-dock-btn[data-panel="time"]')).toBeVisible()
 
   expect(errors).toEqual([])
 })
@@ -111,13 +116,11 @@ test('lens flares are force-hidden on learn-mode entry and restored to their pri
   await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
 
   // canvas.dataset.flares isn't written until the toggle first fires (see moonsAndFlares.spec.ts),
-  // so it has no attribute at all pre-toggle even though flares are ON (the underlying `showFlares`
-  // default) - the assertions below only check the attribute from the point learn-mode entry first
-  // writes it.
+  // so it has no attribute at all pre-toggle even though flares are OFF (the underlying
+  // `showFlares` default) - the assertions below only check the attribute from the point learn-mode
+  // entry first writes it.
 
-  // Flares start ON (the default): entering learn mode must force them off, and exiting must
-  // restore ON - not leave them off, which would silently mutate the user's own explore-mode
-  // preference (the exact bug class Task 10's out-of-scope fix, commit bcbbdf9, addressed).
+  // Flares start OFF (the default): learn mode must leave them off on exit, not flip them on.
   await page.locator('#learn-mode-btn').click()
   await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
   await expect(page.locator('body')).toHaveAttribute('data-app-mode', 'learn')
@@ -125,12 +128,14 @@ test('lens flares are force-hidden on learn-mode entry and restored to their pri
 
   await page.locator('#learn-mode-btn').click()
   await expect(page.locator('body')).not.toHaveAttribute('data-app-mode', 'learn')
-  await expect(page.locator('#scene')).toHaveAttribute('data-flares', 'true')
-
-  // Now start from flares OFF (a user preference) and confirm learn mode doesn't flip it to true.
-  await page.locator('#display-corner-btn').click()
-  await page.locator('#flares-toggle').uncheck()
   await expect(page.locator('#scene')).toHaveAttribute('data-flares', 'false')
+
+  // Now turn flares ON (a user preference): entering learn mode must force them off, and exiting
+  // must restore ON - not leave them off, which would silently mutate the user's own explore-mode
+  // preference (the exact bug class Task 10's out-of-scope fix, commit bcbbdf9, addressed).
+  await page.locator('#display-corner-btn').click()
+  await page.locator('#flares-toggle').check()
+  await expect(page.locator('#scene')).toHaveAttribute('data-flares', 'true')
   await page.locator('#display-corner-btn').click()
 
   await page.locator('#learn-mode-btn').click()
@@ -138,7 +143,7 @@ test('lens flares are force-hidden on learn-mode entry and restored to their pri
   await expect(page.locator('#scene')).toHaveAttribute('data-flares', 'false')
 
   await page.locator('#learn-mode-btn').click()
-  await expect(page.locator('#scene')).toHaveAttribute('data-flares', 'false')
+  await expect(page.locator('#scene')).toHaveAttribute('data-flares', 'true')
 
   expect(errors).toEqual([])
 })
@@ -245,6 +250,29 @@ test('the lesson panel can be dragged by its grip handle, clamped to the viewpor
   if (!afterNavBox) throw new Error('lesson panel has no bounding box after navigation')
   expect(Math.round(afterNavBox.x)).toBe(Math.round(afterDragBox.x))
   expect(Math.round(afterNavBox.y)).toBe(Math.round(afterDragBox.y))
+
+  expect(errors).toEqual([])
+})
+
+test('opening a lesson while following a body ends the follow, so it cannot drag the lesson camera away', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', (error) => errors.push(error.message))
+
+  await page.goto('/')
+  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+
+  await page.locator('.hud-dock-btn[data-panel="camera"]').click()
+  await page.locator('#entity-search-input').fill('Mars')
+  await page.locator('#entity-search-input').press('Enter')
+  await expect(page.locator('#scene')).toHaveAttribute('data-following-id', 'mars')
+
+  await page.locator('#learn-mode-btn').click()
+  await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
+  await expect(page.locator('body')).toHaveAttribute('data-app-mode', 'learn')
+  await expect(page.locator('#scene')).not.toHaveAttribute('data-following-id')
+
+  await page.locator('#learn-mode-btn').click()
+  await expect(page.locator('#follow-indicator')).toBeHidden()
 
   expect(errors).toEqual([])
 })
