@@ -207,8 +207,17 @@ test('globe overlays and both location markers render without WebGPU errors acro
 
   await expect(page.locator('#location-a-label')).toBeVisible()
   await expect(page.locator('#location-b-label')).toBeVisible()
-  // June solstice: the axis leans the full 23.4 degrees away from the vertical reference line.
-  await expect(page.locator('#axis-tilt-label')).toHaveText('23.4°')
+  // June solstice: the north end of the axis leans its full 23.4 degrees toward the Sun.
+  await expect(page.locator('#axis-tilt-label')).toHaveText('23.4° toward the Sun')
+
+  await page.locator('#lesson-next-chapter').click() // june-solstice -> september-equinox
+  await page.waitForTimeout(1500)
+  // The tilt is still 23.4 degrees, but none of it points at the Sun.
+  await expect(page.locator('#axis-tilt-label')).toHaveText('0.0° (tilt points sideways)')
+
+  await page.locator('#lesson-next-chapter').click() // september-equinox -> december-solstice
+  await page.waitForTimeout(1500)
+  await expect(page.locator('#axis-tilt-label')).toHaveText('23.4° away from the Sun')
   expect(errors).toEqual([])
 })
 
@@ -274,5 +283,41 @@ test('opening a lesson while following a body ends the follow, so it cannot drag
   await page.locator('#learn-mode-btn').click()
   await expect(page.locator('#follow-indicator')).toBeHidden()
 
+  expect(errors).toEqual([])
+})
+
+test('each lesson says what is and is not to scale', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+
+  await page.locator('#learn-mode-btn').click()
+  await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
+  await expect(page.locator('#lesson-note')).toBeVisible()
+  await expect(page.locator('#lesson-note')).toContainText('All angles shown are true')
+  await page.locator('#learn-mode-btn').click()
+
+  await page.locator('#learn-mode-btn').click()
+  await page.locator('.hud-lesson-picker-item[data-lesson-id="planetSizes"]').click()
+  await expect(page.locator('#lesson-note')).toContainText('Sizes are to scale')
+})
+
+test('the seasons lesson keeps working when the explore view is at Realistic scale', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', (error) => errors.push(error.message))
+
+  await page.goto('/')
+  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+  await page.locator('#display-corner-btn').click()
+  await page.locator('#scale-mode-realistic-btn').click()
+  await expect(page.locator('#scene')).toHaveAttribute('data-scale-mode', 'realistic')
+  await page.locator('#display-corner-btn').click()
+
+  await page.locator('#learn-mode-btn').click()
+  await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
+  await page.locator('#lesson-next-chapter').click() // orbit -> intro (staged)
+  await page.waitForTimeout(1500)
+  await expect(page.locator('#axis-tilt-label')).toHaveText('23.4° toward the Sun')
+  await expect(page.locator('#location-a-label')).toBeVisible()
+  await expect(page.locator('#location-b-label')).toBeVisible()
   expect(errors).toEqual([])
 })

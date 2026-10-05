@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { seasonalPoleDirection } from '../src/main'
+import { ORBIT_FIXED_POLE_DIRECTION, seasonalPoleDirection } from '../src/main'
+import { orbitPositionForPhase } from '../src/learn/overlayGeometry'
 
 const OBLIQUITY_RADIANS = (23.4 * Math.PI) / 180
 
@@ -30,26 +31,36 @@ describe('seasonalPoleDirection', () => {
     }
   })
 
-  // The pole is deliberately confined to the X-Y plane at every phase (never leaning into Z, the
-  // learn-mode camera's own depth axis) - see seasonalPoleDirection's doc comment for why: a
-  // nonzero Z made an equinox's "0.0 degree" reading visually contradict itself under a real
-  // perspective camera (the drawn axis line and the vertical reference line were not actually
-  // parallel in 3D, only their flattened X-Y angle matched). Because Z is pinned to exactly 0, Y is
-  // no longer a phase-independent constant (unlike an earlier version of this function) - it varies
-  // to keep the vector unit-length: 1.0 at the equinoxes (a fully upright axis), cos(obliquity) at
-  // the solstices (the same value the old constant-Y model used there too).
-  it('the pole is always confined to the X-Y plane (Z is exactly 0 at every phase)', () => {
-    for (const phase of [0, 45, 90, 135, 180, 225, 270, 315]) {
-      const [, , z] = seasonalPoleDirection(phase)
-      expect(z).toBe(0)
+  // Regression test: the pole used to be flattened into the X-Y plane, which shrank Earth's tilt
+  // against its orbit to 0 at the equinoxes. Real Earth keeps 23.4 degrees all year; only where the
+  // tilt points (toward the Sun, sideways, away) changes.
+  it('keeps the true 23.4-degree tilt against the orbit perpendicular (world +Y) at every phase', () => {
+    for (const phase of [0, 30, 45, 90, 135, 180, 225, 270, 315]) {
+      const [, y] = seasonalPoleDirection(phase)
+      expect((Math.acos(y) * 180) / Math.PI).toBeCloseTo(23.4, 9)
     }
   })
 
-  it('Y is 1.0 at the equinoxes and cos(obliquity) at the solstices', () => {
-    expect(seasonalPoleDirection(90)[1]).toBeCloseTo(1, 9)
-    expect(seasonalPoleDirection(270)[1]).toBeCloseTo(1, 9)
-    expect(seasonalPoleDirection(0)[1]).toBeCloseTo(Math.cos(OBLIQUITY_RADIANS), 9)
-    expect(seasonalPoleDirection(180)[1]).toBeCloseTo(Math.cos(OBLIQUITY_RADIANS), 9)
+  it('points the whole tilt sideways at the equinoxes: toward the camera (-Z) in September, away in March', () => {
+    expect(seasonalPoleDirection(90)[2]).toBeCloseTo(-Math.sin(OBLIQUITY_RADIANS), 9)
+    expect(seasonalPoleDirection(270)[2]).toBeCloseTo(Math.sin(OBLIQUITY_RADIANS), 9)
+  })
+
+  it("gives the same Sun angle as the orbit chapter's fixed axis at every phase", () => {
+    // The staged chapters show the orbit chapter's geometry from a frame turning with the
+    // Sun-Earth line, so the subsolar latitude (the Sun's declination) must agree exactly.
+    for (const phase of [0, 20, 45, 90, 120, 180, 200, 270, 300]) {
+      const stagedSubsolar = Math.asin(-seasonalPoleDirection(phase)[0])
+      const earth = orbitPositionForPhase(phase, 11)
+      const length = Math.hypot(...earth)
+      const sunward = [-earth[0] / length, -earth[1] / length, -earth[2] / length]
+      const orbitSubsolar = Math.asin(
+        ORBIT_FIXED_POLE_DIRECTION[0] * sunward[0] + ORBIT_FIXED_POLE_DIRECTION[1] * sunward[1] + ORBIT_FIXED_POLE_DIRECTION[2] * sunward[2],
+      )
+      expect(stagedSubsolar).toBeCloseTo(orbitSubsolar, 9)
+      // ...and equals the textbook declination formula sin(dec) = sin(obliquity) * cos(phase).
+      expect(Math.sin(stagedSubsolar)).toBeCloseTo(Math.sin(OBLIQUITY_RADIANS) * Math.cos((phase * Math.PI) / 180), 9)
+    }
   })
 
   // EARTH_STAGED_POSITION in main.ts places Earth on the +X side of the Sun (which sits at the

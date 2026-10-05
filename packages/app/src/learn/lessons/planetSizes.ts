@@ -72,4 +72,5 @@ export const PLANET_SIZES_LESSON: Lesson = {
   title: 'How big are the planets?',
   chapters: CHAPTERS,
   markerLatitudeDegrees: 0, // unused by 'sizes' chapters - see lessonTypes.ts's doc comment
+  note: 'Sizes are to scale. Distances are not: the planets are lined up side by side.',
 }

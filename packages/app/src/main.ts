@@ -2,7 +2,7 @@ import { mat4, vec3 } from 'gl-matrix'
 import { daysSinceJ2000, julianMillenniaSinceJ2000 } from '@toboldlyglow/engine'
 import { generateSphereMesh } from './geometry/sphere'
 import { generateRingMesh } from './geometry/ring'
-import { minOrbitRadiusForBlend, OrbitCamera } from './camera/orbitCamera'
+import { COMPACT_MIN_ORBIT_RADIUS, minOrbitRadiusForBlend, OrbitCamera } from './camera/orbitCamera'
 import { FlyCamera } from './camera/flyCamera'
 import { CameraInputController, isTextEntryTarget } from './camera/inputController'
 import { CameraFollowController } from './camera/cameraFollow'
@@ -17,18 +17,17 @@ import { LearnModeController } from './learn/learnModeController'
 import { LessonPlayer } from './learn/lessonPlayer'
 import { LESSONS_BY_ID, SEASONS_LESSON } from './learn/lessons/seasons'
 import {
-  angleBetweenDirections,
   directedLinePoints,
   equatorRingPoints,
   greatCircleArcPoints,
   latitudeMarkerCenter,
   latitudeMarkerPoints,
+  meridianLongitudeFacing,
   orbitPathCirclePoints,
   orbitPositionForPhase,
   perpendicularComponent,
   rotationAxisPoints,
-  tiltAngleArcPoints,
-  verticalReferencePoints,
+  sunLeanLabel,
 } from './learn/overlayGeometry'
 import { initShuttleVisual } from './hud/shuttleVisual'
 import { scaledBodyRadiusUnits, scaledPosition } from './solarSystem/sceneScale'
@@ -192,45 +191,29 @@ async function createBodyRenderable<TDefinition extends { id: string; textureUrl
   return { definition, uniformBuffer, bindGroup }
 }
 
-// The 23.4-degree real axial tilt, expressed as a pure function of an idealized "season phase"
-// (0 = June solstice, 90 = September equinox, 180 = December solstice, 270 = March equinox)
-// instead of a real calendar date. In this staged diagram, Earth's position never changes - only
-// its tilt orientation does - so the usual "axis is fixed in space, orbital position changes the
-// angle to the Sun" mechanism is inverted: here the axis itself rotates to represent each season,
-// with the Sun-Earth line fixed along local +X (see EARTH_STAGED_POSITION in main() below).
+// Earth's real north-pole direction for an idealized "season phase" (0 = June solstice, 90 =
+// September equinox, 180 = December solstice, 270 = March equinox), in the staged chapters' frame:
+// Sun at the world origin, Earth fixed on the +X side of it (EARTH_STAGED_POSITION in main()
+// below), world +Y = perpendicular to the orbital plane (the staged camera's up), and the camera on
+// the -Z side looking in.
 //
-// Deliberately confined to the X-Y plane (Z is always exactly 0) rather than a physically literal
-// rotation of a fixed-magnitude tilt vector - an earlier version let the "invisible" component of
-// the lean vary along local Z (perpendicular to the learn-mode camera's screen plane), reasoning
-// that depth would be invisible. It isn't: with a real perspective camera, any Z offset still
-// changes which hemisphere faces the camera and makes an otherwise-vertical line read as tilted at
-// varying screen depth, so the axis visibly leaned even at an equinox chapter's own "0.0deg"
-// reading. Confining the pole to X-Y guarantees the drawn axis line is geometrically exactly
-// parallel to the vertical reference line whenever the label reads 0.0 degrees, and the equator
-// ring's plane stays edge-on to the camera (a clean ellipse, not a wandering-depth loop) at every
-// phase - matching the classic flat textbook diagram this lesson is going for, not a literal orrery.
+// This is the orbit chapter's fixed axis (ORBIT_FIXED_POLE_DIRECTION) seen from a frame that turns
+// with the Sun-Earth line: holding Earth still and keeping the Sun on its -X side makes the fixed
+// axis appear to swing around the orbit's perpendicular once a year instead. It keeps the true
+// 23.4-degree angle to that perpendicular (world +Y) at every phase; what changes is where that tilt
+// points - toward the Sun (-X) at the June solstice, away (+X) in December, and sideways (along the
+// view direction, Z) at the equinoxes. The X component is the part that matters for the seasons:
+// asin(dot(pole, sunward = -X)) is the subsolar latitude (the Sun's declination), +23.4 in June,
+// -23.4 in December, 0 at the equinoxes.
 //
-// X leans toward/away from the Sun (visible on screen as leaning left/right - a solstice at
-// phase=0/180); Y makes up the remainder needed to keep the vector unit-length (this is why Y is no
-// longer a phase-independent constant - it's exactly 1 at the equinoxes, cos(obliquity) at the
-// solstices, which is the deliberate trade this model makes: real Earth's tilt magnitude never
-// actually changes, but showing that here would require the very same Z-axis "invisible" lean that
-// causes the misleading foreshortening above).
-//
-// The X-term is negated relative to a naive cos(phase) because the Sun sits at the world origin
-// while Earth is staged on the +X side of it (EARTH_STAGED_POSITION below) - so the sunward
-// direction as seen FROM Earth is -X, not +X. Subsolar latitude = asin(dot(northPole, sunward)),
-// so a pole leaning toward +X (positive cos(phase)) actually leans AWAY from the Sun without this
-// negation, inverting which hemisphere each solstice chapter's own text claims is favored. Verified
-// numerically: at phase=0 ("june-solstice"), this must yield a positive subsolar latitude (north
-// favored, matching real June); phase=180 ("december-solstice") must yield negative (south
-// favored). See seasonalTilt.test.ts's "matches the sunward-facing hemisphere" test.
+// An earlier version flattened the pole into the X-Y plane so the equinox axis would draw exactly
+// upright next to a vertical reference line; that made the tilt itself shrink to 0 at the
+// equinoxes - a wrong angle, and the opposite of what the orbit chapter teaches. The reference line
+// and arc now follow the axis in 3D instead (see the staged overlay block in frame()).
 export function seasonalPoleDirection(phaseDegrees: number): [number, number, number] {
   const obliquity = (23.4 * Math.PI) / 180
   const phase = (phaseDegrees * Math.PI) / 180
-  const x = -Math.sin(obliquity) * Math.cos(phase)
-  const y = Math.sqrt(Math.max(0, 1 - x * x))
-  return [x, y, 0]
+  return [-Math.sin(obliquity) * Math.cos(phase), Math.cos(obliquity), -Math.sin(obliquity) * Math.sin(phase)]
 }
 
 // The fixed direction Earth's real rotation axis points in space, expressed in this app's own
@@ -603,8 +586,15 @@ async function main() {
   // Keeps the camera's zoom-in floor proportional to the current scale, so a body's own close-up
   // framing (see defaultFramingRadius in cameraFollow.ts) is never overridden by an
   // Compact-appropriate minimum distance that's now orders of magnitude too large.
+  // A lesson's own zoom floor (and with it, its near plane - see nearPlaneDistance), or null outside
+  // a lesson. Lessons stage fixed scenes at their own scale, so the explore-mode Realistic/Compact
+  // toggle (still reachable from the Display panel during a lesson) must not change them: at
+  // Realistic scale the floor shrinks to 0.0005, which put the seasons scene's near plane at
+  // 0.00001 - leaving about 1 unit of depth resolution 13 units out, so the equator ring and axis
+  // (2% above Earth's surface) flickered or vanished behind the globe.
+  let lessonMinRadius: number | null = null
   function refreshCameraZoomLimits(): void {
-    orbitCamera.minRadius = minOrbitRadiusForBlend(scaleBlend)
+    orbitCamera.minRadius = lessonMinRadius ?? minOrbitRadiusForBlend(scaleBlend)
   }
   refreshCameraZoomLimits()
 
@@ -739,8 +729,17 @@ async function main() {
   // that orbit sits up to ~1300 units away - the old 1000-unit far plane clipped it off. Depth
   // precision is governed almost entirely by the near plane, so a larger far plane costs nothing.
   const FAR_PLANE_DISTANCE = 2000
+  const VERTICAL_FOV_RADIANS = Math.PI / 4
+  // Vertical lens shift in NDC (positive moves the image up). Nonzero only in lessons, which use it
+  // to keep their scene in the space above the lesson panel (see fitLessonFramingAbovePanel). A lens
+  // shift translates the image without changing the perspective, so no angle in the scene changes.
+  let lessonLensShiftNdc = 0
   function perspectiveProjection(): mat4 {
-    return mat4.perspective(mat4.create(), Math.PI / 4, canvas.width / canvas.height, nearPlaneDistance(), FAR_PLANE_DISTANCE)
+    const matrix = mat4.perspective(mat4.create(), VERTICAL_FOV_RADIANS, canvas.width / canvas.height, nearPlaneDistance(), FAR_PLANE_DISTANCE)
+    // Column-major: [9] multiplies view-space z into clip y, and clip w = -z, so this adds the shift
+    // to every point's NDC y.
+    matrix[9] = -lessonLensShiftNdc
+    return matrix
   }
 
   let projection = perspectiveProjection()
@@ -760,6 +759,8 @@ async function main() {
       bloomTargets = createBloomTargets(device, bloomPipelines, canvas.width, canvas.height)
     }
     projection = perspectiveProjection()
+    // Lessons fit their scene to the space above the lesson panel, which depends on the window size.
+    if (learnModeController.currentMode === 'learn') applyCameraFramingForKind(lessonPlayer.currentChapter.kind)
   })
 
   const flyCamera = new FlyCamera({ position: [0, 25, 60], yaw: Math.PI, pitch: 0 })
@@ -975,12 +976,19 @@ async function main() {
   // diagram, not a scale model; see the design spec's §3).
   const EARTH_STAGED_POSITION: [number, number, number] = [9, 0, 0]
   const EARTH_STAGED_RADIUS = 2.2 // enlarged for legibility - a staged diagram, not a scale model
-  // Longitude (see overlayGeometry.ts's latitudeSurfaceNormalAndPoint) shared by both location
-  // markers. earthLearnTilt (the transform this overlay uses) deliberately excludes Earth's spin,
-  // so this placement is stable for the whole lesson, not just at one instant - tuned empirically
-  // so both markers sit on/near the sunward-facing side rather than one of them permanently on the
-  // night side, which made a season's own "gets more sunlight" claim unreadable at a glance.
-  const LEARN_MARKER_LONGITUDE_DEGREES = -60
+  // The world direction (staged frame: Sun on -X, camera on -Z) that both location markers' meridian
+  // faces: 40 degrees from the Sun toward the camera. Fixed in the world rather than as a local
+  // longitude, so the markers stay on that side as the axis swings between chapters (see
+  // meridianLongitudeFacing in overlayGeometry.ts) - a fixed local longitude drifted around the
+  // globe with each chapter's tilt. 40 degrees keeps both +/-45-degree markers clearly on the
+  // sunlit side AND facing the camera at every phase (at the equinoxes the tilt points along the
+  // view direction, turning one hemisphere partly away); smaller angles push a marker to the limb.
+  const LEARN_MARKER_MERIDIAN_ANGLE_RADIANS = (40 * Math.PI) / 180
+  const LEARN_MARKER_MERIDIAN_DIRECTION: [number, number, number] = [
+    -Math.cos(LEARN_MARKER_MERIDIAN_ANGLE_RADIANS),
+    0,
+    -Math.sin(LEARN_MARKER_MERIDIAN_ANGLE_RADIANS),
+  ]
 
   // Set once on entering learn mode (see the lesson-picker click handler below) and never moved
   // again - this is what structurally eliminates the old slide/jump camera artifact, rather than
@@ -1071,16 +1079,9 @@ async function main() {
     orbitCamera.azimuth = Math.PI / 2
     orbitCamera.elevation = 0.1
     vec3.set(orbitCamera.upAxis, 0, 1, 0)
-    const verticalFovRadians = Math.PI / 4
     const aspect = canvas.width / canvas.height
-    const halfWidthPerUnitDistance = Math.tan(verticalFovRadians / 2) * aspect
+    const halfWidthPerUnitDistance = Math.tan(VERTICAL_FOV_RADIANS / 2) * aspect
     orbitCamera.radius = (SIZES_PLANETS_WIDTH * SIZES_CAMERA_FRAMING_MARGIN) / 2 / halfWidthPerUnitDistance
-    // The default zoom-in floor/near-plane pairing (tied to the explore-mode scale toggle) is
-    // orders of magnitude too coarse for this chapter's true real-scale radii (the Sun's own
-    // real radius here is ~0.09 scene units) - derive both directly from the lineup's own scale
-    // instead, mirroring refreshScaleDependentState's near-plane derivation below.
-    orbitCamera.minRadius = orbitCamera.radius * 0.01
-    projection = perspectiveProjection()
   }
 
   // A shallow, side-on shot for the orbit chapter (design spec's §3) - centered on the Sun (which
@@ -1184,16 +1185,67 @@ async function main() {
   // perfectly still across same-kind chapter changes and while the orbit chapter's own animation
   // plays, exactly like it always has for the staged chapters.
   function applyCameraFramingForKind(kind: 'orbit' | 'staged' | 'sizes'): void {
-    if (kind === 'sizes') {
-      applySizesCameraFraming()
-      return
-    }
-    // Undo the sizes lineup's own zoom floor/near plane (see applySizesCameraFraming) in case the
-    // previous chapter was one.
-    refreshCameraZoomLimits()
-    projection = perspectiveProjection()
     if (kind === 'orbit') applyOrbitCameraFraming()
+    else if (kind === 'sizes') applySizesCameraFraming()
     else applyLearnCameraFraming()
+    // Each chapter kind sets its own zoom floor/near plane, independent of the explore-mode scale
+    // toggle (see lessonMinRadius): the sizes lineup is at true real scale (the Sun's radius there
+    // is ~0.09 units), so it derives one from its own framing distance; the seasons scenes are
+    // drawn at Compact-like sizes, so they use the Compact floor.
+    lessonMinRadius = kind === 'sizes' ? orbitCamera.radius * 0.01 : COMPACT_MIN_ORBIT_RADIUS
+    refreshCameraZoomLimits()
+    fitLessonFramingAbovePanel(kind)
+    projection = perspectiveProjection()
+  }
+
+  // How much of the canvas's bottom edge the lesson panel covers by default - mirrors
+  // .hud-lesson-panel's `top: max(16px, calc(100% - 376px))` in hud.css; keep the two in sync.
+  const LESSON_PANEL_RESERVED_PX = 376
+  const LESSON_PANEL_MIN_TOP_PX = 16
+  const LESSON_FIT_MARGIN_TOP = 0.05
+  const LESSON_FIT_MARGIN_BOTTOM = 0.04
+  // Each lesson scene's extent around its camera target, in scene units: vertically along the
+  // camera's up axis (what has to stay visible above the lesson panel), and horizontally the
+  // farthest the content reaches to either side of the target (what has to fit across narrow,
+  // portrait screens).
+  const LESSON_CONTENT_BOUNDS: Record<'orbit' | 'staged' | 'sizes', { top: number; bottom: number; halfWidth: number }> = {
+    // The axis line's north end and its label; Earth's southern limb and the Location B label;
+    // Earth's far limb plus its side labels (the Sun, on the other side, may be cut off).
+    staged: { top: 4.4, bottom: -2.7, halfWidth: 7.2 },
+    // Earth's axis line above and below the orbit ellipse; its most extreme ends (Earth at the far
+    // or near point of its orbit) may graze the band's edge. Sideways, the orbit circle plus labels.
+    orbit: { top: 5.2, bottom: -5.2, halfWidth: 15 },
+    // The lineup row itself (Jupiter's true radius is ~0.009 units) and the labels under it; its
+    // width is already fitted by applySizesCameraFraming.
+    sizes: { top: 0.02, bottom: -0.02, halfWidth: 0 },
+  }
+
+  // Moves a lesson's scene into the band of the screen above the lesson panel, which otherwise
+  // covered the lower half of the picture (Location B and Earth's southern hemisphere in every
+  // seasons chapter at 1280x720, and the whole lineup row in the sizes lesson). A lens shift
+  // centers the content in that band without tilting the camera; the camera only backs off
+  // (never moves closer than the chapter's own framing) when the content is too tall for the band
+  // or too wide for the screen.
+  function fitLessonFramingAbovePanel(kind: 'orbit' | 'staged' | 'sizes'): void {
+    const height = canvas.clientHeight
+    if (height <= 0) return
+    const panelTopFraction = Math.max(LESSON_PANEL_MIN_TOP_PX, height - LESSON_PANEL_RESERVED_PX) / height
+    const bandTop = LESSON_FIT_MARGIN_TOP
+    const bandBottom = Math.max(panelTopFraction - LESSON_FIT_MARGIN_BOTTOM, bandTop + 0.1)
+    const { top: contentTop, bottom: contentBottom, halfWidth: contentHalfWidth } = LESSON_CONTENT_BOUNDS[kind]
+    const tanHalfFov = Math.tan(VERTICAL_FOV_RADIANS / 2)
+    const aspect = canvas.clientWidth / height
+    const halfHeightToFit = Math.max(
+      (contentTop - contentBottom) / (2 * (bandBottom - bandTop)),
+      contentHalfWidth / aspect,
+    )
+    orbitCamera.radius = Math.max(orbitCamera.radius, halfHeightToFit / tanHalfFov)
+    const halfHeight = orbitCamera.radius * tanHalfFov
+    // A point at height y above the target lands at screen fraction 0.5 - y / (2 * halfHeight) -
+    // shift / 2 from the top; solve for the shift that puts the content's middle mid-band.
+    const bandCenter = (bandTop + bandBottom) / 2
+    const contentCenter = (contentTop + contentBottom) / 2
+    lessonLensShiftNdc = 1 - 2 * bandCenter - contentCenter / halfHeight
   }
 
   // Smoothly re-tilts Earth's axis when switching chapters (a rotation tween on Earth's own transform,
@@ -1262,6 +1314,7 @@ async function main() {
   let earthLearnTilt: mat4 | null = null
 
   const lessonChapterText = requireElement<HTMLElement>('#lesson-chapter-text')
+  const lessonNote = requireElement<HTMLElement>('#lesson-note')
 
   // Snapshots of the user's explore-mode Display-toggle state, taken right before forcing both off
   // on learn-mode entry, and restored verbatim on exit - so visiting a lesson never permanently
@@ -1289,6 +1342,8 @@ async function main() {
     lessonPrevBtn.disabled = !lessonPlayer.hasPreviousChapter
     lessonNextBtn.disabled = !lessonPlayer.hasNextChapter
     lessonChapterText.textContent = chapter.text
+    lessonNote.textContent = lessonPlayer.currentLesson.note ?? ''
+    lessonNote.hidden = !lessonPlayer.currentLesson.note
     lessonPanel.dataset.chapterId = chapter.id
     lessonPanel.dataset.chapterKind = chapter.kind
   }
@@ -1311,6 +1366,8 @@ async function main() {
       } else {
         vec3.set(orbitCamera.upAxis, ...ECLIPTIC_NORTH)
       }
+      lessonMinRadius = null
+      lessonLensShiftNdc = 0
       refreshCameraZoomLimits()
       orbitCamera.radius = Math.max(orbitCamera.radius, orbitCamera.minRadius)
       projection = perspectiveProjection()
@@ -1499,7 +1556,12 @@ async function main() {
       device.queue.writeBuffer(starUniformBuffer, 0, starUniforms)
     }
 
-    const sunRadius = scaledBodyRadiusUnits(SUN.radiusKm, SUN.compactVisualRadius, isSizesChapter ? 0 : scaleBlend, AU_KM)
+    // Lessons don't follow the Realistic/Compact toggle (see lessonMinRadius): the sizes lineup is
+    // always true scale, and the seasons scenes are laid out around a Compact-size Sun (at Realistic
+    // scale it shrank to a 0.09-unit speck next to a 2.2-unit Earth).
+    const isLearnMode = learnModeController.currentMode === 'learn'
+    const sunScaleBlend = isSizesChapter ? 0 : isLearnMode ? 1 : scaleBlend
+    const sunRadius = scaledBodyRadiusUnits(SUN.radiusKm, SUN.compactVisualRadius, sunScaleBlend, AU_KM)
     const sunRotation = rotationAngleRadians(daysSinceEpoch, SUN.siderealRotationHours)
     const sunPoleDirection = equatorialToEclipticPoleDirection(SUN.poleRightAscensionDegrees, SUN.poleDeclinationDegrees)
     const sunTilt = axisAlignmentRotation(sunPoleDirection)
@@ -1841,15 +1903,19 @@ async function main() {
         // latitude-picker marker + sun-angle ray - see Task 5/6 for the id rename and the neon
         // pulsing-glow shader mode these now use instead of the marching-ants dash.
         //
-        // The reference/tilt-arc pair is a small "protractor": a fixed world-+Y reference (the
-        // axis's zero-tilt baseline) and an arc sweeping from it to the actual axis line, both
-        // anchored on Earth's center (position only, not earthLearnTilt's rotation - see
-        // overlayGeometry.ts's own doc comments). The swept angle is the pole direction's own
-        // atan2(x, y): with the learn-mode camera's upAxis set to world Y (see
-        // applyLearnCameraFraming), this is the same angle the drawn axis line visibly leans by.
+        // The reference/tilt-arc pair is a small "protractor", built exactly like the orbit
+        // chapter's: the reference is the axis's own component perpendicular to the Sun direction
+        // ("upright as seen from the Sun"), and the arc sweeps from it to the axis in 3D. The swept
+        // angle is therefore exactly the subsolar latitude the label prints - 23.4 at the solstices,
+        // 0 at the equinoxes, where the axis's whole 23.4-degree tilt points sideways and reference
+        // and axis coincide.
         const earthCenter: [number, number, number] = [earthEntry.x, earthEntry.y, earthEntry.z]
         const currentPoleDirection = seasonalPoleDirection(currentSeasonPhase)
-        const tiltAngleRadians = Math.atan2(currentPoleDirection[0], currentPoleDirection[1])
+        const sunwardFromEarth = vec3.normalize(vec3.create(), vec3.negate(vec3.create(), earthCenter))
+        const sunwardDirection: [number, number, number] = [sunwardFromEarth[0], sunwardFromEarth[1], sunwardFromEarth[2]]
+        const referenceDirection = perpendicularComponent(currentPoleDirection, sunwardDirection)
+        const subsolarLatitudeRadians = Math.asin(Math.max(-1, Math.min(1, vec3.dot(currentPoleDirection, sunwardFromEarth))))
+        const markerLongitude = meridianLongitudeFacing(earthLearnTilt, LEARN_MARKER_MERIDIAN_DIRECTION)
         const referenceLength = earthEntry.radius * 1.3
         const arcRadius = earthEntry.radius * 1.15
         // Axis overshoots further than reference/sun-direction (1.3x) so its label lands further
@@ -1865,7 +1931,7 @@ async function main() {
             markerLatitude,
             markerRadius,
             OVERLAY_LATITUDE_MARKER_SEGMENTS,
-            LEARN_MARKER_LONGITUDE_DEGREES,
+            markerLongitude,
           ),
           'marker-b': latitudeMarkerPoints(
             earthWorld,
@@ -1873,15 +1939,14 @@ async function main() {
             -markerLatitude,
             markerRadius,
             OVERLAY_LATITUDE_MARKER_SEGMENTS,
-            LEARN_MARKER_LONGITUDE_DEGREES,
+            markerLongitude,
           ),
-          reference: verticalReferencePoints(earthCenter, referenceLength),
-          'tilt-arc': tiltAngleArcPoints(earthCenter, arcRadius, tiltAngleRadians, OVERLAY_TILT_ARC_SEGMENTS),
+          reference: directedLinePoints(earthCenter, referenceDirection, referenceLength),
+          'tilt-arc': greatCircleArcPoints(earthCenter, referenceDirection, currentPoleDirection, arcRadius, OVERLAY_TILT_ARC_SEGMENTS),
           // A one-directional segment reaching all the way to the Sun's actual position (world
           // origin, since the Sun always renders there in the staged chapters), making the
           // reference line's own "perpendicular to this" relationship visible on screen instead of
-          // implied - see verticalReferencePoints' own comment for why world +Y is that perpendicular
-          // in the staged chapters' fixed camera convention. Unlike every other overlay line here,
+          // implied. Unlike every other overlay line here,
           // this one deliberately reaches its actual target rather than stopping at a short
           // indicator length, so it visibly connects to the Sun instead of pointing vaguely toward it.
           'sun-direction': new Float32Array([earthCenter[0], earthCenter[1], earthCenter[2], 0, 0, 0]),
@@ -1906,26 +1971,22 @@ async function main() {
           device.queue.writeBuffer(renderable.uniformBuffer, 0, uniforms)
         }
 
-        const markerACenter = latitudeMarkerCenter(earthWorld, ringRadius, markerLatitude, LEARN_MARKER_LONGITUDE_DEGREES)
-        const markerBCenter = latitudeMarkerCenter(earthWorld, ringRadius, -markerLatitude, LEARN_MARKER_LONGITUDE_DEGREES)
+        const markerACenter = latitudeMarkerCenter(earthWorld, ringRadius, markerLatitude, markerLongitude)
+        const markerBCenter = latitudeMarkerCenter(earthWorld, ringRadius, -markerLatitude, markerLongitude)
         const markerAScreen = worldToScreen(viewProjection, ...markerACenter, canvas.clientWidth, canvas.clientHeight)
         const markerBScreen = worldToScreen(viewProjection, ...markerBCenter, canvas.clientWidth, canvas.clientHeight)
         updateLabelPosition(locationALabel, markerAScreen)
         updateLabelPosition(locationBLabel, markerBScreen)
 
-        const tiltLabelPoint: [number, number, number] = [
-          earthCenter[0] + arcRadius * Math.sin(tiltAngleRadians / 2),
-          earthCenter[1] + arcRadius * Math.cos(tiltAngleRadians / 2),
-          earthCenter[2],
-        ]
-        const tiltLabelScreen = worldToScreen(viewProjection, ...tiltLabelPoint, canvas.clientWidth, canvas.clientHeight)
-        axisTiltLabel.textContent = `${Math.abs((tiltAngleRadians * 180) / Math.PI).toFixed(1)}°`
+        const arcMidpoint = greatCircleArcPoints(earthCenter, referenceDirection, currentPoleDirection, arcRadius, 2)
+        const tiltLabelScreen = worldToScreen(viewProjection, arcMidpoint[3], arcMidpoint[4], arcMidpoint[5], canvas.clientWidth, canvas.clientHeight)
+        axisTiltLabel.textContent = sunLeanLabel(subsolarLatitudeRadians)
         updateLabelPosition(axisTiltLabel, tiltLabelScreen)
 
         // Anchor each explanatory label on its own line's own geometry: the axis line's north
         // endpoint (index 1 of geometryById.axis), a fixed point on the equator ring (index 0,
-        // angle=0), and the reference line's +Y endpoint (index 1 of geometryById.reference) - see
-        // rotationAxisPoints/verticalReferencePoints' own point-order comments in overlayGeometry.ts.
+        // angle=0), and the reference line's upper endpoint (index 1 of geometryById.reference) - see
+        // rotationAxisPoints/directedLinePoints' own point-order comments in overlayGeometry.ts.
         const axisLine = geometryById.axis
         updateLabelPosition(
           axisLineLabel,
@@ -1948,27 +2009,24 @@ async function main() {
           towardSunLabel,
           worldToScreen(
             viewProjection,
-            earthCenter[0] - referenceLength,
-            earthCenter[1],
-            earthCenter[2],
+            earthCenter[0] + sunwardDirection[0] * referenceLength,
+            earthCenter[1] + sunwardDirection[1] * referenceLength,
+            earthCenter[2] + sunwardDirection[2] * referenceLength,
             canvas.clientWidth,
             canvas.clientHeight,
           ),
         )
-        // Reference is world +Y and sun-direction is world -X in the staged chapters' fixed
-        // convention (see verticalReferencePoints' own comment and the 'sun-direction' geometry
-        // above) - always exactly perpendicular by construction, so this "90°" is stated outright
-        // rather than left for the viewer to judge from the drawing (which can look skewed under
-        // perspective).
-        const rightAngleBisector: [number, number, number] = [-Math.SQRT1_2, Math.SQRT1_2, 0]
-        // Placed just outside the globe's own surface (radius, not referenceLength - referenceLength
-        // is only 1.3x radius here, too close in to clear surface labels like Location A/B) so it
-        // doesn't land on top of the globe's surface features or markers.
+        // The reference is perpendicular to the Sun direction by construction (see
+        // perpendicularComponent), so this "90°" is stated outright rather than left for the viewer
+        // to judge from the drawing (which can look skewed under perspective). Placed just outside
+        // the globe's own surface (radius, not referenceLength - referenceLength is only 1.3x
+        // radius here, too close in to clear surface labels like Location A/B).
+        const rightAngleBisector = vec3.normalize(vec3.create(), vec3.add(vec3.create(), sunwardDirection, referenceDirection))
         const rightAngleDistance = earthEntry.radius * 1.2
         const rightAnglePoint: [number, number, number] = [
           earthCenter[0] + rightAngleBisector[0] * rightAngleDistance,
           earthCenter[1] + rightAngleBisector[1] * rightAngleDistance,
-          earthCenter[2],
+          earthCenter[2] + rightAngleBisector[2] * rightAngleDistance,
         ]
         updateLabelPosition(
           rightAngleLabel,
@@ -1996,7 +2054,6 @@ async function main() {
         const axisLength = earthEntry.radius * 5.5
         const referenceLength = earthEntry.radius * 4
         const arcRadius = earthEntry.radius * 3
-        const arcAngleRadians = angleBetweenDirections(ORBIT_FIXED_POLE_DIRECTION, perpendicularToSunward)
         // Translation-only (no spin) combined with the fixed tilt, matching how the staged
         // chapters' own equator ring uses earthLearnTilt (position + tilt, spin excluded) so the
         // ring stays fixed in place on the globe rather than visibly spinning with the surface.
@@ -2047,11 +2104,13 @@ async function main() {
 
         const arcMidpoint = greatCircleArcPoints(earthPosition, perpendicularToSunward, ORBIT_FIXED_POLE_DIRECTION, arcRadius, 2)
         const tiltLabelScreen = worldToScreen(viewProjection, arcMidpoint[3], arcMidpoint[4], arcMidpoint[5], canvas.clientWidth, canvas.clientHeight)
-        // arcAngleRadians is the angle between the fixed axis and its own perpendicular-to-sunward
-        // component - i.e. already how far the axis deviates from perpendicular-to-the-Sun (0° at
-        // equinoxes, 23.4° at solstices), matching the lesson's own "leans 23.4° toward/away from
-        // the Sun" text. No further transform needed - see perpendicularToSunward's comment above.
-        axisTiltLabel.textContent = `${((arcAngleRadians * 180) / Math.PI).toFixed(1)}°`
+        // The arc sweeps from the axis's own perpendicular-to-sunward component to the axis, so its
+        // angle is asin(dot(axis, sunward)) - the subsolar latitude, signed here so the label can
+        // say whether the north end leans toward or away from the Sun.
+        const orbitSubsolarLatitudeRadians = Math.asin(
+          Math.max(-1, Math.min(1, vec3.dot(ORBIT_FIXED_POLE_DIRECTION, unitSunwardDirection))),
+        )
+        axisTiltLabel.textContent = sunLeanLabel(orbitSubsolarLatitudeRadians)
         updateLabelPosition(axisTiltLabel, tiltLabelScreen)
 
         const orbitAxisLine = orbitGeometryById['orbit-axis']

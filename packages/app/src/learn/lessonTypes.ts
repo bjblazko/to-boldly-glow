@@ -28,4 +28,7 @@ export interface Lesson {
   // +markerLatitudeDegrees, one at -markerLatitudeDegrees. Only ever used for 'staged' chapters -
   // the two markers are never shown during 'orbit' or 'sizes' chapters (see the design spec's §4).
   markerLatitudeDegrees: number
+  // Shown under every chapter's text: what this lesson's picture exaggerates or leaves out, so a
+  // learner knows which parts to read literally (e.g. angles) and which not (e.g. sizes, speeds).
+  note?: string
 }

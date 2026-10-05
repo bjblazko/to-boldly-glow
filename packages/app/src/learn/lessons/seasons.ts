@@ -17,7 +17,8 @@ const CHAPTERS: Chapter[] = [
       "Earth's position keeps changing, the angle between that fixed axis and the Sun keeps " +
       'changing too: sometimes leaning toward the Sun, sometimes away from it, and twice a lap ' +
       "exactly side-on. That changing angle - not the axis itself moving - is the real reason " +
-      "Earth has seasons. (Earth briefly passes behind the Sun from this camera's angle once per " +
+      'Earth has seasons. The number shows how much of the 23.4° tilt points toward or away from ' +
+      "the Sun right now. (Earth briefly passes behind the Sun from this camera's angle once per " +
       "lap - that's just this viewpoint, not anything unusual happening in space.)",
   },
   {
@@ -29,9 +30,10 @@ const CHAPTERS: Chapter[] = [
     kind: 'staged',
     seasonPhaseDegrees: 0,
     text:
-      "Earth's axis is tilted 23.4° relative to its orbit around the Sun. This tilt - not Earth's " +
-      'distance from the Sun, which barely changes over a year - is what causes the seasons. Watch ' +
-      'Location A (north) and Location B (south) as you step through the chapters below.',
+      "Earth's axis is tilted 23.4° relative to its orbit around the Sun, all year round. This tilt " +
+      "- not Earth's distance from the Sun, which barely changes over a year - is what causes the " +
+      'seasons: what changes is which way the tilt points relative to the Sun. Watch Location A ' +
+      '(north) and Location B (south) as you step through the chapters below.',
   },
   {
     id: 'march-equinox',
@@ -39,8 +41,9 @@ const CHAPTERS: Chapter[] = [
     kind: 'staged',
     seasonPhaseDegrees: 270,
     text:
-      "Around the March equinox, the Sun sits directly over Earth's equator. Location A and " +
-      'Location B get close to equal day and night length.',
+      "Around the March equinox, Earth's axis is still tilted 23.4°, but sideways: neither toward " +
+      'nor away from the Sun (from this viewpoint it leans away from you). So the Sun sits directly ' +
+      "over Earth's equator, and Location A and Location B get close to equal day and night length.",
   },
   {
     id: 'june-solstice',
@@ -58,8 +61,9 @@ const CHAPTERS: Chapter[] = [
     kind: 'staged',
     seasonPhaseDegrees: 90,
     text:
-      'Around the September equinox, the Sun is back over the equator. Location A and Location B ' +
-      'get close to equal day and night again - the reverse trend from March.',
+      'Around the September equinox, the tilt points sideways again - this time leaning toward ' +
+      'you. The Sun is back over the equator, and Location A and Location B get close to equal day ' +
+      'and night again - the reverse trend from March.',
   },
   {
     id: 'december-solstice',
@@ -78,6 +82,9 @@ export const SEASONS_LESSON: Lesson = {
   title: 'Why does Earth have seasons?',
   chapters: CHAPTERS,
   markerLatitudeDegrees: 45,
+  note:
+    'Not to scale: the Sun and Earth are drawn far larger and closer together than they really ' +
+    'are, and Earth spins and orbits much faster than real. All angles shown are true.',
 }
 
 export const LESSONS_BY_ID: Record<string, Lesson> = {

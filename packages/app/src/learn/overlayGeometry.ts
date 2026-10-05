@@ -1,4 +1,4 @@
-import { mat4, vec3 } from 'gl-matrix'
+import { mat3, mat4, vec3 } from 'gl-matrix'
 
 // All four functions here take `earthWorld` (Earth's own world matrix - translation * tilt, no
 // scale, since these already work in real-radius units) and return a flat [x0,y0,z0,x1,y1,z1,...]
@@ -32,38 +32,6 @@ export function rotationAxisPoints(earthWorld: mat4, radius: number, overshootFa
   const south = transformPoint(earthWorld, [0, 0, -radius * overshootFactor])
   const north = transformPoint(earthWorld, [0, 0, radius * overshootFactor])
   return new Float32Array([...south, ...north])
-}
-
-// A short "true vertical" reference segment through `center`, in WORLD space (not Earth-local -
-// it deliberately does NOT rotate with Earth's tilt, since it represents the zero-tilt baseline
-// the tilt-angle arc below sweeps away from). Drawn along world +Y, the direction Earth's axis
-// would point if it had no seasonal lean at all - see seasonalPoleDirection in main.ts.
-export function verticalReferencePoints(center: readonly [number, number, number], length: number): Float32Array {
-  return new Float32Array([center[0], center[1] - length, center[2], center[0], center[1] + length, center[2]])
-}
-
-// A circular arc, centered on `center` and lying in the world XY plane (matching the learn-mode
-// camera's screen plane - see applyLearnCameraFraming's upAxis choice in main.ts), sweeping from
-// straight up (world +Y, angle 0 - the same direction verticalReferencePoints draws) through
-// `angleRadians` of rotation toward world +X. A positive angle sweeps toward +X, a negative angle
-// toward -X - callers pass the pole direction's own atan2(x, y) so the arc always sweeps the same
-// way the axis line itself leans. `segments` is always the full point count regardless of how
-// small `angleRadians` is (down to a zero-length arc at every point), matching this project's
-// fixed-size-overlay-buffer convention (see main.ts's OVERLAY_LATITUDE_MARKER_SEGMENTS comment).
-export function tiltAngleArcPoints(
-  center: readonly [number, number, number],
-  radius: number,
-  angleRadians: number,
-  segments: number,
-): Float32Array {
-  const points = new Float32Array((segments + 1) * 3)
-  for (let i = 0; i <= segments; i++) {
-    const t = (i / segments) * angleRadians
-    points[i * 3] = center[0] + radius * Math.sin(t)
-    points[i * 3 + 1] = center[1] + radius * Math.cos(t)
-    points[i * 3 + 2] = center[2]
-  }
-  return points
 }
 
 // Shared by latitudeMarkerPoints and latitudeMarkerCenter: the surface normal and surface point
@@ -267,4 +235,29 @@ export function perpendicularComponent(
   ]
   const unitPerp = vec3.normalize(vec3.create(), perp)
   return [unitPerp[0], unitPerp[1], unitPerp[2]]
+}
+
+// The longitude (degrees, in latitudeSurfaceNormalAndPoint's convention: measured from the local +Y
+// meridian toward local +X) of the meridian that faces `worldDirection` on a body tilted by
+// `tilt` (its world rotation, local +Z = the body's pole). Lets callers pin a surface marker to a
+// fixed side of the scene (e.g. "facing the Sun and the camera") no matter how the pole is oriented,
+// rather than to a fixed local longitude - axisAlignmentRotation picks a different minimal rotation
+// for every pole direction, so a fixed local longitude wanders across the globe as the pole moves.
+export function meridianLongitudeFacing(tilt: mat4, worldDirection: readonly [number, number, number]): number {
+  // A pure rotation's inverse is its transpose; using only the 3x3 part treats the input as a
+  // direction (no translation).
+  const toLocal = mat3.transpose(mat3.create(), mat3.fromMat4(mat3.create(), tilt))
+  const local = vec3.transformMat3(vec3.create(), worldDirection, toLocal)
+  return (Math.atan2(local[0], local[1]) * 180) / Math.PI
+}
+
+// The lesson's tilt reading: how far the north end of the axis leans toward the Sun (positive) or
+// away from it (negative) - i.e. the subsolar latitude, the Sun's declination. Earth's tilt against
+// its orbit is a constant 23.4 degrees; this is the part of it pointing at the Sun, which is what
+// changes over the year. Zero means the whole tilt points sideways (the equinoxes).
+export function sunLeanLabel(subsolarLatitudeRadians: number): string {
+  const degrees = (Math.abs(subsolarLatitudeRadians) * 180) / Math.PI
+  const shown = degrees.toFixed(1)
+  if (shown === '0.0') return '0.0° (tilt points sideways)'
+  return `${shown}° ${subsolarLatitudeRadians > 0 ? 'toward' : 'away from'} the Sun`
 }
