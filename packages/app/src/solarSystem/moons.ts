@@ -72,7 +72,7 @@ export const MOONS: MoonDefinition[] = [
     siderealOrbitPeriodDays: 27.321661,
     orbitInclinationToParentEquatorDegrees: 5.145, // to the ecliptic, not Earth's equator - see field doc
     orbitAscendingNodeDegrees: 0,
-    textureUrl: '/textures/moon.jpg',
+    textureUrl: 'textures/moon.jpg',
   },
   {
     id: 'io',
@@ -86,7 +86,7 @@ export const MOONS: MoonDefinition[] = [
     siderealOrbitPeriodDays: 1.769138,
     orbitInclinationToParentEquatorDegrees: 0.050,
     orbitAscendingNodeDegrees: 0,
-    textureUrl: '/textures/io.jpg',
+    textureUrl: 'textures/io.jpg',
   },
   {
     id: 'europa',
@@ -100,7 +100,7 @@ export const MOONS: MoonDefinition[] = [
     siderealOrbitPeriodDays: 3.551181,
     orbitInclinationToParentEquatorDegrees: 0.471,
     orbitAscendingNodeDegrees: 0,
-    textureUrl: '/textures/europa.jpg',
+    textureUrl: 'textures/europa.jpg',
   },
   {
     id: 'ganymede',
@@ -114,7 +114,7 @@ export const MOONS: MoonDefinition[] = [
     siderealOrbitPeriodDays: 7.154553,
     orbitInclinationToParentEquatorDegrees: 0.204,
     orbitAscendingNodeDegrees: 0,
-    textureUrl: '/textures/ganymede.jpg',
+    textureUrl: 'textures/ganymede.jpg',
   },
   {
     id: 'callisto',
@@ -128,7 +128,7 @@ export const MOONS: MoonDefinition[] = [
     siderealOrbitPeriodDays: 16.68902,
     orbitInclinationToParentEquatorDegrees: 0.205,
     orbitAscendingNodeDegrees: 0,
-    textureUrl: '/textures/callisto.jpg',
+    textureUrl: 'textures/callisto.jpg',
   },
   {
     id: 'titan',
@@ -145,7 +145,7 @@ export const MOONS: MoonDefinition[] = [
     siderealOrbitPeriodDays: 15.945,
     orbitInclinationToParentEquatorDegrees: 0.34854,
     orbitAscendingNodeDegrees: 0,
-    textureUrl: '/textures/titan.jpg',
+    textureUrl: 'textures/titan.jpg',
   },
   {
     id: 'titania',

@@ -333,7 +333,7 @@ async function main() {
   canvas.dataset.texturesLoaded = 'true'
 
   const starPipeline = await createStarPipeline(device, sceneColorFormat)
-  const starCatalog = await loadStarCatalog('/stars/starCatalog.bin')
+  const starCatalog = await loadStarCatalog('stars/starCatalog.bin')
   const starBuffer = createStarBuffer(device, starCatalog)
   const starCount = starCatalog.length / 4
   canvas.dataset.starCount = String(starCount)
@@ -407,7 +407,7 @@ async function main() {
   const ringPipeline = await createRingPipeline(device, sceneColorFormat)
   const ringMesh = generateRingMesh(RING_INNER_RADIUS_FACTOR, RING_OUTER_RADIUS_FACTOR, 128)
   const ringBuffers = createRingBuffers(device, ringMesh)
-  const ringTexture = await loadBodyTexture(device, '/textures/saturn_ring.png', mipmapPipeline, mipmapSampler)
+  const ringTexture = await loadBodyTexture(device, 'textures/saturn_ring.png', mipmapPipeline, mipmapSampler)
   const ringUniformBuffer = device.createBuffer({
     label: 'saturn ring uniforms',
     size: 36 * 4, // worldViewProjection (16) + world (16) + lightDirection (4)
