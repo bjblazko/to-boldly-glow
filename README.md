@@ -45,11 +45,13 @@ There's no hosted build yet, so running it locally is currently the only way to 
 
 ### Using the app
 
-- **Camera** — by default, drag to orbit the current target and scroll (or pinch) to zoom. Use the
-  **Camera** panel (bottom dock) to switch to free-fly mode, where dragging looks around and
-  `W`/`A`/`S`/`D` moves forward/back/strafe. The same panel has a search box — type a body's name,
-  then press Enter or click a result to fly the camera to it and lock on; a "Following: …" chip
-  appears with a **×** to stop following and return to free manual control.
+- **Camera** — by default, drag to orbit the current target and scroll (or trackpad-pinch) to zoom.
+  Use the **Camera** panel (bottom dock) to switch to free-fly mode, which flies like a plane: `W`/`S`
+  pitch the nose down/up, `A`/`D` roll left/right, and `↑`/`↓` raise/lower cruise speed. The same
+  panel has **Start Tour**, an endless autopilot flight past every planet (any camera input hands
+  control back), and a search box — type a body's name, then press Enter or click a result to fly
+  the camera to it and lock on; a "Following: …" chip appears with a **×** to stop following and
+  return to free manual control.
 - **Time** — the **Time** panel has play/pause, a reverse-direction button, and rate presets
   (real-time up to a year per second). The shuttle slider lets you dial in a rate directly: the
   center tick is zero (the clock is stopped), the left half rewinds, the right half fast-forwards

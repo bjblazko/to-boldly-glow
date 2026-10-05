@@ -15,8 +15,11 @@ test('moons and lens flares can each be toggled independently', async ({ page })
   await moonsToggle.uncheck()
   await expect(page.locator('#scene')).toHaveAttribute('data-moons', 'false')
 
+  // Flares default to OFF; turn them on and back off.
   const flaresToggle = page.locator('#flares-toggle')
-  await expect(flaresToggle).toBeChecked()
+  await expect(flaresToggle).not.toBeChecked()
+  await flaresToggle.check()
+  await expect(page.locator('#scene')).toHaveAttribute('data-flares', 'true')
   await flaresToggle.uncheck()
   await expect(page.locator('#scene')).toHaveAttribute('data-flares', 'false')
 

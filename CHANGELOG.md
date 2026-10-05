@@ -138,6 +138,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   longer stay stuck after the window loses focus or fire while typing in the search box or using the
   time slider; a second touch no longer makes the orbit drag jump; the fly camera's orientation no
   longer drifts from unit length.
+- Pressing Enter/Space on the focused tour button restarted the tour instead of stopping it, and
+  picking a search result during the tour left the tour on screen.
+- Opening a lesson while following a body, touring, or in free-fly mode showed the wrong camera
+  (the follow dragged the lesson camera away; the tour or fly camera kept rendering instead of the
+  lesson framing). Leaving a lesson now also restores the explore-mode camera and its zoom limits —
+  after the sizes lesson the camera was left inside the Sun with a near plane ~4000x too small.
+- The e2e suite was failing against the current UI (flares now default off, the dock stays visible
+  in learn mode, and Earth's label visibility depended on the day the test ran).
 
 ### Security
 
