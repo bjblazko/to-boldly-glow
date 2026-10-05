@@ -1856,7 +1856,6 @@ async function main() {
           referenceLineLabel,
           worldToScreen(viewProjection, referenceLine[3], referenceLine[4], referenceLine[5], canvas.clientWidth, canvas.clientHeight),
         )
-        const sunDirectionLine = geometryById['sun-direction']
         // Anchored at a fixed distance from Earth (not the line's far end, which now reaches the
         // Sun's own center and would sit on top of the Sun's body/label) - a point 1.3x Earth's
         // radius out, matching the other nearby labels' distance from Earth.

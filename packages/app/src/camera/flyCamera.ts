@@ -55,14 +55,17 @@ export class FlyCamera {
     return mat4.lookAt(mat4.create(), this.position, target, this.getUp())
   }
 
+  // Both turns renormalize afterward: these run every frame a key is held, and float32 rounding
+  // in repeated quaternion products otherwise lets |orientation| drift away from 1, which
+  // transformQuat turns into slowly growing/shrinking forward/up/right vectors.
   turnPitch(delta: number): void {
     const rotation = quat.setAxisAngle(quat.create(), [1, 0, 0], delta)
-    quat.multiply(this.orientation, this.orientation, rotation)
+    quat.normalize(this.orientation, quat.multiply(this.orientation, this.orientation, rotation))
   }
 
   turnRoll(delta: number): void {
     const rotation = quat.setAxisAngle(quat.create(), [0, 0, 1], delta)
-    quat.multiply(this.orientation, this.orientation, rotation)
+    quat.normalize(this.orientation, quat.multiply(this.orientation, this.orientation, rotation))
   }
 
   changeSpeed(delta: number): void {

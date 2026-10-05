@@ -25,10 +25,17 @@ describe('FlyCamera', () => {
     expect(right[2]).toBeCloseTo(0, 5)
   })
 
-  it('clamps pitch to avoid flipping past straight up/down', () => {
-    const camera = new FlyCamera({ pitch: 0 })
-    camera.applyLook(0, -1000000, 1)
-    expect(camera.pitch).toBeLessThanOrEqual(Math.PI / 2)
+  it('pitches through a full vertical loop without gimbal lock, ending back at its starting heading', () => {
+    const camera = new FlyCamera({ yaw: Math.PI, pitch: 0 })
+    for (let i = 0; i < 360; i++) {
+      camera.turnPitch((2 * Math.PI) / 360)
+      const forward = camera.getForward()
+      expect(Math.hypot(forward[0], forward[1], forward[2])).toBeCloseTo(1, 5)
+    }
+    const forward = camera.getForward()
+    expect(forward[0]).toBeCloseTo(0, 5)
+    expect(forward[1]).toBeCloseTo(0, 5)
+    expect(forward[2]).toBeCloseTo(-1, 5)
   })
 
   it('moves position forward along the forward vector', () => {
