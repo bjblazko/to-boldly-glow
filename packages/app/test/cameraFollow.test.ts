@@ -223,10 +223,58 @@ describe('CameraFollowController', () => {
     runPastFlyTo(controller, T, daysSinceEpoch, scaleBlend)
 
     const expectedTarget = entityWorldPosition(earth, T, daysSinceEpoch, scaleBlend)
-    const basis = orbitBasisForUpAxis([0, 0, 1]) // camera's up-axis before this fly-to started
+    const basis = orbitBasisForUpAxis(entityPoleDirection(earth)) // the up-axis the flight ends on
     const expectedAzimuth = defaultFramingAzimuth(expectedTarget, 0, basis)
     expect(Math.sin(camera.azimuth)).toBeCloseTo(Math.sin(expectedAzimuth), 6)
     expect(Math.cos(camera.azimuth)).toBeCloseTo(Math.cos(expectedAzimuth), 6)
+  })
+
+  it("ends with the eye swung toward the Sun around the target's own pole, even when chaining from a steeply tilted body", () => {
+    // Regression test: the framing azimuth was computed in the STARTING up-axis basis but applied
+    // once upAxis had turned to the target's own pole. Starting from a fresh camera (up = ecliptic
+    // north) most poles are close enough that this hid; flying on from Uranus (pole ~98 degrees
+    // away) left the eye nowhere near the sunward side.
+    for (const id of ['mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'neptune', 'triton']) {
+      const camera = new OrbitCamera({ radius: 65, azimuth: 0, elevation: 0.5 })
+      const controller = new CameraFollowController(camera)
+      controller.selectEntity(findEntity('uranus'), 0.0259, 9460, 1)
+      runPastFlyTo(controller, 0.0259, 9460, 1)
+      controller.selectEntity(findEntity(id), 0.0259, 9460, 1)
+      runPastFlyTo(controller, 0.0259, 9460, 1)
+
+      // Azimuth only controls the eye's direction around the up-axis, so compare the components
+      // perpendicular to it: eye offset vs. direction to the Sun.
+      const up = camera.upAxis
+      const eye = camera.getEyePosition()
+      const target = camera.target
+      const perpendicular = (v: number[]) => {
+        const along = v[0] * up[0] + v[1] * up[1] + v[2] * up[2]
+        return [v[0] - along * up[0], v[1] - along * up[1], v[2] - along * up[2]]
+      }
+      const toEye = perpendicular([eye[0] - target[0], eye[1] - target[1], eye[2] - target[2]])
+      const toSun = perpendicular([-target[0], -target[1], -target[2]])
+      const cosine =
+        (toEye[0] * toSun[0] + toEye[1] * toSun[1] + toEye[2] * toSun[2]) /
+        (Math.hypot(toEye[0], toEye[1], toEye[2]) * Math.hypot(toSun[0], toSun[1], toSun[2]))
+      expect(cosine).toBeGreaterThan(0.99)
+    }
+  })
+
+  it('arrives on the entity\'s live position when simulated time advances during the flight', () => {
+    const camera = new OrbitCamera()
+    const controller = new CameraFollowController(camera, { flyToDurationSeconds: 1.5 })
+    const mercury = findEntity('mercury')
+    controller.selectEntity(mercury, 0.02, 7300, 1)
+    // 1 month/s: ~1.25 simulated days per 0.05s step.
+    let days = 7300
+    for (let i = 0; i < 30; i++) {
+      days += 1.25
+      controller.update(0.05, days / 365250, days, 1)
+    }
+    const live = entityWorldPosition(mercury, days / 365250, days, 1)
+    expect(camera.target[0]).toBeCloseTo(live[0], 6)
+    expect(camera.target[1]).toBeCloseTo(live[1], 6)
+    expect(camera.target[2]).toBeCloseTo(live[2], 6)
   })
 
   it('leaves azimuth unchanged when flying to the Sun itself', () => {

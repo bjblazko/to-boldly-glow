@@ -1,3 +1,4 @@
+import { vec3 } from 'gl-matrix'
 import { describe, expect, it } from 'vitest'
 import { FlyCamera } from '../src/camera/flyCamera'
 
@@ -48,5 +49,13 @@ describe('FlyCamera', () => {
     const camera = new FlyCamera({ position: [0, 0, 0], yaw: Math.PI, pitch: 0 })
     camera.moveRight(5)
     expect(camera.position[0]).toBeCloseTo(5, 5)
+  })
+
+  it('setPose stays finite when looking straight along the reference up direction', () => {
+    const camera = new FlyCamera()
+    camera.setPose(vec3.fromValues(0, 0, 10), vec3.fromValues(0, 0, -1), vec3.fromValues(0, 0, 1))
+    const forward = camera.getForward()
+    expect(forward[2]).toBeCloseTo(-1, 5)
+    for (const value of camera.getViewMatrix()) expect(Number.isFinite(value)).toBe(true)
   })
 })

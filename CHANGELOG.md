@@ -125,6 +125,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   90° meridian, toward their parent.
 - The far clip plane (1000 units) cut off the far side of Neptune's orbit at Realistic scale when
   zoomed out; it is now 2000 units.
+- The camera tour teleported up to half a loop radius on every loop entry, flipped its roll by
+  ~95° within a frame while looping over each planet's pole, and whipped its view around when a loop
+  ended. Loops now start where the camera arrives and circle level around the planet, and the gaze
+  turns smoothly. The tour also starts from the current view instead of inside the Sun, and hands
+  back to the free-fly camera without a roll jump.
+- Fly-to framing computed its Sun-facing azimuth for the starting up-axis but applied it after
+  turning to the target's pole, missing the sunlit side when flying on from a tilted body (e.g.
+  Uranus). Fly-to also now aims at the target's live position, instead of where it was when the
+  flight began, so time acceleration no longer leaves the camera lurching after it.
+- Camera motion and tweens no longer integrate a whole hidden-tab gap in one frame; fly keys no
+  longer stay stuck after the window loses focus or fire while typing in the search box or using the
+  time slider; a second touch no longer makes the orbit drag jump; the fly camera's orientation no
+  longer drifts from unit length.
 
 ### Security
 

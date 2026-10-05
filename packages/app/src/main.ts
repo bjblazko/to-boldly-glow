@@ -795,7 +795,10 @@ async function main() {
     isTouring = false
     const eye = vec3.fromValues(...tourController.getEyePosition())
     const forward = vec3.subtract(vec3.create(), vec3.fromValues(...tourController.getLookAt()), eye)
-    flyCamera.setPose(eye, forward, orbitCamera.upAxis)
+    // The tour's own view is built with ECLIPTIC_NORTH as up (see tourController.ts) - handing
+    // over with orbitCamera.upAxis instead (still a followed planet's tilted pole, if one was
+    // followed before the tour) rolled the view the moment the tour stopped.
+    flyCamera.setPose(eye, forward, vec3.fromValues(...ECLIPTIC_NORTH))
     flyCamera.speed = 0
     tourController.stop()
     cameraInput.setEnabled(true)
@@ -821,7 +824,12 @@ async function main() {
     const julianDay = currentJulianDay(simulationClock.getCurrentDate())
     const T = julianMillenniaSinceJ2000(julianDay)
     const daysSinceEpoch = daysSinceJ2000(julianDay)
-    tourController.start([0, 0, 0], T, daysSinceEpoch, scaleBlend)
+    // Start from wherever the active camera is and whatever it's looking at - the tour used to
+    // start from the Sun's center (inside its sphere), a hard cut away from the current view.
+    const cameraWorld = mat4.invert(mat4.create(), cameraInput.getViewMatrix()) ?? mat4.create()
+    const eye: [number, number, number] = [cameraWorld[12], cameraWorld[13], cameraWorld[14]]
+    const forward: [number, number, number] = [-cameraWorld[8], -cameraWorld[9], -cameraWorld[10]]
+    tourController.start(eye, T, daysSinceEpoch, scaleBlend, forward)
     if (tourToggleLabel) tourToggleLabel.textContent = 'Stop Tour'
   }
 
@@ -1353,9 +1361,17 @@ async function main() {
 
   let lastFrameTime = performance.now()
 
+  // requestAnimationFrame stops while the tab is hidden, so the first frame back can report a delta
+  // of minutes. The simulation clock still takes the real elapsed time (in real-time mode it should
+  // keep matching the wall clock), but camera motion, tweens and lesson animation are capped so they
+  // don't integrate that whole gap in one step - the tour or a moving fly camera would otherwise
+  // teleport far off course, and every tween would finish instantly.
+  const MAX_ANIMATION_DELTA_SECONDS = 0.1
+
   function frame() {
     const now = performance.now()
-    const deltaSeconds = (now - lastFrameTime) / 1000
+    const realDeltaSeconds = (now - lastFrameTime) / 1000
+    const deltaSeconds = Math.min(realDeltaSeconds, MAX_ANIMATION_DELTA_SECONDS)
     lastFrameTime = now
 
     if (learnModeController.currentMode === 'learn') {
@@ -1384,7 +1400,7 @@ async function main() {
     }
 
     cameraInput.update(deltaSeconds)
-    simulationClock.update(deltaSeconds)
+    simulationClock.update(realDeltaSeconds)
     timeControlUI.refreshDisplay()
 
     const currentDate = simulationClock.getCurrentDate()
