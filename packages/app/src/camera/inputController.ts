@@ -3,6 +3,18 @@ import type { FlyCamera } from './flyCamera'
 
 export type CameraMode = 'orbit' | 'fly'
 
+const NON_TEXT_INPUT_TYPES = new Set(['button', 'checkbox', 'radio', 'submit', 'reset', 'image', 'color', 'file'])
+
+// True when a key event is aimed at a control that consumes typing or arrow keys itself (the
+// search box, the time-shuttle range slider, a <select>) - those keys belong to that control, not
+// to the camera.
+export function isTextEntryTarget(target: EventTarget | null): boolean {
+  if (typeof HTMLElement === 'undefined' || !(target instanceof HTMLElement)) return false
+  if (target.isContentEditable) return true
+  if (target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement) return true
+  return target instanceof HTMLInputElement && !NON_TEXT_INPUT_TYPES.has(target.type)
+}
+
 const ROTATE_SPEED = 1.5 // radians per second, for keyboard-driven yaw/pitch
 const SPEED_ACCEL = 40 // scene units per second^2, for arrow-key cruise speed changes
 
@@ -16,6 +28,10 @@ export class CameraInputController {
   mode: CameraMode = 'orbit'
 
   private isDragging = false
+  // The one pointer driving the current drag - a second touch would otherwise feed its own
+  // coordinates into the same lastPointer state, making the orbit jump back and forth between
+  // the two fingers on every move event.
+  private dragPointerId: number | null = null
   private lastPointerX = 0
   private lastPointerY = 0
   private pressedKeys = new Set<string>()
@@ -33,6 +49,9 @@ export class CameraInputController {
     canvas.addEventListener('wheel', this.onWheel, { passive: false })
     window.addEventListener('keydown', this.onKeyDown)
     window.addEventListener('keyup', this.onKeyUp)
+    // A key released while the window doesn't have focus (alt-tab, a dialog) never delivers its
+    // keyup here, which used to leave the fly camera pitching/rolling/accelerating on its own.
+    window.addEventListener('blur', this.onWindowBlur)
   }
 
   setMode(mode: CameraMode): void {
@@ -45,7 +64,10 @@ export class CameraInputController {
   // interactive behavior; no camera state is touched here.
   setEnabled(enabled: boolean): void {
     this.enabled = enabled
-    if (!enabled) this.isDragging = false
+    if (!enabled) {
+      this.isDragging = false
+      this.dragPointerId = null
+    }
   }
 
   getViewMatrix() {
@@ -68,15 +90,16 @@ export class CameraInputController {
   }
 
   private onPointerDown = (event: PointerEvent) => {
-    if (!this.enabled) return
+    if (!this.enabled || this.isDragging) return
     this.isDragging = true
+    this.dragPointerId = event.pointerId
     this.lastPointerX = event.clientX
     this.lastPointerY = event.clientY
     this.canvas.setPointerCapture(event.pointerId)
   }
 
   private onPointerMove = (event: PointerEvent) => {
-    if (!this.enabled || !this.isDragging || this.mode !== 'orbit') return
+    if (!this.enabled || !this.isDragging || event.pointerId !== this.dragPointerId || this.mode !== 'orbit') return
     const deltaX = event.clientX - this.lastPointerX
     const deltaY = event.clientY - this.lastPointerY
     this.lastPointerX = event.clientX
@@ -86,8 +109,10 @@ export class CameraInputController {
   }
 
   private onPointerUp = (event: PointerEvent) => {
+    if (event.pointerId !== this.dragPointerId) return
     this.isDragging = false
-    this.canvas.releasePointerCapture(event.pointerId)
+    this.dragPointerId = null
+    if (this.canvas.hasPointerCapture(event.pointerId)) this.canvas.releasePointerCapture(event.pointerId)
   }
 
   private onWheel = (event: WheelEvent) => {
@@ -118,11 +143,17 @@ export class CameraInputController {
   }
 
   private onKeyDown = (event: KeyboardEvent) => {
-    if (!this.enabled) return
+    // Typing "was" into the search box, or arrowing the time-shuttle slider, must not also steer
+    // the ship.
+    if (!this.enabled || isTextEntryTarget(event.target)) return
     this.pressedKeys.add(event.code)
   }
 
   private onKeyUp = (event: KeyboardEvent) => {
     this.pressedKeys.delete(event.code)
+  }
+
+  private onWindowBlur = () => {
+    this.pressedKeys.clear()
   }
 }

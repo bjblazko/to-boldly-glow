@@ -88,7 +88,11 @@ export class FlyCamera {
   setPose(position: vec3, forward: vec3, referenceUp: vec3): void {
     vec3.copy(this.position, position)
     const f = vec3.normalize(vec3.create(), forward)
-    const right = vec3.normalize(vec3.create(), vec3.cross(vec3.create(), f, referenceUp))
+    const rawRight = vec3.cross(vec3.create(), f, referenceUp)
+    // Looking straight along referenceUp leaves "right" undefined (a zero cross product, which
+    // would normalize to NaN and blank the view) - any perpendicular will do there.
+    if (vec3.length(rawRight) < 1e-6) vec3.cross(rawRight, f, Math.abs(f[0]) < 0.9 ? [1, 0, 0] : [0, 1, 0])
+    const right = vec3.normalize(vec3.create(), rawRight)
     const up = vec3.cross(vec3.create(), right, f)
     // Columns map this class's base axes (right=[-1,0,0], up=[0,1,0], forward=[0,0,1]) onto the
     // given basis, matching getRight()/getUp()/getForward()'s conventions.

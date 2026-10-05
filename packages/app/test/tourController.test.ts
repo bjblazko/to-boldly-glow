@@ -71,6 +71,52 @@ describe('TourController', () => {
     }
   })
 
+  it('never teleports or snaps the view between frames across two full passes at 60fps', () => {
+    // Regression test: entering a loop used to jump the camera 0.2-0.55 loop radii in one frame
+    // (to a fixed point on the loop circle), the vertical loop flipped the view ~95 degrees in one
+    // frame passing over each planet's pole, and the look-at point could sweep through the camera
+    // when a loop ended.
+    const controller = new TourController(PLANET_ENTITIES)
+    controller.start([0, 0, 0], 0, 0, 1)
+    const dt = 1 / 60
+    let previousEye = controller.getEyePosition()
+    let previousForward: vec3 | null = null
+    let maxStepRatio = 0
+    let maxTurnDegrees = 0
+    for (let i = 0; i < 60 * 400; i++) {
+      controller.update(dt, 0, 0, 1)
+      const eye = controller.getEyePosition()
+      const step = Math.hypot(eye[0] - previousEye[0], eye[1] - previousEye[1], eye[2] - previousEye[2])
+      const speed = (controller as unknown as { speed: number }).speed
+      maxStepRatio = Math.max(maxStepRatio, step / Math.max(speed * dt, 1e-9))
+      previousEye = eye
+
+      const view = controller.getViewMatrix()
+      const right = vec3.fromValues(view[0], view[4], view[8])
+      const forward = vec3.fromValues(-view[2], -view[6], -view[10])
+      if (previousForward) {
+        const turn = Math.acos(Math.min(1, vec3.dot(forward, previousForward)))
+        maxTurnDegrees = Math.max(maxTurnDegrees, (turn * 180) / Math.PI)
+      }
+      // A roll flip shows up as the right vector leaving the horizontal plane or reversing.
+      expect(Math.abs(right[2])).toBeLessThan(0.05)
+      previousForward = forward
+    }
+    expect(maxStepRatio).toBeLessThan(1.1)
+    expect(maxTurnDegrees).toBeLessThan(10)
+  })
+
+  it('picks up from the given start position and view direction instead of cutting to a new view', () => {
+    const controller = new TourController(PLANET_ENTITIES)
+    const startForward: [number, number, number] = [0.6, -0.8, 0]
+    controller.start([30, 40, 5], 0, 0, 1, startForward)
+    expect(controller.getEyePosition()).toEqual([30, 40, 5])
+    const view = controller.getViewMatrix()
+    expect(-view[2]).toBeCloseTo(startForward[0], 6)
+    expect(-view[6]).toBeCloseTo(startForward[1], 6)
+    expect(-view[10]).toBeCloseTo(startForward[2], 6)
+  })
+
   it('orients its view matrix consistently with the rest of the app (ECLIPTIC_NORTH), not a hardcoded world-Y up', () => {
     // Regression test for the reported "90 degree flipped" tour bug: TourController used to build
     // its view matrix (and its loop/lookAt basis) off a hardcoded [0, 1, 0] world-Y up-vector while

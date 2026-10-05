@@ -55,8 +55,11 @@ function defaultFramingRadius(entity: SolarSystemEntity, scaleBlend: number, cam
 // face rather than a silhouette. Only reorients azimuth, not elevation - elevation stays whatever
 // the user had. Falls back to the given azimuth when the target is at the origin (the Sun
 // itself), where there's no meaningful "direction toward the Sun" to face. `basis` must be the
-// (right, forward0) frame for whichever up-axis is in effect when this is called - see
-// orbitBasisForUpAxis in orbitCamera.ts.
+// (right, forward0) frame of the up-axis the returned azimuth will be USED with - see
+// orbitBasisForUpAxis in orbitCamera.ts. For a fly-to that is the destination's up-axis, not the
+// one in effect when the flight starts: OrbitCamera interprets azimuth in its current up-axis's
+// basis, so an azimuth computed in the starting basis lands the eye somewhere else once upAxis
+// has turned to a tilted pole (e.g. Earth/Neptune ended up looking at the terminator side-on).
 export function defaultFramingAzimuth(
   targetPosition: readonly [number, number, number],
   fallbackAzimuth: number,
@@ -107,7 +110,8 @@ export class CameraFollowController {
     this.followedEntity = entity
     this.followedEntityId = entity.id
     const endTarget = entityWorldPosition(entity, T, daysSinceEpoch, scaleBlend)
-    const basis = orbitBasisForUpAxis(startUpAxis)
+    const endUpAxis = entityPoleDirection(entity)
+    const endBasis = orbitBasisForUpAxis(endUpAxis)
     const endRadius = defaultFramingRadius(entity, scaleBlend, this.orbitCamera)
     this.flyTo = {
       startTarget,
@@ -117,9 +121,9 @@ export class CameraFollowController {
       startUpAxis,
       endTarget,
       endRadius,
-      endAzimuth: defaultFramingAzimuth(endTarget, this.orbitCamera.azimuth, basis),
+      endAzimuth: defaultFramingAzimuth(endTarget, this.orbitCamera.azimuth, endBasis),
       endElevation: this.orbitCamera.elevation,
-      endUpAxis: entityPoleDirection(entity),
+      endUpAxis,
       elapsedSeconds: 0,
       durationSeconds: this.flyToDurationSeconds,
     }
@@ -190,6 +194,13 @@ export class CameraFollowController {
 
   update(deltaSeconds: number, T: number, daysSinceEpoch: number, scaleBlend: number): void {
     if (this.flyTo) {
+      // Aim at the followed entity's LIVE position rather than where it was when the flight began:
+      // under time acceleration a body can travel far during the 1.5s flight (Mercury covers a
+      // sixth of its orbit at 1 month/s), so the camera used to arrive at empty space and then
+      // lurch after the body once live tracking took over.
+      if (this.followedEntity) {
+        this.flyTo.endTarget = entityWorldPosition(this.followedEntity, T, daysSinceEpoch, scaleBlend)
+      }
       this.flyTo.elapsedSeconds += deltaSeconds
       const t = Math.min(this.flyTo.elapsedSeconds / this.flyTo.durationSeconds, 1)
       const eased = easeInOutCubic(t)
