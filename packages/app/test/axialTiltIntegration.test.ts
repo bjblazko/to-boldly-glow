@@ -1,9 +1,11 @@
 // packages/app/test/axialTiltIntegration.test.ts
-import { vec3 } from 'gl-matrix'
+import { mat4, vec3 } from 'gl-matrix'
 import { describe, expect, it } from 'vitest'
-import { PLANETS } from '../src/solarSystem/bodies'
+import { PLANETS, type BodyDefinition } from '../src/solarSystem/bodies'
 import { MOONS } from '../src/solarSystem/moons'
-import { ECLIPTIC_NORTH, equatorialToEclipticPoleDirection } from '../src/solarSystem/poleOrientation'
+import { ALL_ENTITIES, entityWorldPosition } from '../src/solarSystem/entities'
+import { rotationAngleRadians } from '../src/solarSystem/rotation'
+import { axisAlignmentRotation, ECLIPTIC_NORTH, equatorialToEclipticPoleDirection } from '../src/solarSystem/poleOrientation'
 import { moonOrbitPlaneTiltMatrix, moonOrbitReferencePoleDirection } from '../src/solarSystem/moonOrbit'
 
 function findPlanet(id: string) {
@@ -22,6 +24,33 @@ function tiltDegreesFromEclipticNorth(direction: readonly [number, number, numbe
   return (Math.acos(vec3.dot(direction, ECLIPTIC_NORTH)) * 180) / Math.PI
 }
 
+// The spin angular-momentum direction a body actually renders with: main.ts builds its world
+// matrix as tilt * Rz(rotationAngleRadians(...)), so track which way a surface point moves.
+function renderedSpinAxis(body: BodyDefinition): [number, number, number] {
+  const tilt = axisAlignmentRotation(equatorialToEclipticPoleDirection(body.poleRightAscensionDegrees, body.poleDeclinationDegrees))
+  const surfacePointAt = (days: number) =>
+    vec3.transformMat4(
+      vec3.create(),
+      [1, 0, 0],
+      mat4.multiply(mat4.create(), tilt, mat4.fromZRotation(mat4.create(), rotationAngleRadians(days, body.siderealRotationHours))),
+    )
+  const a = surfacePointAt(0)
+  const b = surfacePointAt(0.001)
+  const axis = vec3.normalize(vec3.create(), vec3.cross(vec3.create(), a, vec3.subtract(vec3.create(), b, a)))
+  return [axis[0], axis[1], axis[2]]
+}
+
+// The orbital angular-momentum direction of a moon's actual rendered motion around its parent.
+function moonOrbitalAngularMomentum(moonId: string): vec3 {
+  const moon = ALL_ENTITIES.find((e) => e.id === moonId)!
+  const parent = ALL_ENTITIES.find((e) => e.id === (moon.definition as { parentId: string }).parentId)!
+  const relativeAt = (days: number) =>
+    vec3.subtract(vec3.create(), entityWorldPosition(moon, 0, days, 1), entityWorldPosition(parent, 0, days, 1))
+  const r0 = relativeAt(100)
+  const r1 = relativeAt(100.001)
+  return vec3.normalize(vec3.create(), vec3.cross(vec3.create(), r0, vec3.subtract(vec3.create(), r1, r0)))
+}
+
 describe('real pole data produces the expected axial tilts', () => {
   it("Uranus's real pole direction lies close to its own orbital plane (~90 degrees from ecliptic-north) - it effectively rolls onto its side", () => {
     const uranus = findPlanet('uranus')
@@ -36,10 +65,17 @@ describe('real pole data produces the expected axial tilts', () => {
     expect(Math.abs(tilt - 90)).toBeLessThan(15)
   })
 
-  it("Venus's real pole direction is tilted close to 180 degrees (near-upside-down)", () => {
+  it("Venus's rendered spin is retrograde: its spin axis (pole + rotation sign) sits ~177 degrees from ecliptic north", () => {
     const venus = findPlanet('venus')
-    const pole = equatorialToEclipticPoleDirection(venus.poleRightAscensionDegrees, venus.poleDeclinationDegrees)
-    expect(tiltDegreesFromEclipticNorth(pole)).toBeGreaterThan(150)
+    expect(tiltDegreesFromEclipticNorth(renderedSpinAxis(venus))).toBeGreaterThan(175)
+  })
+
+  it("every planet's rendered spin axis matches its real obliquity sense (Venus and Uranus retrograde, the rest prograde)", () => {
+    for (const planet of PLANETS) {
+      const tilt = tiltDegreesFromEclipticNorth(renderedSpinAxis(planet))
+      if (planet.id === 'venus' || planet.id === 'uranus') expect(tilt).toBeGreaterThan(90)
+      else expect(tilt).toBeLessThan(35)
+    }
   })
 
   it("Earth's real pole direction is tilted by roughly its known 23.4-degree obliquity", () => {
@@ -78,6 +114,17 @@ describe("moons' real orbital-plane data produces the expected geometry", () => 
     // Its normal should point mostly AWAY from Neptune's own pole direction (retrograde relative
     // to Neptune's rotation), i.e. the dot product with Neptune's pole is strongly negative.
     expect(vec3.dot(orbitPlaneNormal, referencePoleDirection)).toBeLessThan(-0.8)
+  })
+
+  it("regular moons orbit in their parent's own spin sense, and Triton against Neptune's", () => {
+    for (const moon of MOONS) {
+      const parent = findPlanet(moon.parentId)
+      const alignment = vec3.dot(moonOrbitalAngularMomentum(moon.id), renderedSpinAxis(parent))
+      // The Moon's orbit is tied to the ecliptic, not Earth's equator, so it sits up to ~28.6
+      // degrees off Earth's spin axis (cos 28.6 = 0.878); every other regular moon is within 0.5.
+      if (moon.id === 'triton') expect(alignment).toBeLessThan(-0.9)
+      else expect(alignment).toBeGreaterThan(0.85)
+    }
   })
 
   it("the Galilean moons and Titan stay close to their parent's equatorial plane (small real inclination)", () => {

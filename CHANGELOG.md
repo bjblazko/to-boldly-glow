@@ -114,6 +114,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The bump-mapping tangent-basis calculation had its cross-product operands swapped, inverting
   surface relief (raised terrain shaded as pits and vice versa); bump/height-map textures were also
   being gamma-decoded as if they were color data instead of raw height values.
+- Venus spun prograde: its pole was stored as the right-hand-rule pole (RA 92.76°, Dec -67.16°)
+  while its negative rotation period also encoded retrograde spin, cancelling out. It now uses IAU's
+  published north pole (RA 272.76°, Dec 67.16°), the same pole-plus-signed-period pairing Uranus uses.
+- Titania and Oberon orbited against Uranus's own spin, and Triton orbited prograde (its negative
+  period undid the retrograde sense its 157° inclination already encodes). Moons now orbit in their
+  parent's rotation sense, and Triton's period is positive.
+- Every body texture rendered as its own mirror image (the sphere mesh's longitude ran clockwise
+  seen from north). Tidally locked moons now also keep their longitude-0 face, rather than the
+  90° meridian, toward their parent.
+- The far clip plane (1000 units) cut off the far side of Neptune's orbit at Realistic scale when
+  zoomed out; it is now 2000 units.
 
 ### Security
 

@@ -24,11 +24,27 @@ export function scaledMoonOrbitRadiusUnits(
 
 // Progress angle around the orbit, measured from an arbitrary epoch reference (this app doesn't
 // model real orbital phase at J2000 for moons any more precisely than this). Driven by real
-// elapsed time, so a negative period (Triton, uniquely among large moons, orbits retrograde)
-// naturally produces motion in the opposite direction. The orbital PLANE's orientation is handled
-// separately by moonOrbitPlaneTiltMatrix, not here.
+// elapsed time; a negative period produces motion in the opposite direction. The orbital PLANE's
+// orientation is handled separately by moonOrbitPlaneTiltMatrix, and which way a real moon goes
+// around that plane by moonOrbitDirectionSign - see moonOrbitAngleForParent, which combines them.
 export function moonOrbitAngleRadians(daysSinceEpoch: number, siderealOrbitPeriodDays: number): number {
   return (daysSinceEpoch / siderealOrbitPeriodDays) * 2 * Math.PI
+}
+
+// +1 or -1: which way around moonOrbitReferencePoleDirection a moon's orbital angle advances.
+// Moons orbit in their parent's own rotation sense, but the reference pole is the parent's IAU
+// north pole, which IAU defines by the invariable plane rather than by the right-hand rule - and
+// Uranus spins retrograde about it (negative siderealRotationHours, see bodies.ts). Advancing the
+// angle positively for every moon made Titania and Oberon circle opposite to Uranus's own spin.
+// Triton's genuinely retrograde orbit comes from its >90-degree inclination, not from this sign.
+// The Moon's reference is ecliptic north rather than Earth's pole, but Earth spins prograde, so
+// the same rule gives it +1.
+export function moonOrbitDirectionSign(parent: BodyDefinition): number {
+  return parent.siderealRotationHours < 0 ? -1 : 1
+}
+
+export function moonOrbitAngleForParent(daysSinceEpoch: number, moon: MoonDefinition, parent: BodyDefinition): number {
+  return moonOrbitDirectionSign(parent) * moonOrbitAngleRadians(daysSinceEpoch, moon.siderealOrbitPeriodDays)
 }
 
 // Tidally locked moons keep one face toward their parent as they orbit. With spin applied around
@@ -38,8 +54,15 @@ export function moonOrbitAngleRadians(daysSinceEpoch: number, siderealOrbitPerio
 // XZ-plane convention: mat4.fromYRotation maps local +Z to (sin, 0, cos), a coordinate order that
 // required negating the angle to stay locked, whereas mat4.fromZRotation maps local +X to
 // (cos, sin, 0) directly, needing no negation. Verified in moonOrbit.test.ts.
+//
+// The -PI/2 offset picks WHICH face stays toward the parent: a synchronous moon's longitude 0 is
+// defined as its sub-parent point, and longitude 0 is the texture's central meridian (u=0.5),
+// which generateSphereMesh puts on local -Y. Without the offset, local -X faced the parent - the
+// 90-degree meridian, showing Earth half of the Moon's far side.
+export const MOON_SUB_PARENT_SPIN_OFFSET_RADIANS = -Math.PI / 2
+
 export function moonRotationAngleRadians(orbitAngleRadians: number): number {
-  return orbitAngleRadians
+  return orbitAngleRadians + MOON_SUB_PARENT_SPIN_OFFSET_RADIANS
 }
 
 // Position on a flat circular orbit lying in the ecliptic-aligned XY-plane (matching

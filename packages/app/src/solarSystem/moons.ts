@@ -15,10 +15,14 @@ export interface MoonDefinition {
   /** Hand-picked orbit radius (scene units) at the fully-"compact" end of the scale toggle. */
   compactOrbitVisualRadius: number
   /**
-   * Sidereal orbital period, days. Negative means retrograde (Triton, uniquely among large
-   * moons, orbits opposite its parent's rotation — a strong hint it's a captured object rather
-   * than one formed in place). All moons here are tidally locked, so this also drives rotation:
-   * the same face always points toward the parent, rather than spinning at an independent rate.
+   * Sidereal orbital period, days, always positive. Direction of motion isn't encoded here: a moon
+   * circles its reference pole in its parent's own rotation sense (see moonOrbitDirectionSign in
+   * moonOrbit.ts), and a retrograde orbit is expressed the standard orbital-elements way, as an
+   * inclination above 90 degrees - Triton, uniquely among large moons, orbits opposite its
+   * parent's rotation (a strong hint it's a captured object rather than one formed in place). A
+   * negative period on top of that inclination would flip Triton back to prograde. All moons here
+   * are tidally locked, so this also drives rotation: the same face always points toward the
+   * parent, rather than spinning at an independent rate.
    */
   siderealOrbitPeriodDays: number
   /**
@@ -178,7 +182,7 @@ export const MOONS: MoonDefinition[] = [
     compactVisualRadius: 0.15,
     orbitDistanceKm: 354_759,
     compactOrbitVisualRadius: 2.1,
-    siderealOrbitPeriodDays: -5.876854,
+    siderealOrbitPeriodDays: 5.876854,
     orbitInclinationToParentEquatorDegrees: 157.3, // illustrative snapshot - real value precesses, see field doc
     orbitAscendingNodeDegrees: 0, // illustrative, see field doc
   },

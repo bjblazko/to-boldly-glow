@@ -117,8 +117,12 @@ export const PLANETS: BodyDefinition[] = [
     position: { longitude: venusHeliocentricL, latitude: venusHeliocentricB, distance: venusHeliocentricR },
     textureUrl: '/textures/venus.jpg',
     siderealRotationHours: -5832.5,
-    poleRightAscensionDegrees: 92.76,
-    poleDeclinationDegrees: -67.16,
+    // IAU's published north pole (IAU defines a planet's north pole as the one on the north side
+    // of the solar system's invariable plane), with the retrograde spin carried by the negative
+    // rotation period above - the same pairing Uranus uses. The antipode (RA 92.76, Dec -67.16) is the right-hand-rule pole;
+    // combining that with a negative period negated the spin twice, rendering Venus prograde.
+    poleRightAscensionDegrees: 272.76,
+    poleDeclinationDegrees: 67.16,
     // Venus's atmosphere is the thickest of any rocky body here (92x Earth's surface pressure) —
     // the brightest, palest limb glow of the set.
     atmosphereColor: [1.0, 0.95, 0.78],

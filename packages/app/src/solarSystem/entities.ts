@@ -3,7 +3,7 @@ import { PLANETS, SUN, type BodyDefinition } from './bodies'
 import { MOONS, type MoonDefinition } from './moons'
 import { scaledPosition } from './sceneScale'
 import { AU_KM } from './bodies'
-import { moonOrbitAngleRadians, moonOrbitReferencePoleDirection, moonRelativePosition, scaledMoonOrbitRadiusUnits } from './moonOrbit'
+import { moonOrbitAngleForParent, moonOrbitReferencePoleDirection, moonRelativePosition, scaledMoonOrbitRadiusUnits } from './moonOrbit'
 import { equatorialToEclipticPoleDirection } from './poleOrientation'
 
 export type EntityKind = 'sun' | 'planet' | 'moon'
@@ -68,7 +68,7 @@ export function entityWorldPosition(
   const parent = ALL_ENTITIES.find((e) => e.id === moon.parentId)
   if (!parent) throw new Error(`${moon.id} has no known parent ${moon.parentId}.`)
   const [px, py, pz] = entityWorldPosition(parent, T, daysSinceEpoch, scaleBlend)
-  const angle = moonOrbitAngleRadians(daysSinceEpoch, moon.siderealOrbitPeriodDays)
+  const angle = moonOrbitAngleForParent(daysSinceEpoch, moon, parent.definition as BodyDefinition)
   const orbitRadius = scaledMoonOrbitRadiusUnits(moon.orbitDistanceKm, moon.compactOrbitVisualRadius, scaleBlend, AU_KM)
   const referencePoleDirection = moonOrbitReferencePoleDirection(moon, parent.definition as BodyDefinition)
   const [rx, ry, rz] = moonRelativePosition(

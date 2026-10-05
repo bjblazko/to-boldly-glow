@@ -38,7 +38,12 @@ export function generateSphereMesh(radius: number, latSegments: number, lonSegme
       // +Z) to south pole (v=1, local -Z). The seam-duplicate vertices at lon=0/lon=lonSegments
       // (see index buffer below) are exactly what let u run cleanly 0..1 without a wraparound
       // artifact.
-      uvs.push(lon / lonSegments, lat / latSegments)
+      //
+      // u runs OPPOSITE to phi: phi sweeps clockwise seen from above the north pole (+Y toward +X),
+      // but a map's east (increasing u) must sweep counterclockwise - the same sense every body
+      // spins in - or every texture renders as its own mirror image (continents flipped east-west).
+      // u=0.5, a map's central meridian (longitude 0), lands on local -Y either way.
+      uvs.push(1 - lon / lonSegments, lat / latSegments)
     }
   }
 

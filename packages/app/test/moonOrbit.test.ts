@@ -198,6 +198,16 @@ describe('tidal lock: moonRotationAngleRadians combined with moonFlatOrbitPositi
     return planarAngle(nearSideDirection) - planarAngle(directionToParent)
   }
 
+  it("keeps the texture's central meridian (longitude 0, on local -Y) pointed exactly at the parent", () => {
+    for (const angle of [0, 0.7, Math.PI / 2, 2.5, Math.PI, -1.2]) {
+      const relativePosition = moonFlatOrbitPosition(1.7, angle)
+      const directionToParent = vec3.normalize(vec3.create(), vec3.negate(vec3.create(), relativePosition))
+      const rotationMatrix = mat4.fromZRotation(mat4.create(), moonRotationAngleRadians(angle))
+      const subParentMeridian = vec3.transformMat4(vec3.create(), [0, -1, 0], rotationMatrix)
+      expect(vec3.dot(subParentMeridian, directionToParent)).toBeCloseTo(1, 6)
+    }
+  })
+
   it('holds a constant angular offset from the parent-facing direction across a full orbit', () => {
     const orbitRadius = 1.7
     const angles = [0, Math.PI / 6, Math.PI / 2, Math.PI, (4 * Math.PI) / 3, 1.9 * Math.PI]
