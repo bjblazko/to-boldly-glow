@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { minOrbitRadiusForBlend, OrbitCamera, orbitBasisForUpAxis } from '../src/camera/orbitCamera'
 import { CameraFollowController, defaultFramingAzimuth } from '../src/camera/cameraFollow'
 import { ALL_ENTITIES, entityPoleDirection, entityWorldPosition } from '../src/solarSystem/entities'
-import { ECLIPTIC_NORTH } from '../src/solarSystem/poleOrientation'
+import { ECLIPTIC_NORTH, equatorialToEclipticPoleDirection } from '../src/solarSystem/poleOrientation'
 import { AU_KM } from '../src/solarSystem/bodies'
 import { scaledBodyRadiusUnits } from '../src/solarSystem/sceneScale'
 
@@ -273,9 +273,11 @@ describe('CameraFollowController', () => {
     expect(camera.upAxis[2]).toBeCloseTo(expectedPole[2], 6)
   })
 
-  it('keeps the up-axis at unit length and rotating smoothly throughout the fly-to, even for a near-antipodal transition (Venus)', () => {
-    // Venus is retrograde: its real pole is ~178.76 degrees from the default up-axis
-    // (ECLIPTIC_NORTH = [0, 0, 1]), i.e. nearly antipodal to it. A plain lerp+normalize between
+  it('keeps the up-axis at unit length and rotating smoothly throughout the fly-to, even for a near-antipodal transition', () => {
+    // Uses Venus's right-hand-rule pole (RA 92.76, Dec -67.16), ~178.76 degrees from the default
+    // up-axis (ECLIPTIC_NORTH = [0, 0, 1]), i.e. nearly antipodal to it. (Venus itself now flies to
+    // IAU's published north pole, which is close to ecliptic north - so this exercises the same
+    // slerp path via flyToFraming with that near-antipodal axis instead.) A plain lerp+normalize between
     // two near-antipodal unit vectors always renormalizes to unit length by construction (even a
     // near-zero raw vector divided by its own tiny magnitude yields a unit vector) - so a
     // magnitude-only check can't actually distinguish the buggy approach from a correct one, it
@@ -288,9 +290,9 @@ describe('CameraFollowController', () => {
     // time (0.1s here) ever rotates the up-axis by an implausibly large angle.
     const camera = new OrbitCamera()
     const controller = new CameraFollowController(camera)
-    const venus = findEntity('venus')
+    const nearAntipodalUpAxis = equatorialToEclipticPoleDirection(92.76, -67.16)
 
-    controller.selectEntity(venus, 0.1, 500, 0.5)
+    controller.flyToFraming([5, 0, 0], 20, 0, 0.4, nearAntipodalUpAxis)
     let previous: [number, number, number] = [camera.upAxis[0], camera.upAxis[1], camera.upAxis[2]]
     let maxStepAngleDegrees = 0
     for (let i = 0; i < 15; i++) {
@@ -308,7 +310,7 @@ describe('CameraFollowController', () => {
     // The total rotation across the whole fly-to is ~178.76 degrees, but eased over 15 steps -
     // no single 0.1s step should account for anywhere near that much of it. The old lerp+normalize
     // code produces a ~173 degree single-step jump right at the antipodal crossing for this exact
-    // Venus transition; slerp's worst single step here is ~33 degrees.
+    // transition; slerp's worst single step here is ~33 degrees.
     expect(maxStepAngleDegrees).toBeLessThan(90)
   })
 
@@ -358,7 +360,7 @@ describe('CameraFollowController.flyToFraming', () => {
     // an identical start/end pair. The resulting NaN silently corrupts the camera's up-axis, then
     // the view/projection matrices, and the entire WebGPU scene renders nothing (a black canvas),
     // with no thrown error anywhere to surface it. This is a different degenerate case from the
-    // near-antipodal one already covered by the Venus test above (angle = π there, angle = 0 here) -
+    // near-antipodal one already covered by the test above (angle = π there, angle = 0 here) -
     // both are sin(angle) = 0 singularities, but at opposite ends of slerp's domain.
     const camera = new OrbitCamera() // defaults to upAxis: ECLIPTIC_NORTH
     const controller = new CameraFollowController(camera, { flyToDurationSeconds: 2 })

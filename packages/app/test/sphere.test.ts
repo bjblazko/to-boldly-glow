@@ -56,14 +56,54 @@ describe('generateSphereMesh', () => {
     }
   })
 
-  it('maps u=0 at the seam start and u=1 at the seam end for every latitude ring', () => {
+  it('maps u=1 at the seam start and u=0 at the seam end for every latitude ring', () => {
     for (let lat = 0; lat <= latSegments; lat++) {
       const rowStart = lat * (lonSegments + 1)
       const uAtSeamStart = mesh.uvs[rowStart * 2]
       const uAtSeamEnd = mesh.uvs[(rowStart + lonSegments) * 2]
-      expect(uAtSeamStart).toBe(0)
-      expect(uAtSeamEnd).toBe(1)
+      expect(uAtSeamStart).toBe(1)
+      expect(uAtSeamEnd).toBe(0)
     }
+  })
+
+  it('maps textures un-mirrored: east (increasing u) x north (decreasing v) points outward', () => {
+    // A map seen from outside the globe has east to the right of north, i.e. east x north = the
+    // outward normal. The opposite sign is a mirror image (continents flipped east-west).
+    const vertex = (lat: number, lon: number) => {
+      const i = lat * (lonSegments + 1) + lon
+      return {
+        p: [mesh.positions[i * 3], mesh.positions[i * 3 + 1], mesh.positions[i * 3 + 2]],
+        u: mesh.uvs[i * 2],
+        v: mesh.uvs[i * 2 + 1],
+      }
+    }
+    for (const lat of [2, 4, 6]) {
+      for (let lon = 1; lon < lonSegments - 1; lon++) {
+        const here = vertex(lat, lon)
+        const next = vertex(lat, lon + 1)
+        const above = vertex(lat - 1, lon)
+        const sign = Math.sign(next.u - here.u)
+        const east = [0, 1, 2].map((k) => sign * (next.p[k] - here.p[k]))
+        const north = [0, 1, 2].map((k) => above.p[k] - here.p[k])
+        expect(above.v).toBeLessThan(here.v)
+        const cross = [
+          east[1] * north[2] - east[2] * north[1],
+          east[2] * north[0] - east[0] * north[2],
+          east[0] * north[1] - east[1] * north[0],
+        ]
+        expect(cross[0] * here.p[0] + cross[1] * here.p[1] + cross[2] * here.p[2]).toBeGreaterThan(0)
+      }
+    }
+  })
+
+  it('puts the central meridian (u=0.5, longitude 0) on local -Y', () => {
+    const equatorRow = (latSegments / 2) * (lonSegments + 1)
+    const lon = lonSegments / 2
+    const i = equatorRow + lon
+    expect(mesh.uvs[i * 2]).toBeCloseTo(0.5, 10)
+    expect(mesh.positions[i * 3] / radius).toBeCloseTo(0, 10)
+    expect(mesh.positions[i * 3 + 1] / radius).toBeCloseTo(-1, 10)
+    expect(mesh.positions[i * 3 + 2] / radius).toBeCloseTo(0, 10)
   })
 
   it('maps v=0 at the north pole and v=1 at the south pole', () => {

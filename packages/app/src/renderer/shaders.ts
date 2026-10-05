@@ -210,8 +210,11 @@ fn applyBump(worldPos: vec3f, normal: vec3f, uv: vec2f) -> BumpResult {
   let south = textureSampleLevel(bumpTexture, bodySampler, uv + vec2f(0.0, texelSize.y), 0.0).r;
   let north = textureSampleLevel(bumpTexture, bodySampler, uv - vec2f(0.0, texelSize.y), 0.0).r;
 
+  // Tangent = direction of increasing u (east, counterclockwise about the pole - see
+  // geometry/sphere.ts's UV comment), bitangent = direction of increasing v (south), matching the
+  // east-west / south-north sample differences below.
   let polarAxis = normalize((uni.world * vec4f(0.0, 0.0, 1.0, 0.0)).xyz);
-  var tangent = cross(normal, polarAxis);
+  var tangent = cross(polarAxis, normal);
   let tangentLength = length(tangent);
   if (tangentLength < 1e-4) {
     // Exactly at a pole, where tangent direction is undefined (normal is parallel to polarAxis) —
@@ -221,7 +224,7 @@ fn applyBump(worldPos: vec3f, normal: vec3f, uv: vec2f) -> BumpResult {
   } else {
     tangent = tangent / tangentLength;
   }
-  let bitangent = cross(normal, tangent);
+  let bitangent = cross(tangent, normal);
 
   let dHeightDu = (east - west) * 0.5;
   let dHeightDv = (south - north) * 0.5;

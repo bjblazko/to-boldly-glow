@@ -33,7 +33,7 @@ describe('equatorialToEclipticPoleDirection', () => {
   })
 
   it('a pole near the equatorial south points mostly away from ecliptic-north', () => {
-    const result = equatorialToEclipticPoleDirection(92.76, -67.16) // Venus
+    const result = equatorialToEclipticPoleDirection(92.76, -67.16) // Venus's right-hand-rule pole
     expect(result[2]).toBeLessThan(0)
   })
 })

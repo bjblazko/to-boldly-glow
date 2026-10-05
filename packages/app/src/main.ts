@@ -40,7 +40,7 @@ import { axisAlignmentRotation, ECLIPTIC_NORTH, equatorialToEclipticPoleDirectio
 import { MOONS } from './solarSystem/moons'
 import {
   moonFlatOrbitPosition,
-  moonOrbitAngleRadians,
+  moonOrbitAngleForParent,
   moonOrbitPlaneTiltMatrix,
   moonOrbitReferencePoleDirection,
   moonRotationAngleRadians,
@@ -614,7 +614,7 @@ async function main() {
   function refreshScaleDependentState(): void {
     refreshOrbitPaths()
     refreshCameraZoomLimits()
-    projection = mat4.perspective(mat4.create(), Math.PI / 4, canvas.width / canvas.height, nearPlaneDistance(), 1000)
+    projection = perspectiveProjection()
   }
 
   // A segmented pair of buttons (not a single ambiguous checkbox) - each press unambiguously
@@ -734,7 +734,16 @@ async function main() {
     return orbitCamera.minRadius * NEAR_PLANE_FRACTION_OF_MIN_RADIUS
   }
 
-  let projection = mat4.perspective(mat4.create(), Math.PI / 4, canvas.width / canvas.height, nearPlaneDistance(), 1000)
+  // Must exceed the farthest thing the camera can see: at Realistic scale Neptune's orbit reaches
+  // ~606 units from the Sun and the orbit camera can back off to maxRadius (700), so the far side of
+  // that orbit sits up to ~1300 units away - the old 1000-unit far plane clipped it off. Depth
+  // precision is governed almost entirely by the near plane, so a larger far plane costs nothing.
+  const FAR_PLANE_DISTANCE = 2000
+  function perspectiveProjection(): mat4 {
+    return mat4.perspective(mat4.create(), Math.PI / 4, canvas.width / canvas.height, nearPlaneDistance(), FAR_PLANE_DISTANCE)
+  }
+
+  let projection = perspectiveProjection()
 
   // The depth/MSAA textures and the projection matrix's aspect ratio are both tied to the
   // canvas's backing-store size, which computeCanvasSize/resizeCanvasIfNeeded derive from the
@@ -750,7 +759,7 @@ async function main() {
       destroyBloomTargets(bloomTargets!)
       bloomTargets = createBloomTargets(device, bloomPipelines, canvas.width, canvas.height)
     }
-    projection = mat4.perspective(mat4.create(), Math.PI / 4, canvas.width / canvas.height, nearPlaneDistance(), 1000)
+    projection = perspectiveProjection()
   })
 
   const flyCamera = new FlyCamera({ position: [0, 25, 60], yaw: Math.PI, pitch: 0 })
@@ -1053,7 +1062,7 @@ async function main() {
     // real radius here is ~0.09 scene units) - derive both directly from the lineup's own scale
     // instead, mirroring refreshScaleDependentState's near-plane derivation below.
     orbitCamera.minRadius = orbitCamera.radius * 0.01
-    projection = mat4.perspective(mat4.create(), Math.PI / 4, canvas.width / canvas.height, nearPlaneDistance(), 1000)
+    projection = perspectiveProjection()
   }
 
   // A shallow, side-on shot for the orbit chapter (design spec's §3) - centered on the Sun (which
@@ -1506,9 +1515,9 @@ async function main() {
         const moon = renderable.definition
         const parentPosition = planetPositionsById.get(moon.parentId)
         if (!parentPosition) continue
-        const angle = moonOrbitAngleRadians(daysSinceEpoch, moon.siderealOrbitPeriodDays)
-        const orbitRadius = scaledMoonOrbitRadiusUnits(moon.orbitDistanceKm, moon.compactOrbitVisualRadius, scaleBlend, AU_KM)
         const parentDefinition = PLANETS.find((p) => p.id === moon.parentId) as BodyDefinition
+        const angle = moonOrbitAngleForParent(daysSinceEpoch, moon, parentDefinition)
+        const orbitRadius = scaledMoonOrbitRadiusUnits(moon.orbitDistanceKm, moon.compactOrbitVisualRadius, scaleBlend, AU_KM)
         const referencePoleDirection = moonOrbitReferencePoleDirection(moon, parentDefinition)
         const moonTilt = moonOrbitPlaneTiltMatrix(
           moon.orbitInclinationToParentEquatorDegrees,
