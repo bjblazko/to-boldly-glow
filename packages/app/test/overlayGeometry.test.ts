@@ -4,10 +4,11 @@ import {
   equatorRingPoints,
   latitudeMarkerCenter,
   latitudeMarkerPoints,
+  meridianLongitudeFacing,
   rotationAxisPoints,
-  tiltAngleArcPoints,
-  verticalReferencePoints,
+  sunLeanLabel,
 } from '../src/learn/overlayGeometry'
+import { axisAlignmentRotation } from '../src/solarSystem/poleOrientation'
 
 describe('overlay geometry (identity world transform, radius 1)', () => {
   const identity = mat4.create()
@@ -63,43 +64,39 @@ describe('overlay geometry (identity world transform, radius 1)', () => {
     expect(center[1]).toBeCloseTo(1, 5)
     expect(center[2]).toBeCloseTo(0, 5)
   })
+})
 
-  it('verticalReferencePoints returns two points straddling center along world +Y', () => {
-    const points = verticalReferencePoints([3, 0, 0], 1.5)
-    expect(points.length).toBe(6)
-    expect(points[0]).toBeCloseTo(3, 5)
-    expect(points[1]).toBeCloseTo(-1.5, 5)
-    expect(points[2]).toBeCloseTo(0, 5)
-    expect(points[3]).toBeCloseTo(3, 5)
-    expect(points[4]).toBeCloseTo(1.5, 5)
-    expect(points[5]).toBeCloseTo(0, 5)
-  })
-
-  it('tiltAngleArcPoints starts straight up from center and sweeps toward +X for a positive angle', () => {
-    const angle = (23.4 * Math.PI) / 180
-    const points = tiltAngleArcPoints([3, 0, 0], 2, angle, 16)
-    expect(points.length).toBe((16 + 1) * 3)
-    // First point: angle=0, straight up from center.
-    expect(points[0]).toBeCloseTo(3, 5)
-    expect(points[1]).toBeCloseTo(2, 5)
-    expect(points[2]).toBeCloseTo(0, 5)
-    // Last point: the full swept angle - x moves toward +X, y shrinks from the full radius.
-    const lastX = points[16 * 3]
-    const lastY = points[16 * 3 + 1]
-    expect(lastX).toBeCloseTo(3 + 2 * Math.sin(angle), 5)
-    expect(lastY).toBeCloseTo(2 * Math.cos(angle), 5)
-    expect(lastX).toBeGreaterThan(3) // swept toward +X, not -X
-    // Every point stays at exactly `radius` from center (a true circular arc).
-    for (let i = 0; i <= 16; i++) {
-      const dx = points[i * 3] - 3
-      const dy = points[i * 3 + 1] - 0
-      expect(Math.hypot(dx, dy)).toBeCloseTo(2, 5)
+describe('meridianLongitudeFacing', () => {
+  it('returns the longitude whose surface point faces the given world direction, for any tilt', () => {
+    const tilts: Array<[number, number, number]> = [
+      [0, 0, 1],
+      [-0.397, 0.918, 0],
+      [-0.281, 0.918, -0.281],
+      [0.2, 0.9, 0.387],
+    ]
+    const facing: [number, number, number] = [-Math.cos(Math.PI / 6), 0, -Math.sin(Math.PI / 6)]
+    for (const raw of tilts) {
+      const length = Math.hypot(...raw)
+      const pole: [number, number, number] = [raw[0] / length, raw[1] / length, raw[2] / length]
+      const tilt = axisAlignmentRotation(pole)
+      const longitude = meridianLongitudeFacing(tilt, facing)
+      // The equator point at that longitude must lie in the plane spanned by the pole and `facing`,
+      // on the `facing` side: its direction equals facing's component perpendicular to the pole.
+      const equatorPoint = latitudeMarkerCenter(tilt, 1, 0, longitude)
+      const along = facing[0] * pole[0] + facing[1] * pole[1] + facing[2] * pole[2]
+      const expected = [facing[0] - along * pole[0], facing[1] - along * pole[1], facing[2] - along * pole[2]]
+      const expectedLength = Math.hypot(expected[0], expected[1], expected[2])
+      for (let k = 0; k < 3; k++) expect(equatorPoint[k]).toBeCloseTo(expected[k] / expectedLength, 5)
     }
   })
+})
 
-  it('tiltAngleArcPoints sweeps toward -X for a negative angle', () => {
-    const points = tiltAngleArcPoints([0, 0, 0], 1, -0.5, 8)
-    const lastX = points[8 * 3]
-    expect(lastX).toBeLessThan(0)
+describe('sunLeanLabel', () => {
+  it('reports the lean toward or away from the Sun, and calls zero sideways', () => {
+    expect(sunLeanLabel((23.4 * Math.PI) / 180)).toBe('23.4° toward the Sun')
+    expect(sunLeanLabel((-23.4 * Math.PI) / 180)).toBe('23.4° away from the Sun')
+    expect(sunLeanLabel((16.31 * Math.PI) / 180)).toBe('16.3° toward the Sun')
+    expect(sunLeanLabel(0)).toBe('0.0° (tilt points sideways)')
+    expect(sunLeanLabel(-0.0001)).toBe('0.0° (tilt points sideways)')
   })
 })

@@ -76,6 +76,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   real-scale relative sizes in a single largest-to-smallest lineup (no orbital distances involved),
   with one page per planet giving its diameter, circumference, and average distance to the Sun in
   km and AU. Now the first item in the lesson picker.
+- Each lesson now shows a short note on what is and isn't to scale (the seasons lesson: sizes,
+  distances and speeds are exaggerated, all angles are true).
 
 ### Fixed
 
@@ -146,6 +148,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   after the sizes lesson the camera was left inside the Sun with a near plane ~4000x too small.
 - The e2e suite was failing against the current UI (flares now default off, the dock stays visible
   in learn mode, and Earth's label visibility depended on the day the test ran).
+- The seasons lesson's staged chapters flattened Earth's axis so its tilt against the orbit shrank
+  to 0° at the equinoxes, contradicting the orbit chapter. The axis now keeps its true 23.4° all
+  year and points sideways at the equinoxes; the reference line and arc follow it in 3D, and the
+  angle label says how far the axis leans toward or away from the Sun (the Sun's declination). The
+  location markers stay on the sunlit, camera-facing side in every chapter.
+- Lessons no longer follow the Realistic/Compact toggle: at Realistic scale the seasons scene showed
+  a speck-sized Sun and its overlay lines flickered or vanished behind Earth.
+- Lesson scenes are framed into the space above the lesson panel, which used to cover Location B
+  and Earth's southern hemisphere (and the planet-size lineup) on common screen sizes; the panel
+  itself no longer runs under the dock.
 
 ### Security
 

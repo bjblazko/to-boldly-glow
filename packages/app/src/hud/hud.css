@@ -581,9 +581,17 @@
      first children, right below the panel's own top edge) up and down between clicks and forcing
      the user to re-aim their mouse. Anchoring from a fixed top keeps that row's screen position
      exactly stable across every chapter; only the panel's bottom edge (which nothing depends on)
-     moves as the text reflows. 300px reserves enough room for the longest chapter's text without
-     the panel ever needing to grow past this position. */
-  top: max(16px, calc(100% - 260px));
+     moves as the text reflows. 300px reserves enough room for the longest chapter's text (plus the
+     lesson's scale note) at desktop widths; on narrower screens, where text wraps onto more lines,
+     max-height + overflow scroll the panel's contents instead of letting it run off the bottom. */
+  /* Ends 92px above the viewport bottom - clear of the dock (16px off the bottom, ~68px tall; the
+     free-roam sheet uses the same 84px offset) plus an 8px gap - which used to cover the panel's
+     last lines. max-height is the content box: the 14px vertical padding and 1px borders add 30px
+     on top, so 254px + 30px fills the 284px between top and that bottom edge. main.ts's
+     LESSON_PANEL_RESERVED_PX mirrors the 376px below to fit lesson scenes above the panel. */
+  top: max(16px, calc(100% - 376px));
+  max-height: min(254px, calc(100% - 138px));
+  overflow-y: auto;
   transform: translateX(-50%);
   width: min(560px, calc(100vw - 32px));
   background: var(--hud-panel);
@@ -652,6 +660,13 @@ body[data-app-mode='learn'] #learn-mode-btn-label::before {
   font-size: 12.5px;
   line-height: 1.5;
   color: var(--hud-text);
+}
+
+.hud-lesson-note {
+  margin: 8px 0 0;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--hud-dim);
 }
 
 
