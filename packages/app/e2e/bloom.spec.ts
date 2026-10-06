@@ -1,11 +1,11 @@
 import { expect, test } from '@playwright/test'
+import { openApp } from './support/appBoot'
 
 test('bloom post-processing initializes and can be toggled', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
-  await page.goto('/')
-  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+  await openApp(page)
 
   // Positive control: bloom setup succeeded (the HDR/mip-chain resources were created without
   // hitting the graceful-degradation fallback), not just that the toggle checkbox exists in the

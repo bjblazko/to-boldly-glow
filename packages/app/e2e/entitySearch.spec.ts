@@ -1,11 +1,11 @@
 import { expect, test } from '@playwright/test'
+import { openApp } from './support/appBoot'
 
 test('searching and selecting an entity locks the camera onto it', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
-  await page.goto('/')
-  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+  await openApp(page)
 
   // Camera/search controls live behind the dock's "Camera" sheet — open it before interacting.
   await page.locator('.hud-dock-btn[data-panel="camera"]').click()
@@ -25,8 +25,7 @@ test('searching and selecting an entity locks the camera onto it', async ({ page
 })
 
 test('selecting a search result while in fly mode forces the camera back to orbit mode', async ({ page }) => {
-  await page.goto('/')
-  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+  await openApp(page)
 
   // Camera/search controls live behind the dock's "Camera" sheet — open it before interacting.
   await page.locator('.hud-dock-btn[data-panel="camera"]').click()

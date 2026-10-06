@@ -1,11 +1,11 @@
 import { expect, test } from '@playwright/test'
+import { openApp } from './support/appBoot'
 
 test('a real star catalog loads and the starfield can be toggled', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
-  await page.goto('/')
-  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+  await openApp(page)
 
   // Positive control: assert a real catalog loaded (thousands of stars), not a silent
   // zero-star degradation, proving the data-pipeline asset actually made it into the bundle.

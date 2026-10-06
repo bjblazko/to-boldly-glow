@@ -1,11 +1,11 @@
 import { expect, test } from '@playwright/test'
+import { openApp } from './support/appBoot'
 
 test('scrubbing time through moon-transit-heavy windows renders shadows without WebGPU errors', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
-  await page.goto('/')
-  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+  await openApp(page)
 
   // Jupiter's moons orbit fast (Io: ~1.77 days), so accelerating time is the cheapest way to sweep
   // through many moon-transit/eclipse geometries (moon-on-planet and planet-on-moon shadows) in a

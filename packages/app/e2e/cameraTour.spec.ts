@@ -1,11 +1,11 @@
 import { expect, test } from '@playwright/test'
+import { openApp } from './support/appBoot'
 
 test('the tour toggle starts and stops from the keyboard', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
-  await page.goto('/')
-  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+  await openApp(page)
   await page.locator('.hud-dock-btn[data-panel="camera"]').click()
 
   const tourButton = page.locator('#camera-tour-toggle')
@@ -31,8 +31,7 @@ test('picking a search result during the tour stops it and flies to the result',
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
-  await page.goto('/')
-  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+  await openApp(page)
   await page.locator('.hud-dock-btn[data-panel="camera"]').click()
 
   const tourLabel = page.locator('#camera-tour-toggle .btn-label')

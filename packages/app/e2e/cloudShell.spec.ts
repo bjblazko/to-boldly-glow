@@ -1,11 +1,11 @@
 import { expect, test } from '@playwright/test'
+import { openApp } from './support/appBoot'
 
 test('gas giants render their translucent cloud shell without WebGPU errors', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
-  await page.goto('/')
-  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+  await openApp(page)
 
   await page.locator('.hud-dock-btn[data-panel="camera"]').click()
   await page.locator('#entity-search-input').fill('Jupiter')

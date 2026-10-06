@@ -1,11 +1,11 @@
 import { expect, test } from '@playwright/test'
+import { openApp } from './support/appBoot'
 
 test('moons and lens flares can each be toggled independently', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
-  await page.goto('/')
-  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+  await openApp(page)
 
   // Display toggles live behind the dock's "Display" sheet — open it before interacting.
   await page.locator('.hud-dock-btn[data-panel="display"]').click()

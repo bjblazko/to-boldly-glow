@@ -1,11 +1,11 @@
 import { expect, test } from '@playwright/test'
+import { openApp } from './support/appBoot'
 
 test('entering and exiting learn mode toggles app-mode state and hides/restores the free-roam dock buttons', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
-  await page.goto('/')
-  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+  await openApp(page)
 
   await expect(page.locator('body')).not.toHaveAttribute('data-app-mode', 'learn')
   await expect(page.locator('.hud-dock')).toBeVisible()
@@ -35,8 +35,7 @@ test('the corner Display button still opens and closes its panel while in learn 
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
-  await page.goto('/')
-  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+  await openApp(page)
 
   await page.locator('#learn-mode-btn').click()
   await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
@@ -61,8 +60,7 @@ test('chapter navigation updates lesson-panel state, including the kind change a
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
-  await page.goto('/')
-  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+  await openApp(page)
 
   await page.locator('#learn-mode-btn').click()
   await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
@@ -87,8 +85,7 @@ test('orbit paths still render (via the shared, now dash-capable line pipeline) 
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
-  await page.goto('/')
-  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+  await openApp(page)
 
   // Orbit paths are on by default; exercise the toggle off/on to force the (now two-vertex-buffer,
   // dash-uniform-carrying) line pipeline to rebind and redraw in both states, catching any
@@ -112,8 +109,7 @@ test('lens flares are force-hidden on learn-mode entry and restored to their pri
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
-  await page.goto('/')
-  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+  await openApp(page)
 
   // canvas.dataset.flares isn't written until the toggle first fires (see moonsAndFlares.spec.ts),
   // so it has no attribute at all pre-toggle even though flares are OFF (the underlying
@@ -152,8 +148,7 @@ test('entity search is explicitly disabled in learn mode, not just unreachable b
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
-  await page.goto('/')
-  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+  await openApp(page)
 
   await page.locator('#learn-mode-btn').click()
   await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
@@ -180,8 +175,7 @@ test('globe overlays and both location markers render without WebGPU errors acro
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
-  await page.goto('/')
-  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+  await openApp(page)
 
   await page.locator('#learn-mode-btn').click()
   await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
@@ -225,8 +219,7 @@ test('the lesson panel can be dragged by its grip handle, clamped to the viewpor
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
-  await page.goto('/')
-  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+  await openApp(page)
 
   await page.locator('#learn-mode-btn').click()
   await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
@@ -267,8 +260,7 @@ test('opening a lesson while following a body ends the follow, so it cannot drag
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
-  await page.goto('/')
-  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+  await openApp(page)
 
   await page.locator('.hud-dock-btn[data-panel="camera"]').click()
   await page.locator('#entity-search-input').fill('Mars')
@@ -287,8 +279,7 @@ test('opening a lesson while following a body ends the follow, so it cannot drag
 })
 
 test('each lesson says what is and is not to scale', async ({ page }) => {
-  await page.goto('/')
-  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+  await openApp(page)
 
   await page.locator('#learn-mode-btn').click()
   await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
@@ -305,8 +296,7 @@ test('the seasons lesson keeps working when the explore view is at Realistic sca
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
-  await page.goto('/')
-  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+  await openApp(page)
   await page.locator('#display-corner-btn').click()
   await page.locator('#scale-mode-realistic-btn').click()
   await expect(page.locator('#scene')).toHaveAttribute('data-scale-mode', 'realistic')

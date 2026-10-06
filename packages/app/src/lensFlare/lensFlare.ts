@@ -1,5 +1,6 @@
 import { createUniformBinding, type UniformBinding } from '../gpu/buffers'
-import { ADDITIVE_BLEND, BILLBOARD_PRIMITIVE, createScenePipeline } from '../gpu/scenePipeline'
+import { createCameraEffectPipeline } from '../gpu/cameraEffectPipeline'
+import { ADDITIVE_BLEND, BILLBOARD_PRIMITIVE } from '../gpu/scenePipeline'
 import type { Viewpoint } from '../camera/viewpoint'
 import type { SceneLayout } from '../scene/sceneLayout'
 import { FLARE_ELEMENTS } from './flareElements'
@@ -11,19 +12,6 @@ const HEADER_FLOATS = 4
 const FLARE_UNIFORM_FLOAT_COUNT = HEADER_FLOATS + MAX_FLARE_ELEMENTS * FLOATS_PER_ELEMENT
 // Below this the flare is invisible anyway; skip drawing it.
 const MIN_STRENGTH = 0.001
-
-// The flare pipeline draws over the finished scene: additive, and never depth-tested. A flare is
-// light scattered inside the camera, so nothing in the picture can sit in front of it.
-export function flarePipelineSpec(format: GPUTextureFormat) {
-  return {
-    label: 'flare',
-    code: flareShaderCode,
-    format,
-    blend: ADDITIVE_BLEND,
-    primitive: BILLBOARD_PRIMITIVE,
-    depth: { write: false, compare: 'always' as const },
-  }
-}
 
 // A cinematic lens flare for the Sun: a glow, the aperture's starburst, an anamorphic streak, a
 // rainbow halo, aperture-shaped ghosts along the line through the screen center, and lit-up lens
@@ -39,23 +27,27 @@ export class LensFlare {
   ) {}
 
   static async create(device: GPUDevice, format: GPUTextureFormat): Promise<LensFlare> {
-    const pipeline = await createScenePipeline(device, flarePipelineSpec(format))
+    const pipeline = await createCameraEffectPipeline(device, { label: 'flare', code: flareShaderCode, format, blend: ADDITIVE_BLEND, primitive: BILLBOARD_PRIMITIVE })
     const uniforms = createUniformBinding(device, pipeline, { label: 'lens flare', floatCount: FLARE_UNIFORM_FLOAT_COUNT })
     device.queue.writeBuffer(uniforms.buffer, HEADER_FLOATS * 4, packFlareElements(FLARE_ELEMENTS))
     return new LensFlare(device, pipeline, uniforms)
   }
 
+  get isVisible(): boolean {
+    return this.strength >= MIN_STRENGTH
+  }
+
   update(layout: SceneLayout, viewpoint: Viewpoint): void {
     const sunNdc = sunScreenPosition(viewpoint)
     this.strength = sunNdc ? sunVisibleFraction(layout, viewpoint) * frameFade(sunNdc) : 0
-    if (!sunNdc || this.strength < MIN_STRENGTH) return
+    if (!sunNdc || !this.isVisible) return
     const header = new Float32Array([sunNdc[0], sunNdc[1], viewpoint.pixels.width / viewpoint.pixels.height, this.strength])
     this.device.queue.writeBuffer(this.uniforms.buffer, 0, header)
   }
 
-  // Drawn last: over every body, ring, line and overlay.
+  // Drawn in the camera-effects pass, over the finished scene (see gpu/cameraEffectPipeline.ts).
   draw(pass: GPURenderPassEncoder): void {
-    if (this.strength < MIN_STRENGTH) return
+    if (!this.isVisible) return
     pass.setPipeline(this.pipeline)
     pass.setBindGroup(0, this.uniforms.bindGroup)
     pass.draw(4, FLARE_ELEMENTS.length)
