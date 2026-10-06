@@ -15,10 +15,10 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      # lint and typecheck build the engine first: the app's types come from its generated bindings.
       - run: npm run lint
-      # The app imports the engine's generated bindings (packages/engine/build), so build first.
-      - run: npm run build
       - run: npm run typecheck
+      - run: npm run build
       - run: npm test
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium

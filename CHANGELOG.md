@@ -105,7 +105,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - With labels re-enabled during the seasons lesson, planets the lesson hides no longer show their
   name labels at their real positions, and they no longer dim the lens flare.
 - CI never got past type-checking (it ran before the engine build the app's types come from), so
-  the e2e suite never ran on GitHub. Steps are reordered, the actions moved to their Node 24
+  the e2e suite never ran on GitHub. `npm run lint` and `npm run typecheck` now build the engine
+  first, so they work on a fresh checkout too, the actions moved to their Node 24
   releases, and Chromium is allowed to fall back to software WebGPU on GPU-less runners.
 - Pixel-level e2e tests no longer queue up frames faster than software WebGPU can render them,
   which stalled the browser for the next test (a reproducible timeout in CI).
