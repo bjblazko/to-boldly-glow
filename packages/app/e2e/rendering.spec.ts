@@ -4,11 +4,13 @@ import {
   captureFrame,
   countBrightPixels,
   diskRadiusAlongRow,
+  dragCamera,
   followEntity,
   labelAnchor,
   meanAbsoluteDifference,
   openRenderedApp,
   renderFrames,
+  setDisplaySwitch,
 } from './support/renderedApp'
 
 // These tests check what actually lands in the frame, not just app state - see support/renderedApp.ts.
@@ -72,6 +74,30 @@ test('a followed planet fills the view and its visible face is lit', async ({ pa
 
   expect(diskRadiusAlongRow(frame, mars.x, mars.y)).toBeGreaterThan(frame.height * 0.08)
   expect(meanLuminance(frame, mars.x, mars.y, frame.height * 0.06)).toBeGreaterThan(35)
+  expect(errors).toEqual([])
+})
+
+// A lens flare happens inside the camera: only whether the Sun itself is hidden matters. Behind
+// Earth it vanishes; above Earth, its ghosts lie over the planet instead of being cut off by it.
+test("the lens flare follows the Sun's visibility and lies over planets, not behind them", async ({ page }) => {
+  test.setTimeout(120_000)
+  const errors = await openRenderedApp(page)
+  await setDisplaySwitch(page, '#orbit-paths-toggle', false)
+  await setDisplaySwitch(page, '#body-labels-toggle', false)
+  await followEntity(page, 'Earth')
+  // Round to Earth's night side, level with its equator: on this date the Sun is right behind it.
+  await dragCamera(page, 628, -234)
+  const eclipsed = await captureFrame(page)
+  await setDisplaySwitch(page, '#flares-toggle', true)
+  expect(meanAbsoluteDifference(eclipsed, await captureFrame(page))).toBeLessThan(0.3)
+
+  // Tilt up until the Sun stands above Earth: a ghost now falls next to the screen center, on Earth.
+  await dragCamera(page, 0, 82)
+  const withFlare = await captureFrame(page)
+  await setDisplaySwitch(page, '#flares-toggle', false)
+  const withoutFlare = await captureFrame(page)
+  const [centerX, centerY] = [withFlare.width / 2, withFlare.height * 0.58]
+  expect(meanLuminance(withFlare, centerX, centerY, 8)).toBeGreaterThan(meanLuminance(withoutFlare, centerX, centerY, 8) + 15)
   expect(errors).toEqual([])
 })
 
