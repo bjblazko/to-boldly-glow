@@ -88,6 +88,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- CI never got past type-checking (it ran before the engine build the app's types come from), so
+  the e2e suite never ran on GitHub. Steps are reordered, the actions moved to their Node 24
+  releases, and Chromium is allowed to fall back to software WebGPU on GPU-less runners.
+- Pixel-level e2e tests no longer queue up frames faster than software WebGPU can render them,
+  which stalled the browser for the next test (a reproducible timeout in CI).
+
 - Every body (Sun, planets, moons) now has a real axial tilt and rotation axis, sourced from IAU
   pole-orientation data — previously every body spun around the scene's vertical axis, which for
   planets lay *inside* their own orbital plane rather than roughly perpendicular to it. Uranus now
