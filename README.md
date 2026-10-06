@@ -10,6 +10,9 @@ up to years per second, and blend between true-to-scale distances and a compress
 view. Everything renders through WebGPU, with HDR bloom, lens flares, and a real ~9,100-star
 background sourced from the Yale Bright Star Catalogue.
 
+**Try it live: [huepattl.de/products/to-boldly-glow](https://huepattl.de/products/to-boldly-glow)**
+(needs a browser with WebGPU, such as a current Chrome, Edge or Safari).
+
 - [Roadmap](docs/roadmap.md) — features named for future phases (seasons, moon phases, eclipses,
   satellites/probes, a speed-of-light calculator, gravitational field visualization, and more).
 - [Changelog](CHANGELOG.md) — what's shipped so far.
@@ -19,11 +22,12 @@ Licensed under the [MIT License](LICENSE).
 
 ## For users
 
-There's no hosted build yet, so running it locally is currently the only way to try it.
+The quickest way to try it is the [live version](https://huepattl.de/products/to-boldly-glow). To run
+it yourself, or to work on it:
 
 ### Getting it running
 
-1. Install [Node.js](https://nodejs.org/) 20 or later (see `.nvmrc`).
+1. Install [Node.js](https://nodejs.org/) 22.12 or later (`.nvmrc` pins the version CI uses).
 2. Clone the repository and install dependencies:
    ```sh
    git clone https://github.com/bjblazko/to-boldly-glow.git
