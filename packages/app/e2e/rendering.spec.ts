@@ -131,6 +131,28 @@ test('the tour moves the view smoothly and hands over to free-fly without a jump
   expect(errors).toEqual([])
 })
 
+// Switching the scale mid-tour moves the ship along with the scene: the tour flies on.
+test('the tour flies on when the scale is switched mid-flight', async ({ page }) => {
+  test.setTimeout(120_000)
+  const errors = await openRenderedApp(page)
+  await page.locator('.hud-dock-btn[data-panel="camera"]').click()
+  await page.locator('#camera-tour-toggle').click()
+  await page.locator('.hud-dock-btn[data-panel="camera"]').click()
+  await renderFrames(page, 40)
+
+  await page.locator('.hud-dock-btn[data-panel="display"]').click()
+  await page.locator('#scale-mode-realistic-btn').click()
+  await page.locator('.hud-dock-btn[data-panel="display"]').click()
+  // The scale eases over 1.5 s.
+  await renderFrames(page, 20)
+  await expect(page.locator('#scene')).toHaveAttribute('data-scale-mode', 'realistic')
+  const flying = await captureFrame(page)
+  await renderFrames(page, 30)
+  expect(meanAbsoluteDifference(flying, await captureFrame(page))).toBeGreaterThan(STILL_VIEW_CHANGE)
+  await expect(page.locator('#camera-tour-toggle .btn-label')).toHaveText('Stop Tour')
+  expect(errors).toEqual([])
+})
+
 // Runs the whole app through its main features with the real GPU path, so any WebGPU validation
 // error (thrown from the device's uncapturederror handler) fails the test.
 test('a full session renders without GPU errors', async ({ page }) => {

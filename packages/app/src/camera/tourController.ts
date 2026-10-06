@@ -1,48 +1,51 @@
 import { mat4, vec3 } from 'gl-matrix'
-import { AU_KM, type BodyDefinition } from '../solarSystem/bodies'
-import { entityWorldPosition, type SolarSystemEntity } from '../solarSystem/entities'
-import { scaledBodyRadiusUnits } from '../solarSystem/sceneScale'
+import type { SolarSystemEntity } from '../solarSystem/entities'
+import { rescaledPosition } from '../solarSystem/sceneScale'
 import type { Ephemeris } from '../time/ephemeris'
-import { stepToward, turnRateAround, turnToward } from './tour/shipMotion'
+import { InertialDirection } from './tour/inertialDirection'
+import { SPEED_LAG_SECONDS, SPEED_SETTLE_SECONDS, stepToward, Throttle, turnRateAround } from './tour/shipMotion'
 import { ShipView, WORLD_UP } from './tour/shipView'
+import { engineAcceleration, loopRadiusAt, MIN_CRUISE_SPEED, planetPosition, planLeg, type Leg } from './tour/tourLeg'
 import { TourItinerary } from './tour/tourItinerary'
 
-// A leg's cruise speed is its length over this many seconds (at least MIN_CRUISE_SPEED), and the
-// engine reaches cruise speed - or brakes from it - in ACCELERATION_SECONDS.
-const TRANSIT_SECONDS = 20
-const MIN_CRUISE_SPEED = 0.5
-export const ACCELERATION_SECONDS = 5
-// The ship's lateral thrust, relative to its forward thrust, limits how fast it can turn at speed
-// (a slow ship turns quickly, a fast one in wide arcs) - and never faster than MAX_TURN_RATE.
-const LATERAL_THRUST_RATIO = 2
-const MAX_TURN_RATE = 1.2 // radians per second
+export { ACCELERATION_SECONDS } from './tour/tourLeg'
 
-// The flyby loop circles the planet at this many body radii, one lap in about LOOP_SECONDS.
-const LOOP_RADIUS_IN_BODY_RADII = 8
-const LOOP_SECONDS = 8
+// The ship turns like a heavy body: its turn rate builds up and dies down within TURN_ACCELERATION.
+// Its lateral thrust, relative to its forward thrust, limits how fast it can turn at speed (a slow
+// ship turns quickly, a fast one in wide arcs) - and never faster than MAX_TURN_RATE.
+const LATERAL_THRUST_RATIO = 2
+export const MAX_TURN_RATE = 0.9 // radians per second
+const TURN_ACCELERATION = 0.6 // radians per second squared
+
+// The flyby loop takes about LOOP_SECONDS per lap.
+const LOOP_SECONDS = 10
 const LOOP_ANGULAR_SPEED = (2 * Math.PI) / LOOP_SECONDS
+// Braking is planned with this share of the engine's thrust, leaving room for the thrust to build
+// up, and starts early enough for the speed's lag behind the throttle. On the final approach the
+// ship slows in proportion to the distance left - each halving of the distance takes the same
+// time, at any scale - with the throttle led by the slowdown that profile is about to ask for, so
+// the lagging speed follows it instead of overshooting the loop.
+const BRAKING_SHARE = 0.6
+const FINAL_APPROACH_SECONDS = 2.5
 
 // Gives up on a target that takes this long to reach, so the tour can never appear stuck.
-const MAX_CRUISE_SECONDS = 45
+const MAX_CRUISE_SECONDS = 60
 
 // The gaze looks this far ahead along the flight path, and swings over to the planet as the ship
 // closes in - fully locked on from this many loop radii away.
 const LOOK_AHEAD_SECONDS = 3
 const GAZE_LOCK_IN_LOOP_RADII = 6
 
-interface Leg {
-  target: SolarSystemEntity
-  // The loop is entered at the planet's side (seen along the leg), so the ship arrives tangentially.
-  side: vec3
-  loopRadius: number
-  cruiseSpeed: number
-}
-
 interface Loop {
   startOffset: vec3
   direction: number
   angle: number
   angularSpeed: number
+}
+
+interface Moment {
+  ephemeris: Ephemeris
+  scaleBlend: number
 }
 
 export interface TourStart {
@@ -52,31 +55,45 @@ export interface TourStart {
 
 // An endless sightseeing flight, flown like a spaceship: it picks the nearest planet not yet seen,
 // accelerates toward it, brakes on arrival, makes one lap around it and heads for the next one -
-// with inertia, a limited turn rate, banking into turns and a gaze that leads the flight path.
+// with inertia, elastic thrust, a limited turn rate, banking into turns and a gaze that leads the
+// flight path. It navigates relative to its target planet, matching the planet's own orbital
+// motion, so it reaches even a fast inner planet at Realistic scale.
 export class TourController {
   private readonly position = vec3.create()
-  private heading = vec3.fromValues(0, 0, 1)
-  private speed = 0
-  private yawRate = 0
+  private readonly steering = new InertialDirection(vec3.fromValues(0, 0, 1), { maxRate: MAX_TURN_RATE, acceleration: TURN_ACCELERATION }, WORLD_UP)
+  private readonly throttle = new Throttle()
+  // The target planet's velocity, as far as the ship has matched it yet.
+  private readonly frameVelocity = vec3.create()
   private readonly view = new ShipView()
   private readonly itinerary: TourItinerary
   private leg: Leg | null = null
   private loop: Loop | null = null
   private cruiseSeconds = 0
+  private previous: Moment | null = null
 
   constructor(planets: SolarSystemEntity[]) {
     this.itinerary = new TourItinerary(planets)
   }
 
+  private get heading(): vec3 {
+    return this.steering.direction
+  }
+
+  private get speed(): number {
+    return this.throttle.speed
+  }
+
   // Starts at rest where the camera is, looking where it looked.
   start(from: TourStart, ephemeris: Ephemeris, scaleBlend: number): void {
     vec3.set(this.position, ...from.position)
-    this.speed = 0
-    this.loop = null
+    this.throttle.stop()
+    vec3.zero(this.frameVelocity)
+    this.previous = { ephemeris, scaleBlend }
     this.itinerary.restart()
-    this.beginLeg(null, ephemeris, scaleBlend)
+    this.beginLeg(null, this.previous)
     const forward = from.forward ? vec3.fromValues(...from.forward) : null
-    this.heading = forward && vec3.length(forward) > 1e-9 ? vec3.normalize(forward, forward) : this.directionTo(this.planetPosition(ephemeris, scaleBlend))
+    const planet = planetPosition(this.leg!.target, ephemeris, scaleBlend)
+    this.steering.reset(forward && vec3.length(forward) > 1e-9 ? vec3.normalize(forward, forward) : this.directionTo(planet))
     this.view.reset(this.heading)
   }
 
@@ -104,42 +121,70 @@ export class TourController {
 
   update(deltaSeconds: number, ephemeris: Ephemeris, scaleBlend: number): void {
     if (!this.leg) return
-    const planet = this.planetPosition(ephemeris, scaleBlend)
+    const moment = { ephemeris, scaleBlend }
+    if (this.previous && this.previous.scaleBlend !== scaleBlend) this.followScaleChange(this.leg, this.previous, scaleBlend)
+    const planet = planetPosition(this.leg.target, ephemeris, scaleBlend)
+    const planetVelocity = this.planetVelocity(this.leg, moment, deltaSeconds)
     const headingBefore = vec3.clone(this.heading)
-    if (this.loop) this.flyLoop(this.loop, deltaSeconds, { planet, acceleration: this.leg.cruiseSpeed / ACCELERATION_SECONDS })
-    else this.cruise(this.leg, deltaSeconds, planet)
-    this.yawRate = turnRateAround(headingBefore, this.heading, WORLD_UP, deltaSeconds)
-    this.view.update(deltaSeconds, this.desiredGaze(this.leg, planet), { heading: this.heading, yawRate: this.yawRate })
-    this.continueItinerary(this.leg, planet, { ephemeris, scaleBlend })
+    if (this.loop) this.flyLoop(this.loop, deltaSeconds, { planet, planetVelocity })
+    else this.cruise(this.leg, deltaSeconds, { planet, planetVelocity })
+    const yawRate = turnRateAround(headingBefore, this.heading, WORLD_UP, deltaSeconds)
+    this.view.update(deltaSeconds, this.desiredGaze(this.leg, planet), { heading: this.heading, yawRate })
+    this.previous = moment
+    this.continueItinerary(this.leg, planet, moment)
   }
 
-  private continueItinerary(leg: Leg, planet: vec3, moment: { ephemeris: Ephemeris; scaleBlend: number }): void {
+  private continueItinerary(leg: Leg, planet: vec3, moment: Moment): void {
     if (this.loop && this.loop.angle >= 2 * Math.PI) {
-      this.beginLeg(leg.target, moment.ephemeris, moment.scaleBlend)
+      this.beginLeg(leg.target, moment)
     } else if (!this.loop && vec3.distance(this.position, planet) <= leg.loopRadius * 1.02) {
       this.loop = this.enterLoop(leg, planet)
     } else if (!this.loop && this.cruiseSeconds >= MAX_CRUISE_SECONDS) {
-      this.beginLeg(leg.target, moment.ephemeris, moment.scaleBlend)
+      this.beginLeg(leg.target, moment)
     }
   }
 
-  // Seek-and-arrive toward the loop's entry point: turn at the rate the ship's thrust allows, ease
-  // off while pointing away from the target, and brake in time to arrive at loop speed.
-  private cruise(leg: Leg, deltaSeconds: number, planet: vec3): void {
+  // The planet's own orbital motion, at the current scale (so a scale change in progress doesn't
+  // count as motion).
+  private planetVelocity(leg: Leg, now: Moment, deltaSeconds: number): vec3 {
+    if (!this.previous || deltaSeconds <= 0) return vec3.create()
+    const before = planetPosition(leg.target, this.previous.ephemeris, now.scaleBlend)
+    const after = planetPosition(leg.target, now.ephemeris, now.scaleBlend)
+    return vec3.scale(after, vec3.subtract(after, after, before), 1 / deltaSeconds)
+  }
+
+  // Seek-and-arrive toward the loop's entry point, relative to the planet: match its motion, turn
+  // at the rate the ship's thrust allows, ease off while pointing away from the target, and brake
+  // in time to arrive at loop speed.
+  private cruise(leg: Leg, deltaSeconds: number, { planet, planetVelocity }: { planet: vec3; planetVelocity: vec3 }): void {
     this.cruiseSeconds += deltaSeconds
-    const entryPoint = vec3.scaleAndAdd(vec3.create(), planet, leg.side, leg.loopRadius)
-    const toEntry = vec3.subtract(vec3.create(), entryPoint, this.position)
+    this.matchPlanetMotion(leg, planetVelocity, deltaSeconds)
+    const toEntry = vec3.subtract(vec3.create(), vec3.scaleAndAdd(vec3.create(), planet, leg.side, leg.loopRadius), this.position)
     const distance = vec3.length(toEntry)
-    if (distance < 1e-9) return
-    const acceleration = leg.cruiseSpeed / ACCELERATION_SECONDS
-    const turnRate = Math.min(MAX_TURN_RATE, (LATERAL_THRUST_RATIO * acceleration) / Math.max(this.speed, 1e-9))
-    const desiredDirection = vec3.scale(toEntry, toEntry, 1 / distance)
-    this.heading = turnToward(this.heading, desiredDirection, turnRate * deltaSeconds, WORLD_UP)
-    const alignment = (1 + vec3.dot(this.heading, desiredDirection)) / 2
-    const loopSpeed = leg.loopRadius * LOOP_ANGULAR_SPEED
-    const arrivalSpeed = Math.sqrt(loopSpeed * loopSpeed + 2 * acceleration * distance)
-    this.speed = stepToward(this.speed, Math.min(leg.cruiseSpeed, arrivalSpeed) * alignment, acceleration * deltaSeconds)
+    if (distance > 1e-9) this.steerToward(leg, vec3.scale(toEntry, toEntry, 1 / distance), { distance, deltaSeconds })
     vec3.scaleAndAdd(this.position, this.position, this.heading, this.speed * deltaSeconds)
+    vec3.scaleAndAdd(this.position, this.position, this.frameVelocity, deltaSeconds)
+  }
+
+  // Matches the planet's velocity within the engine's limits - which also shrugs off the one-frame
+  // leap of a jump in the simulated time.
+  private matchPlanetMotion(leg: Leg, planetVelocity: vec3, deltaSeconds: number): void {
+    const change = vec3.subtract(vec3.create(), planetVelocity, this.frameVelocity)
+    const maxChange = engineAcceleration(leg) * deltaSeconds
+    if (vec3.length(change) > maxChange) vec3.scale(change, change, maxChange / vec3.length(change))
+    vec3.add(this.frameVelocity, this.frameVelocity, change)
+  }
+
+  private steerToward(leg: Leg, direction: vec3, { distance, deltaSeconds }: { distance: number; deltaSeconds: number }): void {
+    const acceleration = engineAcceleration(leg)
+    const thrustLimitedRate = (LATERAL_THRUST_RATIO * acceleration) / Math.max(this.speed, 1e-9)
+    this.steering.turnToward(direction, deltaSeconds, Math.min(MAX_TURN_RATE, thrustLimitedRate))
+    const alignment = (1 + vec3.dot(this.heading, direction)) / 2
+    const loopSpeed = leg.loopRadius * LOOP_ANGULAR_SPEED
+    const brakingDistance = Math.max(distance - this.speed * SPEED_LAG_SECONDS, 0)
+    const brakingSpeed = Math.sqrt(loopSpeed * loopSpeed + 2 * BRAKING_SHARE * acceleration * brakingDistance)
+    const approachSpeed = loopSpeed + (distance - SPEED_SETTLE_SECONDS * this.speed) / FINAL_APPROACH_SECONDS
+    this.throttle.update(Math.min(leg.cruiseSpeed, brakingSpeed, approachSpeed) * alignment, { acceleration }, deltaSeconds)
   }
 
   // Circles world up through the (moving) planet from wherever the ship arrived, in the direction
@@ -155,17 +200,48 @@ export class TourController {
     return { startOffset, direction, angle: 0, angularSpeed: this.speed / circleRadius }
   }
 
-  // The loop's pace changes within the same engine limits as the cruise.
-  private flyLoop(loop: Loop, deltaSeconds: number, { planet, acceleration }: { planet: vec3; acceleration: number }): void {
+  // The loop's pace changes within the same engine limits as the cruise; the ship moves with the
+  // planet all the while (and with it through a jump in time).
+  private flyLoop(loop: Loop, deltaSeconds: number, { planet, planetVelocity }: { planet: vec3; planetVelocity: vec3 }): void {
+    this.matchPlanetMotion(this.leg!, planetVelocity, deltaSeconds)
     const circleRadius = Math.max(Math.hypot(loop.startOffset[0], loop.startOffset[1]), 1e-9)
+    const acceleration = engineAcceleration(this.leg!)
     loop.angularSpeed = stepToward(loop.angularSpeed, LOOP_ANGULAR_SPEED, (acceleration / circleRadius) * deltaSeconds)
     loop.angle = Math.min(loop.angle + loop.angularSpeed * deltaSeconds, 2 * Math.PI)
     const rotation = mat4.fromRotation(mat4.create(), loop.direction * loop.angle, WORLD_UP)
     const offset = vec3.transformMat4(vec3.create(), loop.startOffset, rotation)
     vec3.add(this.position, planet, offset)
     const tangent = vec3.scale(vec3.create(), vec3.cross(vec3.create(), WORLD_UP, offset), loop.direction)
-    vec3.scale(this.heading, tangent, 1 / circleRadius)
-    this.speed = circleRadius * loop.angularSpeed
+    this.steering.follow(vec3.normalize(tangent, tangent), deltaSeconds)
+    this.throttle.coast(circleRadius * loop.angularSpeed)
+  }
+
+  // The scale switch eases the whole scene from one scale to the other, and the ship moves with
+  // it. Near its target - circling it, or close enough to have its eyes on it - it keeps its place
+  // relative to the planet in planet radii, so the view of the planet stays the same. Farther out
+  // it keeps its place in the solar system: the same direction and AU distance from the Sun. Either
+  // way the leg's speeds follow the new distance to the target.
+  private followScaleChange(leg: Leg, before: Moment, scaleBlend: number): void {
+    const loopRadius = loopRadiusAt(leg.target, scaleBlend)
+    const planetBefore = planetPosition(leg.target, before.ephemeris, before.scaleBlend)
+    const planetAfter = planetPosition(leg.target, before.ephemeris, scaleBlend)
+    const distanceBefore = vec3.distance(this.position, planetBefore)
+    if (this.loop) {
+      vec3.scale(this.loop.startOffset, this.loop.startOffset, loopRadius / leg.loopRadius)
+    } else if (distanceBefore < leg.loopRadius * GAZE_LOCK_IN_LOOP_RADII) {
+      const offset = vec3.scale(vec3.create(), vec3.subtract(vec3.create(), this.position, planetBefore), loopRadius / leg.loopRadius)
+      vec3.add(this.position, planetAfter, offset)
+    } else {
+      vec3.set(this.position, ...rescaledPosition([this.position[0], this.position[1], this.position[2]], before.scaleBlend, scaleBlend))
+    }
+    if (!this.loop) this.rescaleLegSpeeds(leg, distanceBefore, vec3.distance(this.position, planetAfter))
+    leg.loopRadius = loopRadius
+  }
+
+  private rescaleLegSpeeds(leg: Leg, distanceBefore: number, distanceAfter: number): void {
+    const ratio = distanceBefore > 1e-12 ? distanceAfter / distanceBefore : 1
+    leg.cruiseSpeed = Math.max(leg.cruiseSpeed * ratio, MIN_CRUISE_SPEED)
+    this.throttle.coast(this.speed * ratio)
   }
 
   // Ahead along the flight path while far away, swinging over to the planet on the way in, and
@@ -180,26 +256,12 @@ export class TourController {
     return this.directionTo(gazePoint)
   }
 
-  private beginLeg(justVisited: SolarSystemEntity | null, ephemeris: Ephemeris, scaleBlend: number): void {
-    const positionOf = (planet: SolarSystemEntity) => vec3.fromValues(...entityWorldPosition(planet, ephemeris.julianMillennia, ephemeris.daysSinceEpoch, scaleBlend))
+  private beginLeg(justVisited: SolarSystemEntity | null, moment: Moment): void {
+    const positionOf = (planet: SolarSystemEntity) => planetPosition(planet, moment.ephemeris, moment.scaleBlend)
     const target = this.itinerary.next(this.position, positionOf, justVisited)
-    const toTarget = vec3.subtract(vec3.create(), positionOf(target), this.position)
-    const direction = vec3.length(toTarget) > 1e-6 ? vec3.normalize(vec3.create(), toTarget) : vec3.fromValues(0, 0, 1)
-    let side = vec3.cross(vec3.create(), direction, WORLD_UP)
-    if (vec3.length(side) < 1e-6) side = vec3.cross(vec3.create(), direction, [1, 0, 0])
-    const { radiusKm, compactVisualRadius } = target.definition as BodyDefinition
-    this.leg = {
-      target,
-      side: vec3.normalize(side, side),
-      loopRadius: scaledBodyRadiusUnits(radiusKm, compactVisualRadius, scaleBlend, AU_KM) * LOOP_RADIUS_IN_BODY_RADII,
-      cruiseSpeed: Math.max(vec3.length(toTarget) / TRANSIT_SECONDS, MIN_CRUISE_SPEED),
-    }
+    this.leg = planLeg(target, this.position, moment)
     this.loop = null
     this.cruiseSeconds = 0
-  }
-
-  private planetPosition(ephemeris: Ephemeris, scaleBlend: number): vec3 {
-    return vec3.fromValues(...entityWorldPosition(this.leg!.target, ephemeris.julianMillennia, ephemeris.daysSinceEpoch, scaleBlend))
   }
 
   private directionTo(point: vec3): vec3 {

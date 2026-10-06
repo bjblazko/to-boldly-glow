@@ -33,3 +33,40 @@ export function turnRateAround(before: vec3, after: vec3, axis: vec3, deltaSecon
   const cross = vec3.cross(vec3.create(), before, after)
   return Math.asin(Math.min(1, Math.max(-1, vec3.dot(cross, axis)))) / deltaSeconds
 }
+
+export interface Engine {
+  // The most the engine can speed the ship up or slow it down, in units per second squared.
+  acceleration: number
+}
+
+// How the ship's speed changes: its thrust builds up and dies down over THRUST_RESPONSE_SECONDS
+// (no jolt when it starts, stops, or turns from accelerating to braking), and it eases into the
+// speed it aims for instead of hitting it at full thrust - an elastic, never mechanical, motion.
+export const THRUST_RESPONSE_SECONDS = 1.2
+export const SPEED_SETTLE_SECONDS = 1.5
+// Roughly how far behind its target speed the ship's speed runs while that target changes.
+export const SPEED_LAG_SECONDS = SPEED_SETTLE_SECONDS + THRUST_RESPONSE_SECONDS / 2
+
+export class Throttle {
+  speed = 0
+  thrust = 0
+
+  stop(): void {
+    this.speed = 0
+    this.thrust = 0
+  }
+
+  update(targetSpeed: number, engine: Engine, deltaSeconds: number): number {
+    const { acceleration } = engine
+    const wanted = Math.min(Math.max((targetSpeed - this.speed) / SPEED_SETTLE_SECONDS, -acceleration), acceleration)
+    this.thrust = stepToward(this.thrust, wanted, (acceleration / THRUST_RESPONSE_SECONDS) * deltaSeconds)
+    this.speed = Math.max(0, this.speed + this.thrust * deltaSeconds)
+    return this.speed
+  }
+
+  // Taken over from a scripted motion (the flyby loop), with no thrust left to carry over.
+  coast(speed: number): void {
+    this.speed = speed
+    this.thrust = 0
+  }
+}

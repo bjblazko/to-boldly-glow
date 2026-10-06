@@ -1,14 +1,17 @@
 import { mat4, vec3 } from 'gl-matrix'
 import { ECLIPTIC_NORTH } from '../../solarSystem/poleOrientation'
-import { angleBetween, smoothingFactor, turnToward } from './shipMotion'
+import { InertialDirection } from './inertialDirection'
+import { smoothingFactor } from './shipMotion'
 
 // The scene's real "up" (world Z), as for every other camera: a world-Y up put the tour 90 degrees
 // off the rest of the app.
 export const WORLD_UP: vec3 = vec3.fromValues(...ECLIPTIC_NORTH)
 
-// The gaze swings at most this fast, and eases into each turn rather than snapping onto it.
-export const MAX_GAZE_TURN_RATE = 0.8 // radians per second
-const GAZE_SMOOTHING_RATE = 2.5
+// The gaze turns like a heavy ship: at most this fast, gathering and losing speed only gradually, so
+// it never starts, stops or swings to a new target with a jolt.
+export const MAX_GAZE_TURN_RATE = 0.7 // radians per second
+export const MAX_GAZE_TURN_ACCELERATION = 0.8 // radians per second squared
+const GAZE_SETTLE_RATE = 2.5
 
 // Banking into turns: the roll follows the ship's yaw rate, limited and eased.
 export const MAX_BANK_RADIANS = (18 * Math.PI) / 180
@@ -17,12 +20,20 @@ const BANK_SMOOTHING_RATE = 1.5
 
 // The view from the ship's cockpit: where the pilot looks, and how far the ship rolls in a turn.
 export class ShipView {
-  gaze = vec3.fromValues(0, 0, 1)
   up = vec3.clone(WORLD_UP)
   private bank = 0
+  private readonly look = new InertialDirection(
+    vec3.fromValues(0, 0, 1),
+    { maxRate: MAX_GAZE_TURN_RATE, acceleration: MAX_GAZE_TURN_ACCELERATION, settleRate: GAZE_SETTLE_RATE },
+    WORLD_UP,
+  )
+
+  get gaze(): vec3 {
+    return this.look.direction
+  }
 
   reset(forward: vec3): void {
-    vec3.copy(this.gaze, forward)
+    this.look.reset(forward)
     this.bank = 0
     this.up = levelUp(this.gaze, WORLD_UP)
   }
@@ -30,9 +41,7 @@ export class ShipView {
   // yawRate is how fast the ship's heading turns around world up (positive = left, seen from above).
   // The roll shows most while looking along the flight direction, little while looking sideways.
   update(deltaSeconds: number, desiredGaze: vec3, flight: { heading: vec3; yawRate: number }): void {
-    const remaining = angleBetween(this.gaze, desiredGaze)
-    const turn = Math.min(MAX_GAZE_TURN_RATE * deltaSeconds, remaining * smoothingFactor(GAZE_SMOOTHING_RATE, deltaSeconds))
-    this.gaze = turnToward(this.gaze, desiredGaze, turn, WORLD_UP)
+    this.look.turnToward(desiredGaze, deltaSeconds)
     const lookingAhead = Math.max(0, vec3.dot(this.gaze, flight.heading))
     const bankTarget = clampBank(flight.yawRate * BANK_SECONDS_PER_RADIAN_OF_TURN) * lookingAhead
     this.bank += (bankTarget - this.bank) * smoothingFactor(BANK_SMOOTHING_RATE, deltaSeconds)

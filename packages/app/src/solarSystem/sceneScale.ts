@@ -65,3 +65,26 @@ export function scaledPosition({ x, y, z, distanceAu }: AuPosition, blend: numbe
   const factor = scaledDistanceUnits(distanceAu, blend) / distanceAu
   return [x * factor, y * factor, z * factor]
 }
+
+// The inverse of scaledDistanceUnits: how many AU a scene distance stands for at this blend. A
+// blend of a linear and a logarithmic scale has no closed-form inverse, but it rises steadily with
+// the distance, so bisection finds it.
+export function auDistanceForUnits(units: number, blend: number): number {
+  let [low, high] = [0, 1]
+  while (scaledDistanceUnits(high, blend) < units) high *= 2
+  for (let i = 0; i < 60; i++) {
+    const middle = (low + high) / 2
+    if (scaledDistanceUnits(middle, blend) < units) low = middle
+    else high = middle
+  }
+  return (low + high) / 2
+}
+
+// Moves a scene position along with a change of scale, as every body moves: the same direction
+// from the Sun, at the same distance in AU.
+export function rescaledPosition(position: readonly [number, number, number], fromBlend: number, toBlend: number): [number, number, number] {
+  const distance = Math.hypot(...position)
+  if (distance === 0) return [0, 0, 0]
+  const factor = scaledDistanceUnits(auDistanceForUnits(distance, fromBlend), toBlend) / distance
+  return [position[0] * factor, position[1] * factor, position[2] * factor]
+}
