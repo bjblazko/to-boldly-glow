@@ -31,10 +31,10 @@ export const FLARE_ELEMENTS: FlareElement[] = [
   // Around the Sun: a warm glow, the aperture's diffraction starburst, and the long, blue
   // horizontal streak of an anamorphic lens.
   { shape: 'glow', t: 0, size: 0.26, color: [1.0, 0.86, 0.62], intensity: 0.5 },
-  { shape: 'starburst', t: 0, size: 0.42, color: [1.0, 0.92, 0.8], intensity: 0.45, blades: APERTURE_BLADES, rotation: APERTURE_ROTATION },
-  { shape: 'streak', t: 0, size: 0.016, color: [0.42, 0.62, 1.0], intensity: 1.8, stretch: 75 },
+  { shape: 'starburst', t: 0, size: 0.36, color: [1.0, 0.92, 0.8], intensity: 0.35, blades: APERTURE_BLADES, rotation: APERTURE_ROTATION },
+  { shape: 'streak', t: 0, size: 0.014, color: [0.42, 0.62, 1.0], intensity: 0.9, stretch: 60 },
   // A large, faint rainbow halo around the Sun.
-  { shape: 'ring', t: 0, size: 0.62, color: [0.75, 0.82, 1.0], intensity: 0.02, dispersion: 0.04, softness: 0.06 },
+  { shape: 'ring', t: 0, size: 0.62, color: [0.75, 0.82, 1.0], intensity: 0.01, dispersion: 0.04, softness: 0.06 },
   // Ghosts: internal reflections, shaped by the aperture and tinted by the lens coatings.
   { shape: 'ghost', t: -0.3, size: 0.028, color: [0.45, 1.0, 0.75], intensity: 0.16, blades: APERTURE_BLADES, rotation: APERTURE_ROTATION, softness: 0.25 },
   { shape: 'ghost', t: 0.28, size: 0.045, color: [0.35, 0.9, 0.75], intensity: 0.12, blades: APERTURE_BLADES, rotation: APERTURE_ROTATION, softness: 0.2, dispersion: 0.04 },
@@ -44,5 +44,5 @@ export const FLARE_ELEMENTS: FlareElement[] = [
   { shape: 'ghost', t: 1.15, size: 0.065, color: [0.4, 0.6, 1.0], intensity: 0.1, blades: APERTURE_BLADES, rotation: APERTURE_ROTATION, softness: 0.3, dispersion: 0.06 },
   { shape: 'ghost', t: 1.42, size: 0.2, color: [0.95, 0.6, 0.4], intensity: 0.045, blades: APERTURE_BLADES, rotation: APERTURE_ROTATION, softness: 0.6 },
   // Dust and smudges on the front element, lit up within this radius of the Sun.
-  { shape: 'dirt', t: 0, size: 0.75, color: [1.0, 0.92, 0.82], intensity: 0.12 },
+  { shape: 'dirt', t: 0, size: 0.75, color: [1.0, 0.92, 0.82], intensity: 0.08 },
 ]

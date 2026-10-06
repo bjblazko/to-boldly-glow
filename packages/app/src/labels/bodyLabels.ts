@@ -2,6 +2,8 @@ import { projectToCss, type Viewpoint } from '../camera/viewpoint'
 import { PLANETS, SUN } from '../solarSystem/bodies'
 import { MOONS } from '../solarSystem/moons'
 import type { SceneLayout } from '../scene/sceneLayout'
+import type { Vec3 } from '../math/tuples'
+import { SMALL_BODIES } from '../smallBodies/smallBodyCatalog'
 import { hideLabel, placeLabel } from './screenLabel'
 import './labels.css'
 
@@ -12,17 +14,20 @@ export class BodyLabels {
   constructor(private readonly container: HTMLElement) {
     for (const body of [SUN, ...PLANETS]) this.add(body.id, body.name, 'body-label')
     for (const moon of MOONS) this.add(moon.id, moon.name, 'moon-label')
+    for (const body of SMALL_BODIES) this.add(body.id, body.name, 'small-body-label')
   }
 
-  update(layout: SceneLayout, viewpoint: Viewpoint, labelsOn: boolean): void {
+  // Small bodies aren't part of the scene layout (they move on their own orbits); the caller passes
+  // the ones currently shown.
+  update(layout: SceneLayout, viewpoint: Viewpoint, labelsOn: boolean, smallBodies: readonly { id: string; position: Vec3 }[] = []): void {
     const visible = labelsOn || layout.alwaysShowBodyLabels === true
     this.container.hidden = !visible
     if (!visible) return
     const shown = new Set<string>([SUN.id])
     placeLabel(this.labels.get(SUN.id)!, projectToCss(viewpoint, layout.sun.position))
-    for (const body of [...layout.planets, ...layout.moons]) {
-      shown.add(body.definition.id)
-      placeLabel(this.labels.get(body.definition.id)!, projectToCss(viewpoint, body.position))
+    for (const body of [...layout.planets, ...layout.moons].map((pose) => ({ id: pose.definition.id, position: pose.position })).concat(smallBodies)) {
+      shown.add(body.id)
+      placeLabel(this.labels.get(body.id)!, projectToCss(viewpoint, body.position))
     }
     for (const [id, label] of this.labels) if (!shown.has(id)) hideLabel(label)
   }

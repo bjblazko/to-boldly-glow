@@ -26,6 +26,13 @@ import { exploreLayout } from '../scene/exploreLayout'
 import { SceneRenderer, type SceneParts } from '../scene/sceneRenderer'
 import { SceneTargets } from '../scene/sceneTargets'
 import { EntitySearchUI } from '../search/entitySearchUI'
+import { SkyBackdrop } from '../sky/skyBackdrop'
+import { AsteroidBelt } from '../smallBodies/asteroidBelt'
+import { CometRenderer } from '../smallBodies/cometRenderer'
+import { heliocentricPosition } from '../smallBodies/keplerOrbit'
+import { SMALL_BODIES } from '../smallBodies/smallBodyCatalog'
+import { scaledPosition } from '../solarSystem/sceneScale'
+import type { Vec3 } from '../math/tuples'
 import { Starfield } from '../starfield/starfield'
 import { ephemerisAt, type Ephemeris } from '../time/ephemeris'
 import { SimulationClock, TIME_SCALE_PRESETS } from '../time/simulationClock'
@@ -82,14 +89,17 @@ async function createRendering(gpu: GpuContext, canvas: HTMLCanvasElement) {
 async function createSceneFeatures(device: GPUDevice, format: GPUTextureFormat, linePipeline: GPURenderPipeline): Promise<SceneFeatures> {
   const textures = await TextureLoader.create(device)
   const bodies = await BodyRenderer.create(device, format, textures)
-  const [starfield, saturnRing, atmosphereShells, clouds, lensFlare] = await Promise.all([
+  const [sky, starfield, asteroids, comets, saturnRing, atmosphereShells, clouds, lensFlare] = await Promise.all([
+    SkyBackdrop.create(device, format, textures),
     Starfield.create(device, format),
+    AsteroidBelt.create(device, format),
+    CometRenderer.create(device, format),
     SaturnRing.create(device, format, textures),
     AtmosphereShells.create(device, format, bodies.sphereMesh),
     CloudLayer.create(device, format, bodies.sphereMesh),
     LensFlare.create(device, format),
   ])
-  return { starfield, bodies, saturnRing, atmosphereShells, clouds, lensFlare, orbitPaths: OrbitPaths.create(device, linePipeline, 1) }
+  return { sky, starfield, asteroids, comets, bodies, saturnRing, atmosphereShells, clouds, lensFlare, orbitPaths: OrbitPaths.create(device, linePipeline, 1) }
 }
 
 function createExplorer(canvas: HTMLCanvasElement, display: DisplaySettings, features: SceneFeatures) {
@@ -112,7 +122,7 @@ function createExplorer(canvas: HTMLCanvasElement, display: DisplaySettings, fea
       searchUi.setFollowing(entity)
     },
   })
-  const searchUi = createEntitySearch(camera, now)
+  const searchUi = createEntitySearch(camera, now, display)
   controls.bind(camera)
   const lens = new CameraLens(camera.orbit, canvas)
   lens.applyZoomFloor(scaleMode.blend)
@@ -137,8 +147,9 @@ function startTour(camera: CameraDirector, clock: SimulationClock, now: () => Si
   camera.startTour(ephemeris, scaleBlend)
 }
 
-// Picking a result flies the orbit camera there and follows the body.
-function createEntitySearch(camera: CameraDirector, now: () => SimulationMoment): EntitySearchUI {
+// Picking a result flies the orbit camera there and follows the body - showing the comets or the
+// asteroids first, if the body is one of those and they are switched off.
+function createEntitySearch(camera: CameraDirector, now: () => SimulationMoment, display: DisplaySettings): EntitySearchUI {
   return new EntitySearchUI(
     {
       input: requireElement('#entity-search-input'),
@@ -148,7 +159,11 @@ function createEntitySearch(camera: CameraDirector, now: () => SimulationMoment)
       stopButton: requireElement('#follow-stop-button'),
     },
     {
-      onSelect: (entity) => camera.followEntity(entity, now().ephemeris, now().scaleBlend),
+      onSelect: (entity) => {
+        if (entity.kind === 'comet') display.comets.set(true)
+        if (entity.kind === 'dwarfPlanet' || entity.kind === 'asteroid') display.asteroids.set(true)
+        camera.followEntity(entity, now().ephemeris, now().scaleBlend)
+      },
       onStop: () => camera.stopFollowing(),
     },
   )
@@ -191,6 +206,14 @@ function createLessons(
   )
 }
 
+// Where the comets and minor planets are, if they are shown (for their labels).
+function shownSmallBodies(display: DisplaySettings, ephemeris: Ephemeris, scaleBlend: number): { id: string; position: Vec3 }[] {
+  return SMALL_BODIES.filter((body) => (body.kind === 'comet' ? display.comets.on : display.asteroids.on)).map((body) => ({
+    id: body.id,
+    position: scaledPosition(heliocentricPosition(body.orbit, ephemeris.daysSinceEpoch), scaleBlend),
+  }))
+}
+
 function renderFrame(app: Explorer, time: FrameTime): void {
   const { canvas, display, scaleMode, camera, lens, clock, lessons } = app
   lessons.update(time.deltaSeconds)
@@ -207,7 +230,7 @@ function renderFrame(app: Explorer, time: FrameTime): void {
   camera.update(time.deltaSeconds, ephemeris, scaleMode.blend)
   const viewpoint = createViewpoint(camera.viewMatrix(), lens.projection(), canvas)
   const layout = lessons.layout(ephemeris) ?? exploreLayout(ephemeris, scaleMode.blend, display.moons.on)
-  app.bodyLabels.update(layout, viewpoint, display.bodyLabels.on)
-  app.renderer.render({ layout, viewpoint, nowSeconds: time.nowSeconds })
+  app.bodyLabels.update(layout, viewpoint, display.bodyLabels.on, shownSmallBodies(display, ephemeris, scaleMode.blend))
+  app.renderer.render({ layout, viewpoint, nowSeconds: time.nowSeconds, clock: { daysSinceEpoch: ephemeris.daysSinceEpoch, scaleBlend: scaleMode.blend } })
   canvas.dataset.rendered = 'true'
 }

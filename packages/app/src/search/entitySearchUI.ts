@@ -4,6 +4,9 @@ const KIND_LABEL: Record<SolarSystemEntity['kind'], string> = {
   sun: 'Sun',
   planet: 'Planet',
   moon: 'Moon',
+  comet: 'Comet',
+  dwarfPlanet: 'Dwarf planet',
+  asteroid: 'Asteroid',
 }
 
 export interface EntitySearchElements {

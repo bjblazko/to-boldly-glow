@@ -5,8 +5,9 @@ export const VERTICAL_FOV_RADIANS = Math.PI / 4
 
 // Must exceed the farthest thing the camera can see: at Realistic scale Neptune's orbit reaches
 // ~606 units from the Sun and the orbit camera can back off to 700 units, so the far side of that
-// orbit sits up to ~1300 units away. Depth precision depends almost only on the near plane.
-const FAR_PLANE_DISTANCE = 2000
+// orbit sits up to ~1300 units away - and the Kuiper belt, Pluto and the long-period comets reach
+// out to 1000-2500 units. Depth precision depends almost only on the near plane.
+const FAR_PLANE_DISTANCE = 5000
 
 // The near plane must stay closer than the camera's closest zoom distance or it clips away the body
 // the camera is framing: at Realistic scale the zoom floor shrinks to ~0.0005 units. 0.02 gives

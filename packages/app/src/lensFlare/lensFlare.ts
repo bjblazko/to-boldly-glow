@@ -12,6 +12,9 @@ const HEADER_FLOATS = 4
 const FLARE_UNIFORM_FLOAT_COUNT = HEADER_FLOATS + MAX_FLARE_ELEMENTS * FLOATS_PER_ELEMENT
 // Below this the flare is invisible anyway; skip drawing it.
 const MIN_STRENGTH = 0.001
+// The flare is on by default, so it stays a subtle touch: half the strength of a lens pointed
+// into the Sun in a film.
+const FLARE_GAIN = 0.5
 
 // A cinematic lens flare for the Sun: a glow, the aperture's starburst, an anamorphic streak, a
 // rainbow halo, aperture-shaped ghosts along the line through the screen center, and lit-up lens
@@ -41,7 +44,7 @@ export class LensFlare {
     const sunNdc = sunScreenPosition(viewpoint)
     this.strength = sunNdc ? sunVisibleFraction(layout, viewpoint) * frameFade(sunNdc) : 0
     if (!sunNdc || !this.isVisible) return
-    const header = new Float32Array([sunNdc[0], sunNdc[1], viewpoint.pixels.width / viewpoint.pixels.height, this.strength])
+    const header = new Float32Array([sunNdc[0], sunNdc[1], viewpoint.pixels.width / viewpoint.pixels.height, this.strength * FLARE_GAIN])
     this.device.queue.writeBuffer(this.uniforms.buffer, 0, header)
   }
 

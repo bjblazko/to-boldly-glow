@@ -6,6 +6,7 @@
   "scripts": {
     "convert": "tsx src/convertBrightStarCatalog.ts",
     "derive-bump-maps": "tsx src/deriveGasGiantBumpMaps.ts",
+    "paint-sky": "tsx src/paintMilkyWay.ts",
     "test": "vitest run"
   },
   "devDependencies": {
