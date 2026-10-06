@@ -5,18 +5,6 @@ Each entry here is a named future feature with just enough detail to pick up lat
 re-deriving requirements from scratch. Before implementation, each entry should go through its own
 brainstorming → design-spec → implementation-plan cycle.
 
-## Cinematic lens flares
-**What**: Lens flares that look like the ones in films and respect depth: today's flares are
-screen-space sprites that a nearer planet simply cuts off, so they disappeared behind planets in a
-way no real lens does.
-**Approach**: Treat the flare as what happens inside the camera, not in the scene: occlusion only
-decides *how much* sunlight enters the lens (an occlusion query or a small depth-tested sample of
-the Sun's disc), and the ghosts, streaks and starburst are then drawn on top of the finished image,
-never depth-clipped. Ghost shapes and chromatic fringes from a physically inspired model (aperture
-polygon, lens-coating tints, starburst from the aperture's diffraction), dirt/smudge texture on the
-"lens" lit by the Sun, and a fade as the Sun leaves the frame.
-**Data needed**: none; a starburst/lens-dirt texture (procedural or CC0).
-
 ## Eye candy: richer space visuals
 **What**: Make the scene look more like space photography: livelier stars, better planet surfaces,
 and the objects you'd actually see in the sky.

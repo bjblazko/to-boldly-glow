@@ -83,3 +83,20 @@ export function meanAbsoluteDifference(a: CapturedFrame, b: CapturedFrame): numb
   }
   return sum / ((a.pixels.length / 4) * 3)
 }
+
+// Drags the orbit camera from the canvas center by (dx, dy) pixels and renders the result.
+export async function dragCamera(page: Page, dx: number, dy: number): Promise<void> {
+  const viewport = page.viewportSize()!
+  const [x, y] = [viewport.width / 2, viewport.height / 2]
+  await page.mouse.move(x, y)
+  await page.mouse.down()
+  for (let step = 1; step <= 20; step++) await page.mouse.move(x + (dx * step) / 20, y + (dy * step) / 20)
+  await page.mouse.up()
+  await renderFrames(page, 2)
+}
+
+export async function setDisplaySwitch(page: Page, selector: string, on: boolean): Promise<void> {
+  await page.locator('.hud-dock-btn[data-panel="display"]').click()
+  await page.locator(selector).setChecked(on)
+  await page.locator('.hud-dock-btn[data-panel="display"]').click()
+}

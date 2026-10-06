@@ -1,87 +1,71 @@
-import { createUniformBinding, writeUniforms, type UniformBinding } from '../gpu/buffers'
+import { createUniformBinding, type UniformBinding } from '../gpu/buffers'
 import { ADDITIVE_BLEND, BILLBOARD_PRIMITIVE, createScenePipeline } from '../gpu/scenePipeline'
 import type { Viewpoint } from '../camera/viewpoint'
 import type { SceneLayout } from '../scene/sceneLayout'
-import { FLARE_SPECS, type FlareSpec } from './flareSpecs'
+import { FLARE_ELEMENTS } from './flareElements'
+import { FLOATS_PER_ELEMENT, MAX_FLARE_ELEMENTS, frameFade, packFlareElements } from './flareLayout'
 import { flareShaderCode } from './flareShader'
 import { sunVisibleFraction } from './sunVisibility'
 
-const FLARE_UNIFORM_FLOAT_COUNT = 12
+const HEADER_FLOATS = 4
+const FLARE_UNIFORM_FLOAT_COUNT = HEADER_FLOATS + MAX_FLARE_ELEMENTS * FLOATS_PER_ELEMENT
+// Below this the flare is invisible anyway; skip drawing it.
+const MIN_STRENGTH = 0.001
 
-interface FlareSprite {
-  spec: FlareSpec
-  uniforms: UniformBinding
+// The flare pipeline draws over the finished scene: additive, and never depth-tested. A flare is
+// light scattered inside the camera, so nothing in the picture can sit in front of it.
+export function flarePipelineSpec(format: GPUTextureFormat) {
+  return {
+    label: 'flare',
+    code: flareShaderCode,
+    format,
+    blend: ADDITIVE_BLEND,
+    primitive: BILLBOARD_PRIMITIVE,
+    depth: { write: false, compare: 'always' as const },
+  }
 }
 
-interface SunOnScreen {
-  ndc: [number, number, number]
-  visibleFraction: number
-}
-
-// Screen-space flare sprites along the line from the Sun through the screen center, faded by how
-// much of the Sun a nearer body covers and depth-tested so bodies in front clip them per pixel.
+// A cinematic lens flare for the Sun: a glow, the aperture's starburst, an anamorphic streak, a
+// rainbow halo, aperture-shaped ghosts along the line through the screen center, and lit-up lens
+// dirt. How strongly it shows depends only on how much of the Sun reaches the lens: bodies in front
+// of the Sun dim it, and it fades as the Sun leaves the frame.
 export class LensFlare {
-  private sunInFront = false
+  private strength = 0
 
   private constructor(
     private readonly device: GPUDevice,
     private readonly pipeline: GPURenderPipeline,
-    private readonly sprites: FlareSprite[],
+    private readonly uniforms: UniformBinding,
   ) {}
 
   static async create(device: GPUDevice, format: GPUTextureFormat): Promise<LensFlare> {
-    const pipeline = await createScenePipeline(device, {
-      label: 'flare',
-      code: flareShaderCode,
-      format,
-      blend: ADDITIVE_BLEND,
-      primitive: BILLBOARD_PRIMITIVE,
-      // Depth-tested against the bodies already drawn, never writing depth itself.
-      depth: { write: false, compare: 'less' },
-    })
-    const sprites = FLARE_SPECS.map((spec, index) => ({
-      spec,
-      uniforms: createUniformBinding(device, pipeline, { label: `flare ${index}`, floatCount: FLARE_UNIFORM_FLOAT_COUNT }),
-    }))
-    return new LensFlare(device, pipeline, sprites)
+    const pipeline = await createScenePipeline(device, flarePipelineSpec(format))
+    const uniforms = createUniformBinding(device, pipeline, { label: 'lens flare', floatCount: FLARE_UNIFORM_FLOAT_COUNT })
+    device.queue.writeBuffer(uniforms.buffer, HEADER_FLOATS * 4, packFlareElements(FLARE_ELEMENTS))
+    return new LensFlare(device, pipeline, uniforms)
   }
 
   update(layout: SceneLayout, viewpoint: Viewpoint): void {
-    const sun = sunOnScreen(layout, viewpoint)
-    this.sunInFront = sun !== null
-    if (sun) for (const sprite of this.sprites) this.writeSprite(sprite, sun, viewpoint)
+    const sunNdc = sunScreenPosition(viewpoint)
+    this.strength = sunNdc ? sunVisibleFraction(layout, viewpoint) * frameFade(sunNdc) : 0
+    if (!sunNdc || this.strength < MIN_STRENGTH) return
+    const header = new Float32Array([sunNdc[0], sunNdc[1], viewpoint.pixels.width / viewpoint.pixels.height, this.strength])
+    this.device.queue.writeBuffer(this.uniforms.buffer, 0, header)
   }
 
-  // Drawn last, after every body has written its depth.
+  // Drawn last: over every body, ring, line and overlay.
   draw(pass: GPURenderPassEncoder): void {
-    if (!this.sunInFront) return
+    if (this.strength < MIN_STRENGTH) return
     pass.setPipeline(this.pipeline)
-    for (const sprite of this.sprites) {
-      pass.setBindGroup(0, sprite.uniforms.bindGroup)
-      pass.draw(4)
-    }
-  }
-
-  private writeSprite({ spec, uniforms }: FlareSprite, sun: SunOnScreen, viewpoint: Viewpoint): void {
-    // t = 0 sits on the Sun, 0.5 on the screen center, beyond that on the mirrored side.
-    const mirror = 1 - 2 * spec.t
-    const [red, green, blue, alpha] = spec.color
-    const fade = sun.visibleFraction
-    const values = new Float32Array(FLARE_UNIFORM_FLOAT_COUNT)
-    // Additive blending ignores alpha, so the fade has to scale the color itself.
-    values.set([red * fade, green * fade, blue * fade, alpha], 0)
-    values.set([sun.ndc[0] * mirror, sun.ndc[1] * mirror], 4)
-    values.set([(spec.widthPx * 2) / viewpoint.pixels.width, (spec.heightPx * 2) / viewpoint.pixels.height], 6)
-    values.set([sun.ndc[2], spec.bladeCount, spec.rotation], 8)
-    writeUniforms(this.device, uniforms, values)
+    pass.setBindGroup(0, this.uniforms.bindGroup)
+    pass.draw(4, FLARE_ELEMENTS.length)
   }
 }
 
-// The Sun sits at the world origin, so its clip-space position is just the view-projection's
+// The Sun sits at the world origin, so its clip-space position is the view-projection's
 // translation column; null when the Sun is behind the camera.
-function sunOnScreen(layout: SceneLayout, viewpoint: Viewpoint): SunOnScreen | null {
+function sunScreenPosition(viewpoint: Viewpoint): [number, number] | null {
   const clip = viewpoint.viewProjection
   const clipW = clip[15]
-  if (clipW <= 0) return null
-  return { ndc: [clip[12] / clipW, clip[13] / clipW, clip[14] / clipW], visibleFraction: sunVisibleFraction(layout, viewpoint) }
+  return clipW > 0 ? [clip[12] / clipW, clip[13] / clipW] : null
 }

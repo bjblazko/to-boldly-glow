@@ -81,6 +81,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Lens flares look like a film camera's: a blue anamorphic streak, the aperture's starburst, a
+  faint rainbow halo, six-bladed aperture ghosts with colored fringes along the line through the
+  screen center, and lens dirt that lights up near the Sun - in HDR, so bloom catches the streak.
+  They fade out as the Sun leaves the frame instead of switching off at the edge, and draw in one
+  instanced call. Sizes follow the window, not fixed pixels.
+
 - The camera tour now flies like a spaceship: it starts from rest, accelerates and brakes within an
   engine limit (arriving at loop speed), turns only as fast as its thrust allows, banks into turns,
   and its gaze leads the flight path at a bounded turn rate. Stopping it hands the view to free-fly
@@ -97,6 +103,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   The production build renders pixel-identical scenes before and after.
 
 ### Fixed
+
+- Lens flares no longer disappear behind planets: each flare element was depth-tested at the Sun's
+  depth, so any planet anywhere in the picture cut a hole into the ghosts it overlapped. A flare
+  now lies over the whole picture, and only a body actually in front of the Sun dims it.
 
 - A lost GPU device (driver reset, GPU process crash) no longer leaves a silently frozen picture:
   the app says so and offers a reload.
