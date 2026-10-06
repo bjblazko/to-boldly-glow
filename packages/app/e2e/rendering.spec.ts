@@ -103,6 +103,10 @@ test("the lens flare follows the Sun's visibility and lies over planets, not beh
 
 // The tour flies continuously, and stopping it hands the view to the free-fly camera exactly as it
 // was - same position, direction and roll - instead of jumping or levelling the horizon.
+// Thresholds, as mean pixel differences: a still camera changes about 0.002 between frames (planets
+// creep along), three seconds of touring about 0.5, and the handover itself about 0.001.
+const STILL_VIEW_CHANGE = 0.1
+const NO_JUMP = 0.05
 test('the tour moves the view smoothly and hands over to free-fly without a jump', async ({ page }) => {
   test.setTimeout(120_000)
   const errors = await openRenderedApp(page)
@@ -117,12 +121,12 @@ test('the tour moves the view smoothly and hands over to free-fly without a jump
   const flying = await captureFrame(page)
   await renderFrames(page, 30)
   const threeSecondsLater = await captureFrame(page)
-  expect(meanAbsoluteDifference(flying, threeSecondsLater)).toBeGreaterThan(0.5)
+  expect(meanAbsoluteDifference(flying, threeSecondsLater)).toBeGreaterThan(STILL_VIEW_CHANGE)
 
   const lastTourFrame = await captureFrame(page)
   await page.keyboard.press('Escape')
   const firstFreeFlyFrame = await captureFrame(page)
-  expect(meanAbsoluteDifference(lastTourFrame, firstFreeFlyFrame)).toBeLessThan(0.5)
+  expect(meanAbsoluteDifference(lastTourFrame, firstFreeFlyFrame)).toBeLessThan(NO_JUMP)
   await expect(page.locator('#camera-mode-toggle .btn-label')).toHaveText('Switch to Orbit Camera')
   expect(errors).toEqual([])
 })
