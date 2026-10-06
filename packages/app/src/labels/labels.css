@@ -1,0 +1,28 @@
+/* Names drawn next to bodies and lesson overlay lines; their left/top follow the 3D scene each
+   frame, anchored at the label's top center just below the projected point. */
+#body-labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.body-label,
+.moon-label {
+  position: absolute;
+  transform: translate(-50%, 4px);
+  color: white;
+  font: 12px sans-serif;
+  text-shadow: 0 0 3px black, 0 0 3px black;
+  white-space: nowrap;
+}
+
+.moon-label {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 10px;
+}
+
+/* At the equinoxes the axis and reference lines coincide, so their labels would overlap. */
+#axis-line-label {
+  transform: translate(-50%, -14px);
+}

@@ -139,7 +139,7 @@ export const MOONS: MoonDefinition[] = [
     compactVisualRadius: 0.2,
     orbitDistanceKm: 1_221_870,
     // Kept clear of Saturn's rings (outer edge at 2.3x Saturn's own compact radius, ~4.37 units —
-    // see geometry/ring.ts's generateRingMesh(1.3, 2.3, ...) call in main.ts) rather than using a
+    // see saturnRing/saturnRing.ts's ring radius factors) rather than using a
     // strictly real-ratio-scaled value, which would put Titan visually inside/through the rings.
     compactOrbitVisualRadius: 5.5,
     siderealOrbitPeriodDays: 15.945,

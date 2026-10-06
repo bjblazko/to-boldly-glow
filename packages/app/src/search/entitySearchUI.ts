@@ -6,34 +6,42 @@ const KIND_LABEL: Record<SolarSystemEntity['kind'], string> = {
   moon: 'Moon',
 }
 
+export interface EntitySearchElements {
+  input: HTMLInputElement
+  results: HTMLElement
+  followIndicator: HTMLElement
+  followLabel: HTMLElement
+  stopButton: HTMLButtonElement
+}
+
+export interface EntitySearchHandlers {
+  onSelect(entity: SolarSystemEntity): void
+  onStop(): void
+}
+
 // Wires a text input + live results list to searchEntities, and a small "Following: X ×" indicator
-// that main.ts drives via setFollowing() once a fly-to has actually started (kept separate from
-// entity selection itself, since the indicator reflects camera-follow state, not search UI state).
+// driven via setFollowing() once a fly-to has actually started (kept separate from entity
+// selection itself, since the indicator reflects camera-follow state, not search UI state).
 export class EntitySearchUI {
   private results: SolarSystemEntity[] = []
   private enabled = true
+  private readonly input: HTMLInputElement
+  private readonly resultsContainer: HTMLElement
 
   constructor(
-    private readonly input: HTMLInputElement,
-    private readonly resultsContainer: HTMLDivElement,
-    private readonly followIndicator: HTMLElement,
-    private readonly followLabel: HTMLElement,
-    private readonly stopButton: HTMLButtonElement,
-    private readonly onSelect: (entity: SolarSystemEntity) => void,
-    private readonly onStop: () => void,
+    private readonly elements: EntitySearchElements,
+    private readonly handlers: EntitySearchHandlers,
   ) {
+    this.input = elements.input
+    this.resultsContainer = elements.results
     this.input.addEventListener('input', this.onInput)
     this.input.addEventListener('keydown', this.onKeyDown)
-    this.stopButton.addEventListener('click', this.onStopClick)
+    elements.stopButton.addEventListener('click', () => this.handlers.onStop())
   }
 
   setFollowing(entity: SolarSystemEntity | null): void {
-    if (entity) {
-      this.followLabel.textContent = `Following: ${entity.name}`
-      this.followIndicator.style.display = 'flex'
-    } else {
-      this.followIndicator.style.display = 'none'
-    }
+    if (entity) this.elements.followLabel.textContent = `Following: ${entity.name}`
+    this.elements.followIndicator.hidden = !entity
   }
 
   // Explicitly disables search input/selection (rather than relying solely on the search box
@@ -64,12 +72,8 @@ export class EntitySearchUI {
     }
   }
 
-  private onStopClick = () => {
-    this.onStop()
-  }
-
   private choose(entity: SolarSystemEntity): void {
-    this.onSelect(entity)
+    this.handlers.onSelect(entity)
     this.input.value = ''
     this.results = []
     this.renderResults()
@@ -79,9 +83,8 @@ export class EntitySearchUI {
     this.resultsContainer.replaceChildren()
     for (const entity of this.results) {
       const row = document.createElement('div')
+      row.className = 'hud-search-result'
       row.textContent = `${entity.name} (${KIND_LABEL[entity.kind]})`
-      row.style.cursor = 'pointer'
-      row.style.padding = '4px 0'
       row.addEventListener('click', () => this.choose(entity))
       this.resultsContainer.appendChild(row)
     }

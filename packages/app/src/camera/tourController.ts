@@ -1,145 +1,88 @@
 import { mat4, vec3 } from 'gl-matrix'
 import { AU_KM, type BodyDefinition } from '../solarSystem/bodies'
 import { entityWorldPosition, type SolarSystemEntity } from '../solarSystem/entities'
-import { ECLIPTIC_NORTH } from '../solarSystem/poleOrientation'
 import { scaledBodyRadiusUnits } from '../solarSystem/sceneScale'
+import type { Ephemeris } from '../time/ephemeris'
+import { stepToward, turnRateAround, turnToward } from './tour/shipMotion'
+import { ShipView, WORLD_UP } from './tour/shipView'
+import { TourItinerary } from './tour/tourItinerary'
 
-// Roughly how long a transit between two planets should take, used only to derive this leg's
-// cruise speed (distance / this) when a new target is picked - not a hard timer. Actual leg
-// duration varies with how the steering plays out.
-const TARGET_TRANSIT_SECONDS = 20
-
-// How many body-radii away the close flyby loop circles the planet at - scaled per-planet so
-// Mercury and Jupiter both get a sensible framing rather than one fixed world-space radius.
-const LOOP_RADIUS_MULTIPLIER = 8
-
-// How long one full loop around the planet takes once the camera arrives.
-const LOOP_DURATION_SECONDS = 6
-const LOOP_ANGULAR_SPEED = (2 * Math.PI) / LOOP_DURATION_SECONDS
-
-// Hard ceiling on how long the 'approach' phase is allowed to keep pursuing before the tour just
-// gives up on this target and moves on - a safety net against ever appearing to freeze. Pursuit
-// steering toward a live (slowly moving) aim point should always close the distance well within
-// this, but this guarantees the tour can never appear stuck indefinitely even in an edge case
-// (e.g. a very fast accelerated clock nudging the aim point as fast as the camera closes on it).
-const MAX_APPROACH_SECONDS = 45
-
-// How quickly heading turns to face its current aim point and speed eases toward its current
-// target value during the 'approach' phase, both expressed as the fraction-of-remaining-gap-per-
-// second used by smoothingFactor() below - framerate-independent exponential smoothing, same
-// technique as CameraFollowController's FOLLOW_SMOOTHING_RATE. Kept gentle so the turn into a new
-// heading (e.g. coming out of a loop toward the next planet) reads as banking flight, not a snap.
-const HEADING_SMOOTHING_RATE = 0.8
-const SPEED_SMOOTHING_RATE = 0.5
-
-// How many seconds ahead of the camera's own motion the "look where you're going" point sits
-// during the approach phase - keeps the camera's gaze anchored to something that moves
-// continuously with the camera itself, rather than to a planet that can be swapped out instantly
-// the moment a new target is picked (see the lookAt comment on update() for why that was the
-// actual cause of the reported "jump cuts" - position and heading were already continuous, but
-// staring straight at the target position snapped instantly to the new planet).
-const LOOK_AHEAD_SECONDS = 3
-
-// The gaze blends from "look ahead" toward "stare at the planet" as the camera closes in, fully
-// locked on by the time it's this many loop-radii away - and is smoothed on top of that so even
-// the moment of picking a new (suddenly very distant) target can't snap the view.
-const LOOKAT_BLEND_START_RADII = 6
-const LOOKAT_SMOOTHING_RATE = 2.5
-
-// Floor under a leg's cruise speed so a very short hop (or the very first leg, which can start
-// close to its target) doesn't compute an imperceptibly slow crawl.
+// A leg's cruise speed is its length over this many seconds (at least MIN_CRUISE_SPEED), and the
+// engine reaches cruise speed - or brakes from it - in ACCELERATION_SECONDS.
+const TRANSIT_SECONDS = 20
 const MIN_CRUISE_SPEED = 0.5
+export const ACCELERATION_SECONDS = 5
+// The ship's lateral thrust, relative to its forward thrust, limits how fast it can turn at speed
+// (a slow ship turns quickly, a fast one in wide arcs) - and never faster than MAX_TURN_RATE.
+const LATERAL_THRUST_RATIO = 2
+const MAX_TURN_RATE = 1.2 // radians per second
 
+// The flyby loop circles the planet at this many body radii, one lap in about LOOP_SECONDS.
+const LOOP_RADIUS_IN_BODY_RADII = 8
+const LOOP_SECONDS = 8
+const LOOP_ANGULAR_SPEED = (2 * Math.PI) / LOOP_SECONDS
 
-// The scene's real "up" is ECLIPTIC_NORTH (world Z), not world Y - see poleOrientation.ts and
-// docs/superpowers/specs/2026-07-20-camera-north-up-orientation-design.md, which migrated
-// OrbitCamera off a hardcoded Y-up for the same reason. Using Y here (as this file originally did)
-// put the tour's loop/lookAt basis 90 degrees off the rest of the scene's orientation, and let the
-// camera's forward direction pass close enough to this "up" vector during normal flight (most
-// orbital motion lies in the real X/Y ecliptic plane, which contains world Y) to make
-// mat4.lookAt's internal cross product near-degenerate - producing the reported sudden view
-// "jumps" on top of the 90-degree misorientation.
-const WORLD_UP: vec3 = vec3.fromValues(...ECLIPTIC_NORTH)
+// Gives up on a target that takes this long to reach, so the tour can never appear stuck.
+const MAX_CRUISE_SECONDS = 45
 
-// 'approach': pursuit-steering toward a point on the planet's loop circle, from far away - this is
-// only ever chasing a *distant* aim point, which is numerically stable (see the loop-entry angle
-// comment on pickNextTarget for why a *close* pursuit target caused the old "wobble and stay").
-// 'loop': a deterministic circular pass around the planet - position is computed directly from an
-// ever-increasing angle, so unlike pursuit it can never stall or lock into an orbit by accident.
-// The circle runs around WORLD_UP through the planet, starting from wherever the approach actually
-// handed over (see enterLoop): a loop in a vertical plane carried the camera straight over the
-// planet's pole, where the view direction becomes parallel to WORLD_UP and mat4.lookAt flips the
-// roll by ~180 degrees within a few frames; and starting at a fixed loop-circle point teleported
-// the camera from wherever the 'approach' phase had actually reached it.
-type TourPhase = 'approach' | 'loop'
+// The gaze looks this far ahead along the flight path, and swings over to the planet as the ship
+// closes in - fully locked on from this many loop radii away.
+const LOOK_AHEAD_SECONDS = 3
+const GAZE_LOCK_IN_LOOP_RADII = 6
 
-function smoothingFactor(rate: number, deltaSeconds: number): number {
-  return 1 - Math.exp(-rate * deltaSeconds)
+interface Leg {
+  target: SolarSystemEntity
+  // The loop is entered at the planet's side (seen along the leg), so the ship arrives tangentially.
+  side: vec3
+  loopRadius: number
+  cruiseSpeed: number
 }
 
-// Drives an endless, uninterrupted camera flight through the solar system: it dynamically picks
-// the nearest not-recently-visited planet (by live position, not a fixed schedule), flies toward
-// it, makes one close deterministic loop around it, then immediately continues toward the next
-// pick - forever, without ever coming to rest or pausing at a waypoint. Mirrors the other camera
-// classes' shape (own state, update()/getViewMatrix()) so it slots into the render loop the same
-// way OrbitCamera/FlyCamera do.
+interface Loop {
+  startOffset: vec3
+  direction: number
+  angle: number
+  angularSpeed: number
+}
+
+export interface TourStart {
+  position: readonly [number, number, number]
+  forward?: readonly [number, number, number]
+}
+
+// An endless sightseeing flight, flown like a spaceship: it picks the nearest planet not yet seen,
+// accelerates toward it, brakes on arrival, makes one lap around it and heads for the next one -
+// with inertia, a limited turn rate, banking into turns and a gaze that leads the flight path.
 export class TourController {
-  active = false
-
-  private readonly position: vec3 = vec3.create()
-  private heading: vec3 = vec3.fromValues(0, 0, 1)
+  private readonly position = vec3.create()
+  private heading = vec3.fromValues(0, 0, 1)
   private speed = 0
-  private lookAt: [number, number, number] = [0, 0, 0]
-  private phase: TourPhase = 'approach'
-  private phaseElapsedSeconds = 0
-  private loopAngle = 0
-  private currentTarget: SolarSystemEntity | null = null
-  // Planets visited in the current pass, in visit order - used to guarantee full coverage: once
-  // every planet has been visited, this resets and a new pass begins. A short "last N" exclusion
-  // window (the original approach) doesn't do this - greedy nearest-next with a small window
-  // settles into circling whichever 2-3 planets are mutually closest (e.g. Mercury/Venus/Earth)
-  // and never reaches the outer planets, since they're never the *nearest* remaining candidate
-  // once a inner-planet cluster is treated as "revisitable."
-  private visitedThisPass: string[] = []
+  private yawRate = 0
+  private readonly view = new ShipView()
+  private readonly itinerary: TourItinerary
+  private leg: Leg | null = null
+  private loop: Loop | null = null
+  private cruiseSeconds = 0
 
-  // This leg's direction/side basis, loop radius, and cruise speed - fixed once per target
-  // (computed in pickNextTarget from the camera's position at that moment) and reused by every
-  // frame's steering/loop calculations until the next target is picked.
-  private legDirection: vec3 = vec3.fromValues(0, 0, 1)
-  private legSide: vec3 = vec3.fromValues(1, 0, 0)
-  private loopRadius = 0
-  private cruiseSpeed = MIN_CRUISE_SPEED
+  constructor(planets: SolarSystemEntity[]) {
+    this.itinerary = new TourItinerary(planets)
+  }
 
-  // The current loop's starting offset from the planet's center and which way around WORLD_UP it
-  // circles - both captured once on entering the loop (see enterLoop).
-  private loopStartOffset: vec3 = vec3.create()
-  private loopDirection = 1
-
-  constructor(private readonly planetEntities: SolarSystemEntity[]) {}
-
-  // `startForward` is the direction the camera is looking when the tour begins; passing it (along
-  // with the camera's own eye position as `startPosition`) makes the tour pick up from the current
-  // view instead of cutting to a new one.
-  start(
-    startPosition: [number, number, number],
-    T: number,
-    daysSinceEpoch: number,
-    scaleBlend: number,
-    startForward?: readonly [number, number, number],
-  ): void {
-    this.active = true
-    vec3.set(this.position, startPosition[0], startPosition[1], startPosition[2])
+  // Starts at rest where the camera is, looking where it looked.
+  start(from: TourStart, ephemeris: Ephemeris, scaleBlend: number): void {
+    vec3.set(this.position, ...from.position)
     this.speed = 0
-    this.visitedThisPass = []
-    this.pickNextTarget(T, daysSinceEpoch, scaleBlend)
-    const forward = startForward ? vec3.fromValues(startForward[0], startForward[1], startForward[2]) : null
-    this.heading = forward && vec3.length(forward) > 1e-9 ? vec3.normalize(forward, forward) : vec3.clone(this.legDirection)
-    const initialLookAt = vec3.scaleAndAdd(vec3.create(), this.position, this.heading, 10)
-    this.lookAt = [initialLookAt[0], initialLookAt[1], initialLookAt[2]]
+    this.loop = null
+    this.itinerary.restart()
+    this.beginLeg(null, ephemeris, scaleBlend)
+    const forward = from.forward ? vec3.fromValues(...from.forward) : null
+    this.heading = forward && vec3.length(forward) > 1e-9 ? vec3.normalize(forward, forward) : this.directionTo(this.planetPosition(ephemeris, scaleBlend))
+    this.view.reset(this.heading)
   }
 
   stop(): void {
-    this.active = false
+    this.leg = null
+    this.loop = null
   }
 
   getEyePosition(): [number, number, number] {
@@ -147,188 +90,120 @@ export class TourController {
   }
 
   getLookAt(): [number, number, number] {
-    return this.lookAt
+    const lookAt = vec3.scaleAndAdd(vec3.create(), this.position, this.view.gaze, 10)
+    return [lookAt[0], lookAt[1], lookAt[2]]
+  }
+
+  getUp(): [number, number, number] {
+    return [this.view.up[0], this.view.up[1], this.view.up[2]]
   }
 
   getViewMatrix(): mat4 {
-    return mat4.lookAt(mat4.create(), this.position, this.lookAt, WORLD_UP)
+    return this.view.viewMatrix(this.position)
   }
 
-  update(deltaSeconds: number, T: number, daysSinceEpoch: number, scaleBlend: number): void {
-    if (!this.active || !this.currentTarget) return
-    const targetPosition = entityWorldPosition(this.currentTarget, T, daysSinceEpoch, scaleBlend)
-    const target = this.toVec3(targetPosition)
-
-    this.phaseElapsedSeconds += deltaSeconds
-
-    if (this.phase === 'approach') {
-      this.updateApproach(deltaSeconds, target)
-      if (vec3.distance(this.position, target) <= this.loopRadius * 1.02) {
-        this.enterLoop(target)
-      } else if (this.phaseElapsedSeconds >= MAX_APPROACH_SECONDS) {
-        // Safety net - see MAX_APPROACH_SECONDS. Give up on this target rather than risk ever
-        // looking frozen; picking the next one keeps the tour moving no matter what.
-        this.pickNextTarget(T, daysSinceEpoch, scaleBlend)
-      }
-    } else {
-      this.updateLoop(deltaSeconds, target)
-      if (this.loopAngle >= 2 * Math.PI) {
-        this.pickNextTarget(T, daysSinceEpoch, scaleBlend)
-      }
-    }
-
-    this.updateLookAt(deltaSeconds, target)
+  update(deltaSeconds: number, ephemeris: Ephemeris, scaleBlend: number): void {
+    if (!this.leg) return
+    const planet = this.planetPosition(ephemeris, scaleBlend)
+    const headingBefore = vec3.clone(this.heading)
+    if (this.loop) this.flyLoop(this.loop, deltaSeconds, { planet, acceleration: this.leg.cruiseSpeed / ACCELERATION_SECONDS })
+    else this.cruise(this.leg, deltaSeconds, planet)
+    this.yawRate = turnRateAround(headingBefore, this.heading, WORLD_UP, deltaSeconds)
+    this.view.update(deltaSeconds, this.desiredGaze(this.leg, planet), { heading: this.heading, yawRate: this.yawRate })
+    this.continueItinerary(this.leg, planet, { ephemeris, scaleBlend })
   }
 
-  private enterPhase(phase: TourPhase): void {
-    this.phase = phase
-    this.phaseElapsedSeconds = 0
-    if (phase === 'loop') this.loopAngle = 0
+  private continueItinerary(leg: Leg, planet: vec3, moment: { ephemeris: Ephemeris; scaleBlend: number }): void {
+    if (this.loop && this.loop.angle >= 2 * Math.PI) {
+      this.beginLeg(leg.target, moment.ephemeris, moment.scaleBlend)
+    } else if (!this.loop && vec3.distance(this.position, planet) <= leg.loopRadius * 1.02) {
+      this.loop = this.enterLoop(leg, planet)
+    } else if (!this.loop && this.cruiseSeconds >= MAX_CRUISE_SECONDS) {
+      this.beginLeg(leg.target, moment.ephemeris, moment.scaleBlend)
+    }
   }
 
-  // Starts the loop exactly where the camera is now (no position jump), circling WORLD_UP through
-  // the planet in whichever direction better continues the camera's current heading.
-  private enterLoop(target: vec3): void {
-    this.enterPhase('loop')
-    vec3.subtract(this.loopStartOffset, this.position, target)
-    const horizontalOffset = vec3.fromValues(this.loopStartOffset[0], this.loopStartOffset[1], 0)
-    if (vec3.length(horizontalOffset) < this.loopRadius * 0.25) {
-      // Arrived almost straight above/below the planet (not something pursuit toward the
-      // horizontal legSide aim point produces, but guard it): circling the vertical axis from there
-      // would just spin in place looking straight down, so swing out to the aim point instead.
-      vec3.scale(this.loopStartOffset, this.legSide, this.loopRadius)
-    }
-    const counterclockwiseTangent = vec3.cross(vec3.create(), WORLD_UP, this.loopStartOffset)
-    this.loopDirection = vec3.dot(counterclockwiseTangent, this.heading) < 0 ? -1 : 1
-  }
-
-  // Blends the gaze between "look where you're going" (a point out along the camera's own,
-  // already-continuous heading) and "stare at the planet" (once close enough to be worth looking
-  // at, and always during the loop), then smooths the gaze DIRECTION toward that blended point -
-  // so switching to a brand-new, far-away target can never snap the camera's facing direction the
-  // way directly assigning lookAt = targetPosition did. Smoothing the look-at point itself instead
-  // let it sweep straight through the camera's own position when the gaze swung from the planet
-  // just looped to a look-ahead point on the far side, whipping the view around in a few frames.
-  private updateLookAt(deltaSeconds: number, target: vec3): void {
-    const aheadDistance = Math.max(this.speed, this.cruiseSpeed) * LOOK_AHEAD_SECONDS
-    const aheadPoint = vec3.scaleAndAdd(vec3.create(), this.position, this.heading, aheadDistance)
-
-    let blend = 1
-    if (this.phase === 'approach') {
-      const distance = vec3.distance(this.position, target)
-      const blendStart = this.loopRadius * LOOKAT_BLEND_START_RADII
-      const span = Math.max(blendStart - this.loopRadius, 1e-6)
-      const raw = Math.min(Math.max((blendStart - distance) / span, 0), 1)
-      blend = raw * raw * (3 - 2 * raw)
-    }
-
-    const desired = vec3.lerp(vec3.create(), aheadPoint, target, blend)
-    const toDesired = vec3.subtract(vec3.create(), desired, this.position)
-    const desiredDistance = vec3.length(toDesired)
-    const gaze = vec3.subtract(vec3.create(), this.toVec3(this.lookAt), this.position)
-    if (desiredDistance < 1e-9 || vec3.length(gaze) < 1e-9) return
-    vec3.scale(toDesired, toDesired, 1 / desiredDistance)
-    vec3.normalize(gaze, gaze)
-
-    const angle = Math.acos(Math.min(1, Math.max(-1, vec3.dot(gaze, toDesired))))
-    if (angle > 1e-6) {
-      let axis = vec3.cross(vec3.create(), gaze, toDesired)
-      // Exactly opposite: any perpendicular axis works; prefer turning around WORLD_UP (a level
-      // turn) unless the gaze is itself vertical.
-      if (vec3.length(axis) < 1e-6) axis = vec3.cross(vec3.create(), gaze, WORLD_UP)
-      if (vec3.length(axis) < 1e-6) axis = vec3.fromValues(1, 0, 0)
-      vec3.normalize(axis, axis)
-      const turn = mat4.fromRotation(mat4.create(), angle * smoothingFactor(LOOKAT_SMOOTHING_RATE, deltaSeconds), axis)
-      vec3.transformMat4(gaze, gaze, turn)
-    }
-    const smoothed = vec3.scaleAndAdd(vec3.create(), this.position, gaze, desiredDistance)
-    this.lookAt = [smoothed[0], smoothed[1], smoothed[2]]
-  }
-
-  // Pursuit-steers toward the fixed point on the destination planet's loop circle (at loop angle
-  // 0, along `legSide`) - always a *distant* aim point during this phase, which keeps the pursuit
-  // numerically stable (see the TourPhase comment above).
-  private updateApproach(deltaSeconds: number, target: vec3): void {
-    const aimPoint = vec3.scaleAndAdd(vec3.create(), target, this.legSide, this.loopRadius)
-    const desiredHeading = vec3.subtract(vec3.create(), aimPoint, this.position)
-    if (vec3.length(desiredHeading) > 1e-6) {
-      vec3.normalize(desiredHeading, desiredHeading)
-      const blended = vec3.lerp(vec3.create(), this.heading, desiredHeading, smoothingFactor(HEADING_SMOOTHING_RATE, deltaSeconds))
-      if (vec3.length(blended) > 1e-6) vec3.normalize(this.heading, blended)
-    }
-    this.speed += (this.cruiseSpeed - this.speed) * smoothingFactor(SPEED_SMOOTHING_RATE, deltaSeconds)
+  // Seek-and-arrive toward the loop's entry point: turn at the rate the ship's thrust allows, ease
+  // off while pointing away from the target, and brake in time to arrive at loop speed.
+  private cruise(leg: Leg, deltaSeconds: number, planet: vec3): void {
+    this.cruiseSeconds += deltaSeconds
+    const entryPoint = vec3.scaleAndAdd(vec3.create(), planet, leg.side, leg.loopRadius)
+    const toEntry = vec3.subtract(vec3.create(), entryPoint, this.position)
+    const distance = vec3.length(toEntry)
+    if (distance < 1e-9) return
+    const acceleration = leg.cruiseSpeed / ACCELERATION_SECONDS
+    const turnRate = Math.min(MAX_TURN_RATE, (LATERAL_THRUST_RATIO * acceleration) / Math.max(this.speed, 1e-9))
+    const desiredDirection = vec3.scale(toEntry, toEntry, 1 / distance)
+    this.heading = turnToward(this.heading, desiredDirection, turnRate * deltaSeconds, WORLD_UP)
+    const alignment = (1 + vec3.dot(this.heading, desiredDirection)) / 2
+    const loopSpeed = leg.loopRadius * LOOP_ANGULAR_SPEED
+    const arrivalSpeed = Math.sqrt(loopSpeed * loopSpeed + 2 * acceleration * distance)
+    this.speed = stepToward(this.speed, Math.min(leg.cruiseSpeed, arrivalSpeed) * alignment, acceleration * deltaSeconds)
     vec3.scaleAndAdd(this.position, this.position, this.heading, this.speed * deltaSeconds)
   }
 
-  // Deterministic single loop around the planet, centered on its live (moving) position: the
-  // starting offset captured by enterLoop, rotated around WORLD_UP. Because position is a direct
-  // function of a monotonically increasing angle rather than a velocity integrated toward a moving
-  // aim point, this phase can never stall, wobble, or lock into an accidental orbit - it always
-  // completes after LOOP_DURATION_SECONDS. Also keeps `heading`/`speed` following the loop's own
-  // (always horizontal) tangent, so the moment it hands back to 'approach' for the next target, that
-  // phase's pursuit-steering picks up a heading that already matches the camera's actual motion -
-  // no snap, and no near-vertical look-ahead point.
-  private updateLoop(deltaSeconds: number, target: vec3): void {
-    this.loopAngle = Math.min(this.loopAngle + LOOP_ANGULAR_SPEED * deltaSeconds, 2 * Math.PI)
-    const rotation = mat4.fromRotation(mat4.create(), this.loopDirection * this.loopAngle, WORLD_UP)
-    const offset = vec3.transformMat4(vec3.create(), this.loopStartOffset, rotation)
-    vec3.add(this.position, target, offset)
-
-    const tangent = vec3.scale(vec3.create(), vec3.cross(vec3.create(), WORLD_UP, offset), this.loopDirection)
-    const circleRadius = vec3.length(tangent)
-    if (circleRadius > 1e-9) vec3.scale(this.heading, tangent, 1 / circleRadius)
-    this.speed = circleRadius * LOOP_ANGULAR_SPEED
+  // Circles world up through the (moving) planet from wherever the ship arrived, in the direction
+  // that continues its heading, keeping its speed and then settling to the loop's own pace.
+  private enterLoop(leg: Leg, planet: vec3): Loop {
+    const startOffset = vec3.subtract(vec3.create(), this.position, planet)
+    // Arriving almost straight above or below the planet, a loop around the vertical would only spin
+    // in place: swing out to the entry point instead.
+    if (Math.hypot(startOffset[0], startOffset[1]) < leg.loopRadius * 0.25) vec3.scale(startOffset, leg.side, leg.loopRadius)
+    const counterclockwise = vec3.cross(vec3.create(), WORLD_UP, startOffset)
+    const direction = vec3.dot(counterclockwise, this.heading) < 0 ? -1 : 1
+    const circleRadius = Math.max(Math.hypot(startOffset[0], startOffset[1]), 1e-9)
+    return { startOffset, direction, angle: 0, angularSpeed: this.speed / circleRadius }
   }
 
-  private pickNextTarget(T: number, daysSinceEpoch: number, scaleBlend: number): void {
-    // Once every planet has been visited, start a new pass - but keep the planet just finished
-    // excluded for this one pick, since the camera is still right next to it and would otherwise
-    // immediately be picked again as "nearest."
-    if (this.visitedThisPass.length >= this.planetEntities.length) {
-      this.visitedThisPass = this.currentTarget ? [this.currentTarget.id] : []
-    }
-    const candidates = this.planetEntities.filter((planet) => !this.visitedThisPass.includes(planet.id))
-    let nearest: SolarSystemEntity | null = null
-    let nearestPosition: [number, number, number] = [0, 0, 0]
-    let nearestDistance = Infinity
-    for (const candidate of candidates) {
-      const candidatePosition = entityWorldPosition(candidate, T, daysSinceEpoch, scaleBlend)
-      const distance = vec3.distance(this.position, this.toVec3(candidatePosition))
-      if (distance < nearestDistance) {
-        nearestDistance = distance
-        nearest = candidate
-        nearestPosition = candidatePosition
-      }
-    }
-    this.currentTarget = nearest ?? this.planetEntities[0]
-    this.visitedThisPass.push(this.currentTarget.id)
-    this.enterPhase('approach')
-    this.computeLegBasis(nearestPosition, nearestDistance, scaleBlend)
+  // The loop's pace changes within the same engine limits as the cruise.
+  private flyLoop(loop: Loop, deltaSeconds: number, { planet, acceleration }: { planet: vec3; acceleration: number }): void {
+    const circleRadius = Math.max(Math.hypot(loop.startOffset[0], loop.startOffset[1]), 1e-9)
+    loop.angularSpeed = stepToward(loop.angularSpeed, LOOP_ANGULAR_SPEED, (acceleration / circleRadius) * deltaSeconds)
+    loop.angle = Math.min(loop.angle + loop.angularSpeed * deltaSeconds, 2 * Math.PI)
+    const rotation = mat4.fromRotation(mat4.create(), loop.direction * loop.angle, WORLD_UP)
+    const offset = vec3.transformMat4(vec3.create(), loop.startOffset, rotation)
+    vec3.add(this.position, planet, offset)
+    const tangent = vec3.scale(vec3.create(), vec3.cross(vec3.create(), WORLD_UP, offset), loop.direction)
+    vec3.scale(this.heading, tangent, 1 / circleRadius)
+    this.speed = circleRadius * loop.angularSpeed
   }
 
-  // Locks in this leg's direction/side basis, loop radius, and cruise speed from wherever the
-  // camera is right now toward the newly picked target's position right now - see the field
-  // comments above for why this must happen once per target rather than every frame.
-  private computeLegBasis(targetPosition: [number, number, number], distanceToTarget: number, scaleBlend: number): void {
-    const target = this.toVec3(targetPosition)
-    let direction = vec3.subtract(vec3.create(), target, this.position)
-    if (vec3.length(direction) < 1e-6) direction = vec3.fromValues(0, 0, 1)
-    vec3.normalize(direction, direction)
+  // Ahead along the flight path while far away, swinging over to the planet on the way in, and
+  // fixed on it while circling.
+  private desiredGaze(leg: Leg, planet: vec3): vec3 {
+    const aheadDistance = Math.max(this.speed, leg.cruiseSpeed) * LOOK_AHEAD_SECONDS
+    const ahead = vec3.scaleAndAdd(vec3.create(), this.position, this.heading, aheadDistance)
+    const lockStart = leg.loopRadius * GAZE_LOCK_IN_LOOP_RADII
+    const closeness = Math.min(Math.max((lockStart - vec3.distance(this.position, planet)) / Math.max(lockStart - leg.loopRadius, 1e-9), 0), 1)
+    const planetWeight = this.loop ? 1 : closeness * closeness * (3 - 2 * closeness)
+    const gazePoint = vec3.lerp(vec3.create(), ahead, planet, planetWeight)
+    return this.directionTo(gazePoint)
+  }
 
+  private beginLeg(justVisited: SolarSystemEntity | null, ephemeris: Ephemeris, scaleBlend: number): void {
+    const positionOf = (planet: SolarSystemEntity) => vec3.fromValues(...entityWorldPosition(planet, ephemeris.julianMillennia, ephemeris.daysSinceEpoch, scaleBlend))
+    const target = this.itinerary.next(this.position, positionOf, justVisited)
+    const toTarget = vec3.subtract(vec3.create(), positionOf(target), this.position)
+    const direction = vec3.length(toTarget) > 1e-6 ? vec3.normalize(vec3.create(), toTarget) : vec3.fromValues(0, 0, 1)
     let side = vec3.cross(vec3.create(), direction, WORLD_UP)
     if (vec3.length(side) < 1e-6) side = vec3.cross(vec3.create(), direction, [1, 0, 0])
-    vec3.normalize(side, side)
-
-    this.legDirection = direction
-    this.legSide = side
-
-    const definition = this.currentTarget!.definition as BodyDefinition
-    const bodyRadius = scaledBodyRadiusUnits(definition.radiusKm, definition.compactVisualRadius, scaleBlend, AU_KM)
-    this.loopRadius = bodyRadius * LOOP_RADIUS_MULTIPLIER
-    this.cruiseSpeed = Math.max(distanceToTarget / TARGET_TRANSIT_SECONDS, MIN_CRUISE_SPEED)
+    const { radiusKm, compactVisualRadius } = target.definition as BodyDefinition
+    this.leg = {
+      target,
+      side: vec3.normalize(side, side),
+      loopRadius: scaledBodyRadiusUnits(radiusKm, compactVisualRadius, scaleBlend, AU_KM) * LOOP_RADIUS_IN_BODY_RADII,
+      cruiseSpeed: Math.max(vec3.length(toTarget) / TRANSIT_SECONDS, MIN_CRUISE_SPEED),
+    }
+    this.loop = null
+    this.cruiseSeconds = 0
   }
 
-  private toVec3(p: readonly [number, number, number]): vec3 {
-    return vec3.fromValues(p[0], p[1], p[2])
+  private planetPosition(ephemeris: Ephemeris, scaleBlend: number): vec3 {
+    return vec3.fromValues(...entityWorldPosition(this.leg!.target, ephemeris.julianMillennia, ephemeris.daysSinceEpoch, scaleBlend))
+  }
+
+  private directionTo(point: vec3): vec3 {
+    const direction = vec3.subtract(vec3.create(), point, this.position)
+    return vec3.length(direction) > 1e-9 ? vec3.normalize(direction, direction) : vec3.clone(this.heading)
   }
 }

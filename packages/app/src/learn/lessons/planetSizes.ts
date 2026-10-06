@@ -42,7 +42,7 @@ function planetChapter(id: string, name: string): Chapter {
   }
 }
 
-// Same largest-to-smallest order the lineup itself is laid out in (see main.ts's sizesLineupById)
+// Same largest-to-smallest order the lineup itself is laid out in (see sizes/sizesLineup.ts)
 // so each page's planet is also the one currently nearest the frame's right/Sun-ward edge.
 const CHAPTERS: Chapter[] = [
   {

@@ -1,4 +1,3 @@
-import type { CameraInputController } from '../camera/inputController'
 import type { DockUI } from '../hud/dockUI'
 import type { EntitySearchUI } from '../search/entitySearchUI'
 
@@ -15,7 +14,7 @@ export class LearnModeController {
 
   constructor(
     private readonly body: HTMLElement,
-    private readonly cameraInput: CameraInputController,
+    private readonly cameraInput: { setEnabled(enabled: boolean): void },
     private readonly dockUI: DockUI,
     private readonly entitySearch: EntitySearchUI,
   ) {}

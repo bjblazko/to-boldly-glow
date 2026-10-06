@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { generateSphereMesh } from '../src/geometry/sphere'
+import { generateSphereMesh, SPHERE_SEGMENTS } from '../src/bodies/sphereMesh'
 
 describe('generateSphereMesh', () => {
   const radius = 2.5
@@ -117,15 +117,8 @@ describe('generateSphereMesh', () => {
   })
 })
 
-describe('generateSphereMesh production call site', () => {
-  it('main.ts uses at least 64 segments per axis for a visibly round silhouette', async () => {
-    const mainSource = await import('node:fs/promises').then((fs) =>
-      fs.readFile(new URL('../src/main.ts', import.meta.url), 'utf-8'),
-    )
-    const match = mainSource.match(/generateSphereMesh\(1,\s*(\d+),\s*(\d+)\)/)
-    expect(match).not.toBeNull()
-    const [, latSegments, lonSegments] = match!
-    expect(Number(latSegments)).toBeGreaterThanOrEqual(64)
-    expect(Number(lonSegments)).toBeGreaterThanOrEqual(64)
+describe('SPHERE_SEGMENTS', () => {
+  it('uses at least 64 segments per axis for a visibly round silhouette', () => {
+    expect(SPHERE_SEGMENTS).toBeGreaterThanOrEqual(64)
   })
 })

@@ -71,7 +71,7 @@ test('chapter navigation updates lesson-panel state, including the kind change a
   await expect(page.locator('#lesson-prev-chapter')).toBeDisabled()
 
   // Step to the orbit/staged boundary (the single orbit chapter's only Next) and confirm the kind
-  // flips (a hard camera cut, not an animated one - see main.ts's goToChapter).
+  // flips (a hard camera cut, not an animated one - see LessonSession.goToChapter).
   await page.locator('#lesson-next-chapter').click()
   await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-id', 'intro')
   await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-kind', 'staged')

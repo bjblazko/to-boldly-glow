@@ -24,7 +24,7 @@ function tiltDegreesFromEclipticNorth(direction: readonly [number, number, numbe
   return (Math.acos(vec3.dot(direction, ECLIPTIC_NORTH)) * 180) / Math.PI
 }
 
-// The spin angular-momentum direction a body actually renders with: main.ts builds its world
+// The spin angular-momentum direction a body actually renders with: scene/sceneLayout.ts's bodyWorldMatrix builds its world
 // matrix as tilt * Rz(rotationAngleRadians(...)), so track which way a surface point moves.
 function renderedSpinAxis(body: BodyDefinition): [number, number, number] {
   const tilt = axisAlignmentRotation(equatorialToEclipticPoleDirection(body.poleRightAscensionDegrees, body.poleDeclinationDegrees))

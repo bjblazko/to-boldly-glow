@@ -202,17 +202,18 @@
   padding: 4px;
   margin-top: -4px;
 }
-#entity-search-results div {
+.hud-search-result {
   border-radius: 8px;
-  padding: 7px 10px !important;
+  padding: 7px 10px;
   font-size: 13px;
+  cursor: pointer;
 }
-#entity-search-results div:hover {
+.hud-search-result:hover {
   background: var(--hud-accent-camera-tint);
 }
 
 .hud-chip {
-  display: none;
+  display: flex;
   align-items: center;
   gap: 8px;
   width: fit-content;
@@ -511,11 +512,6 @@
   outline-offset: 2px;
 }
 
-/* -------------------- following chip default state -------------------- */
-#follow-indicator {
-  display: none;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .hud-sheet {
     transition: none;
@@ -551,9 +547,6 @@
   box-shadow: 0 20px 44px -18px rgba(0, 0, 0, 0.65);
   z-index: 2;
   font-family: -apple-system, 'Segoe UI', Roboto, ui-sans-serif, system-ui, sans-serif;
-}
-.hud-lesson-picker[hidden] {
-  display: none;
 }
 .hud-lesson-picker-item {
   appearance: none;
@@ -603,9 +596,6 @@
   z-index: 2;
   font-family: -apple-system, 'Segoe UI', Roboto, ui-sans-serif, system-ui, sans-serif;
   color: var(--hud-text);
-}
-.hud-lesson-panel[hidden] {
-  display: none;
 }
 .hud-lesson-panel.is-dragging {
   /* A slightly deeper shadow while actively dragged - the same "lifted off the surface" cue
@@ -670,3 +660,30 @@ body[data-app-mode='learn'] #learn-mode-btn-label::before {
 }
 
 
+
+/* Shown when the GPU device is lost mid-session: nothing renders any more until a reload. */
+.gpu-lost-alert {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  max-width: calc(100% - 32px);
+  padding: 10px 14px;
+  border: 1px solid var(--hud-panel-border);
+  border-radius: 12px;
+  background: var(--hud-panel);
+  color: var(--hud-text);
+  font: 13px/1.4 system-ui, sans-serif;
+}
+
+.gpu-lost-alert button {
+  margin-left: 8px;
+  padding: 4px 10px;
+  border: 1px solid var(--hud-control-border);
+  border-radius: 8px;
+  background: var(--hud-control-bg);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}

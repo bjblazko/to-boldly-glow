@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { ORBIT_FIXED_POLE_DIRECTION, seasonalPoleDirection } from '../src/main'
-import { orbitPositionForPhase } from '../src/learn/overlayGeometry'
+import { ORBIT_FIXED_POLE_DIRECTION, seasonalPoleDirection } from '../src/learn/seasons/seasonalPole'
+import { orbitPositionForPhase } from '../src/learn/seasons/overlayGeometry'
 
 const OBLIQUITY_RADIANS = (23.4 * Math.PI) / 180
 
@@ -63,7 +63,7 @@ describe('seasonalPoleDirection', () => {
     }
   })
 
-  // EARTH_STAGED_POSITION in main.ts places Earth on the +X side of the Sun (which sits at the
+  // EARTH_STAGED_POSITION in seasonsScene.ts places Earth on the +X side of the Sun (which sits at the
   // world origin), so the sunward direction as seen FROM Earth is -X, not +X. Subsolar latitude
   // (the latitude directly under the Sun) equals asin(dot(northPole, sunwardDirection)). This test
   // encodes that convention directly rather than trusting seasonalPoleDirection's own sign choices,

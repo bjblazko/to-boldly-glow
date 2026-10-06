@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { generateOrbitPathPositions } from '../src/solarSystem/orbitPath'
+import { generateOrbitPathPositions } from '../src/orbitPaths/orbitPath'
 import { PLANETS } from '../src/solarSystem/bodies'
 import { AU_TO_SCENE_UNITS } from '../src/solarSystem/sceneScale'
 

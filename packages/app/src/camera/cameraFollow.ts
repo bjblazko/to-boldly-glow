@@ -3,7 +3,7 @@ import { AU_KM } from '../solarSystem/bodies'
 import { entityPoleDirection, entityWorldPosition, type SolarSystemEntity } from '../solarSystem/entities'
 import { scaledBodyRadiusUnits } from '../solarSystem/sceneScale'
 import { orbitBasisForUpAxis, type OrbitBasis, type OrbitCamera } from './orbitCamera'
-import { easeInOutCubic, lerp, lerpAngle, lerpVec3 } from './easing'
+import { easeInOutCubic, lerp, lerpAngle, lerpVec3 } from '../math/easing'
 
 export interface CameraFollowOptions {
   flyToDurationSeconds?: number
@@ -28,19 +28,41 @@ function followSmoothingFactor(deltaSeconds: number): number {
   return 1 - Math.exp(-FOLLOW_SMOOTHING_RATE * deltaSeconds)
 }
 
+// Everything that places the orbit camera.
+interface OrbitPose {
+  target: [number, number, number]
+  radius: number
+  azimuth: number
+  elevation: number
+  upAxis: [number, number, number]
+}
+
 interface FlyToTween {
-  startTarget: [number, number, number]
-  startRadius: number
-  startAzimuth: number
-  startElevation: number
-  startUpAxis: [number, number, number]
-  endTarget: [number, number, number]
-  endRadius: number
-  endAzimuth: number
-  endElevation: number
-  endUpAxis: [number, number, number]
+  from: OrbitPose
+  to: OrbitPose
   elapsedSeconds: number
   durationSeconds: number
+}
+
+function poseOf(camera: OrbitCamera): OrbitPose {
+  const { target, radius, azimuth, elevation, upAxis } = camera
+  return { target: [target[0], target[1], target[2]], radius, azimuth, elevation, upAxis: [upAxis[0], upAxis[1], upAxis[2]] }
+}
+
+// Along the great circle between two unit up-axes, at a bounded angular rate even for nearly
+// opposite axes (lerp + normalize swings wildly there). vec3.slerp divides by sin(angle), which is
+// 0 for identical axes, so those are returned as they are.
+export function interpolateUpAxis(from: readonly [number, number, number], to: readonly [number, number, number], t: number): vec3 {
+  if (vec3.dot(from, to) > 0.9999999) return vec3.fromValues(...to)
+  return vec3.slerp(vec3.create(), from, to, t)
+}
+
+function applyInterpolatedPose(camera: OrbitCamera, { from, to }: FlyToTween, eased: number): void {
+  vec3.copy(camera.target, lerpVec3(from.target, to.target, eased))
+  camera.radius = lerp(from.radius, to.radius, eased)
+  camera.azimuth = lerpAngle(from.azimuth, to.azimuth, eased)
+  camera.elevation = lerp(from.elevation, to.elevation, eased)
+  vec3.copy(camera.upAxis, interpolateUpAxis(from.upAxis, to.upAxis, eased))
 }
 
 function defaultFramingRadius(entity: SolarSystemEntity, scaleBlend: number, camera: OrbitCamera): number {
@@ -77,16 +99,13 @@ export function defaultFramingAzimuth(
 // position every frame - as it moves along its orbit and/or spins - without touching
 // azimuth/elevation/radius, so manual drag/zoom keep working normally around the moving target.
 export class CameraFollowController {
-  followedEntityId: string | null = null
   private followedEntity: SolarSystemEntity | null = null
   private flyTo: FlyToTween | null = null
   private readonly flyToDurationSeconds: number
-  // The framing radius (see defaultFramingRadius) the camera's current radius was last rescaled
-  // for. Realistic/Compact endpoints put a body's rendered radius orders of magnitude apart (see
-  // geometricBlend in sceneScale.ts) - without rescaling orbitCamera.radius by how much this
-  // reference framing radius itself changes as scaleBlend animates, a followed body shrinks to an
-  // invisible speck (Compact -> Realistic) or swells past the camera (Realistic -> Compact) while
-  // the camera's distance to it stays fixed at whatever it was framed for before the toggle.
+  // The framing radius (see defaultFramingRadius) the camera's distance was last scaled for. The
+  // Realistic and Compact sizes of a body differ by orders of magnitude, so while the scale blend
+  // animates, the camera's distance is rescaled by how much this reference changed - otherwise a
+  // followed body shrinks to a speck or swells past the camera.
   private lastFramingRadius: number | null = null
 
   constructor(
@@ -96,155 +115,57 @@ export class CameraFollowController {
     this.flyToDurationSeconds = options.flyToDurationSeconds ?? 1.5
   }
 
-  selectEntity(entity: SolarSystemEntity, T: number, daysSinceEpoch: number, scaleBlend: number): void {
-    const startTarget: [number, number, number] = [
-      this.orbitCamera.target[0],
-      this.orbitCamera.target[1],
-      this.orbitCamera.target[2],
-    ]
-    const startUpAxis: [number, number, number] = [
-      this.orbitCamera.upAxis[0],
-      this.orbitCamera.upAxis[1],
-      this.orbitCamera.upAxis[2],
-    ]
-    this.followedEntity = entity
-    this.followedEntityId = entity.id
-    const endTarget = entityWorldPosition(entity, T, daysSinceEpoch, scaleBlend)
-    const endUpAxis = entityPoleDirection(entity)
-    const endBasis = orbitBasisForUpAxis(endUpAxis)
-    const endRadius = defaultFramingRadius(entity, scaleBlend, this.orbitCamera)
-    this.flyTo = {
-      startTarget,
-      startRadius: this.orbitCamera.radius,
-      startAzimuth: this.orbitCamera.azimuth,
-      startElevation: this.orbitCamera.elevation,
-      startUpAxis,
-      endTarget,
-      endRadius,
-      endAzimuth: defaultFramingAzimuth(endTarget, this.orbitCamera.azimuth, endBasis),
-      endElevation: this.orbitCamera.elevation,
-      endUpAxis,
-      elapsedSeconds: 0,
-      durationSeconds: this.flyToDurationSeconds,
-    }
-    this.lastFramingRadius = endRadius
+  get followedEntityId(): string | null {
+    return this.followedEntity?.id ?? null
   }
 
-  // Entity-independent counterpart to selectEntity: flies to a fixed, caller-supplied framing
-  // (target/radius/azimuth/elevation/upAxis) instead of one derived from a SolarSystemEntity's
-  // live position/pole. Used by learn-mode chapter framing, where the initial target is Earth's
-  // position on the chapter's defining date - main.ts's per-frame render loop separately keeps
-  // the target re-centered on Earth's actual scrub-driven position once in learn mode (see
-  // isLearnEarth in main.ts), so this tween only needs to get radius/azimuth/elevation/upAxis
-  // into place. Explicitly clears followedEntity/followedEntityId (like stopFollowing() does)
-  // before starting the tween: without this, a stale entity-follow left over from a search
-  // selection made before entering learn mode would silently re-engage update()'s live-tracking
-  // branch the moment this tween completes, hijacking the camera away from the locked chapter
-  // framing.
-  flyToFraming(
-    endTarget: [number, number, number],
-    endRadius: number,
-    endAzimuth: number,
-    endElevation: number,
-    endUpAxis: [number, number, number],
-    durationSeconds?: number,
-  ): void {
-    const startTarget: [number, number, number] = [
-      this.orbitCamera.target[0],
-      this.orbitCamera.target[1],
-      this.orbitCamera.target[2],
-    ]
-    const startUpAxis: [number, number, number] = [
-      this.orbitCamera.upAxis[0],
-      this.orbitCamera.upAxis[1],
-      this.orbitCamera.upAxis[2],
-    ]
-    this.followedEntityId = null
-    this.followedEntity = null
-    this.lastFramingRadius = null
-    this.flyTo = {
-      startTarget,
-      startRadius: this.orbitCamera.radius,
-      startAzimuth: this.orbitCamera.azimuth,
-      startElevation: this.orbitCamera.elevation,
-      startUpAxis,
-      endTarget,
-      endRadius,
-      endAzimuth,
-      endElevation,
-      endUpAxis,
-      elapsedSeconds: 0,
-      durationSeconds: durationSeconds ?? this.flyToDurationSeconds,
-    }
+  // Ends on the entity's sunlit side, with the camera's up turned to the entity's own pole.
+  selectEntity(entity: SolarSystemEntity, T: number, daysSinceEpoch: number, scaleBlend: number): void {
+    const from = poseOf(this.orbitCamera)
+    const target = entityWorldPosition(entity, T, daysSinceEpoch, scaleBlend)
+    const upAxis = entityPoleDirection(entity)
+    const radius = defaultFramingRadius(entity, scaleBlend, this.orbitCamera)
+    const azimuth = defaultFramingAzimuth(target, from.azimuth, orbitBasisForUpAxis(upAxis))
+    this.followedEntity = entity
+    this.flyTo = { from, to: { target, radius, azimuth, elevation: from.elevation, upAxis }, elapsedSeconds: 0, durationSeconds: this.flyToDurationSeconds }
+    this.lastFramingRadius = radius
   }
 
   stopFollowing(): void {
-    this.followedEntityId = null
     this.followedEntity = null
     this.lastFramingRadius = null
     this.flyTo = null
   }
 
-  // True while a flyToFraming/selectEntity tween is still interpolating toward its end framing.
-  // Lets callers (main.ts's learn-mode target re-centering) avoid stomping on the tween's own
-  // per-frame target interpolation with a competing direct assignment to orbitCamera.target.
-  get isFlying(): boolean {
-    return this.flyTo !== null
+  update(deltaSeconds: number, T: number, daysSinceEpoch: number, scaleBlend: number): void {
+    if (this.flyTo) this.advanceFlyTo(this.flyTo, deltaSeconds, () => this.livePosition(T, daysSinceEpoch, scaleBlend))
+    else if (this.followedEntity) this.track(this.followedEntity, deltaSeconds, { T, daysSinceEpoch, scaleBlend })
   }
 
-  update(deltaSeconds: number, T: number, daysSinceEpoch: number, scaleBlend: number): void {
-    if (this.flyTo) {
-      // Aim at the followed entity's LIVE position rather than where it was when the flight began:
-      // under time acceleration a body can travel far during the 1.5s flight (Mercury covers a
-      // sixth of its orbit at 1 month/s), so the camera used to arrive at empty space and then
-      // lurch after the body once live tracking took over.
-      if (this.followedEntity) {
-        this.flyTo.endTarget = entityWorldPosition(this.followedEntity, T, daysSinceEpoch, scaleBlend)
-      }
-      this.flyTo.elapsedSeconds += deltaSeconds
-      const t = Math.min(this.flyTo.elapsedSeconds / this.flyTo.durationSeconds, 1)
-      const eased = easeInOutCubic(t)
-      vec3.copy(this.orbitCamera.target, lerpVec3(this.flyTo.startTarget, this.flyTo.endTarget, eased))
-      this.orbitCamera.radius = lerp(this.flyTo.startRadius, this.flyTo.endRadius, eased)
-      this.orbitCamera.azimuth = lerpAngle(this.flyTo.startAzimuth, this.flyTo.endAzimuth, eased)
-      this.orbitCamera.elevation = lerp(this.flyTo.startElevation, this.flyTo.endElevation, eased)
-      const upAxis = vec3.create()
-      // vec3.slerp computes angle = acos(dot(a, b)) then divides by sin(angle); when start and end
-      // are (nearly) the same vector, sin(angle) is ~0 and the division produces NaN - a real bug
-      // hit in production, since OrbitCamera defaults its up-axis to ECLIPTIC_NORTH and every
-      // learn-mode chapter flies to ECLIPTIC_NORTH too, so the very first learn-mode fly-to always
-      // tweens "from ECLIPTIC_NORTH to ECLIPTIC_NORTH" - an exact-match pair. There's nothing to
-      // interpolate when start and end are the same direction anyway, so skip slerp entirely and
-      // copy the (identical) endpoint directly.
-      if (vec3.dot(this.flyTo.startUpAxis, this.flyTo.endUpAxis) > 0.9999999) {
-        vec3.copy(upAxis, this.flyTo.endUpAxis)
-      } else {
-        vec3.slerp(upAxis, this.flyTo.startUpAxis, this.flyTo.endUpAxis, eased)
-      }
-      vec3.copy(this.orbitCamera.upAxis, upAxis)
-      if (t >= 1) this.flyTo = null
-      return
-    }
+  private livePosition(T: number, daysSinceEpoch: number, scaleBlend: number): [number, number, number] | null {
+    return this.followedEntity ? entityWorldPosition(this.followedEntity, T, daysSinceEpoch, scaleBlend) : null
+  }
 
-    if (this.followedEntity) {
-      const livePosition = entityWorldPosition(this.followedEntity, T, daysSinceEpoch, scaleBlend)
-      const currentTarget: [number, number, number] = [
-        this.orbitCamera.target[0],
-        this.orbitCamera.target[1],
-        this.orbitCamera.target[2],
-      ]
-      vec3.copy(this.orbitCamera.target, lerpVec3(currentTarget, livePosition, followSmoothingFactor(deltaSeconds)))
+  // Aims at the entity's live position, not where it was when the flight began: under time
+  // acceleration a body travels far during the flight (Mercury covers a sixth of its orbit at
+  // 1 month/s), and the camera used to arrive at empty space and then lurch after it.
+  private advanceFlyTo(flyTo: FlyToTween, deltaSeconds: number, livePosition: () => [number, number, number] | null): void {
+    flyTo.to.target = livePosition() ?? flyTo.to.target
+    flyTo.elapsedSeconds += deltaSeconds
+    const t = Math.min(flyTo.elapsedSeconds / flyTo.durationSeconds, 1)
+    applyInterpolatedPose(this.orbitCamera, flyTo, easeInOutCubic(t))
+    if (t >= 1) this.flyTo = null
+  }
 
-      // Rescale the camera's distance by however much the reference framing radius itself moved
-      // since last frame, so a Realistic<->Compact toggle (or its animated tween) keeps the
-      // followed body framed the same way instead of shrinking to a speck or blowing out past the
-      // camera - see lastFramingRadius's own comment. Multiplicative rescaling (rather than
-      // snapping straight to the new framing radius) preserves any zoom the user dialed in by hand.
-      const currentFramingRadius = defaultFramingRadius(this.followedEntity, scaleBlend, this.orbitCamera)
-      if (this.lastFramingRadius !== null && this.lastFramingRadius > 0) {
-        this.orbitCamera.radius *= currentFramingRadius / this.lastFramingRadius
-      }
-      this.lastFramingRadius = currentFramingRadius
-    }
+  // Eases toward the entity's live position (snapping would whip the camera through a fast moon's
+  // motion) and keeps the framing proportional while the scale blend changes. Rescaling rather
+  // than snapping to the new framing radius preserves any zoom the user dialed in by hand.
+  private track(entity: SolarSystemEntity, deltaSeconds: number, moment: { T: number; daysSinceEpoch: number; scaleBlend: number }): void {
+    const livePosition = entityWorldPosition(entity, moment.T, moment.daysSinceEpoch, moment.scaleBlend)
+    const target = this.orbitCamera.target
+    vec3.copy(target, lerpVec3([target[0], target[1], target[2]], livePosition, followSmoothingFactor(deltaSeconds)))
+    const framingRadius = defaultFramingRadius(entity, moment.scaleBlend, this.orbitCamera)
+    if (this.lastFramingRadius !== null && this.lastFramingRadius > 0) this.orbitCamera.radius *= framingRadius / this.lastFramingRadius
+    this.lastFramingRadius = framingRadius
   }
 }

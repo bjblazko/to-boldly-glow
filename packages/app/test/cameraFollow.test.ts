@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { minOrbitRadiusForBlend, OrbitCamera, orbitBasisForUpAxis } from '../src/camera/orbitCamera'
-import { CameraFollowController, defaultFramingAzimuth } from '../src/camera/cameraFollow'
+import { CameraFollowController, defaultFramingAzimuth, interpolateUpAxis } from '../src/camera/cameraFollow'
+import { easeInOutCubic } from '../src/math/easing'
 import { ALL_ENTITIES, entityPoleDirection, entityWorldPosition } from '../src/solarSystem/entities'
 import { ECLIPTIC_NORTH, equatorialToEclipticPoleDirection } from '../src/solarSystem/poleOrientation'
 import { AU_KM } from '../src/solarSystem/bodies'
@@ -162,8 +163,8 @@ describe('CameraFollowController', () => {
     runPastFlyTo(controller, T, daysSinceEpoch, 1)
     const radiusAtCompact = camera.radius
 
-    // Animate scaleBlend from Compact (1) down to Realistic (0), the same way main.ts's
-    // ScaleBlendTween drives it frame by frame - including main.ts's own per-frame
+    // Animate scaleBlend from Compact (1) down to Realistic (0), the same way the app's
+    // scale switch drives it frame by frame - including the app's own per-frame
     // refreshCameraZoomLimits() call, which is what actually lets the camera zoom in this close
     // (see minOrbitRadiusForBlend's own comment: the zoom-in floor must shrink with scaleBlend too,
     // or it - not this fix - becomes the bottleneck preventing a close Realistic-mode framing).
@@ -321,47 +322,6 @@ describe('CameraFollowController', () => {
     expect(camera.upAxis[2]).toBeCloseTo(expectedPole[2], 6)
   })
 
-  it('keeps the up-axis at unit length and rotating smoothly throughout the fly-to, even for a near-antipodal transition', () => {
-    // Uses Venus's right-hand-rule pole (RA 92.76, Dec -67.16), ~178.76 degrees from the default
-    // up-axis (ECLIPTIC_NORTH = [0, 0, 1]), i.e. nearly antipodal to it. (Venus itself now flies to
-    // IAU's published north pole, which is close to ecliptic north - so this exercises the same
-    // slerp path via flyToFraming with that near-antipodal axis instead.) A plain lerp+normalize between
-    // two near-antipodal unit vectors always renormalizes to unit length by construction (even a
-    // near-zero raw vector divided by its own tiny magnitude yields a unit vector) - so a
-    // magnitude-only check can't actually distinguish the buggy approach from a correct one, it
-    // passes either way. What lerp+normalize actually gets wrong is *direction*: near the
-    // antipodal crossing, the tiny pre-normalization vector is highly sensitive to which side of
-    // zero it falls on frame to frame, so the normalized direction can swing enormously - a
-    // "whippy roll" - between two consecutive, closely-spaced tween steps. vec3.slerp instead
-    // moves along the constant-magnitude great-circle arc at a smooth, bounded angular rate. So
-    // this test checks both: unit length at every step, AND that no single step's worth of real
-    // time (0.1s here) ever rotates the up-axis by an implausibly large angle.
-    const camera = new OrbitCamera()
-    const controller = new CameraFollowController(camera)
-    const nearAntipodalUpAxis = equatorialToEclipticPoleDirection(92.76, -67.16)
-
-    controller.flyToFraming([5, 0, 0], 20, 0, 0.4, nearAntipodalUpAxis)
-    let previous: [number, number, number] = [camera.upAxis[0], camera.upAxis[1], camera.upAxis[2]]
-    let maxStepAngleDegrees = 0
-    for (let i = 0; i < 15; i++) {
-      controller.update(0.1, 0.1, 500, 0.5)
-      const current: [number, number, number] = [camera.upAxis[0], camera.upAxis[1], camera.upAxis[2]]
-      const magnitude = Math.hypot(current[0], current[1], current[2])
-      expect(magnitude).toBeCloseTo(1, 6)
-
-      const dot = previous[0] * current[0] + previous[1] * current[1] + previous[2] * current[2]
-      const stepAngleDegrees = (Math.acos(Math.min(1, Math.max(-1, dot))) * 180) / Math.PI
-      maxStepAngleDegrees = Math.max(maxStepAngleDegrees, stepAngleDegrees)
-      previous = current
-    }
-
-    // The total rotation across the whole fly-to is ~178.76 degrees, but eased over 15 steps -
-    // no single 0.1s step should account for anywhere near that much of it. The old lerp+normalize
-    // code produces a ~173 degree single-step jump right at the antipodal crossing for this exact
-    // transition; slerp's worst single step here is ~33 degrees.
-    expect(maxStepAngleDegrees).toBeLessThan(90)
-  })
-
   it('leaves the up-axis wherever it was after stopFollowing, matching target/radius/azimuth', () => {
     const camera = new OrbitCamera()
     const controller = new CameraFollowController(camera)
@@ -379,87 +339,28 @@ describe('CameraFollowController', () => {
   })
 })
 
-describe('CameraFollowController.flyToFraming', () => {
-  it('tweens target/radius/azimuth/elevation/upAxis toward the given fixed framing, not an entity', () => {
-    const camera = new OrbitCamera({ target: [0, 0, 0], radius: 10, azimuth: 0, elevation: 0 })
-    const controller = new CameraFollowController(camera, { flyToDurationSeconds: 2 })
-
-    controller.flyToFraming([5, 0, 0], 20, Math.PI / 2, 0.5, [0, 0, 1])
-    controller.update(1, 0, 0, 1) // halfway through the 2s tween
-
-    expect(camera.target[0]).toBeGreaterThan(0)
-    expect(camera.target[0]).toBeLessThan(5)
-    expect(camera.radius).toBeGreaterThan(10)
-    expect(camera.radius).toBeLessThan(20)
-
-    controller.update(1, 0, 0, 1) // completes the tween
-    expect(camera.target[0]).toBeCloseTo(5, 5)
-    expect(camera.radius).toBeCloseTo(20, 5)
-    expect(camera.azimuth).toBeCloseTo(Math.PI / 2, 5)
-    expect(camera.elevation).toBeCloseTo(0.5, 5)
+describe('interpolateUpAxis', () => {
+  it('rotates smoothly at unit length even between nearly opposite up-axes', () => {
+    // Venus's right-hand-rule pole is ~178.76 degrees from ecliptic north. lerp + normalize stays
+    // unit length there too, but its direction swings wildly near the antipodal crossing (a ~173
+    // degree jump in one step); slerp moves along the great circle at a bounded rate.
+    const from: [number, number, number] = [...ECLIPTIC_NORTH]
+    const to = equatorialToEclipticPoleDirection(92.76, -67.16)
+    let previous = interpolateUpAxis(from, to, 0)
+    let maxStepAngleDegrees = 0
+    for (let step = 1; step <= 15; step++) {
+      const current = interpolateUpAxis(from, to, easeInOutCubic(step / 15))
+      expect(Math.hypot(current[0], current[1], current[2])).toBeCloseTo(1, 6)
+      const dot = previous[0] * current[0] + previous[1] * current[1] + previous[2] * current[2]
+      maxStepAngleDegrees = Math.max(maxStepAngleDegrees, (Math.acos(Math.min(1, Math.max(-1, dot))) * 180) / Math.PI)
+      previous = current
+    }
+    expect(maxStepAngleDegrees).toBeLessThan(90)
   })
 
-  it('keeps the up-axis a valid unit vector when the start and end up-axis are identical', () => {
-    // Regression test: gl-matrix's vec3.slerp computes angle = acos(dot(a, b)) then divides by
-    // sin(angle). When start and end are the exact same vector (dot = 1, angle = 0), sin(angle) is
-    // 0 and the division produces NaN - a real bug hit in production, since OrbitCamera defaults
-    // its up-axis to ECLIPTIC_NORTH and the seasons lesson's chapters all fly to ECLIPTIC_NORTH too,
-    // so the very first learn-mode fly-to always tweens "from ECLIPTIC_NORTH to ECLIPTIC_NORTH" -
-    // an identical start/end pair. The resulting NaN silently corrupts the camera's up-axis, then
-    // the view/projection matrices, and the entire WebGPU scene renders nothing (a black canvas),
-    // with no thrown error anywhere to surface it. This is a different degenerate case from the
-    // near-antipodal one already covered by the test above (angle = π there, angle = 0 here) -
-    // both are sin(angle) = 0 singularities, but at opposite ends of slerp's domain.
-    const camera = new OrbitCamera() // defaults to upAxis: ECLIPTIC_NORTH
-    const controller = new CameraFollowController(camera, { flyToDurationSeconds: 2 })
-
-    controller.flyToFraming([5, 0, 0], 20, Math.PI / 2, 0.5, [...ECLIPTIC_NORTH])
-    controller.update(1, 0, 0, 1) // mid-tween
-    expect(Number.isFinite(camera.upAxis[0])).toBe(true)
-    expect(Number.isFinite(camera.upAxis[1])).toBe(true)
-    expect(Number.isFinite(camera.upAxis[2])).toBe(true)
-    expect(Math.hypot(camera.upAxis[0], camera.upAxis[1], camera.upAxis[2])).toBeCloseTo(1, 6)
-
-    controller.update(1, 0, 0, 1) // tween completes
-    expect(Number.isFinite(camera.upAxis[0])).toBe(true)
-    expect(Number.isFinite(camera.upAxis[1])).toBe(true)
-    expect(Number.isFinite(camera.upAxis[2])).toBe(true)
-    expect(camera.upAxis[0]).toBeCloseTo(ECLIPTIC_NORTH[0], 6)
-    expect(camera.upAxis[1]).toBeCloseTo(ECLIPTIC_NORTH[1], 6)
-    expect(camera.upAxis[2]).toBeCloseTo(ECLIPTIC_NORTH[2], 6)
-  })
-
-  it('does not set followedEntityId, so live entity-tracking never kicks in afterward', () => {
-    const camera = new OrbitCamera()
-    const controller = new CameraFollowController(camera)
-    controller.flyToFraming([1, 1, 1], 10, 0, 0, [0, 0, 1])
-    expect(controller.followedEntityId).toBeNull()
-  })
-
-  it('clears a pre-existing entity follow, so it cannot hijack the camera once the tween completes', () => {
-    // Regression test: flyToFraming used to leave a prior selectEntity() follow in place, so once
-    // its own tween finished, update()'s live-tracking branch would silently re-engage and re-lock
-    // the camera onto the stale followed entity's live position instead of holding the fixed
-    // framing flyToFraming just tweened to.
-    const camera = new OrbitCamera()
-    const controller = new CameraFollowController(camera)
-    const earth = findEntity('earth')
-    const T = 0.1
-    const daysSinceEpoch = 500
-    const scaleBlend = 0.5
-
-    controller.selectEntity(earth, T, daysSinceEpoch, scaleBlend)
-    runPastFlyTo(controller, T, daysSinceEpoch, scaleBlend)
-    expect(controller.followedEntityId).toBe('earth')
-
-    controller.flyToFraming([1, 1, 1], 10, 0, 0, [0, 0, 1])
-    expect(controller.followedEntityId).toBeNull()
-    runPastFlyTo(controller, T, daysSinceEpoch, scaleBlend)
-
-    // Held exactly at flyToFraming's fixed target, not re-tracking Earth's live position.
-    expect(camera.target[0]).toBeCloseTo(1, 5)
-    expect(camera.target[1]).toBeCloseTo(1, 5)
-    expect(camera.target[2]).toBeCloseTo(1, 5)
-    expect(controller.followedEntityId).toBeNull()
+  it('returns the axis unchanged when start and end are identical', () => {
+    // vec3.slerp divides by sin(angle) = 0 here; the resulting NaN once blanked the whole scene.
+    const axis = interpolateUpAxis(ECLIPTIC_NORTH, ECLIPTIC_NORTH, 0.5)
+    for (let i = 0; i < 3; i++) expect(axis[i]).toBeCloseTo(ECLIPTIC_NORTH[i], 6)
   })
 })

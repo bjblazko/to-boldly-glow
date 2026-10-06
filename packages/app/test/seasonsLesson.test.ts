@@ -29,7 +29,7 @@ describe('SEASONS_LESSON', () => {
     expect(phases).toEqual([0, 90, 180, 270])
   })
 
-  // The orbit chapter's position isn't driven by seasonPhaseDegrees at all (see main.ts's
+  // The orbit chapter's position isn't driven by seasonPhaseDegrees at all (see seasonsScene.ts's
   // orbitRevolutionDegrees, a continuously incrementing angle) - this test just documents that its
   // seasonPhaseDegrees is present but genuinely unused, not asserting anything about its value.
   it('the orbit chapter has a seasonPhaseDegrees value present (required by the Chapter type) even though it goes unused', () => {

@@ -1,4 +1,4 @@
-import { mat4, quat } from 'gl-matrix'
+import { mat4, quat, type ReadonlyVec3 } from 'gl-matrix'
 
 // Earth's obliquity of the ecliptic at J2000 (IAU-adopted constant). IAU pole right-
 // ascension/declination values are published in the equatorial (ICRF) frame; this converts them
@@ -36,6 +36,8 @@ export function equatorialToEclipticPoleDirection(
 // Used to tilt a body (or an orbital plane) that's defined "flat" - aligned with local Z - into
 // its real 3D orientation in one step.
 export function axisAlignmentRotation(direction: readonly [number, number, number]): mat4 {
-  const rotation = quat.rotationTo(quat.create(), [0, 0, 1], direction)
-  return mat4.fromQuat(mat4.create(), rotation)
+  return mat4.fromQuat(mat4.create(), rotationTo(quat.create(), [0, 0, 1], direction))
 }
+
+// gl-matrix declares quat.rotationTo as `any`; this is its documented signature.
+const rotationTo = quat.rotationTo as (out: quat, from: ReadonlyVec3, to: ReadonlyVec3) => quat

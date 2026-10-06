@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { easeInOutCubic, lerp, lerpAngle, lerpVec3 } from '../src/camera/easing'
+import { easeInOutCubic, lerp, lerpAngle, lerpVec3 } from '../src/math/easing'
 
 describe('easeInOutCubic', () => {
   it('starts at 0 and ends at 1', () => {

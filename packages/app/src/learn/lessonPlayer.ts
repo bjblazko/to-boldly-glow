@@ -1,7 +1,7 @@
 import type { Chapter, Lesson } from './lessonTypes'
 
 // Holds which lesson/chapter is currently active. Pure state - no DOM access, no rendering - so
-// main.ts's render loop and UI wiring can both read it each frame without this class needing to
+// the frame loop and the lesson UI can both read it each frame without this class needing to
 // know about either. No scrub/date state here (unlike the original real-astronomical-position
 // design) - the staged redesign has nothing left for a user to scrub through; each chapter is a
 // fixed season-phase orientation (see lessons/seasons.ts), not a real date range.
