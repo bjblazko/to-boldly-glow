@@ -89,10 +89,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   onto the finished scene image (one sample per pixel, no depth buffer), with tight quads and each
   shape's geometry computed once for all color channels - cheap enough for software WebGPU.
 
-- The camera tour now flies like a spaceship: it starts from rest, accelerates and brakes within an
-  engine limit (arriving at loop speed), turns only as fast as its thrust allows, banks into turns,
-  and its gaze leads the flight path at a bounded turn rate. Stopping it hands the view to free-fly
-  with the same roll instead of levelling it with a jolt.
+- The camera tour now flies like a heavy spaceship: it starts from rest, accelerates and brakes
+  within an engine limit, with thrust that builds up and dies down instead of switching between
+  full throttle and full brake, and eases into each new speed. Its heading and gaze turn with
+  inertia - every turn eases in and out, also when it leaves one planet for the next - and it banks
+  into turns. The final approach zooms in on the planet at a steady pace at any scale, and the
+  flyby lap is a little more leisurely (10 s). Stopping it hands the view to free-fly with the same
+  roll instead of levelling it with a jolt.
 - The app's source is grouped by subject instead of by technique: each visible feature (bodies,
   Saturn's ring, cloud shells, starfield, orbit paths, lens flares, bloom, labels) keeps its shader,
   pipeline, uniforms and drawing together; lessons supply their own scene layout instead of being
@@ -106,6 +109,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The camera tour works at Realistic scale: it matches its target planet's orbital motion, so it
+  catches even Mercury, Venus and Earth, which used to outrun it at loop speed until it gave up on
+  them. Switching the scale mid-tour no longer throws it out of step: near its target the ship
+  keeps its place relative to the planet (so the view of it stays the same), farther out it moves
+  with the solar system, and the leg is re-planned for the new distances. Jumps in the simulated
+  time no longer fling it off either.
 - Lens flares no longer disappear behind planets: each flare element was depth-tested at the Sun's
   depth, so any planet anywhere in the picture cut a hole into the ghosts it overlapped. A flare
   now lies over the whole picture, and only a body actually in front of the Sun dims it.

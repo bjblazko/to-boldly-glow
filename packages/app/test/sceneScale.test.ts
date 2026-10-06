@@ -1,12 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  AU_TO_SCENE_UNITS,
-  compactDistanceUnits,
-  geometricBlend,
-  scaledBodyRadiusUnits,
-  scaledDistanceUnits,
-  scaledPosition,
-} from '../src/solarSystem/sceneScale'
+import { AU_TO_SCENE_UNITS, auDistanceForUnits, compactDistanceUnits, geometricBlend, rescaledPosition, scaledBodyRadiusUnits, scaledDistanceUnits, scaledPosition } from '../src/solarSystem/sceneScale'
 
 const AU_KM = 149_597_870.7
 
@@ -77,5 +70,26 @@ describe('scaledPosition', () => {
 
   it('returns the origin for a body at zero distance (the Sun)', () => {
     expect(scaledPosition({ x: 0, y: 0, z: 0, distanceAu: 0 }, 0.7)).toEqual([0, 0, 0])
+  })
+})
+
+describe('auDistanceForUnits', () => {
+  it('inverts scaledDistanceUnits at every blend', () => {
+    for (const blend of [0, 0.3, 1]) {
+      for (const au of [0.39, 1, 5.2, 30.1]) expect(auDistanceForUnits(scaledDistanceUnits(au, blend), blend)).toBeCloseTo(au, 9)
+    }
+  })
+})
+
+describe('rescaledPosition', () => {
+  it('keeps a position in the same direction from the Sun, at the same distance in AU', () => {
+    const [x, y, z] = rescaledPosition([30, 40, 0], 1, 0)
+    expect(Math.atan2(y, x)).toBeCloseTo(Math.atan2(40, 30), 12)
+    expect(z).toBe(0)
+    expect(Math.hypot(x, y, z)).toBeCloseTo(scaledDistanceUnits(auDistanceForUnits(50, 1), 0), 9)
+  })
+
+  it('leaves the Sun where it is', () => {
+    expect(rescaledPosition([0, 0, 0], 1, 0)).toEqual([0, 0, 0])
   })
 })
