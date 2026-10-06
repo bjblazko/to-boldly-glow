@@ -133,8 +133,32 @@ Source used: CDS VizieR ASCII edition, https://cdsarc.cds.unistra.fr/ftp/V/50/ca
 
 The raw catalog and its byte-by-byte format description are vendored at
 `packages/data-pipeline/data/bsc5.dat` and `packages/data-pipeline/data/ReadMe`. Conversion (RA/Dec
-→ unit direction, magnitude → render brightness) happens once, offline, via
-`packages/data-pipeline` (`npm run convert`), not at runtime.
+→ a direction in the scene's ecliptic frame; visual magnitude and B−V color index passed through)
+happens once, offline, via `packages/data-pipeline` (`npm run convert`), not at runtime. The
+equatorial-to-galactic rotation used for the sky painting is the Hipparcos catalogue's (ESA 1997,
+vol. 1, §1.5.3) and is checked against the catalog's own galactic coordinates.
+
+Star colors: B−V is turned into a blackbody temperature with the formula of Ballesteros
+(*EPL* 97, 34008, 2012), and the temperature into a color via the Planckian-locus approximation of
+Kang et al. (*Journal of the Korean Physical Society* 41, 865, 2002) and the standard CIE XYZ to
+sRGB matrix.
+
+## Milky Way and deep-sky backdrop
+
+The Milky Way panorama (`packages/app/public/sky/milkyWay.jpg`) is an original procedural painting
+made for this project by `packages/data-pipeline/src/paintMilkyWay.ts` - not a photograph, so it
+carries no third-party license. The positions of the nebulae, dark clouds and galaxies painted into
+it are their published J2000 coordinates (NGC/IC, Sharpless and Lynds catalogs); their shapes,
+sizes and brightnesses are artistic.
+
+## Comets, dwarf planets and asteroids
+
+The orbital elements of the named comets, dwarf planets and asteroids
+(`packages/app/src/smallBodies/smallBodyCatalog.ts`) are rounded osculating elements as published
+by the JPL Small-Body Database and the IAU Minor Planet Center (facts, not copyrightable). The
+asteroid and Kuiper belt populations are generated from the general statistics of those populations
+(semi-major axis ranges, the Kirkwood gaps, the 3:2 resonances of the Hildas and plutinos, the
+Trojans' L4/L5 swarms); no individual catalogued object is implied.
 
 ## Math library
 

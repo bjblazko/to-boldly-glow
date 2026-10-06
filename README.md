@@ -49,12 +49,21 @@ it yourself, or to work on it:
 
 ### Using the app
 
-- **Camera** — by default, drag to orbit the current target and scroll (or trackpad-pinch) to zoom.
-  Use the **Camera** panel (bottom dock) to switch to free-fly mode, which flies like a plane: `W`/`S`
-  pitch the nose down/up, `A`/`D` roll left/right, and `↑`/`↓` raise/lower cruise speed. The same
+- **Camera** — by default, drag to orbit the current target (it keeps turning a little when you let
+  go), scroll or pinch to zoom; `W`/`A`/`S`/`D` or the arrow keys turn the view and `R`/`F` zoom.
+  Double-click (or double-tap) any planet, moon, comet or dwarf planet to fly there and follow it.
+  Use the **Camera** panel (bottom dock) to switch to free flight, flown like a spaceship in a game:
+  `W`/`S` (or `↑`/`↓`) thrust forward/back, `A`/`D` (or `←`/`→`) strafe, `R`/`F` rise/sink, `Q`/`E`
+  roll, `Shift` boosts, drag to look around and scroll to set the speed. The ship eases in and out of
+  motion, slows down near planets and speeds up in open space (so the same keys work at every
+  scale), stops at a planet's surface instead of flying through it, and levels itself with the
+  ecliptic when you stop rolling. On a touch screen, free flight shows a thumbstick (fly and strafe)
+  and buttons to rise, sink and boost; drag anywhere else to look around, pinch to set the speed. A
+  short hint at the top of the screen recalls the controls whenever you switch. The same
   panel has **Start Tour**, an endless autopilot flight past every planet, flown like a spaceship —
   it accelerates, brakes on arrival, banks into turns and circles each planet once (any camera input
-  hands control back, exactly where the tour was), and a search box — type a body's name, then press Enter or click a result to fly
+  hands control back, exactly where the tour was), and a search box — type a body's name (planets,
+  moons, comets like Halley or Encke, Ceres, Vesta, Pallas, Pluto), then press Enter or click a result to fly
   the camera to it and lock on; a "Following: …" chip appears with a **×** to stop following and
   return to free manual control.
 - **Time** — the **Time** panel has play/pause, a reverse-direction button, and rate presets
@@ -63,8 +72,10 @@ it yourself, or to work on it:
   — the fill color and the Past/Future labels show which side you're on. The panel also shows the
   current simulated date/time (UTC).
 - **Display** — the **Display** panel switches between **Realistic** (true-to-scale distances and
-  sizes) and **Compact** (a compressed view that's easier to fly around in), and toggles orbit
-  paths, name labels, the starfield, HDR bloom, lens flares, and moons independently.
+  sizes) and **Compact** (a compressed view that's easier to fly around in), and toggles planet
+  orbits, comet and dwarf-planet orbits, name labels, the stars (in their real colors), the Milky Way
+  (with its nebulae and the nearest galaxies), the asteroid and Kuiper belts, comets, Earth's
+  clouds, HDR bloom, lens flares, and moons independently.
 
 ## For developers
 
@@ -90,14 +101,17 @@ This is an npm-workspaces monorepo with three packages:
     (where every visible body is — the real solar system, or the active lesson's staged scene) and
     renders it.
   - `bodies/` (Sun, planets, moons, their surface materials), `saturnRing/`, `atmosphereShell/`,
-    `earthClouds/`, `starfield/`, `orbitPaths/`, `lensFlare/`, `bloom/`, `labels/` — one folder
+    `earthClouds/`, `starfield/`, `sky/` (the Milky Way backdrop), `smallBodies/` (asteroid belts
+    and comets on Keplerian orbits), `orbitPaths/`, `lensFlare/`, `bloom/`, `labels/` — one folder
     per thing you see.
-  - `camera/` (orbit, free-fly, follow, the tour in `camera/tour/`), `learn/` (lessons, with
+  - `camera/` (orbit, free flight and their input in `camera/input/`, follow, the tour in
+    `camera/tour/`), `learn/` (lessons, with
     `seasons/` and `sizes/`), `hud/`, `time/`, `search/`, `solarSystem/` (body data and orbital
     mechanics).
   - `gpu/` and `lines/` hold the WebGPU plumbing the features share.
 - **`packages/data-pipeline`** — TypeScript. Offline conversion scripts (e.g. turning the Yale
-  Bright Star Catalogue into the binary starfield asset `packages/app` loads at runtime). Not part
+  Bright Star Catalogue into the binary starfield asset `packages/app` loads at runtime, and
+  painting the Milky Way panorama, `npm run paint-sky`). Not part
   of the normal dev loop — only run when source data changes.
 
 ### Setup

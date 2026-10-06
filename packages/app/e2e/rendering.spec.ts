@@ -31,9 +31,10 @@ test('the default view shows a bright Sun at its labelled position against a dar
 
 test('turning the starfield off removes the stars from the frame', async ({ page }) => {
   const errors = await openRenderedApp(page)
-  // Orbit paths off first, so only stars can light up the empty corner being counted.
+  // Orbit paths, the Milky Way, asteroids and comets off first, so only stars can light up the
+  // empty corner being counted.
   await page.locator('.hud-dock-btn[data-panel="display"]').click()
-  await page.locator('#orbit-paths-toggle').uncheck()
+  for (const toggle of ['#orbit-paths-toggle', '#milky-way-toggle', '#asteroids-toggle', '#comets-toggle']) await page.locator(toggle).uncheck()
   const withStars = countBrightPixels(await captureFrame(page), 0, 0, 120, 80)
   await page.locator('#starfield-toggle').uncheck()
   const withoutStars = countBrightPixels(await captureFrame(page), 0, 0, 120, 80)

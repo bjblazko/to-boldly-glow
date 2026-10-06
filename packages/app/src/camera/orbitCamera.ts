@@ -142,6 +142,10 @@ export class OrbitCamera {
   }
 
   applyZoom(deltaY: number, sensitivity = 0.001): void {
-    this.radius = clamp(this.radius * (1 + deltaY * sensitivity), this.minRadius, this.maxRadius)
+    this.zoomBy(1 + deltaY * sensitivity)
+  }
+
+  zoomBy(factor: number): void {
+    this.radius = clamp(this.radius * factor, this.minRadius, this.maxRadius)
   }
 }

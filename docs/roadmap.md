@@ -9,11 +9,10 @@ brainstorming → design-spec → implementation-plan cycle.
 **What**: Make the scene look more like space photography: livelier stars, better planet surfaces,
 and the objects you'd actually see in the sky.
 **Approach** (ideas to choose from):
-- Stars: color from the catalog's B−V index, size/brightness by magnitude with a proper
-  point-spread function, subtle twinkle-free diffraction spikes for the brightest ones.
-- A Milky Way band and nebulae as a background sky map (e.g. a CC0 or NASA all-sky panorama,
-  ideally HDR), aligned to galactic coordinates; distant galaxies (Andromeda, the Magellanic Clouds)
-  as part of it.
+- (Done: star colors from B−V with a point spread and spikes, the stars in the ecliptic frame; a
+  painted Milky Way with nebulae, dark clouds and the nearest galaxies.) Next: a real HDR all-sky
+  photograph instead of the painting (needs a reachable, reusable source), more and fainter stars
+  (Hipparcos/Gaia subsets).
 - Planet rendering: higher-resolution textures with streaming, normal maps from real elevation
   data (today's relief is read from the albedo), night-side city lights for Earth, real cloud maps
   instead of the procedural cover, full atmospheric scattering (Rayleigh/Mie) for Earth/Venus/Titan,
@@ -23,11 +22,15 @@ and the objects you'd actually see in the sky.
   band and a backlit ring.)
 - Shader/mapping techniques: physically based shading, HDR tonemapping (ACES/AgX) and exposure,
   parallax or tessellation for relief, anisotropic ring lighting.
-- Small bodies: the asteroid belt and Kuiper belt as instanced particles, comets with dust/ion tails
-  pointing away from the Sun, zodiacal light.
+- Small bodies (Done: main belt, Hildas, Trojans and Kuiper belt as GPU Keplerian particles;
+  comets with coma, ion and dust tails; Ceres, Vesta, Pallas and Pluto.) Next: zodiacal light,
+  real orbital elements for thousands of numbered asteroids (MPC/JPL, licensing check), comet
+  outbursts and gas/dust ratios per comet, textured dwarf planets.
 **Data needed**: an all-sky background map, Earth night lights, cloud and elevation maps (NASA,
 public domain, or Solar System Scope, CC BY 4.0 - www.solarsystemscope.com is not reachable from
-the current cloud development environment), asteroid/comet orbital elements (JPL).
+the current cloud development environment), asteroid/comet orbital elements (JPL; the JPL and
+MPC APIs are not reachable from the current cloud development environment either - the elements in
+`smallBodies/smallBodyCatalog.ts` were taken by hand from published values).
 
 ## Moon phase / cycle deep-dive
 **What**: Explain the ~29.5-day synodic lunar cycle — why we see phases, the difference between
@@ -55,7 +58,8 @@ offline use.
 (public algorithm, needs a clean-room or openly-licensed implementation to keep to MIT).
 
 ## Probes and comets
-**What**: Positions of interplanetary probes (Voyager 1/2, etc.) and notable comets.
+**What**: Positions of interplanetary probes (Voyager 1/2, etc.) and notable comets. (Done: seven
+notable comets on published orbital elements, with tails, as camera targets.)
 **Approach**: For probes beyond Earth orbit, use NASA JPL Horizons ephemeris data (freely
 available; check API/bulk-data terms before bundling) rather than SGP4. Comets via published
 orbital elements (e.g. from the Minor Planet Center, checking license/reuse terms).

@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>To Boldly Glow</title>
   </head>
   <body>
@@ -16,6 +17,18 @@
       <div id="reference-line-label" class="body-label" hidden>Reference (⊥ to Sun)</div>
       <div id="toward-sun-label" class="body-label" hidden>Toward the Sun</div>
       <div id="right-angle-label" class="body-label" hidden>90°</div>
+    </div>
+
+    <div id="camera-hint" class="hud-camera-hint" role="status" hidden></div>
+    <div id="touch-flight-pad" class="hud-touch-pad" hidden>
+      <div id="touch-flight-stick" class="hud-touch-stick" aria-label="Fly">
+        <div id="touch-flight-knob" class="hud-touch-knob"></div>
+      </div>
+      <div class="hud-touch-buttons">
+        <button id="touch-flight-up" class="hud-touch-btn" type="button" aria-label="Up">▲</button>
+        <button id="touch-flight-boost" class="hud-touch-btn" type="button" aria-label="Boost">⚡</button>
+        <button id="touch-flight-down" class="hud-touch-btn" type="button" aria-label="Down">▼</button>
+      </div>
     </div>
 
     <!-- Monochrome line-icon set, referenced elsewhere via <svg class="icon"><use href="#icon-name"/></svg> -->

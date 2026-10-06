@@ -1,73 +1,91 @@
 import type { OrbitCamera } from './orbitCamera'
-import type { FlyCamera } from './flyCamera'
+import { NO_COMMAND, type FlightCommand, type FlyCamera } from './flyCamera'
+import { combineCommands, keyboardFlightCommand, keyboardOrbitTurn, ORBIT_KEY_TURN_PX_PER_SECOND, ORBIT_KEY_ZOOM_PER_SECOND } from './input/flightInput'
+import { clampSpeedLevel, cruiseSpeed, keepOutside, type Obstacle } from './input/flightSpeed'
+import { KeyboardState } from './input/keyboardState'
+import { OrbitMotion } from './input/orbitMotion'
+import { PointerGestures } from './input/pointerGestures'
+
+export { isTextEntryTarget } from './input/keyboardState'
 
 export type CameraMode = 'orbit' | 'fly'
 
-const NON_TEXT_INPUT_TYPES = new Set(['button', 'checkbox', 'radio', 'submit', 'reset', 'image', 'color', 'file'])
+// Radians of view turn per pixel of drag in free flight.
+const LOOK_RADIANS_PER_PX = 0.0035
+// Mouse-wheel zoom: a typical notch (100) zooms by about 13%.
+const WHEEL_ZOOM_PER_UNIT = 0.0012
+// Wheel travel per speed step in free flight (one notch), and pinch spread per step on touch.
+const WHEEL_PER_SPEED_STEP = 100
+const PINCH_LOG_PER_SPEED_STEP = 0.25
 
-// True when a key event is aimed at a control that consumes typing or arrow keys itself (the
-// search box, the time-shuttle range slider, a <select>) - those keys belong to that control, not
-// to the camera.
-export function isTextEntryTarget(target: EventTarget | null): boolean {
-  if (typeof HTMLElement === 'undefined' || !(target instanceof HTMLElement)) return false
-  if (target.isContentEditable) return true
-  if (target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement) return true
-  return target instanceof HTMLInputElement && !NON_TEXT_INPUT_TYPES.has(target.type)
+export interface CameraInputEvents {
+  // A double click or double tap on the canvas (client coordinates).
+  onDoubleTap(x: number, y: number): void
+  onSpeedLevelChange(level: number): void
 }
 
-const ROTATE_SPEED = 1.5 // radians per second, for keyboard-driven yaw/pitch
-const SPEED_ACCEL = 40 // scene units per second^2, for arrow-key cruise speed changes
-
-// Wires pointer (mouse + single-finger touch, unified via the Pointer Events API), wheel, and
-// keyboard events to whichever camera is active, and exposes one getViewMatrix()/update() pair
-// so the render loop doesn't need to know which mode is active.
-//
-// Deliberately out of scope for this plan (see plan Context): pinch-to-zoom via touch, and touch
-// controls for fly mode (WASD has no touch equivalent without a dedicated UI widget).
+// Routes mouse, touch, wheel and keyboard input to whichever camera is active:
+// - orbit: drag (one finger) to turn around the target, wheel or pinch to zoom, WASD/arrows to
+//   turn and R/F to zoom from the keyboard - all with a little weight (see orbitMotion.ts);
+// - free flight: WASD/arrows to fly and strafe, R/F up and down, Q/E roll, Shift boost, drag to
+//   look around, wheel (or pinch) to set the speed - or the on-screen pad on a touch screen.
 export class CameraInputController {
   mode: CameraMode = 'orbit'
 
-  private isDragging = false
-  // The one pointer driving the current drag - a second touch would otherwise feed its own
-  // coordinates into the same lastPointer state, making the orbit jump back and forth between
-  // the two fingers on every move event.
-  private dragPointerId: number | null = null
-  private lastPointerX = 0
-  private lastPointerY = 0
-  private pressedKeys = new Set<string>()
   private enabled = true
+  private readonly keys = new KeyboardState(() => this.enabled)
+  private readonly orbitMotion: OrbitMotion
+  private readonly gestures: PointerGestures
+  private obstacles: readonly Obstacle[] = []
+  private speedLevel = 0
+  private wheelTravel = 0
+  private pinchTravel = 0
+  private touchCommand: () => FlightCommand = () => NO_COMMAND
 
   constructor(
-    private readonly canvas: HTMLCanvasElement,
+    canvas: HTMLCanvasElement,
     private readonly orbitCamera: OrbitCamera,
     private readonly flyCamera: FlyCamera,
+    private readonly events: CameraInputEvents = { onDoubleTap: () => {}, onSpeedLevelChange: () => {} },
   ) {
-    canvas.addEventListener('pointerdown', this.onPointerDown)
-    canvas.addEventListener('pointermove', this.onPointerMove)
-    canvas.addEventListener('pointerup', this.onPointerUp)
-    canvas.addEventListener('pointercancel', this.onPointerUp)
+    this.orbitMotion = new OrbitMotion(orbitCamera)
+    this.gestures = new PointerGestures(
+      canvas,
+      {
+        drag: (deltaX, deltaY, touch) => this.onDrag(deltaX, deltaY, touch),
+        pinch: (factor) => this.onPinch(factor),
+        release: () => this.orbitMotion.release(),
+        doubleTap: (x, y) => this.events.onDoubleTap(x, y),
+      },
+      () => this.enabled,
+    )
     canvas.addEventListener('wheel', this.onWheel, { passive: false })
-    window.addEventListener('keydown', this.onKeyDown)
-    window.addEventListener('keyup', this.onKeyUp)
-    // A key released while the window doesn't have focus (alt-tab, a dialog) never delivers its
-    // keyup here, which used to leave the fly camera pitching/rolling/accelerating on its own.
-    window.addEventListener('blur', this.onWindowBlur)
   }
 
   setMode(mode: CameraMode): void {
     this.mode = mode
+    this.orbitMotion.stop()
+    this.flyCamera.stop()
   }
 
-  // Learn mode locks the camera to each chapter's authored framing — free drag/zoom/fly-keys must
-  // stop responding to input entirely while it's active, not just visually (a lingering drag could
-  // still fight the chapter's tween otherwise). Re-enabling on exit restores exactly the previous
-  // interactive behavior; no camera state is touched here.
+  // Learn mode and the tour lock the camera: input stops responding entirely - not just visually,
+  // a lingering drag or held key could otherwise fight them. No camera pose is touched here.
   setEnabled(enabled: boolean): void {
     this.enabled = enabled
-    if (!enabled) {
-      this.isDragging = false
-      this.dragPointerId = null
-    }
+    if (enabled) return
+    this.gestures.cancel()
+    this.keys.clear()
+    this.orbitMotion.stop()
+    this.flyCamera.stop()
+  }
+
+  // The bodies around the ship this frame: they set its cruising speed and stop it at their surfaces.
+  setObstacles(obstacles: readonly Obstacle[]): void {
+    this.obstacles = obstacles
+  }
+
+  setTouchCommand(command: () => FlightCommand): void {
+    this.touchCommand = command
   }
 
   getViewMatrix() {
@@ -75,84 +93,70 @@ export class CameraInputController {
   }
 
   update(deltaSeconds: number): void {
-    if (!this.enabled || this.mode !== 'fly') return
-    const turn = ROTATE_SPEED * deltaSeconds
-    this.flyCamera.turnPitch(turn * this.keyAxis('KeyW', 'KeyS'))
-    this.flyCamera.turnRoll(turn * this.keyAxis('KeyD', 'KeyA'))
-    this.flyCamera.changeSpeed(SPEED_ACCEL * deltaSeconds * this.keyAxis('ArrowUp', 'ArrowDown'))
-    this.flyCamera.moveForward(this.flyCamera.speed * deltaSeconds)
+    if (!this.enabled) return
+    if (this.mode === 'orbit') this.steerOrbit(deltaSeconds)
+    else this.steerFlight(deltaSeconds)
   }
 
-  // +1 while only the positive key is held, -1 for only the negative one, 0 for neither or both.
-  private keyAxis(positiveKey: string, negativeKey: string): number {
-    return Number(this.pressedKeys.has(positiveKey)) - Number(this.pressedKeys.has(negativeKey))
+  private steerOrbit(deltaSeconds: number): void {
+    const { turn, zoom } = keyboardOrbitTurn(this.keys)
+    if (turn[0] !== 0 || turn[1] !== 0) this.orbitCamera.applyDrag(turn[0] * ORBIT_KEY_TURN_PX_PER_SECOND * deltaSeconds, turn[1] * ORBIT_KEY_TURN_PX_PER_SECOND * deltaSeconds)
+    if (zoom !== 0) this.orbitCamera.zoomBy(Math.exp(zoom * ORBIT_KEY_ZOOM_PER_SECOND * deltaSeconds))
+    this.orbitMotion.update(deltaSeconds)
   }
 
-  private onPointerDown = (event: PointerEvent) => {
-    if (!this.enabled || this.isDragging) return
-    this.isDragging = true
-    this.dragPointerId = event.pointerId
-    this.lastPointerX = event.clientX
-    this.lastPointerY = event.clientY
-    this.canvas.setPointerCapture(event.pointerId)
+  private steerFlight(deltaSeconds: number): void {
+    const command = combineCommands(keyboardFlightCommand(this.keys), this.touchCommand())
+    const speed = cruiseSpeed(this.flyCamera.position, this.obstacles, this.speedLevel)
+    this.flyCamera.fly(command, deltaSeconds, speed)
+    keepOutside(this.flyCamera.position, this.flyCamera.velocity, this.obstacles)
   }
 
-  private onPointerMove = (event: PointerEvent) => {
-    if (!this.enabled || !this.isDragging || event.pointerId !== this.dragPointerId || this.mode !== 'orbit') return
-    const deltaX = event.clientX - this.lastPointerX
-    const deltaY = event.clientY - this.lastPointerY
-    this.lastPointerX = event.clientX
-    this.lastPointerY = event.clientY
-
-    this.orbitCamera.applyDrag(deltaX, deltaY)
+  // A mouse turns the view the way it moves; a finger drags the sky along with it.
+  private onDrag(deltaX: number, deltaY: number, touch: boolean): void {
+    if (this.mode === 'orbit') {
+      this.orbitMotion.drag(deltaX, deltaY)
+      return
+    }
+    const direction = touch ? -1 : 1
+    this.flyCamera.look(direction * deltaX * LOOK_RADIANS_PER_PX, -direction * deltaY * LOOK_RADIANS_PER_PX)
   }
 
-  private onPointerUp = (event: PointerEvent) => {
-    if (event.pointerId !== this.dragPointerId) return
-    this.isDragging = false
-    this.dragPointerId = null
-    if (this.canvas.hasPointerCapture(event.pointerId)) this.canvas.releasePointerCapture(event.pointerId)
+  private onPinch(factor: number): void {
+    if (this.mode === 'orbit') {
+      this.orbitMotion.zoom(-Math.log(factor))
+      return
+    }
+    this.pinchTravel += Math.log(factor)
+    const steps = Math.trunc(this.pinchTravel / PINCH_LOG_PER_SPEED_STEP)
+    this.pinchTravel -= steps * PINCH_LOG_PER_SPEED_STEP
+    this.changeSpeedLevel(steps)
   }
 
   private onWheel = (event: WheelEvent) => {
-    if (!this.enabled || this.mode !== 'orbit') return
+    if (!this.enabled) return
     event.preventDefault()
-
-    // Trackpad pinch gesture: browsers report this as a wheel event with ctrlKey set (a
-    // long-standing convention — not an actual Ctrl key press) and deltaY carrying the pinch
-    // amount. Pinch deltas are small, so scale up to feel comparable to mouse-wheel zoom.
-    if (event.ctrlKey) {
-      this.orbitCamera.applyZoom(event.deltaY * 5)
-      return
-    }
-
-    // Trackpad two-finger scroll: reports both deltaX and deltaY (a plain mouse wheel only ever
-    // reports deltaY). Treat this as an orbit drag, since click-and-drag is uncomfortable on a
-    // trackpad. Uses applyDrag's default sensitivity, matching the pointer-drag path exactly,
-    // since both are drag-sourced orbit gestures with comparable delta magnitudes. If this feels
-    // too fast or slow on real trackpad hardware, adjusting it is a feel/UX tuning matter, not a
-    // correctness one — see plan Context on sign/sensitivity conventions.
-    if (event.deltaX !== 0) {
-      this.orbitCamera.applyDrag(-event.deltaX, -event.deltaY)
-      return
-    }
-
-    // Plain mouse wheel: zoom.
-    this.orbitCamera.applyZoom(event.deltaY)
+    if (this.mode === 'fly') this.wheelSpeed(event.deltaY)
+    // Trackpad pinch: browsers report it as a wheel event with ctrlKey set (not a real Ctrl press).
+    else if (event.ctrlKey) this.orbitMotion.zoom(event.deltaY * WHEEL_ZOOM_PER_UNIT * 5)
+    // Trackpad two-finger scroll reports deltaX too (a plain wheel never does): it turns the view,
+    // as click-and-drag is uncomfortable on a trackpad.
+    else if (event.deltaX !== 0) this.orbitCamera.applyDrag(-event.deltaX, -event.deltaY)
+    else this.orbitMotion.zoom(event.deltaY * WHEEL_ZOOM_PER_UNIT)
   }
 
-  private onKeyDown = (event: KeyboardEvent) => {
-    // Typing "was" into the search box, or arrowing the time-shuttle slider, must not also steer
-    // the ship.
-    if (!this.enabled || isTextEntryTarget(event.target)) return
-    this.pressedKeys.add(event.code)
+  private wheelSpeed(deltaY: number): void {
+    this.wheelTravel -= deltaY
+    const steps = Math.trunc(this.wheelTravel / WHEEL_PER_SPEED_STEP)
+    this.wheelTravel -= steps * WHEEL_PER_SPEED_STEP
+    this.changeSpeedLevel(steps)
   }
 
-  private onKeyUp = (event: KeyboardEvent) => {
-    this.pressedKeys.delete(event.code)
-  }
-
-  private onWindowBlur = () => {
-    this.pressedKeys.clear()
+  private changeSpeedLevel(steps: number): void {
+    if (steps === 0) return
+    const level = clampSpeedLevel(this.speedLevel + steps)
+    if (level === this.speedLevel) return
+    this.speedLevel = level
+    this.events.onSpeedLevelChange(level)
   }
 }

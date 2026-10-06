@@ -112,6 +112,10 @@
   bottom: 84px;
   transform: translate(-50%, 10px);
   width: min(420px, calc(100vw - 32px));
+  /* On a short screen the panel scrolls instead of growing past the top edge. */
+  max-height: calc(100vh - 136px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   background: var(--hud-panel);
   backdrop-filter: blur(10px);
   border: 1px solid var(--hud-panel-border);
@@ -460,7 +464,7 @@
 /* -------------------- display toggles -------------------- */
 .hud-toggle-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
   gap: 8px;
 }
 .hud-toggle-chip {
@@ -686,4 +690,78 @@ body[data-app-mode='learn'] #learn-mode-btn-label::before {
   color: inherit;
   font: inherit;
   cursor: pointer;
+}
+
+/* -------------------- camera steering -------------------- */
+/* How the camera is steered, briefly, after switching camera mode. */
+.hud-camera-hint {
+  position: fixed;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  box-sizing: border-box;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: var(--hud-panel);
+  border: 1px solid var(--hud-panel-border);
+  color: var(--hud-dim);
+  font: 12px/1.4 system-ui, sans-serif;
+  text-align: center;
+  pointer-events: none;
+}
+
+/* Free flight on a touch screen: a thumbstick on the left, up/boost/down on the right, both above
+   the dock; the rest of the screen stays free for looking around. */
+.hud-touch-pad {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: 96px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  pointer-events: none;
+}
+.hud-touch-stick {
+  width: 124px;
+  height: 124px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--hud-control-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  touch-action: none;
+}
+.hud-touch-knob {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--hud-accent-camera-tint);
+  border: 1px solid var(--hud-accent-camera);
+  pointer-events: none;
+}
+.hud-touch-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: auto;
+}
+.hud-touch-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--hud-control-border);
+  color: var(--hud-text);
+  font-size: 18px;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.hud-touch-btn:active {
+  background: var(--hud-accent-camera-tint);
 }
