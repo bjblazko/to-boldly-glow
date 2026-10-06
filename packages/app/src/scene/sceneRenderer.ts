@@ -1,6 +1,7 @@
 import type { Viewpoint } from '../camera/viewpoint'
 import type { BodyRenderer } from '../bodies/bodyRenderer'
 import type { AtmosphereShells } from '../atmosphereShell/atmosphereShell'
+import type { CloudLayer } from '../earthClouds/cloudLayer'
 import type { DisplaySettings } from '../hud/displaySettings'
 import type { LensFlare } from '../lensFlare/lensFlare'
 import type { LessonSession } from '../learn/lessonSession'
@@ -19,6 +20,7 @@ export interface SceneParts {
   bodies: BodyRenderer
   saturnRing: SaturnRing
   atmosphereShells: AtmosphereShells
+  clouds: CloudLayer
   orbitPaths: OrbitPaths
   lensFlare: LensFlare
   lessons: LessonSession
@@ -53,11 +55,12 @@ export class SceneRenderer {
 
   private update({ layout, viewpoint, nowSeconds }: SceneFrame): void {
     const { display } = this.settings
-    const { starfield, bodies, saturnRing, atmosphereShells, orbitPaths, lensFlare, lessons } = this.parts
+    const { starfield, bodies, saturnRing, atmosphereShells, clouds, orbitPaths, lensFlare, lessons } = this.parts
     if (display.starfield.on) starfield.update(viewpoint)
     const sunBrightness = this.targets.bloomSupported && display.bloom.on ? SUN_BLOOM_BRIGHTNESS : 1
-    bodies.update(layout, viewpoint, { sunBrightness, timeSeconds: nowSeconds })
+    bodies.update(layout, viewpoint, { sunBrightness, timeSeconds: nowSeconds, clouds: display.clouds.on })
     saturnRing.update(layout, viewpoint)
+    if (display.clouds.on) clouds.update(layout, viewpoint, nowSeconds)
     atmosphereShells.update(layout, viewpoint)
     if (display.orbitPaths.on) orbitPaths.update(viewpoint)
     lessons.updateOverlays(layout, viewpoint, nowSeconds)
@@ -66,12 +69,13 @@ export class SceneRenderer {
 
   private draw(pass: GPURenderPassEncoder, layout: SceneLayout): void {
     const { display, linePipeline } = this.settings
-    const { starfield, bodies, saturnRing, atmosphereShells, orbitPaths, lessons } = this.parts
+    const { starfield, bodies, saturnRing, atmosphereShells, clouds, orbitPaths, lessons } = this.parts
     // Stars first: they have no depth test, so everything drawn later paints over them.
     if (display.starfield.on) starfield.draw(pass)
     bodies.draw(pass, layout)
     // Translucent geometry after every opaque sphere, so the depth test hides what is behind bodies.
     saturnRing.draw(pass, layout)
+    if (display.clouds.on) clouds.draw(pass, layout)
     atmosphereShells.draw(pass, layout)
     pass.setPipeline(linePipeline)
     if (display.orbitPaths.on) orbitPaths.draw(pass)

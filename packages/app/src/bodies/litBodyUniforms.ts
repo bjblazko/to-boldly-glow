@@ -22,8 +22,10 @@ export interface LitBodyShading {
   bumpIntensity?: number
   hemisphereTints?: { north: Rgba; south: Rgba }
   material: SurfaceMaterial
-  // Drives the ocean's glitter.
+  // Drives the ocean's glitter and the clouds' drift.
   timeSeconds: number
+  // Whether Earth's clouds are shown, and so cast their shadows.
+  clouds: boolean
 }
 
 // The lit shader expects the direction from the Sun toward the body, i.e. its normalized position.
@@ -47,6 +49,6 @@ export function packLitBodyUniforms(shading: LitBodyShading, viewpoint: Viewpoin
     uniforms.set(shading.hemisphereTints.north, 72)
     uniforms.set(shading.hemisphereTints.south, 76)
   }
-  uniforms.set(packSurfaceMaterial(shading.material, shading.timeSeconds), 80)
+  uniforms.set(packSurfaceMaterial(shading.material, shading), 80)
   return uniforms
 }

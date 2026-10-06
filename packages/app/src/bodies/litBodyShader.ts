@@ -1,3 +1,4 @@
+import { cloudCoverWgsl } from '../earthClouds/cloudCoverWgsl'
 import { atmosphereWgsl } from './shading/atmosphereWgsl'
 import { eclipseShadowWgsl } from './shading/eclipseShadowWgsl'
 import { reliefWgsl } from './shading/reliefWgsl'
@@ -35,7 +36,7 @@ export const LIT_UNIFORM_FLOAT_COUNT = 100
 //                                 the opposite side of this body's own local +Z/pole axis)
 //   [80..100) the body's surface material, packed by surfaceMaterial.ts's packSurfaceMaterial:
 //            surface       : vec4f (roughness, specular, regolith, limb darkening)
-//            surfaceDetail : vec4f (albedo relief, ocean glitter, time in seconds, unused)
+//            surfaceDetail : vec4f (albedo relief, ocean glitter, time in seconds, cloud shadow)
 //            ocean         : vec4f (roughness, specular, enabled 0/1, unused)
 //            ice           : vec4f (roughness, specular, enabled 0/1, unused)
 //            twilight      : vec4f (rgb = color of twilight sunlight, a = strength)
@@ -81,6 +82,21 @@ ${eclipseShadowWgsl}
 ${reliefWgsl}
 ${surfaceReflectanceWgsl}
 ${atmosphereWgsl}
+${cloudCoverWgsl}
+
+// Earth's clouds shade the ground under them: where the sunlight reaching a point crossed the cloud
+// layer, as much of it as the cloud there holds back. 1 = no cloud in the way.
+fn cloudShadow(worldPosition: vec3f, toLight: vec3f, incidence: f32) -> f32 {
+  let strength = uni.surfaceDetail.w;
+  if (strength <= 0.0) {
+    return 1.0;
+  }
+  let frame = mat3x3f(uni.world[0].xyz, uni.world[1].xyz, uni.world[2].xyz);
+  let radius = length(frame[0]);
+  let crossing = worldPosition + toLight * (CLOUD_ALTITUDE * radius / max(incidence, 0.2));
+  let local = normalize(transpose(frame) * (crossing - uni.world[3].xyz));
+  return 1.0 - cloudCover(local, uni.surfaceDetail.z) * strength;
+}
 
 @vertex
 fn vs(vert: VertexInput) -> VertexOutput {
@@ -119,7 +135,7 @@ fn fs(in: VertexOutput) -> @location(0) vec4f {
 
   let toLight = -uni.lightDirection.xyz;
   let toCamera = normalize(uni.cameraPosition.xyz - in.worldPosition);
-  let sunlight = sunVisibleFraction(in.worldPosition);
+  let sunlight = sunVisibleFraction(in.worldPosition) * cloudShadow(in.worldPosition, toLight, dot(geometricNormal, toLight));
   let shading = SurfaceShading(
     normal,
     glitterNormal(normal, frame, in.uv, 1.0 / uvPerPixel),
@@ -129,7 +145,7 @@ fn fs(in: VertexOutput) -> @location(0) vec4f {
     sunlightColor(geometricNormal, toLight),
   );
   // aoFactor darkens what the surface itself reflects, but not the atmosphere's glow above it.
-  let litColor = reflectedLight(albedo, shading) * aoFactor + rimGlow(normal, toLight, toCamera, sunlight) + twilightGlow(geometricNormal, toLight, sunlight);
+  let litColor = reflectedLight(albedo, shading) * aoFactor + rimGlow(normal, toLight, toCamera, sunlight);
 
   // Learn-mode hemisphere overlay: a translucent wash over the whole northern or southern half of
   // the globe (split at the body's own local +Z/pole axis, the same axis tangentFrame reads),

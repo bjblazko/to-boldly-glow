@@ -6,7 +6,8 @@
 //   [36..40) lightDirection      : vec4f (xyz used, w unused)
 //   [40..44) cameraPosition      : vec4f (xyz used, w unused; world-space, for the Fresnel term)
 //   [44..48) profile             : vec4f (x = rim exponent, y = light on the night side,
-//                                 z = 1 to fade the shell out on the night side, w unused)
+//                                 z = 1 to fade the shell out on the night side,
+//                                 w = strength of forward scattering when backlit)
 //   [48..52) sunset              : vec4f (rgb = the shell's color along the terminator, a = strength)
 export const ATMOSPHERE_SHELL_UNIFORM_FLOAT_COUNT = 52
 
@@ -18,6 +19,9 @@ export const ATMOSPHERE_SHELL_UNIFORM_FLOAT_COUNT = 52
 // the limb, where a grazing view ray passes through more of it - and beyond the planet's own edge,
 // a glowing halo. A gas giant's deep atmosphere still shows faintly on its night side; a thin one
 // like Earth's lights up only where the Sun shines on it, turning sunset-colored at the terminator.
+// Seen against the Sun, the air scatters its light forward: a backlit planet wears a bright ring,
+// reddened by the long path through the atmosphere and nearly white right next to the Sun - the
+// ring the Apollo astronauts saw around Earth eclipsing the Sun.
 export const atmosphereShellShaderCode = /* wgsl */ `
 struct Uniforms {
   worldViewProjection: mat4x4f,
@@ -64,6 +68,16 @@ fn fs(in: VertexOutput) -> @location(0) vec4f {
   let daylight = mix(1.0, smoothstep(-0.2, 0.15, incidence), uni.profile.z);
   let sunset = smoothstep(-0.2, 0.0, incidence) * (1.0 - smoothstep(0.0, 0.3, incidence)) * uni.sunset.a;
   let tint = mix(uni.color.rgb, uni.sunset.rgb, sunset);
-  return vec4f(tint * max(diffuse, sunset), rimFactor * uni.color.a * daylight);
+  let litAlpha = rimFactor * uni.color.a * daylight;
+
+  let towardSun = max(dot(-toCamera, toLight), 0.0);
+  let backlit = pow(towardSun, 6.0) * uni.profile.w * smoothstep(-0.25, 0.05, incidence);
+  let reddened = mix(uni.color.rgb, uni.sunset.rgb, step(0.001, uni.sunset.a));
+  let forwardColor = mix(reddened, vec3f(1.0, 0.92, 0.75), pow(towardSun, 400.0)) * 6.0;
+  let glowAlpha = rimFactor * min(backlit, 1.0);
+
+  let alpha = max(litAlpha, glowAlpha);
+  let color = (tint * max(diffuse, sunset) * litAlpha + forwardColor * glowAlpha) / max(alpha, 1e-4);
+  return vec4f(color, alpha);
 }
 `

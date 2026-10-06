@@ -3,6 +3,7 @@ import { CameraDirector } from '../camera/cameraDirector'
 import { CameraLens } from '../camera/cameraLens'
 import { createViewpoint } from '../camera/viewpoint'
 import { AtmosphereShells } from '../atmosphereShell/atmosphereShell'
+import { CloudLayer } from '../earthClouds/cloudLayer'
 import { fitCanvasToDisplaySize, watchCanvasSize } from '../gpu/canvasSize'
 import { initWebGpu, onDeviceLost, type GpuContext } from '../gpu/device'
 import { TextureLoader } from '../gpu/textureLoader'
@@ -81,13 +82,14 @@ async function createRendering(gpu: GpuContext, canvas: HTMLCanvasElement) {
 async function createSceneFeatures(device: GPUDevice, format: GPUTextureFormat, linePipeline: GPURenderPipeline): Promise<SceneFeatures> {
   const textures = await TextureLoader.create(device)
   const bodies = await BodyRenderer.create(device, format, textures)
-  const [starfield, saturnRing, atmosphereShells, lensFlare] = await Promise.all([
+  const [starfield, saturnRing, atmosphereShells, clouds, lensFlare] = await Promise.all([
     Starfield.create(device, format),
     SaturnRing.create(device, format, textures),
     AtmosphereShells.create(device, format, bodies.sphereMesh),
+    CloudLayer.create(device, format, bodies.sphereMesh),
     LensFlare.create(device, format),
   ])
-  return { starfield, bodies, saturnRing, atmosphereShells, lensFlare, orbitPaths: OrbitPaths.create(device, linePipeline, 1) }
+  return { starfield, bodies, saturnRing, atmosphereShells, clouds, lensFlare, orbitPaths: OrbitPaths.create(device, linePipeline, 1) }
 }
 
 function createExplorer(canvas: HTMLCanvasElement, display: DisplaySettings, features: SceneFeatures) {

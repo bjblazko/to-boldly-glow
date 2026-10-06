@@ -8,6 +8,8 @@ const PI: f32 = 3.14159265;
 const WATER_REFLECTANCE: f32 = 0.02;
 // Keeps a perfect glint from turning into a single blown-out pixel.
 const MAX_HIGHLIGHT: f32 = 6.0;
+// Just enough light on the night side to make out the surface, as by earthshine or starlight.
+const NIGHT_SIDE_LIGHT: f32 = 0.015;
 
 struct Surface {
   roughness: f32,
@@ -107,6 +109,6 @@ fn reflectedLight(albedo: vec3f, shading: SurfaceShading) -> vec3f {
   let calm = sunHighlight(shading.normal, shading.toLight, shading.toCamera, surface.roughness);
   let sparkling = sunHighlight(shading.glitterNormal, shading.toLight, shading.toCamera, surface.roughness * 0.5);
   let highlight = mix(calm, mix(calm, sparkling, 0.6), surface.ocean * uni.surfaceDetail.y);
-  return (albedo * diffuse * 0.92 + vec3f(highlight * surface.specular * shading.sunlight)) * shading.sunColor + albedo * 0.04;
+  return (albedo * diffuse * 0.98 + vec3f(highlight * surface.specular * shading.sunlight)) * shading.sunColor + albedo * NIGHT_SIDE_LIGHT;
 }
 `

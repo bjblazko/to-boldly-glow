@@ -40,19 +40,25 @@ describe('surface materials', () => {
 
 describe('packSurfaceMaterial', () => {
   it('packs the material in the order the shader reads it', () => {
-    const packed = packSurfaceMaterial(surfaceMaterialOf('earth'), 12.5)
+    const packed = packSurfaceMaterial(surfaceMaterialOf('earth'), { timeSeconds: 12.5, clouds: true })
     expect(packed).toHaveLength(SURFACE_UNIFORM_FLOAT_COUNT)
     const earth = surfaceMaterialOf('earth')
     expect(packed.slice(0, 4)).toEqual([earth.roughness, earth.specular, earth.regolith, earth.limbDarkening])
-    expect(packed.slice(4, 7)).toEqual([earth.relief, earth.ocean!.glitter, 12.5])
+    expect(packed.slice(4, 8)).toEqual([earth.relief, earth.ocean!.glitter, 12.5, earth.cloudShadow])
     expect(packed.slice(8, 11)).toEqual([earth.ocean!.roughness, earth.ocean!.specular, 1])
     expect(packed.slice(12, 15)).toEqual([earth.ice!.roughness, earth.ice!.specular, 1])
     expect(packed.slice(16, 20)).toEqual([...earth.twilight!.color, earth.twilight!.strength])
   })
 
   it('switches water, ice and twilight off where a body has none', () => {
-    const packed = packSurfaceMaterial(surfaceMaterialOf('moon'), 0)
+    const packed = packSurfaceMaterial(surfaceMaterialOf('moon'), { timeSeconds: 0, clouds: true })
+    expect(packed[7]).toBe(0)
     expect(packed.slice(8, 20)).toEqual(Array(12).fill(0))
+  })
+
+  it("lets Earth's clouds cast shadows only while they are shown", () => {
+    expect(packSurfaceMaterial(surfaceMaterialOf('earth'), { timeSeconds: 0, clouds: true })[7]).toBeGreaterThan(0)
+    expect(packSurfaceMaterial(surfaceMaterialOf('earth'), { timeSeconds: 0, clouds: false })[7]).toBe(0)
   })
 })
 
@@ -60,11 +66,11 @@ describe('packLitBodyUniforms', () => {
   it('writes the surface material into the last slots of the shader uniforms', () => {
     const material = surfaceMaterialOf('mars')
     const uniforms = packLitBodyUniforms(
-      { world: mat4.create(), color: [1, 1, 1], lightDirection: vec3.fromValues(1, 0, 0), occluders: [], sunRadius: 1, material, timeSeconds: 3 },
+      { world: mat4.create(), color: [1, 1, 1], lightDirection: vec3.fromValues(1, 0, 0), occluders: [], sunRadius: 1, material, timeSeconds: 3, clouds: true },
       VIEWPOINT,
     )
     expect(uniforms).toHaveLength(LIT_UNIFORM_FLOAT_COUNT)
-    expect(Array.from(uniforms.slice(LIT_UNIFORM_FLOAT_COUNT - SURFACE_UNIFORM_FLOAT_COUNT))).toEqual(packSurfaceMaterial(material, 3).map(Math.fround))
+    expect(Array.from(uniforms.slice(LIT_UNIFORM_FLOAT_COUNT - SURFACE_UNIFORM_FLOAT_COUNT))).toEqual(packSurfaceMaterial(material, { timeSeconds: 3, clouds: true }).map(Math.fround))
   })
 
   // A mismatch between the packing and the WGSL struct is silently wrong rendering, not an error.

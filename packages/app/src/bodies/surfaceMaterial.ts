@@ -23,6 +23,8 @@ export interface SurfaceMaterial {
   // Sunlight crossing a long path through the atmosphere near the terminator, reddened (or, on
   // Mars, turned blue by its fine dust).
   twilight?: { color: Rgb; strength: number }
+  // How much of the sunlight Earth's clouds (earthClouds/) hold back from the ground below them.
+  cloudShadow?: number
 }
 
 const REGOLITH: SurfaceMaterial = { roughness: 0.9, specular: 0, regolith: 0.85, limbDarkening: 0, relief: 0.9 }
@@ -43,6 +45,7 @@ export const SURFACE_MATERIALS: Readonly<Record<string, SurfaceMaterial>> = {
     ocean: { roughness: 0.22, specular: 1, glitter: 1 },
     ice: { roughness: 0.45, specular: 1 },
     twilight: { color: [1, 0.6, 0.38], strength: 0.3 },
+    cloudShadow: 0.6,
   },
   mars: { roughness: 0.9, specular: 0.2, regolith: 0.45, limbDarkening: 0, relief: 0.7, ice: { roughness: 0.45, specular: 0.8 }, twilight: { color: [0.45, 0.62, 1], strength: 0.2 } },
   jupiter: GAS_GIANT,
@@ -69,8 +72,9 @@ export function surfaceMaterialOf(bodyId: string): SurfaceMaterial {
 
 export const SURFACE_UNIFORM_FLOAT_COUNT = 20
 
-// The material as the lit body shader reads it (see the layout comment in litBodyShader.ts).
-export function packSurfaceMaterial(material: SurfaceMaterial, timeSeconds: number): number[] {
+// The material as the lit body shader reads it (see the layout comment in litBodyShader.ts); cloud
+// shadows only fall while the clouds are shown.
+export function packSurfaceMaterial(material: SurfaceMaterial, { timeSeconds, clouds }: { timeSeconds: number; clouds: boolean }): number[] {
   const { ocean, ice, twilight } = material
   return [
     material.roughness,
@@ -80,7 +84,7 @@ export function packSurfaceMaterial(material: SurfaceMaterial, timeSeconds: numb
     material.relief,
     ocean?.glitter ?? 0,
     timeSeconds,
-    0,
+    clouds ? (material.cloudShadow ?? 0) : 0,
     ...(ocean ? [ocean.roughness, ocean.specular, 1, 0] : [0, 0, 0, 0]),
     ...(ice ? [ice.roughness, ice.specular, 1, 0] : [0, 0, 0, 0]),
     ...(twilight ? [...twilight.color, twilight.strength] : [0, 0, 0, 0]),

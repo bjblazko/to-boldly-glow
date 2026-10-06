@@ -53,10 +53,11 @@ export class BodyRenderer {
   }
 
   // sunBrightness > 1 pushes the Sun past the bloom pass's threshold (see bloom/bloom.ts).
-  update(layout: SceneLayout, viewpoint: Viewpoint, { sunBrightness, timeSeconds }: { sunBrightness: number; timeSeconds: number }): void {
-    this.writeSun(layout.sun, viewpoint, sunBrightness)
-    for (const planet of layout.planets) this.writePlanet(planet, { layout, viewpoint, timeSeconds })
-    for (const moon of layout.moons) this.writeMoon(moon, { layout, viewpoint, timeSeconds })
+  update(layout: SceneLayout, viewpoint: Viewpoint, frame: { sunBrightness: number; timeSeconds: number; clouds: boolean }): void {
+    this.writeSun(layout.sun, viewpoint, frame.sunBrightness)
+    const bodyFrame = { layout, viewpoint, timeSeconds: frame.timeSeconds, clouds: frame.clouds }
+    for (const planet of layout.planets) this.writePlanet(planet, bodyFrame)
+    for (const moon of layout.moons) this.writeMoon(moon, bodyFrame)
   }
 
   draw(pass: GPURenderPassEncoder, layout: SceneLayout): void {
@@ -75,7 +76,7 @@ export class BodyRenderer {
     writeUniforms(this.device, this.bindings.sun, uniforms)
   }
 
-  private writePlanet(planet: PlanetPose, { layout, viewpoint, timeSeconds }: BodyFrame): void {
+  private writePlanet(planet: PlanetPose, { layout, viewpoint, timeSeconds, clouds }: BodyFrame): void {
     const { atmosphereColor, atmosphereIntensity, bumpIntensity } = planet.definition
     const moonShadows = layout.moons.filter((moon) => moon.parent === planet).map(occluderOf)
     const uniforms = packLitBodyUniforms(
@@ -91,6 +92,7 @@ export class BodyRenderer {
         hemisphereTints: planet.hemisphereTints,
         material: surfaceMaterialOf(planet.definition.id),
         timeSeconds,
+        clouds,
       },
       viewpoint,
     )
@@ -98,7 +100,7 @@ export class BodyRenderer {
   }
 
   // A moon is only ever shadowed by its parent (an eclipse of the moon by its planet).
-  private writeMoon(moon: MoonPose, { layout, viewpoint, timeSeconds }: BodyFrame): void {
+  private writeMoon(moon: MoonPose, { layout, viewpoint, timeSeconds, clouds }: BodyFrame): void {
     const uniforms = packLitBodyUniforms(
       {
         world: bodyWorldMatrix(moon),
@@ -109,6 +111,7 @@ export class BodyRenderer {
         bumpIntensity: moon.definition.bumpIntensity,
         material: surfaceMaterialOf(moon.definition.id),
         timeSeconds,
+        clouds,
       },
       viewpoint,
     )
@@ -120,6 +123,7 @@ interface BodyFrame {
   layout: SceneLayout
   viewpoint: Viewpoint
   timeSeconds: number
+  clouds: boolean
 }
 
 // A texture already carries a body's real colors; only a body without one (moons Voyager only

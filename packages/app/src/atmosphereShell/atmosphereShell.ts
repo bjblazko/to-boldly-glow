@@ -15,13 +15,15 @@ interface ShellProfile {
   radiusFactor: number
   rimExponent: number
   nightLight: number
+  // How brightly it glows when backlit by the Sun (forward scattering).
+  backlitGlow: number
   sunset?: { color: Rgb; strength: number }
 }
 
-const GAS_GIANT: ShellProfile = { radiusFactor: 1.035, rimExponent: 2, nightLight: 0.3 }
+const GAS_GIANT: ShellProfile = { radiusFactor: 1.035, rimExponent: 2, nightLight: 0.3, backlitGlow: 0.5 }
 const SHELLS: Readonly<Record<string, ShellProfile>> = {
-  venus: { radiusFactor: 1.03, rimExponent: 2.5, nightLight: 0, sunset: { color: [1, 0.7, 0.4], strength: 0.4 } },
-  earth: { radiusFactor: 1.025, rimExponent: 3, nightLight: 0, sunset: { color: [1, 0.55, 0.3], strength: 0.8 } },
+  venus: { radiusFactor: 1.03, rimExponent: 2.5, nightLight: 0, backlitGlow: 1.2, sunset: { color: [1, 0.7, 0.4], strength: 0.4 } },
+  earth: { radiusFactor: 1.04, rimExponent: 4, nightLight: 0, backlitGlow: 1, sunset: { color: [1, 0.45, 0.2], strength: 0.8 } },
   jupiter: GAS_GIANT,
   saturn: GAS_GIANT,
   uranus: GAS_GIANT,
@@ -66,7 +68,7 @@ export class AtmosphereShells {
       uniforms.set([...atmosphereColor!, atmosphereIntensity!], 32)
       uniforms.set([...sunlightDirection(planet.position), 0], 36)
       uniforms.set([...viewpoint.position, 0], 40)
-      uniforms.set([profile.rimExponent, profile.nightLight, profile.nightLight > 0 ? 0 : 1, 0], 44)
+      uniforms.set([profile.rimExponent, profile.nightLight, profile.nightLight > 0 ? 0 : 1, profile.backlitGlow], 44)
       if (profile.sunset) uniforms.set([...profile.sunset.color, profile.sunset.strength], 48)
       writeUniforms(this.device, this.shells.get(id)!, uniforms)
     }
