@@ -89,8 +89,9 @@ This is an npm-workspaces monorepo with three packages:
   - `app/` starts everything and runs the frame loop; `scene/` decides each frame's *scene layout*
     (where every visible body is — the real solar system, or the active lesson's staged scene) and
     renders it.
-  - `bodies/` (Sun, planets, moons), `saturnRing/`, `cloudShell/`, `starfield/`, `orbitPaths/`,
-    `lensFlare/`, `bloom/`, `labels/` — one folder per thing you see.
+  - `bodies/` (Sun, planets, moons, their surface materials), `saturnRing/`, `atmosphereShell/`,
+    `earthClouds/`, `starfield/`, `orbitPaths/`, `lensFlare/`, `bloom/`, `labels/` — one folder
+    per thing you see.
   - `camera/` (orbit, free-fly, follow, the tour in `camera/tour/`), `learn/` (lessons, with
     `seasons/` and `sizes/`), `hud/`, `time/`, `search/`, `solarSystem/` (body data and orbital
     mechanics).

@@ -11,7 +11,7 @@ import { packLitBodyUniforms, sunlightDirection, type Occluder } from './litBody
 import { createSphereMeshBuffers, drawSphere, SPHERE_VERTEX_BUFFERS, type SphereMeshBuffers } from './sphereMesh'
 import { unlitSphereShaderCode } from './sunShader'
 import { createBodySampler } from './bodySampler'
-import { surfaceMaterialOf } from './surfaceMaterial'
+import { albedoTint, surfaceMaterialOf } from './surfaceMaterial'
 
 const SUN_UNIFORM_FLOAT_COUNT = 20
 
@@ -124,12 +124,6 @@ interface BodyFrame {
   viewpoint: Viewpoint
   timeSeconds: number
   clouds: boolean
-}
-
-// A texture already carries a body's real colors; only a body without one (moons Voyager only
-// partly imaged) is painted in its flat illustrative color.
-function albedoTint(body: { textureUrl?: string; color: [number, number, number] }): [number, number, number] {
-  return body.textureUrl ? [1, 1, 1] : body.color
 }
 
 function occluderOf(body: { position: readonly number[]; radius: number }): Occluder {

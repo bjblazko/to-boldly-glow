@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import type { Viewpoint } from '../src/camera/viewpoint'
 import { LIT_UNIFORM_FLOAT_COUNT, litSphereShaderCode } from '../src/bodies/litBodyShader'
 import { packLitBodyUniforms } from '../src/bodies/litBodyUniforms'
-import { packSurfaceMaterial, SURFACE_MATERIALS, SURFACE_UNIFORM_FLOAT_COUNT, surfaceMaterialOf } from '../src/bodies/surfaceMaterial'
+import { albedoTint, packSurfaceMaterial, SURFACE_MATERIALS, SURFACE_UNIFORM_FLOAT_COUNT, surfaceMaterialOf } from '../src/bodies/surfaceMaterial'
 import { PLANETS } from '../src/solarSystem/bodies'
 import { MOONS } from '../src/solarSystem/moons'
 
@@ -35,6 +35,15 @@ describe('surface materials', () => {
   it('scatters like dusty regolith on the airless rocky bodies', () => {
     for (const id of ['moon', 'mercury', 'callisto']) expect(surfaceMaterialOf(id).regolith, id).toBeGreaterThan(0.5)
     expect(surfaceMaterialOf('earth').regolith).toBe(0)
+  })
+})
+
+describe('albedoTint', () => {
+  it('shows color textures as they are, and colors grayscale ones and untextured bodies', () => {
+    const byId = new Map([...PLANETS, ...MOONS].map((body) => [body.id, body]))
+    expect(albedoTint(byId.get('earth')!)).toEqual([1, 1, 1])
+    expect(albedoTint(byId.get('titan')!)).toEqual(byId.get('titan')!.color)
+    expect(albedoTint(byId.get('triton')!)).toEqual(byId.get('triton')!.color)
   })
 })
 

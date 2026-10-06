@@ -34,6 +34,11 @@ export interface BodyDefinition {
   /** Path (under public/) to a 2K equirectangular albedo texture. See CREDITS.md for sourcing. */
   textureUrl: string
   /**
+   * The texture is a grayscale brightness map: its colors come from `color` instead. Color
+   * textures already carry the body's real colors and are shown as they are.
+   */
+  grayscaleTexture?: boolean
+  /**
    * Axial rotation period, hours. Source: NASA Planetary Fact Sheet. Negative means retrograde
    * (spins opposite its orbital direction — Venus and, due to its extreme axial tilt, Uranus).
    * Drives the body's own spin around its local Z axis (see poleOrientation.ts - tilt happens on
@@ -103,6 +108,7 @@ export const PLANETS: BodyDefinition[] = [
       distance: mercuryHeliocentricR,
     },
     textureUrl: 'textures/mercury.jpg',
+    grayscaleTexture: true,
     siderealRotationHours: 1407.6,
     poleRightAscensionDegrees: 281.01,
     poleDeclinationDegrees: 61.41,

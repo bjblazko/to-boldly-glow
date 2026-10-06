@@ -81,6 +81,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Every planet and moon reflects sunlight like its own kind of surface instead of one shared matte
+  sphere with the same small highlight. Earth's oceans show the Sun's glint - brighter toward the
+  limb, broken into glitter by waves - and its ice a broad sheen; the Moon, Mercury and Callisto
+  scatter like dusty regolith, evenly bright out to the limb; Mars is matte dust with shiny polar
+  ice; the gas giants have no hard highlight but darken toward the limb; Venus and Titan show a
+  soft haze. Water and ice are read from each body's own albedo texture, and craters and mountain
+  ranges stand out as slightly exaggerated relief read from it too. Color textures are shown in
+  their own colors instead of being multiplied by each body's flat label color (grayscale ones
+  still take it), and night sides are darker.
+- Earth has a light, procedural cloud cover that turns with the planet, drifts with the trade winds
+  and westerlies, and casts shadows on the ground; a Clouds switch in the Display panel turns it
+  off, and lessons hide it like the other explore-mode extras.
+- Earth's atmosphere reaches past its limb, turns sunset-colored along the terminator, and - like
+  Venus's and the gas giants' - lights up as a reddened ring when the planet is in front of the Sun.
+  The gas giants' cloud shells became per-planet atmosphere shells (`atmosphereShell/`).
+
 - Lens flares look like a film camera's: a blue anamorphic streak, the aperture's starburst, a
   faint rainbow halo, six-bladed aperture ghosts with colored fringes along the line through the
   screen center, and lens dirt that lights up near the Sun - in HDR, so bloom catches the streak.

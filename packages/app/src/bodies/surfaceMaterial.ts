@@ -64,6 +64,12 @@ export const SURFACE_MATERIALS: Readonly<Record<string, SurfaceMaterial>> = {
   triton: ICE_CRUST,
 }
 
+// A color texture already carries a body's real colors. A grayscale one is tinted with the body's
+// color, and a body without a texture (moons Voyager only partly imaged) is painted in it.
+export function albedoTint(body: { textureUrl?: string; grayscaleTexture?: boolean; color: [number, number, number] }): [number, number, number] {
+  return body.textureUrl && !body.grayscaleTexture ? [1, 1, 1] : body.color
+}
+
 export function surfaceMaterialOf(bodyId: string): SurfaceMaterial {
   const material = SURFACE_MATERIALS[bodyId]
   if (!material) throw new Error(`No surface material for ${bodyId}`)

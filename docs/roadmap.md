@@ -14,16 +14,20 @@ and the objects you'd actually see in the sky.
 - A Milky Way band and nebulae as a background sky map (e.g. a CC0 or NASA all-sky panorama,
   ideally HDR), aligned to galactic coordinates; distant galaxies (Andromeda, the Magellanic Clouds)
   as part of it.
-- Planet rendering: higher-resolution textures with streaming, normal maps from elevation data,
-  night-side city lights and specular oceans for Earth, atmospheric scattering (Rayleigh/Mie) for
-  Earth/Venus/Titan instead of the rim glow, animated cloud layers, Saturn's ring shadow on the
-  rings and the planet's shadow on the rings, and ring particles that sparkle.
+- Planet rendering: higher-resolution textures with streaming, normal maps from real elevation
+  data (today's relief is read from the albedo), night-side city lights for Earth, real cloud maps
+  instead of the procedural cover, full atmospheric scattering (Rayleigh/Mie) for Earth/Venus/Titan,
+  Saturn's ring shadow on the rings and the planet's shadow on the rings, and ring particles that
+  sparkle. (Done: per-body surface materials - ocean glint with glitter, ice, regolith, gas-giant
+  limb darkening - procedural Earth clouds with shadows, and atmosphere shells with a twilight
+  band and a backlit ring.)
 - Shader/mapping techniques: physically based shading, HDR tonemapping (ACES/AgX) and exposure,
   parallax or tessellation for relief, anisotropic ring lighting.
 - Small bodies: the asteroid belt and Kuiper belt as instanced particles, comets with dust/ion tails
   pointing away from the Sun, zodiacal light.
-**Data needed**: an all-sky background map, Earth night lights and elevation maps (NASA, public
-domain), asteroid/comet orbital elements (JPL).
+**Data needed**: an all-sky background map, Earth night lights, cloud and elevation maps (NASA,
+public domain, or Solar System Scope, CC BY 4.0 - www.solarsystemscope.com is not reachable from
+the current cloud development environment), asteroid/comet orbital elements (JPL).
 
 ## Moon phase / cycle deep-dive
 **What**: Explain the ~29.5-day synodic lunar cycle — why we see phases, the difference between

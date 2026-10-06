@@ -50,6 +50,11 @@ export interface MoonDefinition {
    */
   textureUrl?: string
   /**
+   * The texture is a grayscale brightness map: its colors come from `color` instead. Color
+   * textures already carry the body's real colors and are shown as they are.
+   */
+  grayscaleTexture?: boolean
+  /**
    * Path (under public/) to a grayscale height map used for bump mapping (perturbing the shading
    * normal only — no geometry change). Undefined means no relief. Sourced per-body; see
    * CREDITS.md for provenance once populated.
@@ -73,6 +78,7 @@ export const MOONS: MoonDefinition[] = [
     orbitInclinationToParentEquatorDegrees: 5.145, // to the ecliptic, not Earth's equator - see field doc
     orbitAscendingNodeDegrees: 0,
     textureUrl: 'textures/moon.jpg',
+    grayscaleTexture: true,
   },
   {
     id: 'io',
@@ -101,6 +107,7 @@ export const MOONS: MoonDefinition[] = [
     orbitInclinationToParentEquatorDegrees: 0.471,
     orbitAscendingNodeDegrees: 0,
     textureUrl: 'textures/europa.jpg',
+    grayscaleTexture: true,
   },
   {
     id: 'ganymede',
@@ -115,6 +122,7 @@ export const MOONS: MoonDefinition[] = [
     orbitInclinationToParentEquatorDegrees: 0.204,
     orbitAscendingNodeDegrees: 0,
     textureUrl: 'textures/ganymede.jpg',
+    grayscaleTexture: true,
   },
   {
     id: 'callisto',
@@ -129,6 +137,7 @@ export const MOONS: MoonDefinition[] = [
     orbitInclinationToParentEquatorDegrees: 0.205,
     orbitAscendingNodeDegrees: 0,
     textureUrl: 'textures/callisto.jpg',
+    grayscaleTexture: true,
   },
   {
     id: 'titan',
@@ -146,6 +155,7 @@ export const MOONS: MoonDefinition[] = [
     orbitInclinationToParentEquatorDegrees: 0.34854,
     orbitAscendingNodeDegrees: 0,
     textureUrl: 'textures/titan.jpg',
+    grayscaleTexture: true,
   },
   {
     id: 'titania',
