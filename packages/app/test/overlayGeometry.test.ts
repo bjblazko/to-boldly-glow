@@ -7,7 +7,7 @@ import {
   meridianLongitudeFacing,
   rotationAxisPoints,
   sunLeanLabel,
-} from '../src/learn/overlayGeometry'
+} from '../src/learn/seasons/overlayGeometry'
 import { axisAlignmentRotation } from '../src/solarSystem/poleOrientation'
 
 describe('overlay geometry (identity world transform, radius 1)', () => {
@@ -41,7 +41,7 @@ describe('overlay geometry (identity world transform, radius 1)', () => {
 
   it('latitudeMarkerPoints places a small closed loop centered on the surface point for the given latitude', () => {
     // Equator (0 degrees): surface point should lie in the local XY plane (z ~ 0).
-    const points = latitudeMarkerPoints(identity, 1, 0, 0.05, 16)
+    const points = latitudeMarkerPoints(identity, { surfaceRadius: 1, latitudeDegrees: 0 }, { radius: 0.05, segments: 16 })
     expect(points.length).toBe((16 + 1) * 3)
     // The loop's average position should be close to the equator surface point (1, 0, 0) at
     // longitude 0 - not exact, since it's a ring around that point, but within markerRadius.
@@ -59,7 +59,7 @@ describe('overlay geometry (identity world transform, radius 1)', () => {
   it('latitudeMarkerCenter returns the exact surface point a latitude marker ring is centered on', () => {
     // Equator (0 degrees) at radius 1, longitude 0: the exact surface point is (0, 1, 0) - unlike
     // latitudeMarkerPoints' own ring vertices, this isn't an average/approximation.
-    const center = latitudeMarkerCenter(identity, 1, 0)
+    const center = latitudeMarkerCenter(identity, { surfaceRadius: 1, latitudeDegrees: 0 })
     expect(center[0]).toBeCloseTo(0, 5)
     expect(center[1]).toBeCloseTo(1, 5)
     expect(center[2]).toBeCloseTo(0, 5)
@@ -82,7 +82,7 @@ describe('meridianLongitudeFacing', () => {
       const longitude = meridianLongitudeFacing(tilt, facing)
       // The equator point at that longitude must lie in the plane spanned by the pole and `facing`,
       // on the `facing` side: its direction equals facing's component perpendicular to the pole.
-      const equatorPoint = latitudeMarkerCenter(tilt, 1, 0, longitude)
+      const equatorPoint = latitudeMarkerCenter(tilt, { surfaceRadius: 1, latitudeDegrees: 0, longitudeDegrees: longitude })
       const along = facing[0] * pole[0] + facing[1] * pole[1] + facing[2] * pole[2]
       const expected = [facing[0] - along * pole[0], facing[1] - along * pole[1], facing[2] - along * pole[2]]
       const expectedLength = Math.hypot(expected[0], expected[1], expected[2])

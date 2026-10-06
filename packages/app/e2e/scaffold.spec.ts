@@ -10,15 +10,15 @@ test('app boots, WebGPU is available, and a frame actually renders', async ({ pa
   const hasWebGpu = await page.evaluate(() => 'gpu' in navigator)
   expect(hasWebGpu).toBe(true)
 
-  // Wait for main() to actually complete WebGPU init, create pipelines/bind groups,
+  // Wait for startApp() to actually complete WebGPU init, create pipelines/bind groups,
   // and submit a frame to the GPU queue. This catches adapter-null and other init
   // errors, as well as shader/pipeline validation failures — including WGSL compile
   // errors, since the pipelines are created with createRenderPipelineAsync(), whose
   // returned promise rejects on such failures (unlike the synchronous variant, which
   // never throws and would otherwise let rendering silently proceed with an invalid
   // pipeline). None of these surface as an uncaught pageerror on their own, since
-  // main() catches and swallows its own promise rejection — but a rejection here
-  // prevents frame() from ever running, so data-rendered is never set and this
+  // main.ts catches and swallows its own promise rejection — but a rejection here
+  // prevents the frame loop from ever running, so data-rendered is never set and this
   // assertion fails.
   await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
 

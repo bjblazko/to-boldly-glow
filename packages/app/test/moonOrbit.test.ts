@@ -155,7 +155,7 @@ describe('moonRelativePosition', () => {
   it('stays at a constant distance from the parent for any angle, tilt included', () => {
     const orbitRadius = 1.7
     for (const angle of [0, Math.PI / 4, Math.PI / 2, Math.PI, (3 * Math.PI) / 2]) {
-      const [x, y, z] = moonRelativePosition(orbitRadius, angle, 5, 10, ECLIPTIC_NORTH)
+      const [x, y, z] = moonRelativePosition(orbitRadius, angle, moonOrbitPlaneTiltMatrix(5, 10, ECLIPTIC_NORTH))
       // Precision 6, not 10: this composes a non-trivial rotation (inclination + node), so it
       // carries the same gl-matrix Float32Array rounding as above.
       expect(Math.hypot(x, y, z)).toBeCloseTo(orbitRadius, 6)
@@ -171,7 +171,7 @@ describe('moonRelativePosition', () => {
     const flat = moonFlatOrbitPosition(orbitRadius, angle)
     const tilt = moonOrbitPlaneTiltMatrix(inclination, node, reference)
     const expected = vec3.transformMat4(vec3.create(), flat, tilt)
-    const actual = moonRelativePosition(orbitRadius, angle, inclination, node, reference)
+    const actual = moonRelativePosition(orbitRadius, angle, tilt)
     expect(actual[0]).toBeCloseTo(expected[0], 10)
     expect(actual[1]).toBeCloseTo(expected[1], 10)
     expect(actual[2]).toBeCloseTo(expected[2], 10)
@@ -179,7 +179,7 @@ describe('moonRelativePosition', () => {
 })
 
 describe('tidal lock: moonRotationAngleRadians combined with moonFlatOrbitPosition', () => {
-  // Reproduces how main.ts builds a moon's world matrix under the local-Z-spin/XY-plane
+  // Reproduces how scene/sceneLayout.ts's bodyWorldMatrix builds a moon's world matrix under the local-Z-spin/XY-plane
   // convention (see Task 7): flat position via moonFlatOrbitPosition, spin via
   // mat4.fromZRotation. Checks that a fixed local reference point maintains a CONSTANT angular
   // offset from the true parent direction across a full orbit - the definition of tidal lock.

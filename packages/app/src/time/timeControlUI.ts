@@ -6,27 +6,31 @@ const MAX_SHUTTLE_SECONDS_PER_SECOND = TIME_SCALE_PRESETS[TIME_SCALE_PRESETS.len
 // SimulationClock. The shuttle and the presets are two independent ways to set the same rate —
 // touching either one calls clock.setTimeScale() directly; they aren't kept visually in sync with
 // each other (see plan Context).
+export interface TimeControlElements {
+  playPauseButton: HTMLButtonElement
+  reverseButton: HTMLButtonElement
+  presetSelect: HTMLSelectElement
+  shuttleSlider: HTMLInputElement
+  dateDisplay: HTMLElement
+}
+
 export class TimeControlUI {
   constructor(
     private readonly clock: SimulationClock,
-    private readonly playPauseButton: HTMLButtonElement,
-    private readonly reverseButton: HTMLButtonElement,
-    private readonly presetSelect: HTMLSelectElement,
-    private readonly shuttleSlider: HTMLInputElement,
-    private readonly dateDisplay: HTMLElement,
+    private readonly elements: TimeControlElements,
   ) {
     this.populatePresetOptions()
-    this.playPauseButton.addEventListener('click', this.onPlayPauseClick)
-    this.reverseButton.addEventListener('click', this.onReverseClick)
-    this.presetSelect.addEventListener('change', this.onPresetChange)
-    this.shuttleSlider.addEventListener('input', this.onShuttleInput)
+    this.elements.playPauseButton.addEventListener('click', this.onPlayPauseClick)
+    this.elements.reverseButton.addEventListener('click', this.onReverseClick)
+    this.elements.presetSelect.addEventListener('change', this.onPresetChange)
+    this.elements.shuttleSlider.addEventListener('input', this.onShuttleInput)
     this.updatePlayPauseLabel()
   }
 
   // Call once per frame (after clock.update()) to keep the displayed date current.
   refreshDisplay(): void {
     const iso = this.clock.getCurrentDate().toISOString()
-    this.dateDisplay.textContent = `${iso.replace('T', ' ').slice(0, 16)} UTC`
+    this.elements.dateDisplay.textContent = `${iso.replace('T', ' ').slice(0, 16)} UTC`
   }
 
   // Builds the preset <option> elements from TIME_SCALE_PRESETS so the dropdown can never drift
@@ -36,7 +40,7 @@ export class TimeControlUI {
       const option = document.createElement('option')
       option.value = String(index)
       option.textContent = preset.label
-      this.presetSelect.appendChild(option)
+      this.elements.presetSelect.appendChild(option)
     }
   }
 
@@ -54,20 +58,20 @@ export class TimeControlUI {
   }
 
   private onPresetChange = () => {
-    const preset = TIME_SCALE_PRESETS[Number(this.presetSelect.value)]
+    const preset = TIME_SCALE_PRESETS[Number(this.elements.presetSelect.value)]
     if (!preset) return
     this.clock.setTimeScale(preset.secondsPerSecond)
   }
 
   private onShuttleInput = () => {
-    const value = Number(this.shuttleSlider.value)
+    const value = Number(this.elements.shuttleSlider.value)
     this.clock.setTimeScale(shuttleValueToTimeScale(value, MAX_SHUTTLE_SECONDS_PER_SECOND))
   }
 
   private updatePlayPauseLabel(): void {
     const paused = this.clock.isPaused()
-    this.playPauseButton.classList.toggle('is-paused', paused)
-    const label = this.playPauseButton.querySelector<HTMLElement>('.btn-label')
+    this.elements.playPauseButton.classList.toggle('is-paused', paused)
+    const label = this.elements.playPauseButton.querySelector<HTMLElement>('.btn-label')
     if (label) label.textContent = paused ? 'Play' : 'Pause'
   }
 }

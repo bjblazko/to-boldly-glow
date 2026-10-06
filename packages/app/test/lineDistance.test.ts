@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { computeCumulativeLineDistances } from '../src/renderer/lineDistance'
+import { computeCumulativeLineDistances } from '../src/lines/lineDistance'
 
 describe('computeCumulativeLineDistances', () => {
   it('returns [0] for a single point', () => {

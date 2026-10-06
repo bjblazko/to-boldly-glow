@@ -1,13 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import {
-  angleBetweenDirections,
   directedLinePoints,
   greatCircleArcPoints,
   orbitPathCirclePoints,
   orbitPositionForPhase,
   perpendicularComponent,
-} from '../src/learn/overlayGeometry'
-import { ORBIT_FIXED_POLE_DIRECTION } from '../src/main'
+} from '../src/learn/seasons/overlayGeometry'
+import { ORBIT_FIXED_POLE_DIRECTION, subsolarLatitude } from '../src/learn/seasons/seasonalPole'
 
 describe('orbitPositionForPhase', () => {
   it('places Earth on a circle of the given radius, at the angle equal to the phase itself', () => {
@@ -62,7 +61,7 @@ describe('directedLinePoints', () => {
 
 describe('greatCircleArcPoints', () => {
   it('starts at fromDirection and ends at toDirection, staying at radius from center throughout', () => {
-    const points = greatCircleArcPoints([1, 1, 1], [1, 0, 0], [0, 1, 0], 2, 16)
+    const points = greatCircleArcPoints({ center: [1, 1, 1], from: [1, 0, 0], to: [0, 1, 0], radius: 2 }, 16)
     expect(points[0]).toBeCloseTo(1 + 2, 9)
     expect(points[1]).toBeCloseTo(1, 9)
     expect(points[2]).toBeCloseTo(1, 9)
@@ -81,27 +80,12 @@ describe('greatCircleArcPoints', () => {
   })
 
   it('returns every point at fromDirection when the two directions already coincide', () => {
-    const points = greatCircleArcPoints([0, 0, 0], [1, 0, 0], [1, 0, 0], 1, 8)
+    const points = greatCircleArcPoints({ center: [0, 0, 0], from: [1, 0, 0], to: [1, 0, 0], radius: 1 }, 8)
     for (let i = 0; i <= 8; i++) {
       expect(points[i * 3]).toBeCloseTo(1, 9)
       expect(points[i * 3 + 1]).toBeCloseTo(0, 9)
       expect(points[i * 3 + 2]).toBeCloseTo(0, 9)
     }
-  })
-})
-
-describe('angleBetweenDirections', () => {
-  it('returns 0 for identical directions and PI for opposite ones', () => {
-    expect(angleBetweenDirections([1, 0, 0], [1, 0, 0])).toBeCloseTo(0, 9)
-    expect(angleBetweenDirections([1, 0, 0], [-1, 0, 0])).toBeCloseTo(Math.PI, 9)
-  })
-
-  it('returns PI/2 for perpendicular directions', () => {
-    expect(angleBetweenDirections([1, 0, 0], [0, 1, 0])).toBeCloseTo(Math.PI / 2, 9)
-  })
-
-  it('normalizes non-unit inputs first', () => {
-    expect(angleBetweenDirections([5, 0, 0], [0, 3, 0])).toBeCloseTo(Math.PI / 2, 9)
   })
 })
 
@@ -120,14 +104,11 @@ describe('ORBIT_FIXED_POLE_DIRECTION', () => {
     const expectedDegrees: Record<number, number> = { 0: 23.4, 90: 0, 180: 23.4, 270: 0 }
     for (const [phase, expected] of Object.entries(expectedDegrees)) {
       const earthPosition = orbitPositionForPhase(Number(phase), orbitRadius)
-      const sunward: [number, number, number] = [-earthPosition[0], -earthPosition[1], -earthPosition[2]]
-      const angleRadians = angleBetweenDirections(ORBIT_FIXED_POLE_DIRECTION, sunward)
-      const angleDegrees = (angleRadians * 180) / Math.PI
-      // The angle between the fixed axis and the sunward direction is 90 degrees at the equinoxes
-      // (axis perpendicular to the Sun line) and 90 +/- 23.4 degrees at the solstices - expressed
-      // here as "how far from perpendicular", which is exactly the obliquity at the solstices and
-      // 0 at the equinoxes, matching seasonalTilt.test.ts's own subsolar-latitude-style check.
-      expect(Math.abs(90 - angleDegrees)).toBeCloseTo(expected, 5)
+      const sunward = [-earthPosition[0] / orbitRadius, -earthPosition[1] / orbitRadius, -earthPosition[2] / orbitRadius]
+      // How far the fixed axis leans toward or away from the Sun: the full obliquity at the
+      // solstices, 0 at the equinoxes (axis perpendicular to the Sun line).
+      const leanDegrees = (Math.abs(subsolarLatitude(ORBIT_FIXED_POLE_DIRECTION, sunward)) * 180) / Math.PI
+      expect(leanDegrees).toBeCloseTo(expected, 5)
     }
   })
 })

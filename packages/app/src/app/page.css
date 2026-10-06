@@ -1,0 +1,25 @@
+/* The scene fills the whole window; the HUD floats on top of it. */
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Hidden means hidden, even for elements whose class sets a display mode. */
+[hidden] {
+  display: none !important;
+}
+
+#scene-wrapper {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* Block, not the default inline, which leaves a few pixels of gap below the canvas. */
+#scene {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

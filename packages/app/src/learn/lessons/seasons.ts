@@ -7,7 +7,7 @@ const CHAPTERS: Chapter[] = [
     title: 'Real Orbit: Earth Around the Sun',
     kind: 'orbit',
     // Unused by this chapter - unlike every other chapter, this one's Earth position isn't a fixed
-    // per-chapter phase at all. It continuously animates instead (see main.ts's
+    // per-chapter phase at all. It continuously animates instead (see seasons/seasonsScene.ts's
     // orbitRevolutionDegrees), so there's no single "this chapter's phase" to record here. Kept at
     // 0 only because every Chapter needs a value for this field.
     seasonPhaseDegrees: 0,

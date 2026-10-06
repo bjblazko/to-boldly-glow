@@ -12,7 +12,7 @@ test('scrubbing time through moon-transit-heavy windows renders shadows without 
   // short real-time window, exercising the shadow uniform writes (occluders/ringParams) and the
   // WGSL shadow math on every frame. This is a smoke test, not a visual-correctness check — a
   // WebGPU validation error (e.g. a uniform-struct-size mismatch) surfaces as a catchable
-  // pageerror via the uncapturederror listener in renderer/webgpu.ts, so an empty errors array is
+  // pageerror via the uncapturederror listener in gpu/device.ts, so an empty errors array is
   // real regression coverage for the Phase 3 body-position-loop restructuring even without
   // pixel-level assertions.
   await page.locator('.hud-dock-btn[data-panel="time"]').click()

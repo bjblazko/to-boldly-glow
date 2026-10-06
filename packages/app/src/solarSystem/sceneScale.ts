@@ -49,20 +49,18 @@ export function scaledBodyRadiusUnits(
   return geometricBlend(realistic, compactVisualRadius, blend)
 }
 
-// Rescales an already-computed AU-space position (x, y, z with x²+y²+z² = distanceAu²) to scene
-// units for the given blend, preserving direction. Since sphericalToX/Y/Z are all linear in their
-// radius argument, a single scalar factor (targetDistance / distanceAu) applied to each axis
-// rescales distance while preserving direction exactly.
-//
-// Returns [0, 0, 0] unscaled for a body at the origin (the Sun): there is no direction to
-// preserve, and the factor would divide by zero.
-export function scaledPosition(
-  x: number,
-  y: number,
-  z: number,
-  distanceAu: number,
-  blend: number,
-): [number, number, number] {
+// A position in true astronomical units, together with its distance from the Sun.
+export interface AuPosition {
+  x: number
+  y: number
+  z: number
+  distanceAu: number
+}
+
+// Rescales an AU-space position to scene units for the given blend, preserving its direction:
+// sphericalToX/Y/Z are linear in the radius, so one factor (targetDistance / distanceAu) rescales
+// all three axes. The Sun, at the origin, has no direction to preserve and stays at [0, 0, 0].
+export function scaledPosition({ x, y, z, distanceAu }: AuPosition, blend: number): [number, number, number] {
   if (distanceAu === 0) return [0, 0, 0]
   const factor = scaledDistanceUnits(distanceAu, blend) / distanceAu
   return [x * factor, y * factor, z * factor]

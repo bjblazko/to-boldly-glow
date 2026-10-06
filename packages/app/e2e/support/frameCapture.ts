@@ -1,10 +1,13 @@
 import type { Page } from '@playwright/test'
 
-// Headless Chromium renders a WebGPU canvas but never composites it, so screenshots of it come out
-// blank. This init script swaps the canvas swapchain for an ordinary offscreen texture of the same
-// size and format, so every frame can be read back for pixel assertions.
+// Headless Chromium can't present a WebGPU canvas: the device is lost right after the first frame
+// ("A valid external Instance reference no longer exists"), so the app would stop rendering. This
+// init script swaps the canvas swapchain for an ordinary offscreen texture of the same size and
+// format, so every frame is really rendered - GPU validation errors keep surfacing as page errors -
+// and frames can be read back for pixel assertions.
 const OFFSCREEN_SWAPCHAIN = `(() => {
-  const state = { device: null, format: null, texture: null, request: null, adapters: [] }
+  if (window.__offscreenSwapchain) return
+  const state = { device: null, format: null, texture: null, request: null, adapters: [], frameInProgress: false, previousFrameDone: null }
   window.__offscreenSwapchain = state
   const requestAdapter = GPU.prototype.requestAdapter
   GPU.prototype.requestAdapter = async function (...args) {
@@ -29,13 +32,29 @@ const OFFSCREEN_SWAPCHAIN = `(() => {
         usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC | GPUTextureUsage.TEXTURE_BINDING,
       })
     }
+    state.frameInProgress = true
     return state.texture
   }
   // Resolves once the GPU has finished every frame submitted so far.
   state.whenIdle = () => (state.device ? state.device.queue.onSubmittedWorkDone() : Promise.resolve())
+  // A real display holds the next animation frame back until the GPU has caught up; an offscreen
+  // texture doesn't, so software WebGPU would fall further behind with every frame. This restores
+  // that back-pressure. (A Playwright fake clock replaces requestAnimationFrame altogether; tests
+  // stepping it wait for the GPU themselves.)
+  // Like double buffering, at most one frame is in flight: startup work (texture uploads) doesn't
+  // hold back the first frame.
+  const requestAnimationFrame = window.requestAnimationFrame.bind(window)
+  window.requestAnimationFrame = (callback) => {
+    ;(state.previousFrameDone ?? Promise.resolve()).then(() => requestAnimationFrame(callback))
+    return 0
+  }
   const submit = GPUQueue.prototype.submit
   GPUQueue.prototype.submit = function (commandBuffers) {
     const result = submit.call(this, commandBuffers)
+    if (state.frameInProgress && state.device && this === state.device.queue) {
+      state.frameInProgress = false
+      state.previousFrameDone = this.onSubmittedWorkDone()
+    }
     const request = state.request
     if (request && state.texture && state.device && this === state.device.queue) {
       state.request = null

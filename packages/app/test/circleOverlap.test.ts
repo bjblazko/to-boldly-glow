@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { circleOverlapFraction } from '../src/renderer/circleOverlap'
+import { circleOverlapFraction } from '../src/lensFlare/circleOverlap'
 
 describe('circleOverlapFraction', () => {
   it('returns 0 when the circles are far enough apart not to touch', () => {

@@ -3,37 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <title>To Boldly Glow</title>
-    <link rel="stylesheet" href="/src/hud/hud.css" />
-    <style>
-      html, body {
-        margin: 0;
-        height: 100%;
-        overflow: hidden; /* the canvas fills the viewport; no page scrollbars needed */
-      }
-      #scene-wrapper {
-        position: relative;
-        width: 100vw;
-        height: 100vh;
-      }
-      #scene {
-        display: block; /* canvas is inline by default, which leaves a few px of gap below it */
-        width: 100%;
-        height: 100%;
-      }
-    </style>
   </head>
   <body>
     <div id="scene-wrapper">
       <canvas id="scene"></canvas>
-      <div id="body-labels" style="position: absolute; inset: 0; pointer-events: none; overflow: hidden;"></div>
-      <div id="location-a-label" class="body-label" style="display: none;">Location A</div>
-      <div id="location-b-label" class="body-label" style="display: none;">Location B</div>
-      <div id="axis-tilt-label" class="body-label" style="display: none;"></div>
-      <div id="axis-line-label" class="body-label" style="display: none;">Rotation Axis (23.4° tilt)</div>
-      <div id="equator-line-label" class="body-label" style="display: none;">Equator</div>
-      <div id="reference-line-label" class="body-label" style="display: none;">Reference (⊥ to Sun)</div>
-      <div id="toward-sun-label" class="body-label" style="display: none;">Toward the Sun</div>
-      <div id="right-angle-label" class="body-label" style="display: none;">90°</div>
+      <div id="body-labels"></div>
+      <div id="location-a-label" class="body-label" hidden>Location A</div>
+      <div id="location-b-label" class="body-label" hidden>Location B</div>
+      <div id="axis-tilt-label" class="body-label" hidden></div>
+      <div id="axis-line-label" class="body-label" hidden>Rotation Axis (23.4° tilt)</div>
+      <div id="equator-line-label" class="body-label" hidden>Equator</div>
+      <div id="reference-line-label" class="body-label" hidden>Reference (⊥ to Sun)</div>
+      <div id="toward-sun-label" class="body-label" hidden>Toward the Sun</div>
+      <div id="right-angle-label" class="body-label" hidden>90°</div>
     </div>
 
     <!-- Monochrome line-icon set, referenced elsewhere via <svg class="icon"><use href="#icon-name"/></svg> -->
@@ -98,7 +80,7 @@
           <input id="entity-search-input" type="text" placeholder="Search bodies…" />
         </div>
         <div id="entity-search-results"></div>
-        <div id="follow-indicator" class="hud-chip">
+        <div id="follow-indicator" class="hud-chip" hidden>
           <span id="follow-indicator-label"></span>
           <button id="follow-stop-button" class="hud-chip-close" type="button" aria-label="Stop following">
             <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>

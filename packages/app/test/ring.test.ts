@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { generateRingMesh } from '../src/geometry/ring'
+import { generateRingMesh } from '../src/saturnRing/ringMesh'
 
 describe('generateRingMesh', () => {
   const innerRadius = 1.3

@@ -11,7 +11,7 @@ import {
 import { AU_KM, PLANETS } from '../src/solarSystem/bodies'
 import { MOONS } from '../src/solarSystem/moons'
 import { scaledPosition } from '../src/solarSystem/sceneScale'
-import { moonOrbitAngleRadians, moonOrbitReferencePoleDirection, moonRelativePosition, scaledMoonOrbitRadiusUnits } from '../src/solarSystem/moonOrbit'
+import { moonOrbitAngleRadians, moonOrbitPlaneTiltMatrix, moonOrbitReferencePoleDirection, moonRelativePosition, scaledMoonOrbitRadiusUnits } from '../src/solarSystem/moonOrbit'
 import { equatorialToEclipticPoleDirection } from '../src/solarSystem/poleOrientation'
 
 function findEntity(id: string): SolarSystemEntity {
@@ -76,8 +76,7 @@ describe('entityWorldPosition', () => {
 
   it('matches the render loop math for a planet', () => {
     const mars = findEntity('mars')
-    const { x, y, z, distanceAu } = planetAuPosition(mars.definition as (typeof PLANETS)[number], T)
-    const expected = scaledPosition(x, y, z, distanceAu, scaleBlend)
+    const expected = scaledPosition(planetAuPosition(mars.definition as (typeof PLANETS)[number], T), scaleBlend)
     const actual = entityWorldPosition(mars, T, daysSinceEpoch, scaleBlend)
     expect(actual[0]).toBeCloseTo(expected[0], 10)
     expect(actual[1]).toBeCloseTo(expected[1], 10)
@@ -92,13 +91,8 @@ describe('entityWorldPosition', () => {
     const angle = moonOrbitAngleRadians(daysSinceEpoch, moon.siderealOrbitPeriodDays)
     const orbitRadius = scaledMoonOrbitRadiusUnits(moon.orbitDistanceKm, moon.compactOrbitVisualRadius, scaleBlend, AU_KM)
     const referencePoleDirection = moonOrbitReferencePoleDirection(moon, saturn.definition as (typeof PLANETS)[number])
-    const [rx, ry, rz] = moonRelativePosition(
-      orbitRadius,
-      angle,
-      moon.orbitInclinationToParentEquatorDegrees,
-      moon.orbitAscendingNodeDegrees,
-      referencePoleDirection,
-    )
+    const tilt = moonOrbitPlaneTiltMatrix(moon.orbitInclinationToParentEquatorDegrees, moon.orbitAscendingNodeDegrees, referencePoleDirection)
+    const [rx, ry, rz] = moonRelativePosition(orbitRadius, angle, tilt)
     const actual = entityWorldPosition(titan, T, daysSinceEpoch, scaleBlend)
     expect(actual[0]).toBeCloseTo(px + rx, 10)
     expect(actual[1]).toBeCloseTo(py + ry, 10)

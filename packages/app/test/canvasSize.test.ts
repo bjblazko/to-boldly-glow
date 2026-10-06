@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { computeCanvasSize } from '../src/renderer/canvasSize'
+import { computeCanvasSize } from '../src/gpu/canvasSize'
 
 describe('computeCanvasSize', () => {
   it('matches client size exactly at devicePixelRatio 1', () => {

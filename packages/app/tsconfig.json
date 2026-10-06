@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "dist",
-    "types": ["@webgpu/types"]
+    "types": ["@webgpu/types", "vite/client", "node"]
   },
-  "include": ["src"]
+  "include": ["src", "test", "e2e", "playwright.config.ts", "vite.config.ts", "vitest.config.ts"]
 }

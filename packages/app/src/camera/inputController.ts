@@ -76,17 +76,16 @@ export class CameraInputController {
 
   update(deltaSeconds: number): void {
     if (!this.enabled || this.mode !== 'fly') return
-    const rotateAmount = ROTATE_SPEED * deltaSeconds
-    if (this.pressedKeys.has('KeyW')) this.flyCamera.turnPitch(rotateAmount)
-    if (this.pressedKeys.has('KeyS')) this.flyCamera.turnPitch(-rotateAmount)
-    if (this.pressedKeys.has('KeyD')) this.flyCamera.turnRoll(rotateAmount)
-    if (this.pressedKeys.has('KeyA')) this.flyCamera.turnRoll(-rotateAmount)
-
-    const speedAccel = SPEED_ACCEL * deltaSeconds
-    if (this.pressedKeys.has('ArrowUp')) this.flyCamera.changeSpeed(speedAccel)
-    if (this.pressedKeys.has('ArrowDown')) this.flyCamera.changeSpeed(-speedAccel)
-
+    const turn = ROTATE_SPEED * deltaSeconds
+    this.flyCamera.turnPitch(turn * this.keyAxis('KeyW', 'KeyS'))
+    this.flyCamera.turnRoll(turn * this.keyAxis('KeyD', 'KeyA'))
+    this.flyCamera.changeSpeed(SPEED_ACCEL * deltaSeconds * this.keyAxis('ArrowUp', 'ArrowDown'))
     this.flyCamera.moveForward(this.flyCamera.speed * deltaSeconds)
+  }
+
+  // +1 while only the positive key is held, -1 for only the negative one, 0 for neither or both.
+  private keyAxis(positiveKey: string, negativeKey: string): number {
+    return Number(this.pressedKeys.has(positiveKey)) - Number(this.pressedKeys.has(negativeKey))
   }
 
   private onPointerDown = (event: PointerEvent) => {

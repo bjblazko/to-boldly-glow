@@ -68,7 +68,7 @@ describe('scaledBodyRadiusUnits', () => {
 
 describe('scaledPosition', () => {
   it('preserves direction while rescaling magnitude', () => {
-    const [x, y, z] = scaledPosition(3, 4, 0, 5, 0)
+    const [x, y, z] = scaledPosition({ x: 3, y: 4, z: 0, distanceAu: 5 }, 0)
     const expectedFactor = scaledDistanceUnits(5, 0) / 5
     expect(x).toBeCloseTo(3 * expectedFactor, 10)
     expect(y).toBeCloseTo(4 * expectedFactor, 10)
@@ -76,6 +76,6 @@ describe('scaledPosition', () => {
   })
 
   it('returns the origin for a body at zero distance (the Sun)', () => {
-    expect(scaledPosition(0, 0, 0, 0, 0.7)).toEqual([0, 0, 0])
+    expect(scaledPosition({ x: 0, y: 0, z: 0, distanceAu: 0 }, 0.7)).toEqual([0, 0, 0])
   })
 })

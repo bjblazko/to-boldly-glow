@@ -5,7 +5,7 @@ const PRESET_LABELS = ['Real-time', '1 min/s', '1 hr/s', '1 day/s', '1 month/s',
 test('pausing the clock stops the time display from advancing (with a positive control)', async ({ page }) => {
   await page.goto('/')
 
-  // Wait for main() to finish booting (see scaffold.spec.ts) so the clock and UI are wired up.
+  // Wait for the app to finish booting (see scaffold.spec.ts) so the clock and UI are wired up.
   await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
 
   // Time controls live behind the dock's "Time" sheet — open it before interacting.

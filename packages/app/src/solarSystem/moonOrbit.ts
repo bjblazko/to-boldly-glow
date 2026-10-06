@@ -48,7 +48,7 @@ export function moonOrbitAngleForParent(daysSinceEpoch: number, moon: MoonDefini
 }
 
 // Tidally locked moons keep one face toward their parent as they orbit. With spin applied around
-// local Z (matching how planets spin - see poleOrientation.ts/main.ts) and the flat orbital
+// local Z (matching how planets spin - see poleOrientation.ts and scene/sceneLayout.ts's bodyWorldMatrix) and the flat orbital
 // position built in the XY-plane (see moonFlatOrbitPosition), the correct sign is the SAME as the
 // orbital angle. This is the opposite of the sign needed under this app's previous Y-axis-spin/
 // XZ-plane convention: mat4.fromYRotation maps local +Z to (sin, 0, cos), a coordinate order that
@@ -107,17 +107,18 @@ export function moonOrbitReferencePoleDirection(
   return equatorialToEclipticPoleDirection(parent.poleRightAscensionDegrees, parent.poleDeclinationDegrees)
 }
 
-// A moon's position relative to its parent's center, combining its flat orbital motion with the
-// real 3D tilt of its orbital plane.
-export function moonRelativePosition(
-  orbitRadius: number,
-  angleRadians: number,
-  inclinationToParentEquatorDegrees: number,
-  ascendingNodeDegrees: number,
-  referencePoleDirection: readonly [number, number, number],
-): [number, number, number] {
-  const flat = moonFlatOrbitPosition(orbitRadius, angleRadians)
-  const tilt = moonOrbitPlaneTiltMatrix(inclinationToParentEquatorDegrees, ascendingNodeDegrees, referencePoleDirection)
-  const tilted = vec3.transformMat4(vec3.create(), flat, tilt)
+// The tilt of a moon's orbital plane: its own inclination and node, on top of its reference plane.
+export function moonOrbitTilt(moon: MoonDefinition, parent: BodyDefinition): mat4 {
+  return moonOrbitPlaneTiltMatrix(
+    moon.orbitInclinationToParentEquatorDegrees,
+    moon.orbitAscendingNodeDegrees,
+    moonOrbitReferencePoleDirection(moon, parent),
+  )
+}
+
+// A moon's position relative to its parent's center: its flat orbital motion, tilted into the
+// orbital plane's real 3D orientation (see moonOrbitTilt).
+export function moonRelativePosition(orbitRadius: number, angleRadians: number, tilt: mat4): [number, number, number] {
+  const tilted = vec3.transformMat4(vec3.create(), moonFlatOrbitPosition(orbitRadius, angleRadians), tilt)
   return [tilted[0], tilted[1], tilted[2]]
 }

@@ -77,6 +77,16 @@ export interface OrbitCameraOptions {
   upAxis?: [number, number, number]
 }
 
+const DEFAULT_ORBIT_CAMERA: Required<OrbitCameraOptions> = {
+  target: [0, 0, 0],
+  radius: 65,
+  azimuth: 0,
+  elevation: 0.4,
+  minRadius: COMPACT_MIN_ORBIT_RADIUS,
+  maxRadius: 700,
+  upAxis: [...ECLIPTIC_NORTH],
+}
+
 const MAX_ELEVATION = Math.PI / 2 - 0.01
 
 function clamp(value: number, min: number, max: number): number {
@@ -99,13 +109,14 @@ export class OrbitCamera {
   upAxis: vec3
 
   constructor(options: OrbitCameraOptions = {}) {
-    this.target = vec3.fromValues(...(options.target ?? [0, 0, 0]))
-    this.radius = options.radius ?? 65
-    this.azimuth = options.azimuth ?? 0
-    this.elevation = options.elevation ?? 0.4
-    this.minRadius = options.minRadius ?? 5
-    this.maxRadius = options.maxRadius ?? 700
-    this.upAxis = vec3.fromValues(...(options.upAxis ?? ECLIPTIC_NORTH))
+    const settings = { ...DEFAULT_ORBIT_CAMERA, ...options }
+    this.target = vec3.fromValues(...settings.target)
+    this.radius = settings.radius
+    this.azimuth = settings.azimuth
+    this.elevation = settings.elevation
+    this.minRadius = settings.minRadius
+    this.maxRadius = settings.maxRadius
+    this.upAxis = vec3.fromValues(...settings.upAxis)
   }
 
   getEyePosition(): vec3 {
