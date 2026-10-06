@@ -79,6 +79,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Each lesson now shows a short note on what is and isn't to scale (the seasons lesson: sizes,
   distances and speeds are exaggerated, all angles are true).
 
+### Changed
+
+- Toolchain upgraded after reviewing each release's migration notes: Vite 6 → 8 (Rolldown/Oxc),
+  Vitest 3 → 5, TypeScript 5 → 6, ESLint 9 → 10, AssemblyScript 0.27 → 0.28,
+  Playwright 1.47 → 1.63. Node.js 22.12+ is now required (`.nvmrc` pins 24, which CI reads too).
+  The production build renders pixel-identical scenes before and after.
+
 ### Fixed
 
 - Every body (Sun, planets, moons) now has a real axial tilt and rotation axis, sourced from IAU

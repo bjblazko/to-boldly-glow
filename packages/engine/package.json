@@ -10,7 +10,7 @@
     "test": "npm run build && vitest run"
   },
   "devDependencies": {
-    "assemblyscript": "^0.27.29",
-    "vitest": "^3.2.6"
+    "assemblyscript": "^0.28.20",
+    "vitest": "^5.0.3"
   }
 }

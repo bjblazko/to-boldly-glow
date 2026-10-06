@@ -65,7 +65,7 @@ There's no hosted build yet, so running it locally is currently the only way to 
 
 ### Requirements
 
-- Node.js 20 or later (`.nvmrc` pins the version; `npm install` at the repo root installs
+- Node.js 22.12 or later (`.nvmrc` pins the version CI uses; `npm install` at the repo root installs
   everything else, including AssemblyScript's `asc` compiler — no separate toolchain to set up).
 - A WebGPU-capable browser (current Chrome/Edge) for running the app in dev mode and for the
   Playwright e2e suite. WebGPU-only is a deliberate MVP decision — see the "WebGL2 fallback" entry
