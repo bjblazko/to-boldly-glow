@@ -5,6 +5,38 @@ Each entry here is a named future feature with just enough detail to pick up lat
 re-deriving requirements from scratch. Before implementation, each entry should go through its own
 brainstorming → design-spec → implementation-plan cycle.
 
+## Cinematic lens flares
+**What**: Lens flares that look like the ones in films and respect depth: today's flares are
+screen-space sprites that a nearer planet simply cuts off, so they disappeared behind planets in a
+way no real lens does.
+**Approach**: Treat the flare as what happens inside the camera, not in the scene: occlusion only
+decides *how much* sunlight enters the lens (an occlusion query or a small depth-tested sample of
+the Sun's disc), and the ghosts, streaks and starburst are then drawn on top of the finished image,
+never depth-clipped. Ghost shapes and chromatic fringes from a physically inspired model (aperture
+polygon, lens-coating tints, starburst from the aperture's diffraction), dirt/smudge texture on the
+"lens" lit by the Sun, and a fade as the Sun leaves the frame.
+**Data needed**: none; a starburst/lens-dirt texture (procedural or CC0).
+
+## Eye candy: richer space visuals
+**What**: Make the scene look more like space photography: livelier stars, better planet surfaces,
+and the objects you'd actually see in the sky.
+**Approach** (ideas to choose from):
+- Stars: color from the catalog's B−V index, size/brightness by magnitude with a proper
+  point-spread function, subtle twinkle-free diffraction spikes for the brightest ones.
+- A Milky Way band and nebulae as a background sky map (e.g. a CC0 or NASA all-sky panorama,
+  ideally HDR), aligned to galactic coordinates; distant galaxies (Andromeda, the Magellanic Clouds)
+  as part of it.
+- Planet rendering: higher-resolution textures with streaming, normal maps from elevation data,
+  night-side city lights and specular oceans for Earth, atmospheric scattering (Rayleigh/Mie) for
+  Earth/Venus/Titan instead of the rim glow, animated cloud layers, Saturn's ring shadow on the
+  rings and the planet's shadow on the rings, and ring particles that sparkle.
+- Shader/mapping techniques: physically based shading, HDR tonemapping (ACES/AgX) and exposure,
+  parallax or tessellation for relief, anisotropic ring lighting.
+- Small bodies: the asteroid belt and Kuiper belt as instanced particles, comets with dust/ion tails
+  pointing away from the Sun, zodiacal light.
+**Data needed**: an all-sky background map, Earth night lights and elevation maps (NASA, public
+domain), asteroid/comet orbital elements (JPL).
+
 ## Moon phase / cycle deep-dive
 **What**: Explain the ~29.5-day synodic lunar cycle — why we see phases, the difference between
 sidereal and synodic month, supermoon/perigee-syzygy.

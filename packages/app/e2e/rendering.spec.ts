@@ -6,6 +6,7 @@ import {
   diskRadiusAlongRow,
   followEntity,
   labelAnchor,
+  meanAbsoluteDifference,
   openRenderedApp,
   renderFrames,
 } from './support/renderedApp'
@@ -71,6 +72,32 @@ test('a followed planet fills the view and its visible face is lit', async ({ pa
 
   expect(diskRadiusAlongRow(frame, mars.x, mars.y)).toBeGreaterThan(frame.height * 0.08)
   expect(meanLuminance(frame, mars.x, mars.y, frame.height * 0.06)).toBeGreaterThan(35)
+  expect(errors).toEqual([])
+})
+
+// The tour flies continuously, and stopping it hands the view to the free-fly camera exactly as it
+// was - same position, direction and roll - instead of jumping or levelling the horizon.
+test('the tour moves the view smoothly and hands over to free-fly without a jump', async ({ page }) => {
+  test.setTimeout(120_000)
+  const errors = await openRenderedApp(page)
+  await page.locator('.hud-dock-btn[data-panel="display"]').click()
+  await page.locator('#orbit-paths-toggle').uncheck()
+  await page.locator('.hud-dock-btn[data-panel="display"]').click()
+  await page.locator('.hud-dock-btn[data-panel="camera"]').click()
+  await page.locator('#camera-tour-toggle').click()
+  await page.locator('.hud-dock-btn[data-panel="camera"]').click()
+
+  await renderFrames(page, 60)
+  const flying = await captureFrame(page)
+  await renderFrames(page, 30)
+  const threeSecondsLater = await captureFrame(page)
+  expect(meanAbsoluteDifference(flying, threeSecondsLater)).toBeGreaterThan(0.5)
+
+  const lastTourFrame = await captureFrame(page)
+  await page.keyboard.press('Escape')
+  const firstFreeFlyFrame = await captureFrame(page)
+  expect(meanAbsoluteDifference(lastTourFrame, firstFreeFlyFrame)).toBeLessThan(0.5)
+  await expect(page.locator('#camera-mode-toggle .btn-label')).toHaveText('Switch to Orbit Camera')
   expect(errors).toEqual([])
 })
 

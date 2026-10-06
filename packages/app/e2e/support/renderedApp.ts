@@ -74,3 +74,12 @@ export function diskRadiusAlongRow(frame: CapturedFrame, centerX: number, center
   while (right < frame.width - 1 && luminanceAt(frame, right + 1, centerY) > background) right++
   return (right - left) / 2
 }
+
+// Mean per-channel difference (0-255) between two frames of the same size.
+export function meanAbsoluteDifference(a: CapturedFrame, b: CapturedFrame): number {
+  let sum = 0
+  for (let i = 0; i < a.pixels.length; i += 4) {
+    sum += Math.abs(a.pixels[i] - b.pixels[i]) + Math.abs(a.pixels[i + 1] - b.pixels[i + 1]) + Math.abs(a.pixels[i + 2] - b.pixels[i + 2])
+  }
+  return sum / ((a.pixels.length / 4) * 3)
+}

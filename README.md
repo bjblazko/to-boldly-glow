@@ -48,18 +48,19 @@ There's no hosted build yet, so running it locally is currently the only way to 
 - **Camera** — by default, drag to orbit the current target and scroll (or trackpad-pinch) to zoom.
   Use the **Camera** panel (bottom dock) to switch to free-fly mode, which flies like a plane: `W`/`S`
   pitch the nose down/up, `A`/`D` roll left/right, and `↑`/`↓` raise/lower cruise speed. The same
-  panel has **Start Tour**, an endless autopilot flight past every planet (any camera input hands
-  control back), and a search box — type a body's name, then press Enter or click a result to fly
+  panel has **Start Tour**, an endless autopilot flight past every planet, flown like a spaceship —
+  it accelerates, brakes on arrival, banks into turns and circles each planet once (any camera input
+  hands control back, exactly where the tour was), and a search box — type a body's name, then press Enter or click a result to fly
   the camera to it and lock on; a "Following: …" chip appears with a **×** to stop following and
   return to free manual control.
 - **Time** — the **Time** panel has play/pause, a reverse-direction button, and rate presets
   (real-time up to a year per second). The shuttle slider lets you dial in a rate directly: the
   center tick is zero (the clock is stopped), the left half rewinds, the right half fast-forwards
-  — the fill color and the Past/Future labels show which side you're on. The same panel has the
-  Realistic ⇄ Explorer slider, which blends between true-to-scale distances/sizes and a compressed
-  view that's easier to fly around in, and the current simulated date/time (UTC).
-- **Display** — the **Display** panel toggles orbit paths, name labels, the starfield, HDR bloom,
-  lens flares, and moons independently.
+  — the fill color and the Past/Future labels show which side you're on. The panel also shows the
+  current simulated date/time (UTC).
+- **Display** — the **Display** panel switches between **Realistic** (true-to-scale distances and
+  sizes) and **Compact** (a compressed view that's easier to fly around in), and toggles orbit
+  paths, name labels, the starfield, HDR bloom, lens flares, and moons independently.
 
 ## For developers
 
@@ -78,8 +79,18 @@ This is an npm-workspaces monorepo with three packages:
 - **`packages/engine`** — AssemblyScript. The pure numeric orbital-mechanics core (VSOP87
   planetary positions, Julian Day conversion, and similar), compiled to WebAssembly. Fully
   unit-testable without a browser or GPU.
-- **`packages/app`** — TypeScript, built with Vite. The WebGPU renderer, camera/time controllers,
-  and UI (`packages/app/src/hud`). This is the actual application.
+- **`packages/app`** — TypeScript, built with Vite. This is the actual application. Its source is
+  grouped by subject, not by technique — each feature keeps its shader, GPU pipeline, per-frame
+  uniforms and draw call together:
+  - `app/` starts everything and runs the frame loop; `scene/` decides each frame's *scene layout*
+    (where every visible body is — the real solar system, or the active lesson's staged scene) and
+    renders it.
+  - `bodies/` (Sun, planets, moons), `saturnRing/`, `cloudShell/`, `starfield/`, `orbitPaths/`,
+    `lensFlare/`, `bloom/`, `labels/` — one folder per thing you see.
+  - `camera/` (orbit, free-fly, follow, the tour in `camera/tour/`), `learn/` (lessons, with
+    `seasons/` and `sizes/`), `hud/`, `time/`, `search/`, `solarSystem/` (body data and orbital
+    mechanics).
+  - `gpu/` and `lines/` hold the WebGPU plumbing the features share.
 - **`packages/data-pipeline`** — TypeScript. Offline conversion scripts (e.g. turning the Yale
   Bright Star Catalogue into the binary starfield asset `packages/app` loads at runtime). Not part
   of the normal dev loop — only run when source data changes.
@@ -104,8 +115,12 @@ Run from the repo root:
 | `npm run build` | Builds the engine, then the app, for production |
 | `npm test` | Unit tests across all three packages (Vitest) |
 | `npm run test:e2e` | Builds the app, then runs the Playwright e2e suite in a real browser |
-| `npm run typecheck` | `tsc --noEmit` for the app |
-| `npm run lint` | ESLint across the whole repo |
+| `npm run typecheck` | `tsc --noEmit` for the app, its unit tests and e2e specs |
+| `npm run lint` | ESLint across the whole repo, including type-aware rules and clean-code limits |
+
+Production code is held to clean-code limits by ESLint (see `eslint.config.js`): cyclomatic
+complexity at most 8, functions at most 40 lines and 15 statements, at most 4 parameters, nesting at
+most 3 deep, files at most 300 lines. When a function outgrows them, split it along what it does.
 
 ### Documentation
 
