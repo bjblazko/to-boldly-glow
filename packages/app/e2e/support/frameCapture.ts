@@ -1,11 +1,8 @@
 import type { Page } from '@playwright/test'
 
-// Headless Chromium can't give a WebGPU canvas a real swapchain ("Could not find
-// SharedImageBackingFactory ... WebgpuSwapChainTexture"): the first getCurrentTexture() loses the
-// device, so the app silently stops rendering after its first frame. This init script swaps the
-// canvas swapchain for an ordinary offscreen texture of the same size and format, so every frame is
-// really rendered - GPU validation errors surface as page errors - and the last frame can be read
-// back for pixel assertions.
+// Headless Chromium renders a WebGPU canvas but never composites it, so screenshots of it come out
+// blank. This init script swaps the canvas swapchain for an ordinary offscreen texture of the same
+// size and format, so every frame can be read back for pixel assertions.
 const OFFSCREEN_SWAPCHAIN = `(() => {
   const state = { device: null, format: null, texture: null, request: null, adapters: [] }
   window.__offscreenSwapchain = state
@@ -34,6 +31,8 @@ const OFFSCREEN_SWAPCHAIN = `(() => {
     }
     return state.texture
   }
+  // Resolves once the GPU has finished every frame submitted so far.
+  state.whenIdle = () => (state.device ? state.device.queue.onSubmittedWorkDone() : Promise.resolve())
   const submit = GPUQueue.prototype.submit
   GPUQueue.prototype.submit = function (commandBuffers) {
     const result = submit.call(this, commandBuffers)
@@ -83,6 +82,14 @@ export interface CapturedFrame {
 
 export async function installOffscreenSwapchain(page: Page): Promise<void> {
   await page.addInitScript(OFFSCREEN_SWAPCHAIN)
+}
+
+// Waits until the GPU has caught up with every submitted frame. A fake clock fires animation frames
+// as fast as a test asks for them, with none of the back-pressure a real display applies, so
+// without this a test can queue up minutes of software-rendered frames - which the browser's shared
+// GPU process then has to work through before the next test's page can even open.
+export async function waitForGpuIdle(page: Page): Promise<void> {
+  await page.evaluate(() => (window as unknown as { __offscreenSwapchain: { whenIdle(): Promise<void> } }).__offscreenSwapchain.whenIdle())
 }
 
 // Reads back the next frame the app submits. With Playwright's fake clock installed the app only

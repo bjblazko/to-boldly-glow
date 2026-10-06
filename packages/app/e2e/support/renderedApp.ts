@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test'
-import { captureNextFrame, installOffscreenSwapchain, type CapturedFrame } from './frameCapture'
+import { captureNextFrame, installOffscreenSwapchain, waitForGpuIdle, type CapturedFrame } from './frameCapture'
 
 // Opens the app with real rendering (see frameCapture.ts) and a frozen, test-controlled clock, so
 // every frame is deterministic and only happens when a test asks for it. Software WebGPU is slow
@@ -25,7 +25,10 @@ export async function openRenderedApp(page: Page, start: Date = DEFAULT_START): 
 // Renders `count` frames, each 100 ms of app time apart - the app's largest animation step (it
 // clamps longer gaps), so tweens progress exactly as they would at 10 frames per second.
 export async function renderFrames(page: Page, count: number): Promise<void> {
-  for (let i = 0; i < count; i++) await page.clock.fastForward(100)
+  for (let i = 0; i < count; i++) {
+    await page.clock.fastForward(100)
+    await waitForGpuIdle(page)
+  }
 }
 
 export async function captureFrame(page: Page): Promise<CapturedFrame> {
