@@ -1204,6 +1204,11 @@ async function main() {
   const LESSON_PANEL_MIN_TOP_PX = 16
   const LESSON_FIT_MARGIN_TOP = 0.05
   const LESSON_FIT_MARGIN_BOTTOM = 0.04
+  // On short windows the panel covers most of the screen; squeezing the scene into the sliver above
+  // it made it unreadably small. The scene always gets at least the top half (the panel can be
+  // dragged aside), and the camera never backs off more than this factor from the chapter framing.
+  const LESSON_FIT_MIN_BAND_BOTTOM = 0.5
+  const LESSON_FIT_MAX_ZOOM_OUT = 2
   // Each lesson scene's extent around its camera target, in scene units: vertically along the
   // camera's up axis (what has to stay visible above the lesson panel), and horizontally the
   // farthest the content reaches to either side of the target (what has to fit across narrow,
@@ -1231,7 +1236,7 @@ async function main() {
     if (height <= 0) return
     const panelTopFraction = Math.max(LESSON_PANEL_MIN_TOP_PX, height - LESSON_PANEL_RESERVED_PX) / height
     const bandTop = LESSON_FIT_MARGIN_TOP
-    const bandBottom = Math.max(panelTopFraction - LESSON_FIT_MARGIN_BOTTOM, bandTop + 0.1)
+    const bandBottom = Math.max(panelTopFraction - LESSON_FIT_MARGIN_BOTTOM, LESSON_FIT_MIN_BAND_BOTTOM)
     const { top: contentTop, bottom: contentBottom, halfWidth: contentHalfWidth } = LESSON_CONTENT_BOUNDS[kind]
     const tanHalfFov = Math.tan(VERTICAL_FOV_RADIANS / 2)
     const aspect = canvas.clientWidth / height
@@ -1239,7 +1244,8 @@ async function main() {
       (contentTop - contentBottom) / (2 * (bandBottom - bandTop)),
       contentHalfWidth / aspect,
     )
-    orbitCamera.radius = Math.max(orbitCamera.radius, halfHeightToFit / tanHalfFov)
+    const chapterRadius = orbitCamera.radius
+    orbitCamera.radius = Math.min(Math.max(chapterRadius, halfHeightToFit / tanHalfFov), chapterRadius * LESSON_FIT_MAX_ZOOM_OUT)
     const halfHeight = orbitCamera.radius * tanHalfFov
     // A point at height y above the target lands at screen fraction 0.5 - y / (2 * halfHeight) -
     // shift / 2 from the top; solve for the shift that puts the content's middle mid-band.
