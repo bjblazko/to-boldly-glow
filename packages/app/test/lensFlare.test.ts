@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest'
 import type { Viewpoint } from '../src/camera/viewpoint'
 import { FLARE_ELEMENTS } from '../src/lensFlare/flareElements'
 import { elementCenter, FLOATS_PER_ELEMENT, frameFade, MAX_FLARE_ELEMENTS, packFlareElements } from '../src/lensFlare/flareLayout'
-import { flarePipelineSpec } from '../src/lensFlare/lensFlare'
 import { sunVisibleFraction } from '../src/lensFlare/sunVisibility'
 import type { PlanetPose, SceneLayout } from '../src/scene/sceneLayout'
 import { PLANETS } from '../src/solarSystem/bodies'
@@ -52,15 +51,6 @@ describe('lens flare layout', () => {
     expect(packed[0]).toBeCloseTo(first.color[0] * first.intensity, 6)
     expect(packed[4]).toBeCloseTo(first.t, 6)
     expect(() => packFlareElements(Array.from({ length: MAX_FLARE_ELEMENTS + 1 }, () => first))).toThrow()
-  })
-})
-
-describe('lens flare pipeline', () => {
-  // The old flare was depth-tested at the Sun's depth, so any planet anywhere in the picture cut
-  // off the ghosts it overlapped - not what light scattered inside a lens does.
-  it('draws over the scene without any depth test', () => {
-    const spec = flarePipelineSpec('rgba16float')
-    expect(spec.depth).toEqual({ write: false, compare: 'always' })
   })
 })
 

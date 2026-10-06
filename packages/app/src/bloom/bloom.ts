@@ -57,6 +57,11 @@ export class Bloom {
     return { view: this.targets.hdrMultisampleTexture.createView(), resolveTarget: this.targets.hdrResolveTexture.createView() }
   }
 
+  // The resolved scene, where camera effects draw before bloom picks it up.
+  sceneImageView(): GPUTextureView {
+    return this.targets.hdrResolveTexture.createView()
+  }
+
   // Bright pass -> downsample chain -> upsample chain -> composite + tonemap onto the swapchain.
   composite(encoder: GPUCommandEncoder, swapchainView: GPUTextureView): void {
     const { pipelines, targets } = this

@@ -84,8 +84,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Lens flares look like a film camera's: a blue anamorphic streak, the aperture's starburst, a
   faint rainbow halo, six-bladed aperture ghosts with colored fringes along the line through the
   screen center, and lens dirt that lights up near the Sun - in HDR, so bloom catches the streak.
-  They fade out as the Sun leaves the frame instead of switching off at the edge, and draw in one
-  instanced call. Sizes follow the window, not fixed pixels.
+  They fade out as the Sun leaves the frame instead of switching off at the edge. Sizes follow the
+  window, not fixed pixels. They draw in one instanced call in a camera-effects pass of their own,
+  onto the finished scene image (one sample per pixel, no depth buffer), with tight quads and each
+  shape's geometry computed once for all color channels - cheap enough for software WebGPU.
 
 - The camera tour now flies like a spaceship: it starts from rest, accelerates and brakes within an
   engine limit (arriving at loop speed), turns only as fast as its thrust allows, banks into turns,

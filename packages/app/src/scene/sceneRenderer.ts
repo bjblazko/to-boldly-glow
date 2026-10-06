@@ -46,6 +46,7 @@ export class SceneRenderer {
     const pass = this.targets.beginScenePass(encoder)
     this.draw(pass, frame.layout)
     pass.end()
+    this.drawCameraEffects(encoder)
     this.targets.present(encoder)
     this.device.queue.submit([encoder.finish()])
   }
@@ -65,7 +66,7 @@ export class SceneRenderer {
 
   private draw(pass: GPURenderPassEncoder, layout: SceneLayout): void {
     const { display, linePipeline } = this.settings
-    const { starfield, bodies, saturnRing, cloudShells, orbitPaths, lensFlare, lessons } = this.parts
+    const { starfield, bodies, saturnRing, cloudShells, orbitPaths, lessons } = this.parts
     // Stars first: they have no depth test, so everything drawn later paints over them.
     if (display.starfield.on) starfield.draw(pass)
     bodies.draw(pass, layout)
@@ -75,7 +76,14 @@ export class SceneRenderer {
     pass.setPipeline(linePipeline)
     if (display.orbitPaths.on) orbitPaths.draw(pass)
     lessons.drawOverlays(pass)
-    // Flares last, depth-tested against every body in front of the Sun.
-    if (display.flares.on) lensFlare.draw(pass)
+  }
+
+  // The lens flare happens inside the camera, so it lies over everything in the picture.
+  private drawCameraEffects(encoder: GPUCommandEncoder): void {
+    const { lensFlare } = this.parts
+    if (!this.settings.display.flares.on || !lensFlare.isVisible) return
+    const pass = this.targets.beginCameraEffectsPass(encoder)
+    lensFlare.draw(pass)
+    pass.end()
   }
 }

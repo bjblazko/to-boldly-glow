@@ -43,6 +43,6 @@ export const FLARE_ELEMENTS: FlareElement[] = [
   { shape: 'ghost', t: 0.92, size: 0.032, color: [1.0, 0.7, 0.3], intensity: 0.2, blades: APERTURE_BLADES, rotation: APERTURE_ROTATION, softness: 0.15 },
   { shape: 'ghost', t: 1.15, size: 0.065, color: [0.4, 0.6, 1.0], intensity: 0.1, blades: APERTURE_BLADES, rotation: APERTURE_ROTATION, softness: 0.3, dispersion: 0.06 },
   { shape: 'ghost', t: 1.42, size: 0.2, color: [0.95, 0.6, 0.4], intensity: 0.045, blades: APERTURE_BLADES, rotation: APERTURE_ROTATION, softness: 0.6 },
-  // Dust and smudges on the front element, lit up near the Sun.
-  { shape: 'dirt', t: 0, size: 1, color: [1.0, 0.92, 0.82], intensity: 0.12 },
+  // Dust and smudges on the front element, lit up within this radius of the Sun.
+  { shape: 'dirt', t: 0, size: 0.75, color: [1.0, 0.92, 0.82], intensity: 0.12 },
 ]

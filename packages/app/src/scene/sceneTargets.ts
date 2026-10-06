@@ -55,7 +55,15 @@ export class SceneTargets {
     })
   }
 
-  // After the scene pass: bloom's composite is then the only write to the swapchain.
+  // Camera effects draw onto the resolved scene image (see gpu/cameraEffectPipeline.ts) - before
+  // bloom, so their bright cores bloom too.
+  beginCameraEffectsPass(encoder: GPUCommandEncoder): GPURenderPassEncoder {
+    const view = this.bloom ? this.bloom.sceneImageView() : this.swapchainView()
+    return encoder.beginRenderPass({ label: 'camera effects pass', colorAttachments: [{ view, loadOp: 'load', storeOp: 'store' }] })
+  }
+
+  // After the scene and camera-effects passes: bloom's composite is then the only write to the
+  // swapchain.
   present(encoder: GPUCommandEncoder): void {
     this.bloom?.composite(encoder, this.swapchainView())
   }
