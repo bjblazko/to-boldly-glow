@@ -2,6 +2,7 @@ import { vec3, type mat4 } from 'gl-matrix'
 import type { Rgb, Rgba } from '../math/tuples'
 import { worldViewProjection, type Viewpoint } from '../camera/viewpoint'
 import { LIT_UNIFORM_FLOAT_COUNT } from './litBodyShader'
+import { packSurfaceMaterial, type SurfaceMaterial } from './surfaceMaterial'
 
 // A sphere that can shadow the body: world-space center and radius.
 export type Occluder = [number, number, number, number]
@@ -20,6 +21,11 @@ export interface LitBodyShading {
   atmosphere?: Rgba
   bumpIntensity?: number
   hemisphereTints?: { north: Rgba; south: Rgba }
+  material: SurfaceMaterial
+  // Drives the ocean's glitter and the clouds' drift.
+  timeSeconds: number
+  // Whether Earth's clouds are shown, and so cast their shadows.
+  clouds: boolean
 }
 
 // The lit shader expects the direction from the Sun toward the body, i.e. its normalized position.
@@ -43,5 +49,6 @@ export function packLitBodyUniforms(shading: LitBodyShading, viewpoint: Viewpoin
     uniforms.set(shading.hemisphereTints.north, 72)
     uniforms.set(shading.hemisphereTints.south, 76)
   }
+  uniforms.set(packSurfaceMaterial(shading.material, shading), 80)
   return uniforms
 }

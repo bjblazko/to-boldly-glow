@@ -144,6 +144,31 @@ test('lens flares are force-hidden on learn-mode entry and restored to their pri
   expect(errors).toEqual([])
 })
 
+// Earth's clouds would cover the seasons lesson's hemisphere tint and markers: a lesson clears them
+// like the other explore-mode extras, and gives the user's own setting back afterward.
+test("Earth's clouds are hidden during a lesson and come back afterward", async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', (error) => errors.push(error.message))
+  await openApp(page)
+  await expect(page.locator('#scene')).toHaveAttribute('data-clouds', 'true')
+
+  await page.locator('#learn-mode-btn').click()
+  await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
+  await expect(page.locator('#scene')).toHaveAttribute('data-clouds', 'false')
+  await page.locator('#learn-mode-btn').click()
+  await expect(page.locator('#scene')).toHaveAttribute('data-clouds', 'true')
+
+  // Switched off by the user, they stay off after a lesson.
+  await page.locator('#display-corner-btn').click()
+  await page.locator('#clouds-toggle').uncheck()
+  await page.locator('#display-corner-btn').click()
+  await page.locator('#learn-mode-btn').click()
+  await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
+  await page.locator('#learn-mode-btn').click()
+  await expect(page.locator('#scene')).toHaveAttribute('data-clouds', 'false')
+  expect(errors).toEqual([])
+})
+
 test('entity search is explicitly disabled in learn mode, not just unreachable behind the hidden dock', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))

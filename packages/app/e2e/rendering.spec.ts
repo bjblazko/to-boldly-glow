@@ -101,6 +101,20 @@ test("the lens flare follows the Sun's visibility and lies over planets, not beh
   expect(errors).toEqual([])
 })
 
+// Earth's clouds (and the shadows they cast) really reach the picture, and switch off with their
+// toggle.
+test("Earth's clouds show over the planet and switch off with their toggle", async ({ page }) => {
+  const errors = await openRenderedApp(page)
+  await setDisplaySwitch(page, '#orbit-paths-toggle', false)
+  await setDisplaySwitch(page, '#body-labels-toggle', false)
+  await followEntity(page, 'Earth')
+  const cloudy = await captureFrame(page)
+  await setDisplaySwitch(page, '#clouds-toggle', false)
+  const clear = await captureFrame(page)
+  expect(meanAbsoluteDifference(cloudy, clear)).toBeGreaterThan(0.5)
+  expect(errors).toEqual([])
+})
+
 // The tour flies continuously, and stopping it hands the view to the free-fly camera exactly as it
 // was - same position, direction and roll - instead of jumping or levelling the horizon.
 // Thresholds, as mean pixel differences: a still camera changes about 0.002 between frames (planets

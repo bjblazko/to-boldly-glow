@@ -11,6 +11,7 @@ import { packLitBodyUniforms, sunlightDirection, type Occluder } from './litBody
 import { createSphereMeshBuffers, drawSphere, SPHERE_VERTEX_BUFFERS, type SphereMeshBuffers } from './sphereMesh'
 import { unlitSphereShaderCode } from './sunShader'
 import { createBodySampler } from './bodySampler'
+import { albedoTint, surfaceMaterialOf } from './surfaceMaterial'
 
 const SUN_UNIFORM_FLOAT_COUNT = 20
 
@@ -52,10 +53,11 @@ export class BodyRenderer {
   }
 
   // sunBrightness > 1 pushes the Sun past the bloom pass's threshold (see bloom/bloom.ts).
-  update(layout: SceneLayout, viewpoint: Viewpoint, sunBrightness: number): void {
-    this.writeSun(layout.sun, viewpoint, sunBrightness)
-    for (const planet of layout.planets) this.writePlanet(planet, layout, viewpoint)
-    for (const moon of layout.moons) this.writeMoon(moon, layout.sun.radius, viewpoint)
+  update(layout: SceneLayout, viewpoint: Viewpoint, frame: { sunBrightness: number; timeSeconds: number; clouds: boolean }): void {
+    this.writeSun(layout.sun, viewpoint, frame.sunBrightness)
+    const bodyFrame = { layout, viewpoint, timeSeconds: frame.timeSeconds, clouds: frame.clouds }
+    for (const planet of layout.planets) this.writePlanet(planet, bodyFrame)
+    for (const moon of layout.moons) this.writeMoon(moon, bodyFrame)
   }
 
   draw(pass: GPURenderPassEncoder, layout: SceneLayout): void {
@@ -74,13 +76,13 @@ export class BodyRenderer {
     writeUniforms(this.device, this.bindings.sun, uniforms)
   }
 
-  private writePlanet(planet: PlanetPose, layout: SceneLayout, viewpoint: Viewpoint): void {
-    const { atmosphereColor, atmosphereIntensity, bumpIntensity, color } = planet.definition
+  private writePlanet(planet: PlanetPose, { layout, viewpoint, timeSeconds, clouds }: BodyFrame): void {
+    const { atmosphereColor, atmosphereIntensity, bumpIntensity } = planet.definition
     const moonShadows = layout.moons.filter((moon) => moon.parent === planet).map(occluderOf)
     const uniforms = packLitBodyUniforms(
       {
         world: bodyWorldMatrix(planet),
-        color,
+        color: albedoTint(planet.definition),
         lightDirection: sunlightDirection(planet.position),
         occluders: moonShadows,
         sunRadius: layout.sun.radius,
@@ -88,6 +90,9 @@ export class BodyRenderer {
         atmosphere: atmosphereColor && atmosphereIntensity ? [...atmosphereColor, atmosphereIntensity] : undefined,
         bumpIntensity,
         hemisphereTints: planet.hemisphereTints,
+        material: surfaceMaterialOf(planet.definition.id),
+        timeSeconds,
+        clouds,
       },
       viewpoint,
     )
@@ -95,20 +100,30 @@ export class BodyRenderer {
   }
 
   // A moon is only ever shadowed by its parent (an eclipse of the moon by its planet).
-  private writeMoon(moon: MoonPose, sunRadius: number, viewpoint: Viewpoint): void {
+  private writeMoon(moon: MoonPose, { layout, viewpoint, timeSeconds, clouds }: BodyFrame): void {
     const uniforms = packLitBodyUniforms(
       {
         world: bodyWorldMatrix(moon),
-        color: moon.definition.color,
+        color: albedoTint(moon.definition),
         lightDirection: sunlightDirection(moon.position),
         occluders: [occluderOf(moon.parent)],
-        sunRadius,
+        sunRadius: layout.sun.radius,
         bumpIntensity: moon.definition.bumpIntensity,
+        material: surfaceMaterialOf(moon.definition.id),
+        timeSeconds,
+        clouds,
       },
       viewpoint,
     )
     writeUniforms(this.device, this.bindings.litBodies.get(moon.definition.id)!, uniforms)
   }
+}
+
+interface BodyFrame {
+  layout: SceneLayout
+  viewpoint: Viewpoint
+  timeSeconds: number
+  clouds: boolean
 }
 
 function occluderOf(body: { position: readonly number[]; radius: number }): Occluder {

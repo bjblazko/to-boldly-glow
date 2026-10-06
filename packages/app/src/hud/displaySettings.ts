@@ -29,6 +29,7 @@ export interface LessonDisplaySnapshot {
   orbitPaths: boolean
   bodyLabels: boolean
   flares: boolean
+  clouds: boolean
 }
 
 export class DisplaySettings {
@@ -38,6 +39,7 @@ export class DisplaySettings {
   readonly moons: DisplaySwitch
   readonly orbitPaths: DisplaySwitch
   readonly bodyLabels: DisplaySwitch
+  readonly clouds: DisplaySwitch
 
   constructor(canvas: HTMLCanvasElement, findCheckbox: (selector: string) => HTMLInputElement) {
     const displaySwitch = (selector: string, datasetKey: string) => new DisplaySwitch(findCheckbox(selector), canvas, datasetKey)
@@ -47,14 +49,16 @@ export class DisplaySettings {
     this.moons = displaySwitch('#moons-toggle', 'moons')
     this.orbitPaths = displaySwitch('#orbit-paths-toggle', 'orbitPaths')
     this.bodyLabels = displaySwitch('#body-labels-toggle', 'labelsVisible')
+    this.clouds = displaySwitch('#clouds-toggle', 'clouds')
   }
 
   // Lessons are cleaner without explore-mode clutter; returns what to restore afterward.
   clearForLesson(): LessonDisplaySnapshot {
-    const snapshot = { orbitPaths: this.orbitPaths.on, bodyLabels: this.bodyLabels.on, flares: this.flares.on }
+    const snapshot = { orbitPaths: this.orbitPaths.on, bodyLabels: this.bodyLabels.on, flares: this.flares.on, clouds: this.clouds.on }
     this.orbitPaths.set(false)
     this.bodyLabels.set(false)
     this.flares.set(false)
+    this.clouds.set(false)
     return snapshot
   }
 
@@ -62,5 +66,6 @@ export class DisplaySettings {
     this.orbitPaths.set(snapshot.orbitPaths)
     this.bodyLabels.set(snapshot.bodyLabels)
     this.flares.set(snapshot.flares)
+    this.clouds.set(snapshot.clouds)
   }
 }
