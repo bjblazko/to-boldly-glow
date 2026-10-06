@@ -1,11 +1,11 @@
 import { expect, test } from '@playwright/test'
+import { openApp } from './support/appBoot'
 
 test('body textures load without error and the scene renders once they settle', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
-  await page.goto('/')
-  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+  await openApp(page)
 
   // Positive control: `data-textures-loaded` is only set once every body's texture-load promise
   // (success or graceful fallback) has settled, proving the async texture pipeline actually ran

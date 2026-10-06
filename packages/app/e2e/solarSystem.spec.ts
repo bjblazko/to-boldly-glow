@@ -1,11 +1,11 @@
 import { expect, test } from '@playwright/test'
+import { openApp } from './support/appBoot'
 
 test('all 8 planets render, and the scale toggle + orbit-path controls affect the scene', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
-  await page.goto('/')
-  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+  await openApp(page)
 
   // Positive control: pressing the scale mode's segmented button changes the recorded blend value
   // exposed for testing, proving the control is actually wired to the renderer's state — not

@@ -1,12 +1,10 @@
 import { expect, test } from '@playwright/test'
+import { openApp } from './support/appBoot'
 
 const PRESET_LABELS = ['Real-time', '1 min/s', '1 hr/s', '1 day/s', '1 month/s', '1 year/s']
 
 test('pausing the clock stops the time display from advancing (with a positive control)', async ({ page }) => {
-  await page.goto('/')
-
-  // Wait for the app to finish booting (see scaffold.spec.ts) so the clock and UI are wired up.
-  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+  await openApp(page)
 
   // Time controls live behind the dock's "Time" sheet — open it before interacting.
   await page.locator('.hud-dock-btn[data-panel="time"]').click()
@@ -30,16 +28,14 @@ test('pausing the clock stops the time display from advancing (with a positive c
 })
 
 test('preset dropdown lists the expected options in order', async ({ page }) => {
-  await page.goto('/')
-  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+  await openApp(page)
 
   const optionLabels = await page.locator('#time-preset-select option').allTextContents()
   expect(optionLabels).toEqual(PRESET_LABELS)
 })
 
 test('selecting the "1 year/s" preset makes the display advance rapidly', async ({ page }) => {
-  await page.goto('/')
-  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+  await openApp(page)
 
   // Time controls live behind the dock's "Time" sheet — open it before interacting.
   await page.locator('.hud-dock-btn[data-panel="time"]').click()

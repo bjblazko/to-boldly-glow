@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { waitForFirstFrame } from './support/appBoot'
 
 test('app boots, WebGPU is available, and a frame actually renders', async ({ page }) => {
   const errors: string[] = []
@@ -20,7 +21,7 @@ test('app boots, WebGPU is available, and a frame actually renders', async ({ pa
   // main.ts catches and swallows its own promise rejection — but a rejection here
   // prevents the frame loop from ever running, so data-rendered is never set and this
   // assertion fails.
-  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+  await waitForFirstFrame(page)
 
   // Secondary check: no uncaught page errors either.
   expect(errors).toEqual([])

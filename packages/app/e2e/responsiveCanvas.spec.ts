@@ -1,12 +1,12 @@
 import { expect, test } from '@playwright/test'
+import { openApp } from './support/appBoot'
 
 test('canvas fills the window and resizes its backing store with it', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
   await page.setViewportSize({ width: 1000, height: 700 })
-  await page.goto('/')
-  await expect(page.locator('#scene')).toHaveAttribute('data-rendered', 'true')
+  await openApp(page)
 
   // Positive control: the canvas's actual WebGPU backing-store size (not just its CSS display
   // size) matches the viewport, proving it isn't still the old fixed 800x600 stretched by CSS.
