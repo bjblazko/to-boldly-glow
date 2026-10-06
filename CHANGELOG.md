@@ -81,6 +81,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The camera tour now flies like a spaceship: it starts from rest, accelerates and brakes within an
+  engine limit (arriving at loop speed), turns only as fast as its thrust allows, banks into turns,
+  and its gaze leads the flight path at a bounded turn rate. Stopping it hands the view to free-fly
+  with the same roll instead of levelling it with a jolt.
+- The app's source is grouped by subject instead of by technique: each visible feature (bodies,
+  Saturn's ring, cloud shells, starfield, orbit paths, lens flares, bloom, labels) keeps its shader,
+  pipeline, uniforms and drawing together; lessons supply their own scene layout instead of being
+  special-cased inside one 600-line frame function. ESLint now enforces clean-code limits
+  (complexity, function length, parameters, nesting, file size) and type-aware rules, and tests are
+  type-checked too. Rendering is unchanged, verified pixel by pixel on 20 reference scenes.
 - Toolchain upgraded after reviewing each release's migration notes: Vite 6 → 8 (Rolldown/Oxc),
   Vitest 3 → 5, TypeScript 5 → 6, ESLint 9 → 10, AssemblyScript 0.27 → 0.28,
   Playwright 1.47 → 1.63. Node.js 22.12+ is now required (`.nvmrc` pins 24, which CI reads too).
@@ -88,6 +98,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- A lost GPU device (driver reset, GPU process crash) no longer leaves a silently frozen picture:
+  the app says so and offers a reload.
+- The canvas now follows changes of its own size and of the device pixel ratio (moving the window
+  to another screen), not only window resizes.
+- With labels re-enabled during the seasons lesson, planets the lesson hides no longer show their
+  name labels at their real positions, and they no longer dim the lens flare.
 - CI never got past type-checking (it ran before the engine build the app's types come from), so
   the e2e suite never ran on GitHub. Steps are reordered, the actions moved to their Node 24
   releases, and Chromium is allowed to fall back to software WebGPU on GPU-less runners.
