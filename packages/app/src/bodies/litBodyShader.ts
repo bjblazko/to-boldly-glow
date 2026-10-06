@@ -1,9 +1,11 @@
+import { atmosphereWgsl } from './shading/atmosphereWgsl'
 import { eclipseShadowWgsl } from './shading/eclipseShadowWgsl'
 import { reliefWgsl } from './shading/reliefWgsl'
+import { surfaceReflectanceWgsl } from './shading/surfaceReflectanceWgsl'
 
 // Uniform float count for litSphereShaderCode's Uniforms struct below, shared with the packing in
 // litBodyUniforms.ts: a mismatch is silently wrong rendering, not a compile error.
-export const LIT_UNIFORM_FLOAT_COUNT = 80
+export const LIT_UNIFORM_FLOAT_COUNT = 100
 
 // Uniform layout (must match the Float32Array packing in litBodyUniforms.ts exactly):
 //   [0..16)  worldViewProjection : mat4x4f
@@ -31,6 +33,12 @@ export const LIT_UNIFORM_FLOAT_COUNT = 80
 //                                 seasons-lesson Earth)
 //   [76..80) southHemisphereTint : vec4f (same shape as northHemisphereTint, for the hemisphere on
 //                                 the opposite side of this body's own local +Z/pole axis)
+//   [80..100) the body's surface material, packed by surfaceMaterial.ts's packSurfaceMaterial:
+//            surface       : vec4f (roughness, specular, regolith, limb darkening)
+//            surfaceDetail : vec4f (albedo relief, ocean glitter, time in seconds, unused)
+//            ocean         : vec4f (roughness, specular, enabled 0/1, unused)
+//            ice           : vec4f (roughness, specular, enabled 0/1, unused)
+//            twilight      : vec4f (rgb = color of twilight sunlight, a = strength)
 export const litSphereShaderCode = /* wgsl */ `
 struct Uniforms {
   worldViewProjection: mat4x4f,
@@ -44,6 +52,11 @@ struct Uniforms {
   bumpParams: vec4f,
   northHemisphereTint: vec4f,
   southHemisphereTint: vec4f,
+  surface: vec4f,
+  surfaceDetail: vec4f,
+  ocean: vec4f,
+  ice: vec4f,
+  twilight: vec4f,
 };
 
 struct VertexInput {
@@ -66,6 +79,8 @@ struct VertexOutput {
 
 ${eclipseShadowWgsl}
 ${reliefWgsl}
+${surfaceReflectanceWgsl}
+${atmosphereWgsl}
 
 @vertex
 fn vs(vert: VertexInput) -> VertexOutput {
@@ -82,57 +97,42 @@ fn fs(in: VertexOutput) -> @location(0) vec4f {
   let geometricNormal = normalize(in.normal);
   let poleFade = poleFadeFactor(in.uv.y);
 
-  // Bump/AO perturbation is faded back toward "no effect" (raw normal, ao=1) near the poles via
-  // the same poleFade weight used for the color sample above it, rather than separately blurring
-  // the bump texture's own mip chain — a zero-magnitude perturbation can't show any artifact
-  // regardless of what the underlying height samples look like, which is simpler than duplicating
-  // Task 2's mip-blend technique for a second texture.
-  let bumpResult = applyBump(in.worldPosition, geometricNormal, in.uv);
-  let normal = normalize(mix(geometricNormal, bumpResult.normal, poleFade));
-  let aoFactor = mix(1.0, bumpResult.ao, poleFade);
+  // How much texture one screen pixel covers: the relief is read at that mip level, and the ocean's
+  // glitter is sized to it.
+  let uvPerPixel = max(fwidth(in.uv), vec2f(1e-6));
+  let texels = vec2f(textureDimensions(bodyTexture));
+  let albedoLevel = clamp(log2(max(max(uvPerPixel.x * texels.x, uvPerPixel.y * texels.y), 1.0)), 0.0, f32(textureNumLevels(bodyTexture) - 1u));
 
-  let toLight = -uni.lightDirection.xyz;
-  let shadowFactor = sunVisibleFraction(in.worldPosition);
-  // A raw Lambertian max(dot,0) falls off gradually across nearly a full hemisphere before
-  // reaching the ambient floor, reading as a soft haze rather than a clear day/night boundary.
-  // smoothstep over a narrow band around the geometric terminator (dot == 0) compresses that
-  // falloff into a much narrower, harder-edged band instead, while the lit and unlit hemispheres
-  // still each reach their own flat extreme well before the actual terminator.
-  let litFraction = smoothstep(-0.12, 0.12, dot(normal, toLight)) * shadowFactor;
-  let diffuse = litFraction * 0.92 + 0.04;
+  // Relief is faded back toward "no effect" (raw normal, ao=1) near the poles via the same poleFade
+  // weight used for the color sample below, rather than separately blurring the height source's
+  // own mip chain — a zero-magnitude perturbation can't show any artifact regardless of what the
+  // underlying height samples look like.
+  let frame = tangentFrame(geometricNormal);
+  let relief = applyRelief(geometricNormal, frame, in.uv, albedoLevel);
+  let normal = normalize(mix(geometricNormal, relief.normal, poleFade));
+  let aoFactor = mix(1.0, relief.ao, poleFade);
+
   let sharpColor = textureSample(bodyTexture, bodySampler, in.uv);
   let coarseLevel = f32(textureNumLevels(bodyTexture) - 1u);
   let blurryColor = textureSampleLevel(bodyTexture, bodySampler, in.uv, coarseLevel);
-  let sampled = mix(blurryColor, sharpColor, poleFade);
+  let albedo = mix(blurryColor, sharpColor, poleFade).rgb * uni.color.rgb;
 
-  // A small Blinn-Phong specular highlight — real planets aren't matte diffuse-only, and a
-  // subtle sheen reads as "not flat" much more effectively than raising the diffuse/ambient terms
-  // (which would just wash out the day/night terminator instead of adding actual dimensionality).
-  // Deliberately restrained (low intensity, tight cone) since these are dry rocky/gaseous bodies,
-  // not glossy spheres — this is not a physically-based ocean/ice reflectance model.
+  let toLight = -uni.lightDirection.xyz;
   let toCamera = normalize(uni.cameraPosition.xyz - in.worldPosition);
-  let halfVector = normalize(toLight + toCamera);
-  let specular = pow(max(dot(normal, halfVector), 0.0), 24.0) * 0.15 * step(0.0, dot(normal, toLight)) * shadowFactor;
-
-  // Atmospheric rim/limb glow: a Fresnel term (brightest where the surface normal is near-
-  // perpendicular to the camera, i.e. right at the silhouette edge) approximating how sunlight
-  // scatters through a thin shell of atmosphere seen edge-on. atmosphereParams.a is 0 for bodies
-  // with no substantial real atmosphere (Mercury, Mars, every moon), making this whole term a
-  // no-op for them. Gated by the SAME shadowFactor as the diffuse/specular terms above, so a
-  // planet's limb dims consistently with its shadowed surface during a transit/eclipse, and by a
-  // sun-facing falloff so the glow fades out toward the unlit night limb rather than wrapping
-  // all the way around the silhouette.
-  let rimFactor = pow(1.0 - max(dot(normal, toCamera), 0.0), 3.0);
-  let sunFacingGate = smoothstep(-0.1, 0.3, dot(normal, toLight));
-  let atmosphereGlow = uni.atmosphereParams.rgb * rimFactor * uni.atmosphereParams.a * sunFacingGate * shadowFactor;
-
-  // aoFactor darkens the surface-visible terms (diffuse color, specular) but NOT atmosphereGlow —
-  // the glow represents light scattered in the atmosphere above the surface, not something a
-  // surface-level cavity should occlude.
-  let litColor = sampled.rgb * uni.color.rgb * diffuse * aoFactor + vec3f(specular) * aoFactor + atmosphereGlow;
+  let sunlight = sunVisibleFraction(in.worldPosition);
+  let shading = SurfaceShading(
+    normal,
+    glitterNormal(normal, frame, in.uv, 1.0 / uvPerPixel),
+    toLight,
+    toCamera,
+    sunlight,
+    sunlightColor(geometricNormal, toLight),
+  );
+  // aoFactor darkens what the surface itself reflects, but not the atmosphere's glow above it.
+  let litColor = reflectedLight(albedo, shading) * aoFactor + rimGlow(normal, toLight, toCamera, sunlight) + twilightGlow(geometricNormal, toLight, sunlight);
 
   // Learn-mode hemisphere overlay: a translucent wash over the whole northern or southern half of
-  // the globe (split at the body's own local +Z/pole axis, the same axis applyBump above reads),
+  // the globe (split at the body's own local +Z/pole axis, the same axis tangentFrame reads),
   // independent of the day/night terminator - the point is to show which hemisphere is tilted
   // toward the Sun THIS season, not which side is lit at this instant. Zero alpha (every body
   // outside the seasons lesson's Earth) makes this a no-op.

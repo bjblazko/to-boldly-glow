@@ -73,7 +73,7 @@ export interface SphereMeshBuffers {
 // Segments per axis of the shared sphere: enough for a round silhouette even on a close-up.
 export const SPHERE_SEGMENTS = 64
 
-// One unit sphere shared by every body (and every gas giant's cloud shell): each draw scales it.
+// One unit sphere shared by every body (and every atmosphere shell): each draw scales it.
 export function createSphereMeshBuffers(device: GPUDevice, mesh = generateSphereMesh(1, SPHERE_SEGMENTS, SPHERE_SEGMENTS)): SphereMeshBuffers {
   return {
     vertexBuffers: [

@@ -1,5 +1,6 @@
-// Surface relief: the shading normal perturbed by a height map, with a matching ambient-occlusion
-// darkening, faded out toward the poles where equirectangular textures break down. Part of the lit
+// Surface relief: the shading normal perturbed by a height map - or by heights read from the albedo
+// - with a matching ambient-occlusion darkening, faded out toward the poles where equirectangular
+// textures break down. Part of the lit
 // body shader (see litBodyShader.ts), which declares the uniforms and textures these read.
 export const reliefWgsl = /* wgsl */ `
 // Equirectangular textures compress an enormous amount of image width into a physically tiny
@@ -21,57 +22,104 @@ fn poleFadeFactor(v: f32) -> f32 {
 const BUMP_STRENGTH_SCALE: f32 = 4.0;
 const AO_STRENGTH_SCALE: f32 = 8.0;
 const AO_MAX_DARKENING: f32 = 0.5;
+// Brightness differences in an albedo texture run far larger than in a height map, so read as
+// heights they count for less.
+const ALBEDO_RELIEF_SCALE: f32 = 1.2;
+
+struct TangentFrame {
+  tangent: vec3f,
+  bitangent: vec3f,
+};
+
+// The surface's own east and south directions, in which the textures' u and v grow. No per-vertex
+// tangent attributes are needed: for a UV-sphere, the tangent (longitude direction) is always
+// perpendicular to both the surface normal and the polar axis, so it's derived here via a cross
+// product against the sphere's own local +Z axis (transformed to world space through uni.world) —
+// the same "transform a local axis, drop translation" trick sunVisibleFraction's ring-plane test
+// and ringShaderCode both use for their own normals.
+fn tangentFrame(normal: vec3f) -> TangentFrame {
+  let polarAxis = normalize((uni.world * vec4f(0.0, 0.0, 1.0, 0.0)).xyz);
+  var tangent = cross(polarAxis, normal);
+  let tangentLength = length(tangent);
+  if (tangentLength < 1e-4) {
+    // Exactly at a pole, where tangent direction is undefined (normal is parallel to polarAxis) —
+    // any consistent direction works here, since poleFadeFactor already fades every effect using
+    // it toward zero at the poles regardless.
+    tangent = vec3f(1.0, 0.0, 0.0);
+  } else {
+    tangent = tangent / tangentLength;
+  }
+  return TangentFrame(tangent, cross(tangent, normal));
+}
 
 struct BumpResult {
   normal: vec3f,
   ao: f32,
 };
 
-// Perturbs the shading normal using a grayscale height map, and returns a cheap ambient-occlusion
-// darkening factor alongside it (see the AO comment in fs() for why this piggybacks on the same
-// height samples rather than being a separate pass). No per-vertex tangent attributes are needed:
-// for a UV-sphere, the tangent (longitude direction) is always perpendicular to both the surface
-// normal and the polar axis, so it's derived here via a cross product against the sphere's own
-// local +Z axis (transformed to world space through uni.world) — the same "transform a local axis,
-// drop translation" trick sunVisibleFraction's ring-plane test and ringShaderCode both use for
-// their own normals (also local +Z, matching the ring mesh's real flat-XY-plane geometry).
-fn applyBump(worldPos: vec3f, normal: vec3f, uv: vec2f) -> BumpResult {
-  let intensity = uni.bumpParams.x;
-  if (intensity <= 0.0) {
-    return BumpResult(normal, 1.0);
+// Heights around a point: its own and its four neighbors' one step east, west, south and north.
+struct Heights {
+  center: f32,
+  east: f32,
+  west: f32,
+  south: f32,
+  north: f32,
+};
+
+fn heightMapHeights(uv: vec2f) -> Heights {
+  let step = 1.0 / vec2f(textureDimensions(bumpTexture));
+  return Heights(
+    textureSampleLevel(bumpTexture, bodySampler, uv, 0.0).r,
+    textureSampleLevel(bumpTexture, bodySampler, uv + vec2f(step.x, 0.0), 0.0).r,
+    textureSampleLevel(bumpTexture, bodySampler, uv - vec2f(step.x, 0.0), 0.0).r,
+    textureSampleLevel(bumpTexture, bodySampler, uv + vec2f(0.0, step.y), 0.0).r,
+    textureSampleLevel(bumpTexture, bodySampler, uv - vec2f(0.0, step.y), 0.0).r,
+  );
+}
+
+fn albedoHeight(uv: vec2f, level: f32) -> f32 {
+  return dot(textureSampleLevel(bodyTexture, bodySampler, uv, level).rgb, vec3f(0.2126, 0.7152, 0.0722));
+}
+
+// The albedo's light and shade read as heights - bright highlands and crater rims, dark maria and
+// valleys - at the mip level one screen pixel covers, so the relief doesn't alias from afar. A
+// coarser level spans more ground per step, so its height differences make gentler slopes: from
+// afar only the large features show, close up the fine ones too (partly compensated, so the relief
+// doesn't vanish altogether at a distance).
+fn albedoHeights(uv: vec2f, level: f32) -> Heights {
+  let step = exp2(level) / vec2f(textureDimensions(bodyTexture));
+  let gentler = exp2(-0.75 * level);
+  let center = albedoHeight(uv, level);
+  return Heights(
+    center,
+    center + (albedoHeight(uv + vec2f(step.x, 0.0), level) - center) * gentler,
+    center + (albedoHeight(uv - vec2f(step.x, 0.0), level) - center) * gentler,
+    center + (albedoHeight(uv + vec2f(0.0, step.y), level) - center) * gentler,
+    center + (albedoHeight(uv - vec2f(0.0, step.y), level) - center) * gentler,
+  );
+}
+
+// Tilts the normal down each slope (u grows east, v grows south), and darkens cavities a little: a
+// cheap ambient occlusion from the same samples.
+fn perturbedNormal(normal: vec3f, frame: TangentFrame, heights: Heights, strengths: vec2f) -> BumpResult {
+  let slope = vec2f(heights.east - heights.west, heights.south - heights.north) * 0.5;
+  let tilted = normalize(normal - (frame.tangent * slope.x + frame.bitangent * slope.y) * strengths.x);
+  let cavity = max(0.0, (heights.east + heights.west + heights.north + heights.south) * 0.25 - heights.center);
+  return BumpResult(tilted, 1.0 - clamp(cavity * strengths.y, 0.0, AO_MAX_DARKENING));
+}
+
+// Relief: a real height map where the body has one (the gas giants' bands), otherwise heights read
+// from its albedo (craters, mountain ranges), slightly exaggerated so they show from afar. Albedo
+// relief adds no ambient occlusion: its dark patches are dark already.
+fn applyRelief(normal: vec3f, frame: TangentFrame, uv: vec2f, albedoLevel: f32) -> BumpResult {
+  let heightMap = uni.bumpParams.x;
+  if (heightMap > 0.0) {
+    return perturbedNormal(normal, frame, heightMapHeights(uv), vec2f(heightMap * BUMP_STRENGTH_SCALE, heightMap * AO_STRENGTH_SCALE));
   }
-
-  let texelSize = 1.0 / vec2f(textureDimensions(bumpTexture));
-  let center = textureSampleLevel(bumpTexture, bodySampler, uv, 0.0).r;
-  let east = textureSampleLevel(bumpTexture, bodySampler, uv + vec2f(texelSize.x, 0.0), 0.0).r;
-  let west = textureSampleLevel(bumpTexture, bodySampler, uv - vec2f(texelSize.x, 0.0), 0.0).r;
-  let south = textureSampleLevel(bumpTexture, bodySampler, uv + vec2f(0.0, texelSize.y), 0.0).r;
-  let north = textureSampleLevel(bumpTexture, bodySampler, uv - vec2f(0.0, texelSize.y), 0.0).r;
-
-  // Tangent = direction of increasing u (east, counterclockwise about the pole - see
-  // sphereMesh.ts's UV comment), bitangent = direction of increasing v (south), matching the
-  // east-west / south-north sample differences below.
-  let polarAxis = normalize((uni.world * vec4f(0.0, 0.0, 1.0, 0.0)).xyz);
-  var tangent = cross(polarAxis, normal);
-  let tangentLength = length(tangent);
-  if (tangentLength < 1e-4) {
-    // Exactly at a pole, where tangent direction is undefined (normal is parallel to polarAxis) —
-    // any consistent direction works here, since poleFadeFactor (Task 2) already fades this whole
-    // effect toward zero at the poles regardless.
-    tangent = vec3f(1.0, 0.0, 0.0);
-  } else {
-    tangent = tangent / tangentLength;
+  let fromAlbedo = uni.surfaceDetail.x;
+  if (fromAlbedo > 0.0) {
+    return perturbedNormal(normal, frame, albedoHeights(uv, albedoLevel), vec2f(fromAlbedo * ALBEDO_RELIEF_SCALE, 0.0));
   }
-  let bitangent = cross(tangent, normal);
-
-  let dHeightDu = (east - west) * 0.5;
-  let dHeightDv = (south - north) * 0.5;
-  let perturbedNormal = normalize(normal - (tangent * dHeightDu + bitangent * dHeightDv) * intensity * BUMP_STRENGTH_SCALE);
-
-  let neighborAvg = (east + west + north + south) * 0.25;
-  let cavity = max(0.0, neighborAvg - center);
-  let ao = 1.0 - clamp(cavity * intensity * AO_STRENGTH_SCALE, 0.0, AO_MAX_DARKENING);
-
-  return BumpResult(perturbedNormal, ao);
+  return BumpResult(normal, 1.0);
 }
 `
