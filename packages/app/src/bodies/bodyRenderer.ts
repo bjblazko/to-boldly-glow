@@ -1,19 +1,18 @@
 import { createUniformBinding, writeUniforms, type UniformBinding } from '../gpu/buffers'
 import { createScenePipeline, SOLID_SPHERE_PRIMITIVE } from '../gpu/scenePipeline'
 import type { TextureLoader } from '../gpu/textureLoader'
-import { worldViewProjection, type Viewpoint } from '../camera/viewpoint'
+import type { Viewpoint } from '../camera/viewpoint'
 import { PLANETS, SUN } from '../solarSystem/bodies'
 import { MOONS } from '../solarSystem/moons'
 import { saturnRingRadii } from '../saturnRing/saturnRing'
-import { bodyWorldMatrix, type MoonPose, type PlanetPose, type SceneLayout, type SunPose } from '../scene/sceneLayout'
+import { bodyWorldMatrix, type MoonPose, type PlanetPose, type SceneLayout } from '../scene/sceneLayout'
 import { LIT_UNIFORM_FLOAT_COUNT, litSphereShaderCode } from './litBodyShader'
 import { packLitBodyUniforms, sunlightDirection, type Occluder } from './litBodyUniforms'
 import { createSphereMeshBuffers, drawSphere, SPHERE_VERTEX_BUFFERS, type SphereMeshBuffers } from './sphereMesh'
-import { unlitSphereShaderCode } from './sunShader'
+import { SUN_UNIFORM_FLOAT_COUNT, sunShaderCode } from './sunShader'
+import { SunSurface } from './sunSurface'
 import { createBodySampler } from './bodySampler'
 import { albedoTint, surfaceMaterialOf } from './surfaceMaterial'
-
-const SUN_UNIFORM_FLOAT_COUNT = 20
 
 interface TexturedBody {
   id: string
@@ -30,6 +29,8 @@ interface BindingContext {
 // Draws the Sun (self-lit) and every planet and moon (sunlit, shadowed by their moons or parent)
 // that the frame's scene layout contains.
 export class BodyRenderer {
+  private readonly sunSurface = new SunSurface()
+
   private constructor(
     private readonly device: GPUDevice,
     private readonly pipelines: { sun: GPURenderPipeline; lit: GPURenderPipeline },
@@ -38,7 +39,7 @@ export class BodyRenderer {
   ) {}
 
   static async create(device: GPUDevice, format: GPUTextureFormat, textures: TextureLoader): Promise<BodyRenderer> {
-    const sunPipeline = await createScenePipeline(device, sphereSpec('unlit sphere', unlitSphereShaderCode, format))
+    const sunPipeline = await createScenePipeline(device, sphereSpec('sun', sunShaderCode, format))
     const litPipeline = await createScenePipeline(device, sphereSpec('lit sphere', litSphereShaderCode, format))
     const context: BindingContext = { device, textures, sampler: createBodySampler(device) }
     const sun = await createTexturedBinding(context, sunPipeline, SUN)
@@ -53,8 +54,9 @@ export class BodyRenderer {
   }
 
   // sunBrightness > 1 pushes the Sun past the bloom pass's threshold (see bloom/bloom.ts).
-  update(layout: SceneLayout, viewpoint: Viewpoint, frame: { sunBrightness: number; timeSeconds: number; clouds: boolean }): void {
-    this.writeSun(layout.sun, viewpoint, frame.sunBrightness)
+  update(layout: SceneLayout, viewpoint: Viewpoint, frame: BodyRendererFrame): void {
+    const sunUniforms = this.sunSurface.uniforms(layout.sun, viewpoint, { brightness: frame.sunBrightness, daysSinceEpoch: frame.daysSinceEpoch })
+    writeUniforms(this.device, this.bindings.sun, sunUniforms)
     const bodyFrame = { layout, viewpoint, timeSeconds: frame.timeSeconds, clouds: frame.clouds }
     for (const planet of layout.planets) this.writePlanet(planet, bodyFrame)
     for (const moon of layout.moons) this.writeMoon(moon, bodyFrame)
@@ -67,13 +69,6 @@ export class BodyRenderer {
     for (const body of [...layout.planets, ...layout.moons]) {
       drawSphere(pass, this.sphereMesh, this.bindings.litBodies.get(body.definition.id)!.bindGroup)
     }
-  }
-
-  private writeSun(sun: SunPose, viewpoint: Viewpoint, brightness: number): void {
-    const uniforms = new Float32Array(SUN_UNIFORM_FLOAT_COUNT)
-    uniforms.set(worldViewProjection(viewpoint, bodyWorldMatrix(sun)), 0)
-    uniforms.set([...SUN.color.map((channel) => channel * brightness), 1.0], 16)
-    writeUniforms(this.device, this.bindings.sun, uniforms)
   }
 
   private writePlanet(planet: PlanetPose, { layout, viewpoint, timeSeconds, clouds }: BodyFrame): void {
@@ -117,6 +112,15 @@ export class BodyRenderer {
     )
     writeUniforms(this.device, this.bindings.litBodies.get(moon.definition.id)!, uniforms)
   }
+}
+
+export interface BodyRendererFrame {
+  sunBrightness: number
+  // Wall-clock seconds, for animation that runs at the same pace whatever the simulation's rate.
+  timeSeconds: number
+  // Simulated time, for what happens on the Sun's own clock.
+  daysSinceEpoch: number
+  clouds: boolean
 }
 
 interface BodyFrame {

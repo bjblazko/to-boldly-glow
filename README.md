@@ -77,7 +77,9 @@ it yourself, or to work on it:
   sizes) and **Compact** (a compressed view that's easier to fly around in), and toggles planet
   orbits, comet and dwarf-planet orbits, name labels, the stars (in their real colors), the Milky Way
   (with its nebulae and the nearest galaxies), the asteroid and Kuiper belts, comets, Earth's
-  clouds, HDR bloom, lens flares, and moons independently.
+  clouds, HDR bloom, lens flares, and moons independently. **Filmic look** (off by default) renders
+  the picture's colors like film (AgX tonemapping): the Sun burns out to white-hot instead of
+  staying a saturated orange, and the sky goes deep black.
 
 ### Where the data and images come from
 
@@ -96,6 +98,7 @@ texts are in [CREDITS.md](CREDITS.md)):
 | Stars: positions, brightness, colors (B−V) | [Yale Bright Star Catalogue, 5th ed.](https://cdsarc.cds.unistra.fr/ftp/V/50/) (Hoffleit & Warren, via CDS) | Public domain |
 | Star colors from B−V | Formulas of Ballesteros (2012) and Kang et al. (2002) | Published formulas |
 | Milky Way, nebulae, nearby galaxies | Painted procedurally for this project (`npm run paint-sky`); object positions from the NGC/IC, Sharpless and Lynds catalogs | Original, MIT |
+| The Sun's limb darkening (per color) and granulation size and lifetime | Allen's Astrophysical Quantities; solar physics literature | Published facts |
 | Comets, Ceres, Vesta, Pallas, Pluto | Orbital elements as published by the JPL Small-Body Database and the Minor Planet Center | Published facts |
 | Asteroid and Kuiper belt populations | Generated from the populations' published statistics (no individual catalogued objects) | Original, MIT |
 | Earth's clouds | Procedural, made for this project | Original, MIT |

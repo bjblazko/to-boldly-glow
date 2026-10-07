@@ -143,6 +143,22 @@ Star colors: B−V is turned into a blackbody temperature with the formula of Ba
 Kang et al. (*Journal of the Korean Physical Society* 41, 865, 2002) and the standard CIE XYZ to
 sRGB matrix.
 
+## The Sun's surface
+
+Limb darkening (`packages/app/src/bodies/sunShader.ts`) uses the quadratic law
+I(μ)/I(1) = 1 − u(1 − μ) − v(1 − μ²) with the coefficients u and v tabulated for the Sun in
+*Allen's Astrophysical Quantities* (A. N. Cox, ed., 4th ed., Springer 2000), at 450, 550 and
+650 nm for the blue, green and red channels. The granulation's cell size (~1,300 km), lifetime
+(~10 minutes) and rms contrast (~12% in white light) are typical published values; the pattern
+itself is procedural (a Worley noise), not an observation.
+
+## Tonemapping
+
+The "Filmic look" (`packages/app/src/bloom/tonemapWgsl.ts`) follows Troy Sobotka's AgX view
+transform, using the inset/outset matrices and the polynomial fit of its contrast curve published
+by Benjamin Wrensch ("Minimal AgX Implementation", iolite engine blog, 2023). The shader code is
+written for this project.
+
 ## Milky Way and deep-sky backdrop
 
 The Milky Way panorama (`packages/app/public/sky/milkyWay.jpg`) is an original procedural painting

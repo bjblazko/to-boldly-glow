@@ -58,7 +58,7 @@ export class SceneRenderer {
     this.draw(pass, frame.layout)
     pass.end()
     this.drawCameraEffects(encoder)
-    this.targets.present(encoder)
+    this.targets.present(encoder, this.settings.display.filmic.on ? 'agx' : 'reinhard')
     this.device.queue.submit([encoder.finish()])
   }
 
@@ -68,7 +68,7 @@ export class SceneRenderer {
     const { bodies, saturnRing, atmosphereShells, clouds, orbitPaths, lensFlare, lessons } = this.parts
     this.updateBackdrop(viewpoint)
     const sunBrightness = this.targets.bloomSupported && display.bloom.on ? SUN_BLOOM_BRIGHTNESS : 1
-    bodies.update(layout, viewpoint, { sunBrightness, timeSeconds: nowSeconds, clouds: display.clouds.on })
+    bodies.update(layout, viewpoint, { sunBrightness, timeSeconds: nowSeconds, daysSinceEpoch: frame.clock.daysSinceEpoch, clouds: display.clouds.on })
     this.updateSmallBodies(frame)
     saturnRing.update(layout, viewpoint)
     if (display.clouds.on) clouds.update(layout, viewpoint, nowSeconds)
