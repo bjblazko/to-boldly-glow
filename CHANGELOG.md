@@ -78,9 +78,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   km and AU. Now the first item in the lesson picker.
 - Each lesson now shows a short note on what is and isn't to scale (the seasons lesson: sizes,
   distances and speeds are exaggerated, all angles are true).
+- The Milky Way behind the stars: its band of star clouds split by dark dust lanes, the glowing
+  bulge toward Sagittarius, nebulae (Orion, Lagoon, Carina, North America, the Veil and more), dark
+  clouds like the Coalsack, the Andromeda Galaxy and the Magellanic Clouds - all at their real
+  places among the catalog stars. It is painted once by the data pipeline (`npm run paint-sky`)
+  into a galactic-coordinate panorama, so drawing it costs one texture lookup per pixel. A Milky
+  Way switch in the Display panel turns it off.
+- The asteroid belts: about 40,000 bodies on Keplerian orbits solved on the GPU each frame - the
+  main belt with its Kirkwood gaps, the Hildas tracing their triangle in step with Jupiter,
+  Jupiter's two swarms of Trojans, and the Kuiper belt with its plutinos - plus Ceres, Vesta, Pallas
+  and Pluto on their real orbits. From afar they are sunlit dots (brightest at full phase); up close
+  they become lit, lumpy rocks. An Asteroids switch turns them off.
+- Comets on their real orbits - Halley, Encke (back at perihelion in February 2027), 67P,
+  Hale-Bopp, Swift-Tuttle, Pons-Brooks and NEOWISE - waking up as they near the Sun: a green coma, a
+  thin blue ion tail pointing straight away from the Sun, and a broader dust tail curving back
+  along the orbit. A Comets switch turns them off.
+- Comets, Ceres, Vesta, Pallas and Pluto are camera targets: search for them (or double-click
+  them) to fly there and follow them, with labels next to them. Their orbits have their own switch
+  ("Comet & dwarf orbits"), separate from the planets'.
+- Double-click or double-tap any body to fly there and follow it.
+- The README lists where every texture, catalog and data set comes from, and under which license.
+- Free flight on touch screens: a thumbstick to fly and strafe, buttons to rise, sink and boost,
+  drag to look, pinch to set the speed. Orbit mode zooms with a pinch.
 
 ### Changed
 
+- The free-fly camera flies like a spaceship in a game instead of a plane: thrust and strafe with
+  `W`/`A`/`S`/`D` or the arrow keys, rise and sink with `R`/`F`, roll with `Q`/`E`, boost with
+  `Shift`, look around by dragging, set the speed with the mouse wheel. It eases in and out of
+  motion, slows down near planets and speeds up in open space, stops at surfaces instead of flying
+  through them, and levels itself with the ecliptic when you stop rolling. The orbit camera got
+  weight too: a released drag keeps turning a little, zoom glides, and the keyboard turns and zooms
+  it. A short hint recalls the controls whenever the camera mode changes.
+- The stars sit in the scene's real (ecliptic) frame - the planets pass through the zodiac
+  constellations - and shine in their own colors, derived from each star's B−V color index, with a
+  soft point spread and diffraction spikes on the brightest few.
+- A subtle lens flare is on by default (and was toned down).
 - Every planet and moon reflects sunlight like its own kind of surface instead of one shared matte
   sphere with the same small highlight. Earth's oceans show the Sun's glint - brighter toward the
   limb, broken into glitter by waves - and its ice a broad sheen; the Moon, Mercury and Callisto
@@ -125,6 +158,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- On phones the whole interface rendered at desktop size and tiny (the page had no viewport meta
+  tag); it now fits the screen, and taps on the HUD no longer trigger the browser's double-tap zoom.
+- The Display panel scrolls instead of growing past the top of a short window.
 - The camera tour works at Realistic scale: it matches its target planet's orbital motion, so it
   catches even Mercury, Venus and Earth, which used to outrun it at loop speed until it gave up on
   them. Switching the scale mid-tour no longer throws it out of step: near its target the ship

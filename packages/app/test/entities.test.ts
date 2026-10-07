@@ -10,6 +10,8 @@ import {
 } from '../src/solarSystem/entities'
 import { AU_KM, PLANETS } from '../src/solarSystem/bodies'
 import { MOONS } from '../src/solarSystem/moons'
+import { heliocentricPosition } from '../src/smallBodies/keplerOrbit'
+import { SMALL_BODIES } from '../src/smallBodies/smallBodyCatalog'
 import { scaledPosition } from '../src/solarSystem/sceneScale'
 import { moonOrbitAngleRadians, moonOrbitPlaneTiltMatrix, moonOrbitReferencePoleDirection, moonRelativePosition, scaledMoonOrbitRadiusUnits } from '../src/solarSystem/moonOrbit'
 import { equatorialToEclipticPoleDirection } from '../src/solarSystem/poleOrientation'
@@ -21,8 +23,8 @@ function findEntity(id: string): SolarSystemEntity {
 }
 
 describe('ALL_ENTITIES', () => {
-  it('contains the Sun, all 8 planets, and all 9 moons, and nothing else', () => {
-    expect(ALL_ENTITIES).toHaveLength(1 + PLANETS.length + MOONS.length)
+  it('contains the Sun, all 8 planets, all 9 moons and the named comets and minor planets, and nothing else', () => {
+    expect(ALL_ENTITIES).toHaveLength(1 + PLANETS.length + MOONS.length + SMALL_BODIES.length)
     expect(ALL_ENTITIES.filter((e) => e.kind === 'sun')).toHaveLength(1)
     expect(ALL_ENTITIES.filter((e) => e.kind === 'planet')).toHaveLength(8)
     expect(ALL_ENTITIES.filter((e) => e.kind === 'moon')).toHaveLength(9)
@@ -121,5 +123,20 @@ describe('entityPoleDirection', () => {
     const moon = titan.definition as (typeof MOONS)[number]
     const expected = moonOrbitReferencePoleDirection(moon, saturn.definition as (typeof PLANETS)[number])
     expect(entityPoleDirection(titan)).toEqual(expected)
+  })
+})
+
+describe('small bodies as camera targets', () => {
+  it('finds comets and dwarf planets by name', () => {
+    expect(searchEntities('halley').map((e) => e.kind)).toEqual(['comet'])
+    expect(searchEntities('pluto').map((e) => e.kind)).toEqual(['dwarfPlanet'])
+  })
+
+  it('places a comet where its orbit has it, scaled like the planets, with the ecliptic north up', () => {
+    const halley = findEntity('halley')
+    const days = 9000
+    const expected = scaledPosition(heliocentricPosition(SMALL_BODIES.find((b) => b.id === 'halley')!.orbit, days), 0.5)
+    expect(entityWorldPosition(halley, 0, days, 0.5)).toEqual(expected)
+    expect(entityPoleDirection(halley)).toEqual([0, 0, 1])
   })
 })

@@ -4,22 +4,29 @@ import { MOONS, type MoonDefinition } from './moons'
 import { scaledPosition, type AuPosition } from './sceneScale'
 import { AU_KM } from './bodies'
 import { moonOrbitAngleForParent, moonOrbitReferencePoleDirection, moonOrbitTilt, moonRelativePosition, scaledMoonOrbitRadiusUnits } from './moonOrbit'
-import { equatorialToEclipticPoleDirection } from './poleOrientation'
+import { ECLIPTIC_NORTH, equatorialToEclipticPoleDirection } from './poleOrientation'
+import { heliocentricPosition } from '../smallBodies/keplerOrbit'
+import { SMALL_BODIES, type SmallBodyDefinition, type SmallBodyKind } from '../smallBodies/smallBodyCatalog'
 
-export type EntityKind = 'sun' | 'planet' | 'moon'
+export type EntityKind = 'sun' | 'planet' | 'moon' | SmallBodyKind
 
 export interface SolarSystemEntity {
   id: string
   name: string
   kind: EntityKind
-  definition: BodyDefinition | MoonDefinition
+  definition: BodyDefinition | MoonDefinition | SmallBodyDefinition
 }
 
 export const ALL_ENTITIES: SolarSystemEntity[] = [
   { id: SUN.id, name: SUN.name, kind: 'sun', definition: SUN },
   ...PLANETS.map((p): SolarSystemEntity => ({ id: p.id, name: p.name, kind: 'planet', definition: p })),
   ...MOONS.map((m): SolarSystemEntity => ({ id: m.id, name: m.name, kind: 'moon', definition: m })),
+  ...SMALL_BODIES.map((b): SolarSystemEntity => ({ id: b.id, name: b.name, kind: b.kind, definition: b })),
 ]
+
+export function isSmallBody(entity: SolarSystemEntity): entity is SolarSystemEntity & { definition: SmallBodyDefinition } {
+  return entity.kind === 'comet' || entity.kind === 'dwarfPlanet' || entity.kind === 'asteroid'
+}
 
 export function matchesSearchQuery(entityName: string, query: string): boolean {
   return entityName.toLowerCase().includes(query.trim().toLowerCase())
@@ -55,6 +62,7 @@ export function entityWorldPosition(
   scaleBlend: number,
 ): [number, number, number] {
   if (entity.kind === 'sun') return [0, 0, 0]
+  if (isSmallBody(entity)) return scaledPosition(heliocentricPosition(entity.definition.orbit, daysSinceEpoch), scaleBlend)
 
   if (entity.kind === 'planet') {
     return scaledPosition(planetAuPosition(entity.definition as BodyDefinition, T), scaleBlend)
@@ -75,6 +83,8 @@ export function entityWorldPosition(
 // moonOrbitReferencePoleDirection for moons). Used by CameraFollowController to orient the camera
 // to a followed entity's real "up" instead of the scene's generic ecliptic north.
 export function entityPoleDirection(entity: SolarSystemEntity): [number, number, number] {
+  // Small bodies' spin axes aren't modeled: the camera keeps the ecliptic's north up.
+  if (isSmallBody(entity)) return [...ECLIPTIC_NORTH]
   if (entity.kind === 'moon') {
     const moon = entity.definition as MoonDefinition
     const parent = ALL_ENTITIES.find((e) => e.id === moon.parentId)

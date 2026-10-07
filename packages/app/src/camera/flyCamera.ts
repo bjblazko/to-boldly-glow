@@ -1,4 +1,5 @@
 import { mat3, mat4, quat, vec3 } from 'gl-matrix'
+import { ECLIPTIC_NORTH } from '../solarSystem/poleOrientation'
 
 export interface FlyCameraOptions {
   position?: [number, number, number]
@@ -6,24 +7,38 @@ export interface FlyCameraOptions {
   pitch?: number
 }
 
-const MAX_SPEED = 60 // scene units per second
-
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(Math.max(value, min), max)
+// What the pilot asks for this frame (see flightInput.ts for where it comes from).
+export interface FlightCommand {
+  // Thrust along the ship's own axes, each -1..1: right, up, forward.
+  thrust: [number, number, number]
+  // -1..1, positive rolling the view clockwise.
+  roll: number
+  boost: boolean
 }
 
-// First-person free-fly camera: `position` in world space, `orientation` a quaternion tracking the
-// ship's facing. Orientation is stored as a quaternion (not Euler yaw/pitch) so pitch and yaw can
-// both spin without limit — an Euler representation hits a gimbal-lock singularity (undefined "up")
-// as pitch approaches the poles, which breaks a full vertical loop. Turning is applied as local-axis
-// rotations (pitch around the ship's own right, roll around the ship's own forward), matching a
-// plane's elevator/aileron controls rather than a world-anchored camera. `speed` is a signed cruise
-// speed along the nose direction, set by the player and applied every frame — there's no separate
-// "thrust" key.
+export const NO_COMMAND: FlightCommand = { thrust: [0, 0, 0], roll: 0, boost: false }
+
+// The ship eases into the commanded velocity over about this long, and coasts to a stop as
+// gently: weight without sluggishness.
+const VELOCITY_RESPONSE_SECONDS = 0.35
+// Mouse and touch look is smoothed just enough to take the jitter out of a drag.
+const LOOK_RESPONSE_SECONDS = 0.05
+const ROLL_RADIANS_PER_SECOND = 1.4
+const BOOST_FACTOR = 6
+// Left alone, the view slowly rolls back level with the ecliptic, so the planets' plane stays
+// a horizon however wildly the pilot has turned - except when looking almost straight along the
+// ecliptic's pole, where "level" has no meaning.
+const LEVELING_SECONDS = 2.5
+const LEVELING_LIMIT = 0.97
+
+// First-person free-flight camera, flown like a spaceship in a game: thrust along its own axes
+// with inertia, mouse/touch look, roll. `orientation` is a quaternion (no gimbal lock, so the ship
+// can loop freely); looking turns it around the ship's own up and right axes.
 export class FlyCamera {
   position: vec3
   orientation: quat
-  speed: number
+  velocity = vec3.create()
+  private pendingLook: [number, number] = [0, 0]
 
   constructor(options: FlyCameraOptions = {}) {
     this.position = vec3.fromValues(...(options.position ?? [0, 25, 60]))
@@ -34,7 +49,10 @@ export class FlyCamera {
       const pitchQuat = quat.setAxisAngle(quat.create(), [1, 0, 0], options.pitch)
       quat.multiply(this.orientation, this.orientation, pitchQuat)
     }
-    this.speed = 0
+  }
+
+  get speed(): number {
+    return vec3.length(this.velocity)
   }
 
   getForward(): vec3 {
@@ -55,31 +73,53 @@ export class FlyCamera {
     return mat4.lookAt(mat4.create(), this.position, target, this.getUp())
   }
 
+  // Queues a turn of the view (radians): positive yaw turns right, positive pitch looks up.
+  look(yaw: number, pitch: number): void {
+    this.pendingLook[0] += yaw
+    this.pendingLook[1] += pitch
+  }
+
+  // One frame of flight. cruiseSpeed (scene units per second) is how fast full thrust flies here.
+  fly(command: FlightCommand, deltaSeconds: number, cruiseSpeed: number): void {
+    this.applyLook(deltaSeconds)
+    if (command.roll !== 0) this.turnRoll(command.roll * ROLL_RADIANS_PER_SECOND * deltaSeconds)
+    else this.level(deltaSeconds)
+    const [right, up, forward] = command.thrust
+    const local = vec3.fromValues(-right, up, forward)
+    const wanted = vec3.transformQuat(vec3.create(), local, this.orientation)
+    vec3.scale(wanted, wanted, cruiseSpeed * (command.boost ? BOOST_FACTOR : 1))
+    vec3.lerp(this.velocity, this.velocity, wanted, 1 - Math.exp(-deltaSeconds / VELOCITY_RESPONSE_SECONDS))
+    vec3.scaleAndAdd(this.position, this.position, this.velocity, deltaSeconds)
+  }
+
+  stop(): void {
+    vec3.zero(this.velocity)
+    this.pendingLook = [0, 0]
+  }
+
   turnPitch(delta: number): void {
-    this.turn([1, 0, 0], delta)
+    this.turn([1, 0, 0], -delta)
+  }
+
+  turnYaw(delta: number): void {
+    this.turn([0, 1, 0], -delta)
   }
 
   turnRoll(delta: number): void {
     this.turn([0, 0, 1], delta)
   }
 
-  changeSpeed(delta: number): void {
-    this.speed = clamp(this.speed + delta, -MAX_SPEED, MAX_SPEED)
-  }
-
   moveForward(distance: number): void {
-    const forward = this.getForward()
-    vec3.scaleAndAdd(this.position, this.position, forward, distance)
+    vec3.scaleAndAdd(this.position, this.position, this.getForward(), distance)
   }
 
   moveRight(distance: number): void {
-    const right = this.getRight()
-    vec3.scaleAndAdd(this.position, this.position, right, distance)
+    vec3.scaleAndAdd(this.position, this.position, this.getRight(), distance)
   }
 
   // Snaps this camera's position/orientation to match an arbitrary eye position and look
   // direction (e.g. the orbit camera's current view), so switching into free-fly doesn't jump the
-  // view to wherever the ship was last left.
+  // view to wherever the ship was last left. The ship starts at rest.
   setPose(position: vec3, forward: vec3, referenceUp: vec3): void {
     vec3.copy(this.position, position)
     const f = vec3.normalize(vec3.create(), forward)
@@ -93,6 +133,27 @@ export class FlyCamera {
     // given basis, matching getRight()/getUp()/getForward()'s conventions.
     const basis = mat3.fromValues(-right[0], -right[1], -right[2], up[0], up[1], up[2], f[0], f[1], f[2])
     quat.normalize(this.orientation, quat.fromMat3(quat.create(), basis))
+    this.stop()
+  }
+
+  private applyLook(deltaSeconds: number): void {
+    const share = 1 - Math.exp(-deltaSeconds / LOOK_RESPONSE_SECONDS)
+    const [yaw, pitch] = [this.pendingLook[0] * share, this.pendingLook[1] * share]
+    this.pendingLook = [this.pendingLook[0] - yaw, this.pendingLook[1] - pitch]
+    this.turnYaw(yaw)
+    this.turnPitch(pitch)
+  }
+
+  // Rolls part of the way toward having the ecliptic's north up.
+  private level(deltaSeconds: number): void {
+    const forward = this.getForward()
+    const north = vec3.fromValues(...ECLIPTIC_NORTH)
+    if (Math.abs(vec3.dot(forward, north)) > LEVELING_LIMIT) return
+    const levelUp = vec3.normalize(vec3.create(), vec3.scaleAndAdd(vec3.create(), north, forward, -vec3.dot(north, forward)))
+    const up = this.getUp()
+    const angle = Math.atan2(vec3.dot(vec3.cross(vec3.create(), up, levelUp), forward), vec3.dot(up, levelUp))
+    const correction = quat.setAxisAngle(quat.create(), forward, angle * (1 - Math.exp(-deltaSeconds / LEVELING_SECONDS)))
+    quat.normalize(this.orientation, quat.multiply(this.orientation, correction, this.orientation))
   }
 
   // Renormalizes afterward: turns run every frame a key is held, and float32 rounding in repeated

@@ -26,6 +26,8 @@ export interface ScenePipelineSpec {
   depth: { write: boolean; compare: GPUCompareFunction }
   buffers?: GPUVertexBufferLayout[]
   blend?: GPUBlendState
+  // For shader code holding several pipelines' stages; vs and fs otherwise.
+  entryPoints?: { vertex: string; fragment: string }
 }
 
 // Every pipeline drawing into the main scene pass shares its multisampling and depth format (WebGPU
@@ -35,8 +37,8 @@ export async function createScenePipeline(device: GPUDevice, spec: ScenePipeline
   return device.createRenderPipelineAsync({
     label: `${spec.label} pipeline`,
     layout: 'auto',
-    vertex: { module, entryPoint: 'vs', buffers: spec.buffers ?? [] },
-    fragment: { module, entryPoint: 'fs', targets: [{ format: spec.format, blend: spec.blend }] },
+    vertex: { module, entryPoint: spec.entryPoints?.vertex ?? 'vs', buffers: spec.buffers ?? [] },
+    fragment: { module, entryPoint: spec.entryPoints?.fragment ?? 'fs', targets: [{ format: spec.format, blend: spec.blend }] },
     primitive: spec.primitive,
     depthStencil: { depthWriteEnabled: spec.depth.write, depthCompare: spec.depth.compare, format: DEPTH_FORMAT },
     multisample: { count: SAMPLE_COUNT },

@@ -1,56 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import {
-  convertCatalog,
-  magnitudeToBrightness,
-  parseBscLine,
-  raDecToUnitVector,
-} from '../src/convertBrightStarCatalog'
-
-describe('raDecToUnitVector', () => {
-  it('always produces a unit-length vector', () => {
-    const samples: [number, number][] = [
-      [0, 0],
-      [6.75, -16.72],
-      [2.53, 89.26],
-      [23.99, -89.99],
-      [12, 45],
-    ]
-    for (const [raHours, decDeg] of samples) {
-      const [x, y, z] = raDecToUnitVector(raHours, decDeg)
-      expect(Math.sqrt(x * x + y * y + z * z)).toBeCloseTo(1, 5)
-    }
-  })
-
-  it('maps a declination of +90 to straight up regardless of RA', () => {
-    const [x, y, z] = raDecToUnitVector(5, 90)
-    expect(x).toBeCloseTo(0, 5)
-    expect(y).toBeCloseTo(1, 5)
-    expect(z).toBeCloseTo(0, 5)
-  })
-})
-
-describe('magnitudeToBrightness', () => {
-  it('is monotonically decreasing as magnitude increases (dimmer stars are less bright)', () => {
-    const magnitudes = [-1.46, -1, 0, 1, 2, 3, 4, 5, 6, 6.5]
-    const brightnesses = magnitudes.map(magnitudeToBrightness)
-    for (let i = 1; i < brightnesses.length; i++) {
-      expect(brightnesses[i]).toBeLessThan(brightnesses[i - 1])
-    }
-  })
-
-  it('clamps out-of-range magnitudes to the same brightness as the range boundary', () => {
-    expect(magnitudeToBrightness(-10)).toBeCloseTo(magnitudeToBrightness(-1.46), 5)
-    expect(magnitudeToBrightness(20)).toBeCloseTo(magnitudeToBrightness(6.5), 5)
-  })
-
-  it('stays within [0.05, 1.0] for any input', () => {
-    for (const vmag of [-1.46, -1, 0, 3.5, 6.5, -100, 100]) {
-      const brightness = magnitudeToBrightness(vmag)
-      expect(brightness).toBeGreaterThanOrEqual(0.05)
-      expect(brightness).toBeLessThanOrEqual(1.0)
-    }
-  })
-})
+import { convertCatalog, FLOATS_PER_STAR, parseBscLine } from '../src/convertBrightStarCatalog'
+import { equatorialToScene, equatorialVector } from '../src/skyFrames'
 
 describe('parseBscLine', () => {
   // Real BSC5 (CDS V/50 ASCII edition) lines, hand-transcribed from the catalog file. HR numbers
@@ -67,6 +17,7 @@ describe('parseBscLine', () => {
     expect(star!.raHours).toBeCloseTo(6 + 45 / 60 + 8.9 / 3600, 4)
     expect(star!.decDeg).toBeCloseTo(-(16 + 42 / 60 + 58 / 3600), 4)
     expect(star!.vmag).toBeCloseTo(-1.46, 5)
+    expect(star!.colorIndex).toBeCloseTo(0, 5)
   })
 
   it('parses Polaris (HR 424) RA/Dec/Vmag correctly', () => {
@@ -75,6 +26,12 @@ describe('parseBscLine', () => {
     expect(star!.raHours).toBeCloseTo(2 + 31 / 60 + 48.7 / 3600, 4)
     expect(star!.decDeg).toBeCloseTo(89 + 15 / 60 + 51 / 3600, 4)
     expect(star!.vmag).toBeCloseTo(2.02, 5)
+    expect(star!.colorIndex).toBeCloseTo(0.6, 5)
+  })
+
+  it('falls back to the typical color of the spectral class where B-V is missing', () => {
+    const withoutColor = POLARIS_LINE.slice(0, 109) + '     ' + POLARIS_LINE.slice(114)
+    expect(parseBscLine(withoutColor)!.colorIndex).toBeCloseTo(0.45, 5)
   })
 
   it('returns null for a blank/short line', () => {
@@ -88,13 +45,13 @@ describe('convertCatalog', () => {
     '2491  9Alp CMaBD-16 1591  48915151881 257I   5423           064044.6-163444064508.9-164258227.22-08.88-1.46   0.00 -0.05 -0.03   A1Vm               -0.553-1.205 +.375-008SBO    13 10.3  11.2AB   4*'
   const BLANK_LINE = ''
 
-  it('emits 4 floats per valid star and skips blank/unparseable lines', () => {
+  it('emits direction, magnitude and color per valid star and skips blank/unparseable lines', () => {
     const buffer = convertCatalog([SIRIUS_LINE, BLANK_LINE, SIRIUS_LINE].join('\n'))
-    expect(buffer.length).toBe(2 * 4)
-    // Both entries are the same star, so their unit vectors and brightness should match.
-    expect(buffer[0]).toBeCloseTo(buffer[4], 5)
-    expect(buffer[1]).toBeCloseTo(buffer[5], 5)
-    expect(buffer[2]).toBeCloseTo(buffer[6], 5)
-    expect(buffer[3]).toBeCloseTo(buffer[7], 5)
+    expect(buffer.length).toBe(2 * FLOATS_PER_STAR)
+    const sirius = parseBscLine(SIRIUS_LINE)!
+    const expected = [...equatorialToScene(equatorialVector(sirius.raHours, sirius.decDeg)), -1.46, 0]
+    for (const offset of [0, FLOATS_PER_STAR]) {
+      expected.forEach((value, i) => expect(buffer[offset + i]).toBeCloseTo(value, 5))
+    }
   })
 })

@@ -7,7 +7,7 @@ export const AU_TO_SCENE_UNITS = 20
 // pixels or pushing Neptune off the edge of the world. log1p (not log) keeps Mercury away from
 // the origin (log1p(0.39) > 0, whereas log(0.39) < 0 would put it "behind" the Sun along this
 // axis, which does not correspond to anything physical).
-const COMPACT_DISTANCE_SCALE = 60
+export const COMPACT_DISTANCE_SCALE = 60
 
 export function compactDistanceUnits(distanceAu: number): number {
   return COMPACT_DISTANCE_SCALE * Math.log1p(distanceAu)

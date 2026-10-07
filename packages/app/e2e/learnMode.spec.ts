@@ -111,12 +111,11 @@ test('lens flares are force-hidden on learn-mode entry and restored to their pri
 
   await openApp(page)
 
-  // canvas.dataset.flares isn't written until the toggle first fires (see moonsAndFlares.spec.ts),
-  // so it has no attribute at all pre-toggle even though flares are OFF (the underlying
-  // `showFlares` default) - the assertions below only check the attribute from the point learn-mode
-  // entry first writes it.
-
-  // Flares start OFF (the default): learn mode must leave them off on exit, not flip them on.
+  // Turn flares OFF (a user preference; they default to on): learn mode must leave them off on
+  // exit, not flip them back on.
+  await page.locator('.hud-dock-btn[data-panel="display"]').click()
+  await page.locator('#flares-toggle').uncheck()
+  await page.locator('.hud-dock-btn[data-panel="display"]').click()
   await page.locator('#learn-mode-btn').click()
   await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
   await expect(page.locator('body')).toHaveAttribute('data-app-mode', 'learn')
@@ -126,13 +125,12 @@ test('lens flares are force-hidden on learn-mode entry and restored to their pri
   await expect(page.locator('body')).not.toHaveAttribute('data-app-mode', 'learn')
   await expect(page.locator('#scene')).toHaveAttribute('data-flares', 'false')
 
-  // Now turn flares ON (a user preference): entering learn mode must force them off, and exiting
-  // must restore ON - not leave them off, which would silently mutate the user's own explore-mode
-  // preference (the exact bug class Task 10's out-of-scope fix, commit bcbbdf9, addressed).
-  await page.locator('#display-corner-btn').click()
+  // Now turn flares ON: entering learn mode must force them off, and exiting must restore ON - not
+  // leave them off, which would silently mutate the user's own explore-mode preference.
+  await page.locator('.hud-dock-btn[data-panel="display"]').click()
   await page.locator('#flares-toggle').check()
   await expect(page.locator('#scene')).toHaveAttribute('data-flares', 'true')
-  await page.locator('#display-corner-btn').click()
+  await page.locator('.hud-dock-btn[data-panel="display"]').click()
 
   await page.locator('#learn-mode-btn').click()
   await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()

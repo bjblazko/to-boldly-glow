@@ -8,7 +8,8 @@
 }
 
 .body-label,
-.moon-label {
+.moon-label,
+.small-body-label {
   position: absolute;
   transform: translate(-50%, 4px);
   color: white;
@@ -20,6 +21,12 @@
 .moon-label {
   color: rgba(255, 255, 255, 0.75);
   font-size: 10px;
+}
+
+.small-body-label {
+  color: rgba(190, 225, 235, 0.7);
+  font-size: 10px;
+  font-style: italic;
 }
 
 /* At the equinoxes the axis and reference lines coincide, so their labels would overlap. */

@@ -91,6 +91,9 @@ export async function dragCamera(page: Page, dx: number, dy: number): Promise<vo
   await page.mouse.move(x, y)
   await page.mouse.down()
   for (let step = 1; step <= 20; step++) await page.mouse.move(x + (dx * step) / 20, y + (dy * step) / 20)
+  // Held still before letting go: the first frame applies the drag, the second sees the hand at
+  // rest - so no fling, the view stops where the drag ended.
+  await renderFrames(page, 2)
   await page.mouse.up()
   await renderFrames(page, 2)
 }

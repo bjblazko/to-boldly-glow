@@ -13,7 +13,7 @@ export interface UniformBindingSpec {
   resources?: GPUBindingResource[]
 }
 
-export function createUniformBinding(device: GPUDevice, pipeline: GPURenderPipeline, spec: UniformBindingSpec): UniformBinding {
+export function createUniformBinding(device: GPUDevice, pipeline: GPURenderPipeline | GPUComputePipeline, spec: UniformBindingSpec): UniformBinding {
   const buffer = device.createBuffer({
     label: `${spec.label} uniforms`,
     size: spec.floatCount * 4,

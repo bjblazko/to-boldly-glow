@@ -3,6 +3,8 @@ import { ALL_ENTITIES, type SolarSystemEntity } from '../solarSystem/entities'
 import type { Ephemeris } from '../time/ephemeris'
 import { CameraFollowController } from './cameraFollow'
 import { FlyCamera } from './flyCamera'
+import type { FlightCommand } from './flyCamera'
+import type { Obstacle } from './input/flightSpeed'
 import { CameraInputController, type CameraMode } from './inputController'
 import { OrbitCamera } from './orbitCamera'
 import { TourController } from './tourController'
@@ -21,6 +23,9 @@ export interface CameraDirectorEvents {
   onModeChange(mode: CameraMode): void
   onTourChange(touring: boolean): void
   onFollowChange(entity: SolarSystemEntity | null): void
+  // A double click or double tap on the scene (client coordinates): fly to what's there.
+  onPick(x: number, y: number): void
+  onSpeedLevelChange(level: number): void
 }
 
 // Decides which camera the scene is seen through - the user-driven orbit or free-fly camera, or
@@ -38,7 +43,10 @@ export class CameraDirector {
     canvas: HTMLCanvasElement,
     private readonly events: CameraDirectorEvents,
   ) {
-    this.input = new CameraInputController(canvas, this.orbit, this.fly)
+    this.input = new CameraInputController(canvas, this.orbit, this.fly, {
+      onDoubleTap: (x, y) => events.onPick(x, y),
+      onSpeedLevelChange: (level) => events.onSpeedLevelChange(level),
+    })
   }
 
   get mode(): CameraMode {
@@ -55,7 +63,6 @@ export class CameraDirector {
     if (mode === 'fly' && this.input.mode === 'orbit' && syncFlyPose) {
       const eye = this.orbit.getEyePosition()
       this.fly.setPose(eye, vec3.subtract(vec3.create(), this.orbit.target, eye), this.orbit.upAxis)
-      this.fly.speed = 0
     }
     this.input.setMode(mode)
     this.events.onModeChange(mode)
@@ -82,7 +89,6 @@ export class CameraDirector {
     const eye = vec3.fromValues(...this.tour.getEyePosition())
     const forward = vec3.subtract(vec3.create(), vec3.fromValues(...this.tour.getLookAt()), eye)
     this.fly.setPose(eye, forward, vec3.fromValues(...this.tour.getUp()))
-    this.fly.speed = 0
     this.tour.stop()
     this.input.setEnabled(true)
     this.setMode('fly', { syncFlyPose: false })
@@ -130,6 +136,16 @@ export class CameraDirector {
 
   setInputEnabled(enabled: boolean): void {
     this.input.setEnabled(enabled)
+  }
+
+  // The bodies around the camera (from the last frame's scene): free flight slows near them and
+  // stops at their surfaces.
+  setSurroundings(obstacles: readonly Obstacle[]): void {
+    this.input.setObstacles(obstacles)
+  }
+
+  setTouchFlightCommand(command: () => FlightCommand): void {
+    this.input.setTouchCommand(command)
   }
 
   // Keyboard flight first (it acts on the fly camera directly), then follow and tour, which need

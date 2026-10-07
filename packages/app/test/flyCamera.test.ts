@@ -1,6 +1,6 @@
 import { vec3 } from 'gl-matrix'
 import { describe, expect, it } from 'vitest'
-import { FlyCamera } from '../src/camera/flyCamera'
+import { FlyCamera, NO_COMMAND, type FlightCommand } from '../src/camera/flyCamera'
 
 describe('FlyCamera', () => {
   it('faces -Z at yaw PI, pitch 0', () => {
@@ -57,5 +57,56 @@ describe('FlyCamera', () => {
     const forward = camera.getForward()
     expect(forward[2]).toBeCloseTo(-1, 5)
     for (const value of camera.getViewMatrix()) expect(Number.isFinite(value)).toBe(true)
+  })
+})
+
+describe('FlyCamera flight', () => {
+  const north = vec3.fromValues(0, 0, 1)
+  const level = () => {
+    const camera = new FlyCamera()
+    camera.setPose(vec3.fromValues(0, -10, 0), vec3.fromValues(0, 1, 0), north)
+    return camera
+  }
+  const fly = (camera: FlyCamera, command: FlightCommand, seconds: number, speed = 10) => {
+    for (let t = 0; t < seconds; t += 1 / 60) camera.fly(command, 1 / 60, speed)
+  }
+
+  it('eases into full thrust and coasts to a stop when let go', () => {
+    const camera = level()
+    camera.fly({ ...NO_COMMAND, thrust: [0, 0, 1] }, 1 / 60, 10)
+    expect(camera.speed).toBeGreaterThan(0)
+    expect(camera.speed).toBeLessThan(2)
+    fly(camera, { ...NO_COMMAND, thrust: [0, 0, 1] }, 2)
+    expect(camera.speed).toBeCloseTo(10, 0)
+    expect(camera.velocity[1]).toBeGreaterThan(9.5)
+    fly(camera, NO_COMMAND, 2)
+    expect(camera.speed).toBeLessThan(0.1)
+  })
+
+  it('strafes right, rises up, and boosts', () => {
+    const camera = level()
+    fly(camera, { ...NO_COMMAND, thrust: [1, 0, 0] }, 2)
+    expect(camera.velocity[0]).toBeGreaterThan(9.5)
+    fly(camera, { ...NO_COMMAND, thrust: [0, 1, 0], boost: true }, 2)
+    expect(camera.velocity[2]).toBeGreaterThan(50)
+  })
+
+  it('turns right and looks up when asked to', () => {
+    const camera = level()
+    camera.look(0.3, 0)
+    fly(camera, NO_COMMAND, 0.5)
+    expect(camera.getForward()[0]).toBeGreaterThan(0.25)
+    camera.look(0, 0.3)
+    fly(camera, NO_COMMAND, 0.5)
+    expect(camera.getForward()[2]).toBeGreaterThan(0.25)
+  })
+
+  it('rolls with Q/E and levels back to the ecliptic once let go', () => {
+    const camera = level()
+    fly(camera, { ...NO_COMMAND, roll: 1 }, 0.5)
+    expect(Math.abs(camera.getRight()[2])).toBeGreaterThan(0.4)
+    fly(camera, NO_COMMAND, 12)
+    expect(Math.abs(camera.getRight()[2])).toBeLessThan(0.05)
+    expect(camera.getUp()[2]).toBeGreaterThan(0.95)
   })
 })
