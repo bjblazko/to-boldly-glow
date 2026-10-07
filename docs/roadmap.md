@@ -20,8 +20,10 @@ and the objects you'd actually see in the sky.
   sparkle. (Done: per-body surface materials - ocean glint with glitter, ice, regolith, gas-giant
   limb darkening - procedural Earth clouds with shadows, and atmosphere shells with a twilight
   band and a backlit ring.)
-- Shader/mapping techniques: physically based shading, HDR tonemapping (ACES/AgX) and exposure,
-  parallax or tessellation for relief, anisotropic ring lighting.
+- Shader/mapping techniques: physically based shading, automatic exposure, parallax or
+  tessellation for relief, anisotropic ring lighting. (Done: AgX tonemapping as the Display panel's
+  optional "Filmic look"; the Sun's limb darkening and granulation, with the camera stopping down
+  as the Sun fills the view.)
 - Small bodies (Done: main belt, Hildas, Trojans and Kuiper belt as GPU Keplerian particles;
   comets with coma, ion and dust tails; Ceres, Vesta, Pallas and Pluto.) Next: zodiacal light,
   real orbital elements for thousands of numbered asteroids (MPC/JPL, licensing check), comet

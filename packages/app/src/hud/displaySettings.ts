@@ -45,6 +45,8 @@ export class DisplaySettings {
   readonly asteroids: DisplaySwitch
   readonly comets: DisplaySwitch
   readonly bloom: DisplaySwitch
+  // AgX instead of Reinhard tonemapping (see bloom/tonemapWgsl.ts).
+  readonly filmic: DisplaySwitch
   readonly flares: DisplaySwitch
   readonly moons: DisplaySwitch
   readonly orbitPaths: DisplaySwitch
@@ -59,6 +61,7 @@ export class DisplaySettings {
     this.asteroids = displaySwitch('#asteroids-toggle', 'asteroids')
     this.comets = displaySwitch('#comets-toggle', 'comets')
     this.bloom = displaySwitch('#bloom-toggle', 'bloom')
+    this.filmic = displaySwitch('#filmic-toggle', 'filmic')
     this.flares = displaySwitch('#flares-toggle', 'flares')
     this.moons = displaySwitch('#moons-toggle', 'moons')
     this.orbitPaths = displaySwitch('#orbit-paths-toggle', 'orbitPaths')

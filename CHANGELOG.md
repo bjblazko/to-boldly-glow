@@ -100,6 +100,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The README lists where every texture, catalog and data set comes from, and under which license.
 - Free flight on touch screens: a thumbstick to fly and strafe, buttons to rise, sink and boost,
   drag to look, pinch to set the speed. Orbit mode zooms with a pinch.
+- The Sun is a glowing ball instead of a flat disc: limb darkening dims its edge and turns it redder
+  (per color, from the measured solar values), and up close its granulation shows - convection
+  cells about 1,300 km across that boil up and fade within ten minutes of simulated time. When the
+  clock runs so fast that granules come and go within a frame, they average out instead of
+  flickering. As the Sun's disc fills the view, the camera stops down like a solar filter, so its
+  surface no longer burns out to white.
+- A "Filmic look" switch in the Display panel (off by default): AgX tonemapping instead of
+  Reinhard, so very bright light burns out toward white the way it does on film instead of staying
+  saturated, with deeper blacks.
 
 ### Changed
 

@@ -1,6 +1,7 @@
 import type { GpuContext } from '../gpu/device'
 import { createRenderTargets, destroyRenderTargets, type RenderTargets } from '../gpu/renderTargets'
 import { Bloom, HDR_FORMAT } from '../bloom/bloom'
+import type { Tonemapper } from '../bloom/tonemapWgsl'
 
 // Dark navy space. The direct path writes it to the (non-sRGB) swapchain as is; the bloom path's
 // composite gamma-encodes afterward, so its HDR clear value is pre-linearized (^2.2) to end up as
@@ -63,9 +64,9 @@ export class SceneTargets {
   }
 
   // After the scene and camera-effects passes: bloom's composite is then the only write to the
-  // swapchain.
-  present(encoder: GPUCommandEncoder): void {
-    this.bloom?.composite(encoder, this.swapchainView())
+  // swapchain. Without bloom there is no HDR image, so nothing to tonemap either.
+  present(encoder: GPUCommandEncoder, tonemapper: Tonemapper): void {
+    this.bloom?.composite(encoder, this.swapchainView(), tonemapper)
   }
 
   private swapchainView(): GPUTextureView {
