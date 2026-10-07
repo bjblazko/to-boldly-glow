@@ -1,6 +1,6 @@
 # To Boldly Glow
 
-![To Boldly Glow — a WebGPU view of the solar system, showing the Sun, inner planets, and orbit paths for Jupiter's and Uranus's moons](docs/images/screenshot.png)
+![To Boldly Glow — a WebGPU view of the solar system: the Sun with its lens flare, the inner planets' orbits, Jupiter and its moons, two comets and the real star field in its colors](docs/images/screenshot.png)
 
 To Boldly Glow is a free, open-source, browser-based planetarium and solar-system visualizer. It
 renders the Sun, all 8 planets, and 9 major moons in 3D using real orbital mechanics (VSOP87
