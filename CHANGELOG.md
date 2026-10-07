@@ -97,6 +97,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   them) to fly there and follow them, with labels next to them. Their orbits have their own switch
   ("Comet & dwarf orbits"), separate from the planets'.
 - Double-click or double-tap any body to fly there and follow it.
+- The README lists where every texture, catalog and data set comes from, and under which license.
 - Free flight on touch screens: a thumbstick to fly and strafe, buttons to rise, sink and boost,
   drag to look, pinch to set the speed. Orbit mode zooms with a pinch.
 

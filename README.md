@@ -4,11 +4,13 @@
 
 To Boldly Glow is a free, open-source, browser-based planetarium and solar-system visualizer. It
 renders the Sun, all 8 planets, and 9 major moons in 3D using real orbital mechanics (VSOP87
-planetary theory) and real axial tilts, with accurate positions for any date — not just today.
-Fly around freely or lock the camera onto any body, run time forwards or backwards from real-time
-up to years per second, and blend between true-to-scale distances and a compressed, easier-to-explore
-view. Everything renders through WebGPU, with HDR bloom, lens flares, and a real ~9,100-star
-background sourced from the Yale Bright Star Catalogue.
+planetary theory) and real axial tilts, with accurate positions for any date — not just today —
+along with the asteroid and Kuiper belts, notable comets and dwarf planets on their orbits. Fly
+around freely like in a space game or lock the camera onto any body, run time forwards or backwards
+from real-time up to years per second, and blend between true-to-scale distances and a compressed,
+easier-to-explore view. Everything renders through WebGPU, with HDR bloom, lens flares, the Milky
+Way, and a real ~9,100-star background in the stars' own colors from the Yale Bright Star
+Catalogue.
 
 **Try it live: [huepattl.de/products/to-boldly-glow](https://huepattl.de/products/to-boldly-glow)**
 (needs a browser with WebGPU, such as a current Chrome, Edge or Safari).
@@ -76,6 +78,27 @@ it yourself, or to work on it:
   orbits, comet and dwarf-planet orbits, name labels, the stars (in their real colors), the Milky Way
   (with its nebulae and the nearest galaxies), the asteroid and Kuiper belts, comets, Earth's
   clouds, HDR bloom, lens flares, and moons independently.
+
+### Where the data and images come from
+
+Everything shown is either real, openly licensed data or made for this project — no image or data
+set is used without a license that allows it. In short (full attributions, file lists and license
+texts are in [CREDITS.md](CREDITS.md)):
+
+| What | Source | License |
+| --- | --- | --- |
+| Textures of the Sun, the planets, the Moon and Saturn's rings | [Solar System Scope](https://www.solarsystemscope.com/textures/) | CC BY 4.0 |
+| Textures of Io, Europa, Ganymede, Callisto and Titan | NASA / JPL / USGS imagery (Voyager, Galileo, Cassini), via Wikimedia Commons | Public domain |
+| Gas giants' bump maps | Derived from the Solar System Scope textures by `packages/data-pipeline` | CC BY 4.0 (inherited) |
+| Planet positions | VSOP87 theory (Bureau des Longitudes), coefficients from the [astronomia](https://github.com/commenthol/astronomia) library | MIT |
+| Rotation axes of the Sun and planets | IAU Working Group on Cartographic Coordinates and Rotational Elements (2015 report) | Published facts |
+| Moon orbits | Published orbital elements (JPL/IAU) | Published facts |
+| Stars: positions, brightness, colors (B−V) | [Yale Bright Star Catalogue, 5th ed.](https://cdsarc.cds.unistra.fr/ftp/V/50/) (Hoffleit & Warren, via CDS) | Public domain |
+| Star colors from B−V | Formulas of Ballesteros (2012) and Kang et al. (2002) | Published formulas |
+| Milky Way, nebulae, nearby galaxies | Painted procedurally for this project (`npm run paint-sky`); object positions from the NGC/IC, Sharpless and Lynds catalogs | Original, MIT |
+| Comets, Ceres, Vesta, Pallas, Pluto | Orbital elements as published by the JPL Small-Body Database and the Minor Planet Center | Published facts |
+| Asteroid and Kuiper belt populations | Generated from the populations' published statistics (no individual catalogued objects) | Original, MIT |
+| Earth's clouds | Procedural, made for this project | Original, MIT |
 
 ## For developers
 
