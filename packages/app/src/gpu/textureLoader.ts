@@ -17,17 +17,14 @@ export class TextureLoader {
   }
 
   // sRGB color map with a full mip chain, so small or distant spheres don't shimmer when minified.
-  async loadColor(url: string): Promise<GPUTexture> {
-    try {
-      const bitmap = await fetchBitmap(url)
-      const mipLevelCount = 1 + Math.floor(Math.log2(Math.max(bitmap.width, bitmap.height)))
-      const texture = this.upload(bitmap, url, COLOR_TEXTURE_FORMAT, mipLevelCount)
-      this.mipmaps.generate(texture)
-      return texture
-    } catch (error) {
-      console.warn(`Texture load failed for ${url}, falling back to flat shading.`, error)
-      return this.white()
-    }
+  loadColor(url: string): Promise<GPUTexture> {
+    return this.loadMipmapped(url, () => this.white())
+  }
+
+  // Light a surface gives off by itself (Earth's city lights): sRGB like a color map, but a failed
+  // load falls back to black - no light - instead of white.
+  loadEmission(url: string): Promise<GPUTexture> {
+    return this.loadMipmapped(url, () => this.black())
   }
 
   // Height maps are numeric data, not light, so they are read back without an sRGB decode - and
@@ -45,8 +42,25 @@ export class TextureLoader {
     return this.solidPixel('fallback white texture', COLOR_TEXTURE_FORMAT, [255, 255, 255, 255])
   }
 
+  black(): GPUTexture {
+    return this.solidPixel('fallback black texture', COLOR_TEXTURE_FORMAT, [0, 0, 0, 255])
+  }
+
   flatHeight(): GPUTexture {
     return this.solidPixel('fallback flat bump texture', HEIGHT_TEXTURE_FORMAT, [128, 128, 128, 255])
+  }
+
+  private async loadMipmapped(url: string, fallback: () => GPUTexture): Promise<GPUTexture> {
+    try {
+      const bitmap = await fetchBitmap(url)
+      const mipLevelCount = 1 + Math.floor(Math.log2(Math.max(bitmap.width, bitmap.height)))
+      const texture = this.upload(bitmap, url, COLOR_TEXTURE_FORMAT, mipLevelCount)
+      this.mipmaps.generate(texture)
+      return texture
+    } catch (error) {
+      console.warn(`Texture load failed for ${url}, falling back to flat shading.`, error)
+      return fallback()
+    }
   }
 
   // RENDER_ATTACHMENT is required next to COPY_DST even without mip generation: Dawn implements

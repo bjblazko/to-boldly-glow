@@ -28,7 +28,8 @@ export const LIT_UNIFORM_FLOAT_COUNT = 100
 //   [64..68) atmosphereParams    : vec4f (rgb = rim-glow color, a = intensity; a of 0 means no
 //                                 atmosphere - every moon and Mercury/Mars write this as all-zero)
 //   [68..72) bumpParams          : vec4f (x = bump/AO intensity, roughly 0-1; 0 means no effect;
-//                                 y/z/w unused)
+//                                 y = brightness of the lights on the night side, 0 for none;
+//                                 z/w unused)
 //   [72..76) northHemisphereTint : vec4f (rgb = tint color, a = blend strength; a of 0 means no
 //                                 tint - every body writes this as all-zero except learn mode's
 //                                 seasons-lesson Earth)
@@ -77,6 +78,7 @@ struct VertexOutput {
 @group(0) @binding(1) var bodyTexture: texture_2d<f32>;
 @group(0) @binding(2) var bodySampler: sampler;
 @group(0) @binding(3) var bumpTexture: texture_2d<f32>;
+@group(0) @binding(4) var nightLightsTexture: texture_2d<f32>;
 
 ${eclipseShadowWgsl}
 ${reliefWgsl}
@@ -96,6 +98,25 @@ fn cloudShadow(worldPosition: vec3f, toLight: vec3f, incidence: f32) -> f32 {
   let crossing = worldPosition + toLight * (CLOUD_ALTITUDE * radius / max(incidence, 0.2));
   let local = normalize(transpose(frame) * (crossing - uni.world[3].xyz));
   return 1.0 - cloudCover(local, uni.surfaceDetail.z) * strength;
+}
+
+// The warm glow of sodium and LED street lighting seen from orbit.
+const CITY_LIGHT_COLOR = vec3f(1.0, 0.72, 0.42);
+
+// Earth's city lights: they come on as the Sun sets and shine through the night, dimmed where
+// clouds lie over them. lightsLevel is the night-lights map's (linear) sample.
+fn nightLights(lightsLevel: f32, geometricNormal: vec3f, toLight: vec3f, worldPosition: vec3f) -> vec3f {
+  let strength = uni.bumpParams.y;
+  if (strength <= 0.0) {
+    return vec3f(0.0);
+  }
+  let night = 1.0 - smoothstep(-0.12, 0.03, dot(geometricNormal, toLight));
+  var clouds = 0.0;
+  if (uni.surfaceDetail.w > 0.0) {
+    let frame = mat3x3f(uni.world[0].xyz, uni.world[1].xyz, uni.world[2].xyz);
+    clouds = cloudCover(normalize(transpose(frame) * (worldPosition - uni.world[3].xyz)), uni.surfaceDetail.z);
+  }
+  return CITY_LIGHT_COLOR * lightsLevel * night * (1.0 - 0.75 * clouds) * strength;
 }
 
 @vertex
@@ -129,6 +150,8 @@ fn fs(in: VertexOutput) -> @location(0) vec4f {
   let aoFactor = mix(1.0, relief.ao, poleFade);
 
   let sharpColor = textureSample(bodyTexture, bodySampler, in.uv);
+  // A mip level sharper than the color map: the lights stay points instead of averaging away.
+  let lightsLevel = textureSampleBias(nightLightsTexture, bodySampler, in.uv, -1.0).r;
   let coarseLevel = f32(textureNumLevels(bodyTexture) - 1u);
   let blurryColor = textureSampleLevel(bodyTexture, bodySampler, in.uv, coarseLevel);
   let albedo = mix(blurryColor, sharpColor, poleFade).rgb * uni.color.rgb;
@@ -145,7 +168,8 @@ fn fs(in: VertexOutput) -> @location(0) vec4f {
     sunlightColor(geometricNormal, toLight),
   );
   // aoFactor darkens what the surface itself reflects, but not the atmosphere's glow above it.
-  let litColor = reflectedLight(albedo, shading) * aoFactor + rimGlow(normal, toLight, toCamera, sunlight);
+  let litColor = reflectedLight(albedo, shading) * aoFactor + rimGlow(normal, toLight, toCamera, sunlight)
+    + nightLights(lightsLevel, geometricNormal, toLight, in.worldPosition);
 
   // Learn-mode hemisphere overlay: a translucent wash over the whole northern or southern half of
   // the globe (split at the body's own local +Z/pole axis, the same axis tangentFrame reads),

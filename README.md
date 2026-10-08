@@ -80,6 +80,10 @@ it yourself, or to work on it:
   clouds, HDR bloom, lens flares, and moons independently. **Filmic look** (off by default) renders
   the picture's colors like film (AgX tonemapping): the Sun burns out to white-hot instead of
   staying a saturated orange, and the sky goes deep black.
+- **Things to look for** — fly behind Earth (or the Moon) until it covers the Sun: the exposure
+  opens up and the Sun's corona appears in full, with its streamers and the red prominences at the
+  limb. Earth's night side shows its city lights, and the aurora glows around both poles — best seen
+  at the limb, or looking down on a pole from the night side.
 
 ### Where the data and images come from
 
@@ -102,6 +106,9 @@ texts are in [CREDITS.md](CREDITS.md)):
 | Comets, Ceres, Vesta, Pallas, Pluto | Orbital elements as published by the JPL Small-Body Database and the Minor Planet Center | Published facts |
 | Asteroid and Kuiper belt populations | Generated from the populations' published statistics (no individual catalogued objects) | Original, MIT |
 | Earth's clouds | Procedural, made for this project | Original, MIT |
+| Earth's city lights | NASA Earth Observatory's "Earth at Night" 2012 (Black Marble; Suomi NPP VIIRS data, NOAA NGDC), from NASA WorldWind's npm package; lights extracted by `packages/data-pipeline` | Public domain |
+| Earth's aurora | Procedural; the ovals' place around the IGRF-14 geomagnetic poles and their published geomagnetic latitudes and heights | Original, MIT |
+| The Sun's corona, chromosphere and prominences | Procedural; brightness profile from Baumbach's K-corona fit, heights from solar physics literature | Original, MIT |
 
 ## For developers
 
@@ -126,18 +133,19 @@ This is an npm-workspaces monorepo with three packages:
   - `app/` starts everything and runs the frame loop; `scene/` decides each frame's *scene layout*
     (where every visible body is — the real solar system, or the active lesson's staged scene) and
     renders it.
-  - `bodies/` (Sun, planets, moons, their surface materials), `saturnRing/`, `atmosphereShell/`,
-    `earthClouds/`, `starfield/`, `sky/` (the Milky Way backdrop), `smallBodies/` (asteroid belts
-    and comets on Keplerian orbits), `orbitPaths/`, `lensFlare/`, `bloom/`, `labels/` — one folder
-    per thing you see.
+  - `bodies/` (Sun, planets, moons, their surface materials and Earth's city lights), `sunCorona/`,
+    `saturnRing/`, `atmosphereShell/`, `earthClouds/`, `earthAurora/`, `starfield/`, `sky/` (the
+    Milky Way backdrop), `smallBodies/` (asteroid belts and comets on Keplerian orbits),
+    `orbitPaths/`, `lensFlare/`, `bloom/`, `labels/` — one folder per thing you see.
   - `camera/` (orbit, free flight and their input in `camera/input/`, follow, the tour in
     `camera/tour/`), `learn/` (lessons, with
     `seasons/` and `sizes/`), `hud/`, `time/`, `search/`, `solarSystem/` (body data and orbital
     mechanics).
   - `gpu/` and `lines/` hold the WebGPU plumbing the features share.
 - **`packages/data-pipeline`** — TypeScript. Offline conversion scripts (e.g. turning the Yale
-  Bright Star Catalogue into the binary starfield asset `packages/app` loads at runtime, and
-  painting the Milky Way panorama, `npm run paint-sky`). Not part
+  Bright Star Catalogue into the binary starfield asset `packages/app` loads at runtime,
+  painting the Milky Way panorama, `npm run paint-sky`, and pulling Earth's city lights out of
+  NASA's night image, `npm run extract-city-lights`). Not part
   of the normal dev loop — only run when source data changes.
 
 ### Setup

@@ -110,6 +110,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A "Filmic look" switch in the Display panel (off by default): AgX tonemapping instead of
   Reinhard, so very bright light burns out toward white the way it does on film instead of staying
   saturated, with deeper blacks.
+- The Sun's corona: a pearly glow falling off steeply away from the Sun (Baumbach's K-corona
+  profile), combed into helmet streamers with long thin stalks, fine radial rays and fainter polar
+  regions, fixed to the Sun so it turns with it. Beside the bright disc it shows only faintly; when
+  a planet or moon covers the Sun - fly behind Earth until it eclipses the Sun - the exposure opens
+  up and the corona shows in full, with the red chromosphere and prominences standing out at the
+  limb. A partial eclipse keeps it faint: the last sliver of the disc still outshines it.
+- Earth's city lights on its night side, from NASA's Black Marble 2012 ("Earth at Night"): they come
+  on after sunset, shine warm like sodium and LED street lighting, and are dimmed under clouds.
+- Earth's aurora: green curtains with red tops ringing both geomagnetic poles on the night side,
+  reaching farther from the poles around midnight than around noon, folded and combed into vertical
+  rays, breathing with substorms. Looking down they are faint bands over the night side; at the limb
+  they rise above the horizon as a bright glow, as seen from the space station.
 
 ### Changed
 

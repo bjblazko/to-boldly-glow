@@ -1,6 +1,7 @@
 import type { Viewpoint } from '../camera/viewpoint'
 import type { BodyRenderer } from '../bodies/bodyRenderer'
 import type { AtmosphereShells } from '../atmosphereShell/atmosphereShell'
+import type { Aurora } from '../earthAurora/aurora'
 import type { CloudLayer } from '../earthClouds/cloudLayer'
 import type { DisplaySettings } from '../hud/displaySettings'
 import type { LensFlare } from '../lensFlare/lensFlare'
@@ -11,6 +12,7 @@ import type { SkyBackdrop } from '../sky/skyBackdrop'
 import type { AsteroidBelt, OrbitClock } from '../smallBodies/asteroidBelt'
 import type { CometRenderer } from '../smallBodies/cometRenderer'
 import type { Starfield } from '../starfield/starfield'
+import type { SunCorona } from '../sunCorona/sunCorona'
 import type { SceneLayout } from './sceneLayout'
 import type { SceneTargets } from './sceneTargets'
 
@@ -22,9 +24,11 @@ export interface SceneParts {
   sky: SkyBackdrop
   starfield: Starfield
   bodies: BodyRenderer
+  corona: SunCorona
   saturnRing: SaturnRing
   atmosphereShells: AtmosphereShells
   clouds: CloudLayer
+  aurora: Aurora
   asteroids: AsteroidBelt
   comets: CometRenderer
   orbitPaths: OrbitPaths
@@ -69,10 +73,12 @@ export class SceneRenderer {
     this.updateBackdrop(viewpoint)
     const sunBrightness = this.targets.bloomSupported && display.bloom.on ? SUN_BLOOM_BRIGHTNESS : 1
     bodies.update(layout, viewpoint, { sunBrightness, timeSeconds: nowSeconds, daysSinceEpoch: frame.clock.daysSinceEpoch, clouds: display.clouds.on })
+    this.parts.corona.update(layout, viewpoint, sunBrightness)
     this.updateSmallBodies(frame)
     saturnRing.update(layout, viewpoint)
     if (display.clouds.on) clouds.update(layout, viewpoint, nowSeconds)
     atmosphereShells.update(layout, viewpoint)
+    this.parts.aurora.update(layout, viewpoint, nowSeconds)
     if (display.orbitPaths.on || display.smallBodyOrbits.on) orbitPaths.update(viewpoint)
     lessons.updateOverlays(layout, viewpoint, nowSeconds)
     if (display.flares.on) lensFlare.update(layout, viewpoint)
@@ -96,10 +102,12 @@ export class SceneRenderer {
     this.drawBackdrop(pass)
     bodies.draw(pass, layout)
     // Everything after the opaque spheres is depth-tested against them without hiding anything.
+    this.parts.corona.draw(pass)
     this.drawSmallBodies(pass)
     saturnRing.draw(pass, layout)
     if (display.clouds.on) clouds.draw(pass, layout)
     atmosphereShells.draw(pass, layout)
+    this.parts.aurora.draw(pass, layout)
     pass.setPipeline(linePipeline)
     orbitPaths.draw(pass, this.shownOrbits())
     lessons.drawOverlays(pass)

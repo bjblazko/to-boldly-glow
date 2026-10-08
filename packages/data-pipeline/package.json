@@ -7,7 +7,8 @@
     "convert": "tsx src/convertBrightStarCatalog.ts",
     "derive-bump-maps": "tsx src/deriveGasGiantBumpMaps.ts",
     "paint-sky": "tsx src/paintMilkyWay.ts",
-    "test": "vitest run"
+    "test": "vitest run",
+    "extract-city-lights": "tsx src/extractCityLights.ts"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
