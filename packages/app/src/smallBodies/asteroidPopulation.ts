@@ -4,6 +4,8 @@
 // belt, the triangle the Hildas trace in step with Jupiter, the two swarms of Trojans leading and
 // trailing it, and the plutinos keeping clear of Neptune like Pluto does.
 
+import { seededRandom, type Random } from '../math/seededRandom'
+
 // Per asteroid: semi-major axis (AU), eccentricity, inclination, ascending node, argument of
 // perihelion, mean anomaly at J2000 (radians), radius (km), color (0 = gray carbonaceous, 1 = red).
 export const FLOATS_PER_ASTEROID = 8
@@ -36,7 +38,6 @@ interface Orbit {
   color: number
 }
 
-type Random = () => number
 
 export function asteroidPopulation(seed = 1): Float32Array {
   const random = seededRandom(seed)
@@ -136,16 +137,4 @@ function wrap(angle: number): number {
 
 function repeat<T>(count: number, make: () => T): T[] {
   return Array.from({ length: count }, make)
-}
-
-// mulberry32: small, fast and seedable, so every visit shows the same belts.
-function seededRandom(seed: number): Random {
-  let state = seed >>> 0
-  return () => {
-    state = (state + 0x6d2b79f5) >>> 0
-    let t = state
-    t = Math.imul(t ^ (t >>> 15), t | 1)
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-  }
 }

@@ -152,6 +152,37 @@ I(μ)/I(1) = 1 − u(1 − μ) − v(1 − μ²) with the coefficients u and v t
 (~10 minutes) and rms contrast (~12% in white light) are typical published values; the pattern
 itself is procedural (a Worley noise), not an observation.
 
+## The Sun's corona
+
+The corona (`packages/app/src/sunCorona/`) is procedural, made for this project. Its radial
+brightness follows C. Baumbach's fit of the K corona, I(r) ∝ 0.0532 r^−2.5 + 1.425 r^−7 +
+2.565 r^−17 (r in solar radii; *Astronomische Nachrichten* 263, 121, 1937), with its dynamic range
+compressed the way eclipse photographs are processed. The helmet streamers, rays and prominences are
+placed by a seeded random generator, with sizes typical of published observations (prominences
+20,000-100,000 km high, a chromosphere about 2,000 km deep); none is a particular observed feature.
+
+## Earth at night
+
+Earth's city lights (`packages/app/public/textures/earth_night.png`) are extracted from NASA Earth
+Observatory's "Earth at Night" 2012 (the Black Marble), by `packages/data-pipeline/src/extractCityLights.ts`.
+The source image is NASA's, public domain:
+
+```
+NASA Earth Observatory image by Robert Simmon, using Suomi National Polar-orbiting Partnership
+(Suomi NPP) VIIRS data provided courtesy of Chris Elvidge (NOAA National Geophysical Data Center).
+https://earthobservatory.nasa.gov/images/79765/night-lights-2012-map
+```
+
+It was taken from NASA WorldWind's npm package, `@nasaworldwind/worldwind` 0.11.1 (Apache 2.0 for
+its code; the image is NASA's), file `build/dist/images/dnb_land_ocean_ice_2012.png` (2048x1024,
+SHA-256 `c1893c1a97634f9d9dc45a62f83916c77cae742d5128551f8d7c4e4f5296ed36`). The extraction removes
+the image's blue rendering of land, ocean and ice and keeps only the lights.
+
+The aurora (`packages/app/src/earthAurora/`) is procedural, made for this project. The ovals ring the
+2025 geomagnetic poles of the IGRF-14 field model (80.8°N, 72.6°W and the opposite point) at about
+67° geomagnetic latitude around midnight and 75° around noon, with oxygen's green emission from
+about 95 km up and its red emission around 250 km - typical published values.
+
 ## Tonemapping
 
 The "Filmic look" (`packages/app/src/bloom/tonemapWgsl.ts`) follows Troy Sobotka's AgX view

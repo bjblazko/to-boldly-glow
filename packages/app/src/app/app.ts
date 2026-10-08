@@ -1,6 +1,7 @@
 import { BodyRenderer } from '../bodies/bodyRenderer'
 import { createViewpoint } from '../camera/viewpoint'
 import { AtmosphereShells } from '../atmosphereShell/atmosphereShell'
+import { Aurora } from '../earthAurora/aurora'
 import { CloudLayer } from '../earthClouds/cloudLayer'
 import { fitCanvasToDisplaySize, watchCanvasSize } from '../gpu/canvasSize'
 import { initWebGpu, onDeviceLost, type GpuContext } from '../gpu/device'
@@ -23,6 +24,7 @@ import { SkyBackdrop } from '../sky/skyBackdrop'
 import { AsteroidBelt } from '../smallBodies/asteroidBelt'
 import { CometRenderer } from '../smallBodies/cometRenderer'
 import { Starfield } from '../starfield/starfield'
+import { SunCorona } from '../sunCorona/sunCorona'
 import { ephemerisAt } from '../time/ephemeris'
 import { requireElement } from './dom'
 import { showDeviceLost } from './errorMessages'
@@ -65,17 +67,19 @@ async function createRendering(gpu: GpuContext, canvas: HTMLCanvasElement) {
 async function createSceneFeatures(device: GPUDevice, format: GPUTextureFormat, linePipeline: GPURenderPipeline): Promise<SceneFeatures> {
   const textures = await TextureLoader.create(device)
   const bodies = await BodyRenderer.create(device, format, textures)
-  const [sky, starfield, asteroids, comets, saturnRing, atmosphereShells, clouds, lensFlare] = await Promise.all([
+  const [sky, starfield, corona, asteroids, comets, saturnRing, atmosphereShells, clouds, aurora, lensFlare] = await Promise.all([
     SkyBackdrop.create(device, format, textures),
     Starfield.create(device, format),
+    SunCorona.create(device, format),
     AsteroidBelt.create(device, format),
     CometRenderer.create(device, format),
     SaturnRing.create(device, format, textures),
     AtmosphereShells.create(device, format, bodies.sphereMesh),
     CloudLayer.create(device, format, bodies.sphereMesh),
+    Aurora.create(device, format, bodies.sphereMesh),
     LensFlare.create(device, format),
   ])
-  return { sky, starfield, asteroids, comets, bodies, saturnRing, atmosphereShells, clouds, lensFlare, orbitPaths: OrbitPaths.create(device, linePipeline, 1) }
+  return { sky, starfield, corona, asteroids, comets, bodies, saturnRing, atmosphereShells, clouds, aurora, lensFlare, orbitPaths: OrbitPaths.create(device, linePipeline, 1) }
 }
 
 function createLessons(

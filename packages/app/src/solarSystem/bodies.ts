@@ -75,6 +75,11 @@ export interface BodyDefinition {
   bumpMapUrl?: string
   /** Bump-mapping and ambient-occlusion strength, roughly 0-1. Undefined/0 means no effect. */
   bumpIntensity?: number
+  /**
+   * Path (under public/) to a grayscale map of the lights on the body's night side (Earth's
+   * cities). Undefined means a dark night side. See CREDITS.md.
+   */
+  nightLightsUrl?: string
 }
 
 /** 1 astronomical unit, kilometers (IAU-defined exact value). */
@@ -143,6 +148,7 @@ export const PLANETS: BodyDefinition[] = [
     siderealPeriodDays: 365.256,
     position: { longitude: earthHeliocentricL, latitude: earthHeliocentricB, distance: earthHeliocentricR },
     textureUrl: 'textures/earth.jpg',
+    nightLightsUrl: 'textures/earth_night.png',
     siderealRotationHours: 23.9345,
     poleRightAscensionDegrees: 0,
     poleDeclinationDegrees: 90,

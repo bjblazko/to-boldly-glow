@@ -18,7 +18,17 @@ interface TexturedBody {
   id: string
   textureUrl?: string
   bumpMapUrl?: string
+  nightLightsUrl?: string
 }
+
+// A lit body's maps beyond its color: relief, and the lights on its night side.
+interface SurfaceMaps {
+  height: GPUTexture
+  nightLights: GPUTexture
+}
+
+// How bright Earth's brightest city lights shine on its night side (linear; 1 = the picture's white).
+const CITY_LIGHTS_BRIGHTNESS = 1.2
 
 interface BindingContext {
   device: GPUDevice
@@ -44,10 +54,14 @@ export class BodyRenderer {
     const context: BindingContext = { device, textures, sampler: createBodySampler(device) }
     const sun = await createTexturedBinding(context, sunPipeline, SUN)
     const flatHeight = textures.flatHeight()
+    const unlit = textures.black()
     const litBodies = await Promise.all(
       [...PLANETS, ...MOONS].map(async (body) => {
-        const height = body.bumpMapUrl ? await textures.loadHeight(body.bumpMapUrl) : flatHeight
-        return [body.id, await createTexturedBinding(context, litPipeline, body, height)] as const
+        const maps = {
+          height: body.bumpMapUrl ? await textures.loadHeight(body.bumpMapUrl) : flatHeight,
+          nightLights: 'nightLightsUrl' in body && body.nightLightsUrl ? await textures.loadEmission(body.nightLightsUrl) : unlit,
+        }
+        return [body.id, await createTexturedBinding(context, litPipeline, body, maps)] as const
       }),
     )
     return new BodyRenderer(device, { sun: sunPipeline, lit: litPipeline }, createSphereMeshBuffers(device), { sun, litBodies: new Map(litBodies) })
@@ -86,6 +100,7 @@ export class BodyRenderer {
         bumpIntensity,
         hemisphereTints: planet.hemisphereTints,
         material: surfaceMaterialOf(planet.definition.id),
+        nightLights: planet.definition.nightLightsUrl ? CITY_LIGHTS_BRIGHTNESS : 0,
         timeSeconds,
         clouds,
       },
@@ -139,16 +154,16 @@ function sphereSpec(label: string, code: string, format: GPUTextureFormat) {
 }
 
 // Bodies without a texture of their own (moons Voyager only partly imaged) get a white one, so their
-// flat `color` tint shows unchanged. The Sun's pipeline declares no height map binding, so it gets none.
+// flat `color` tint shows unchanged. The Sun's pipeline declares no further maps, so it gets none.
 async function createTexturedBinding(
   context: BindingContext,
   pipeline: GPURenderPipeline,
   body: TexturedBody,
-  heightMap?: GPUTexture,
+  maps?: SurfaceMaps,
 ): Promise<UniformBinding> {
   const color = body.textureUrl ? await context.textures.loadColor(body.textureUrl) : context.textures.white()
   const resources: GPUBindingResource[] = [color.createView(), context.sampler]
-  if (heightMap) resources.push(heightMap.createView())
-  const floatCount = heightMap ? LIT_UNIFORM_FLOAT_COUNT : SUN_UNIFORM_FLOAT_COUNT
+  if (maps) resources.push(maps.height.createView(), maps.nightLights.createView())
+  const floatCount = maps ? LIT_UNIFORM_FLOAT_COUNT : SUN_UNIFORM_FLOAT_COUNT
   return createUniformBinding(context.device, pipeline, { label: body.id, floatCount, resources })
 }
