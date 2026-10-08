@@ -11,7 +11,9 @@ import { DockUI } from '../hud/dockUI'
 import { LearnModeController } from '../learn/learnModeController'
 import { LessonCamera } from '../learn/lessonCamera'
 import { LessonPanel } from '../learn/lessonPanel'
-import { LessonSession } from '../learn/lessonSession'
+import { LessonSession, type LessonGpu } from '../learn/lessonSession'
+import { EclipseLabels } from '../learn/eclipse/eclipseLabels'
+import { GroundSky } from '../learn/eclipse/groundSky'
 import { SeasonsLabels } from '../learn/seasons/seasonsLabels'
 import { LensFlare } from '../lensFlare/lensFlare'
 import { createLinePipeline } from '../lines/lineStrip'
@@ -40,10 +42,10 @@ export async function startApp(canvas: HTMLCanvasElement): Promise<void> {
   fitCanvasToDisplaySize(canvas)
   const gpu = await initWebGpu(canvas)
   onDeviceLost(gpu.device, showDeviceLost)
-  const { targets, linePipeline, features } = await createRendering(gpu, canvas)
+  const { targets, linePipeline, features, groundSky } = await createRendering(gpu, canvas)
   const display = new DisplaySettings(canvas, (selector) => requireElement<HTMLInputElement>(selector))
   const explorer = createExplorer(canvas, display, features.orbitPaths)
-  const lessons = createLessons(explorer, { device: gpu.device, linePipeline })
+  const lessons = createLessons(explorer, { device: gpu.device, linePipeline, groundSky })
   const renderer = new SceneRenderer(gpu.device, targets, { ...features, lessons }, { display, linePipeline })
   watchCanvasSize(canvas, () => {
     targets.resize()
@@ -59,9 +61,11 @@ async function createRendering(gpu: GpuContext, canvas: HTMLCanvasElement) {
   canvas.dataset.bloomSupported = String(targets.bloomSupported)
   const linePipeline = await createLinePipeline(gpu.device, targets.sceneFormat)
   const features = await createSceneFeatures(gpu.device, targets.sceneFormat, linePipeline)
+  // The eclipse lesson's sky and horizon, drawn only while one of its ground chapters is open.
+  const groundSky = await GroundSky.create(gpu.device, targets.sceneFormat)
   canvas.dataset.texturesLoaded = 'true'
   canvas.dataset.starCount = String(features.starfield.starCount)
-  return { targets, linePipeline, features }
+  return { targets, linePipeline, features, groundSky }
 }
 
 async function createSceneFeatures(device: GPUDevice, format: GPUTextureFormat, linePipeline: GPURenderPipeline): Promise<SceneFeatures> {
@@ -82,10 +86,7 @@ async function createSceneFeatures(device: GPUDevice, format: GPUTextureFormat, 
   return { sky, starfield, corona, asteroids, comets, bodies, saturnRing, atmosphereShells, clouds, aurora, lensFlare, orbitPaths: OrbitPaths.create(device, linePipeline, 1) }
 }
 
-function createLessons(
-  explorer: ReturnType<typeof createExplorer>,
-  gpu: { device: GPUDevice; linePipeline: GPURenderPipeline },
-): LessonSession {
+function createLessons(explorer: ReturnType<typeof createExplorer>, gpu: LessonGpu): LessonSession {
   const { camera, lens, canvas, display, searchUi } = explorer
   const dock = new DockUI(
     document.querySelectorAll<HTMLButtonElement>('.hud-dock-btn:not(#learn-mode-btn)'),
@@ -101,6 +102,7 @@ function createLessons(
       display,
       panel: new LessonPanel(requireElement),
       labels: new SeasonsLabels(requireElement),
+      eclipseLabels: new EclipseLabels(requireElement),
     },
     { learnButton: requireElement('#learn-mode-btn'), picker: requireElement('#lesson-picker') },
     gpu,

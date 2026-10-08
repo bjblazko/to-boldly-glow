@@ -52,6 +52,11 @@ future eclipse dates.
 eclipse dates for a given date range.
 **Data needed**: eclipse date tables (e.g. NASA's public-domain eclipse catalogs) bundled or
 computed from the existing orbital elements.
+**Done**: a staged "What happens in a solar eclipse?" lesson - umbra and penumbra, why eclipses
+don't happen every month, the Moon's shadow on Earth, and the partial phases, diamond ring,
+totality and an annular eclipse seen from the ground. **Next**: lunar eclipses, and jumping to real
+eclipse dates - which needs the Moon's real orbit (its elliptical distance and its node, which
+turns once every 18.6 years) rather than today's fixed circular one.
 
 ## ISS and notable satellites
 **What**: Real-time-ish position of the ISS and a curated set of notable satellites.

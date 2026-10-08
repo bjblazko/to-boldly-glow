@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { LESSONS_BY_ID, SEASONS_LESSON } from '../src/learn/lessons/seasons'
+import { LESSONS_BY_ID } from '../src/learn/lessons/lessonCatalog'
+import { SEASONS_LESSON } from '../src/learn/lessons/seasons'
 
 describe('SEASONS_LESSON', () => {
   it('has exactly 6 chapters in chronological order (1 continuously-animating real-orbit chapter, then the 5 staged ones)', () => {

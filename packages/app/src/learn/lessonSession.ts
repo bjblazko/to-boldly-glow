@@ -7,8 +7,11 @@ import type { LearnModeController } from './learnModeController'
 import type { LessonCamera } from './lessonCamera'
 import type { LessonPanel } from './lessonPanel'
 import { LessonPlayer } from './lessonPlayer'
-import type { Chapter, Lesson } from './lessonTypes'
-import { LESSONS_BY_ID } from './lessons/seasons'
+import { isEclipseKind, type Chapter, type Lesson } from './lessonTypes'
+import { LESSONS_BY_ID } from './lessons/lessonCatalog'
+import type { EclipseLabels } from './eclipse/eclipseLabels'
+import { EclipseLesson } from './eclipse/eclipseLesson'
+import type { GroundSky } from './eclipse/groundSky'
 import { OrbitOverlay } from './seasons/orbitOverlay'
 import type { SeasonsLabels } from './seasons/seasonsLabels'
 import { SeasonsScene } from './seasons/seasonsScene'
@@ -22,6 +25,19 @@ export interface LessonSessionParts {
   display: DisplaySettings
   panel: LessonPanel
   labels: SeasonsLabels
+  eclipseLabels: EclipseLabels
+}
+
+export interface LessonGpu {
+  device: GPUDevice
+  linePipeline: GPURenderPipeline
+  groundSky: GroundSky
+}
+
+export interface LessonOverlayFrame {
+  nowSeconds: number
+  // The Sun's own brightness this frame (see bodies/sunSurface.ts).
+  sunBrightness: number
 }
 
 export interface LessonPickerUi {
@@ -42,15 +58,17 @@ export class LessonSession {
   private readonly seasons = new SeasonsScene()
   private readonly stagedOverlay: StagedOverlay
   private readonly orbitOverlay: OrbitOverlay
+  private readonly eclipse: EclipseLesson
   private borrowed: BorrowedState | null = null
 
   constructor(
     private readonly parts: LessonSessionParts,
     private readonly ui: LessonPickerUi,
-    gpu: { device: GPUDevice; linePipeline: GPURenderPipeline },
+    gpu: LessonGpu,
   ) {
     this.stagedOverlay = new StagedOverlay(gpu.device, gpu.linePipeline)
     this.orbitOverlay = new OrbitOverlay(gpu.device, gpu.linePipeline)
+    this.eclipse = new EclipseLesson(gpu, gpu.groundSky, parts.eclipseLabels)
     ui.learnButton.addEventListener('click', () => (this.active ? this.end() : this.togglePicker()))
     ui.picker.querySelectorAll<HTMLButtonElement>('.hud-lesson-picker-item').forEach((item) => {
       item.addEventListener('click', () => {
@@ -76,30 +94,48 @@ export class LessonSession {
   }
 
   update(deltaSeconds: number): void {
-    if (this.active && this.chapter.kind !== 'sizes') this.seasons.update(deltaSeconds, this.chapter.kind)
+    if (!this.active) return
+    const { kind } = this.chapter
+    if (isEclipseKind(kind)) this.eclipse.update(deltaSeconds, kind)
+    else if (kind !== 'sizes') this.seasons.update(deltaSeconds, kind)
   }
 
   // The lesson's scene, or null outside lessons (the explore view's real solar system).
   layout(ephemeris: Ephemeris): SceneLayout | null {
     if (!this.active) return null
     const { kind } = this.chapter
+    if (isEclipseKind(kind)) return this.eclipse.layout(kind, ephemeris)
     return kind === 'sizes' ? sizesLayout(ephemeris) : this.seasons.layout(kind, ephemeris)
   }
 
-  updateOverlays(layout: SceneLayout, viewpoint: Viewpoint, nowSeconds: number): void {
+  updateOverlays(layout: SceneLayout, viewpoint: Viewpoint, { nowSeconds, sunBrightness }: LessonOverlayFrame): void {
     const earth = findPlanet(layout, 'earth')
     const kind = this.active ? this.chapter.kind : null
     const frame = { viewpoint, nowSeconds, labels: this.parts.labels }
     if (earth && kind === 'staged') this.stagedOverlay.update(earth, this.player.currentLesson.markerLatitudeDegrees, frame)
     else if (earth && kind === 'orbit') this.orbitOverlay.update(earth, frame)
     else this.parts.labels.hideAll()
+    if (kind && isEclipseKind(kind)) this.eclipse.updateOverlays(layout, kind, { viewpoint, nowSeconds, sunBrightness })
+    else this.eclipse.hideLabels()
+  }
+
+  // Right after the sky's backdrop, before the Sun, planets and moons.
+  drawBehindBodies(pass: GPURenderPassEncoder): void {
+    if (this.active && isEclipseKind(this.chapter.kind)) this.eclipse.drawBehindBodies(pass, this.chapter.kind)
+  }
+
+  // After every body and what surrounds them, before the overlay lines.
+  drawInFrontOfBodies(pass: GPURenderPassEncoder): void {
+    if (this.active && isEclipseKind(this.chapter.kind)) this.eclipse.drawInFrontOfBodies(pass, this.chapter.kind)
   }
 
   // Expects the line pipeline to be set on the pass.
   drawOverlays(pass: GPURenderPassEncoder): void {
     if (!this.active) return
-    if (this.chapter.kind === 'staged') this.stagedOverlay.draw(pass)
-    else if (this.chapter.kind === 'orbit') this.orbitOverlay.draw(pass)
+    const { kind } = this.chapter
+    if (kind === 'staged') this.stagedOverlay.draw(pass)
+    else if (kind === 'orbit') this.orbitOverlay.draw(pass)
+    else if (isEclipseKind(kind)) this.eclipse.drawOverlays(pass, kind)
   }
 
   private togglePicker(): void {
@@ -116,6 +152,7 @@ export class LessonSession {
     this.ui.learnButton.classList.add('is-active')
     lessonCamera.frame(this.chapter.kind)
     this.seasons.start(this.chapter.seasonPhaseDegrees)
+    this.eclipse.start(this.chapter)
     panel.visible = true
     panel.show(this.player)
   }
@@ -134,14 +171,15 @@ export class LessonSession {
     this.ui.learnButton.classList.remove('is-active')
   }
 
-  // A new chapter of the same kind turns Earth's axis smoothly with the camera standing still; a
-  // change of kind re-frames the camera and snaps to the new scene.
+  // A new chapter of the same kind turns Earth's axis (or moves the Moon) smoothly with the camera
+  // standing still; a change of kind re-frames the camera and snaps to the new scene.
   private goToChapter(navigate: () => void): void {
     const previousKind = this.chapter.kind
     navigate()
     const kindChanged = this.chapter.kind !== previousKind
     if (kindChanged) this.parts.lessonCamera.frame(this.chapter.kind)
     this.seasons.showSeason(this.chapter.seasonPhaseDegrees, kindChanged)
+    this.eclipse.showChapter(this.chapter, kindChanged)
     this.parts.panel.show(this.player)
   }
 }

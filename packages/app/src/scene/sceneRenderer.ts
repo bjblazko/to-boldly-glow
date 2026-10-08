@@ -80,7 +80,7 @@ export class SceneRenderer {
     atmosphereShells.update(layout, viewpoint)
     this.parts.aurora.update(layout, viewpoint, nowSeconds)
     if (display.orbitPaths.on || display.smallBodyOrbits.on) orbitPaths.update(viewpoint)
-    lessons.updateOverlays(layout, viewpoint, nowSeconds)
+    lessons.updateOverlays(layout, viewpoint, { nowSeconds, sunBrightness })
     if (display.flares.on) lensFlare.update(layout, viewpoint)
   }
 
@@ -100,6 +100,7 @@ export class SceneRenderer {
     const { display, linePipeline } = this.settings
     const { bodies, saturnRing, atmosphereShells, clouds, orbitPaths, lessons } = this.parts
     this.drawBackdrop(pass)
+    lessons.drawBehindBodies(pass)
     bodies.draw(pass, layout)
     // Everything after the opaque spheres is depth-tested against them without hiding anything.
     this.parts.corona.draw(pass)
@@ -108,6 +109,7 @@ export class SceneRenderer {
     if (display.clouds.on) clouds.draw(pass, layout)
     atmosphereShells.draw(pass, layout)
     this.parts.aurora.draw(pass, layout)
+    lessons.drawInFrontOfBodies(pass)
     pass.setPipeline(linePipeline)
     orbitPaths.draw(pass, this.shownOrbits())
     lessons.drawOverlays(pass)
