@@ -122,6 +122,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   reaching farther from the poles around midnight than around noon, folded and combed into vertical
   rays, breathing with substorms. Looking down they are faint bands over the night side; at the limb
   they rise above the horizon as a bright glow, as seen from the space station.
+- A "What happens in a solar eclipse?" Learn-mode lesson in eight chapters, first from space, then
+  from the ground. From space: the Sun, the Moon and Earth lined up at new moon, with the edges of
+  the Moon's umbra and penumbra drawn in; the Moon's tilted orbit lifting its shadow clear of Earth
+  at most new moons; and a close-up of Earth's day side with the Moon's real shadow (a dark core in
+  a soft smudge, outlined in the same colors) sweeping across it. From the ground, in the path of
+  totality, under a new sky with hills on the horizon: the dazzling Sun in a blue sky with the
+  eclipse already under way; the crescent through eclipse glasses; the diamond ring; totality - the
+  corona and prominences around the black Moon, the sky deep blue with a sunset glow all around the
+  horizon and the real stars around the Sun coming out; and an annular "ring of fire". The Moon
+  slides smoothly from one stage to the next. The texts cover eye safety (ISO 12312-2 glasses, and
+  when it is safe to look) and name the next total eclipse, 2 August 2027.
 
 ### Changed
 

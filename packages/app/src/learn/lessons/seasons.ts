@@ -1,5 +1,4 @@
 import type { Chapter, Lesson } from '../lessonTypes'
-import { PLANET_SIZES_LESSON } from './planetSizes'
 
 const CHAPTERS: Chapter[] = [
   {
@@ -85,9 +84,4 @@ export const SEASONS_LESSON: Lesson = {
   note:
     'Not to scale: the Sun and Earth are drawn far larger and closer together than they really ' +
     'are, and Earth spins and orbits much faster than real. All angles shown are true.',
-}
-
-export const LESSONS_BY_ID: Record<string, Lesson> = {
-  [SEASONS_LESSON.id]: SEASONS_LESSON,
-  [PLANET_SIZES_LESSON.id]: PLANET_SIZES_LESSON,
 }

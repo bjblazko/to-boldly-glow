@@ -80,6 +80,11 @@ it yourself, or to work on it:
   clouds, HDR bloom, lens flares, and moons independently. **Filmic look** (off by default) renders
   the picture's colors like film (AgX tonemapping): the Sun burns out to white-hot instead of
   staying a saturated orange, and the sky goes deep black.
+- **Learn** — the **Learn** button opens a lesson in place of the free view, with a panel to step
+  through its chapters: **How big are the planets?** (the Sun and planets side by side at true
+  scale), **Why does Earth have seasons?** (Earth's tilted axis through a year) and **What happens
+  in a solar eclipse?** (the Moon's shadow from space, then the eclipse from the ground — through
+  eclipse glasses, the diamond ring, totality and a ring of fire).
 - **Things to look for** — fly behind Earth (or the Moon) until it covers the Sun: the exposure
   opens up and the Sun's corona appears in full, with its streamers and the red prominences at the
   limb. Earth's night side shows its city lights, and the aurora glows around both poles — best seen
@@ -139,8 +144,8 @@ This is an npm-workspaces monorepo with three packages:
     `orbitPaths/`, `lensFlare/`, `bloom/`, `labels/` — one folder per thing you see.
   - `camera/` (orbit, free flight and their input in `camera/input/`, follow, the tour in
     `camera/tour/`), `learn/` (lessons, with
-    `seasons/` and `sizes/`), `hud/`, `time/`, `search/`, `solarSystem/` (body data and orbital
-    mechanics).
+    `seasons/`, `sizes/` and `eclipse/`), `hud/`, `time/`, `search/`, `solarSystem/` (body data and
+    orbital mechanics).
   - `gpu/` and `lines/` hold the WebGPU plumbing the features share.
 - **`packages/data-pipeline`** — TypeScript. Offline conversion scripts (e.g. turning the Yale
   Bright Star Catalogue into the binary starfield asset `packages/app` loads at runtime,
