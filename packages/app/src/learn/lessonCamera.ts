@@ -3,9 +3,10 @@ import { COMPACT_MIN_ORBIT_RADIUS, orbitBasisForUpAxis, type OrbitCamera } from 
 import type { CameraLens } from '../camera/cameraLens'
 import { VERTICAL_FOV_RADIANS } from '../camera/viewpoint'
 import { ECLIPTIC_NORTH } from '../solarSystem/poleOrientation'
-import type { Vec3 } from '../math/tuples'
+import { pointAlong, type Vec3 } from '../math/tuples'
 import { EARTH_POSITION } from './eclipse/eclipseGeometry'
-import { lookDirection, OBSERVER, SKY_FRAMING, SUN_ANGULAR_RADIUS, ZENITH } from './eclipse/skyGeometry'
+import { PHASES_EARTH_POSITION } from './phases/phasesGeometry'
+import { directionAtAltitude, lookAltitudeDegrees, type GroundShot } from './ground/groundShot'
 import type { Chapter } from './lessonTypes'
 import { EARTH_STAGED_POSITION } from './seasons/seasonsScene'
 import { LINEUP_PLANETS_EXTENT } from './sizes/sizesLineup'
@@ -68,41 +69,69 @@ const ECLIPSE_SHADOW_PRESET: CameraPreset = {
   upAxis: [...ECLIPTIC_NORTH],
 }
 
-// From the ground: standing at the observer, looking toward the low Sun with the horizon level.
-// The camera never backs off from here: its eye is the observer.
-const SKY_TARGET_DISTANCE = 10
-const SKY_ANGLES = {
-  top: SKY_FRAMING.sunAltitudeDegrees + (SKY_FRAMING.sunRadiiAbove * SUN_ANGULAR_RADIUS * 180) / Math.PI,
-  bottom: -SKY_FRAMING.groundDegrees,
+// The Moon's phases from above: Earth in the middle of the Moon's orbit, the Sun far off to the left
+// (sunlight comes from the left), seen from high above the north side of Earth's orbit.
+const PHASES_ORBIT_PRESET: CameraPreset = {
+  target: PHASES_EARTH_POSITION,
+  radius: 26,
+  azimuth: -Math.PI / 2,
+  elevation: 1.25,
+  upAxis: [...ECLIPTIC_NORTH],
 }
-const SKY_LOOK_DEGREES = (SKY_ANGLES.top + SKY_ANGLES.bottom) / 2
 
-function skyPreset(): CameraPreset {
-  const look = lookDirection(SKY_LOOK_DEGREES)
-  const { right, forward0 } = orbitBasisForUpAxis(ZENITH)
-  const back = look.map((value) => -value) as Vec3
-  const dot = (a: Vec3, b: Vec3) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
-  return {
-    target: [OBSERVER[0] + look[0] * SKY_TARGET_DISTANCE, OBSERVER[1] + look[1] * SKY_TARGET_DISTANCE, OBSERVER[2] + look[2] * SKY_TARGET_DISTANCE],
-    radius: SKY_TARGET_DISTANCE,
-    azimuth: Math.atan2(dot(back, right), dot(back, forward0)),
-    elevation: Math.asin(dot(back, ZENITH)),
-    upAxis: ZENITH,
-  }
+// The full Moon passing Earth's shadow: from the side, nearly in the plane of Earth's orbit and far
+// enough away that the Moon's tilted orbit shows edge-on, as a slanted line.
+const PHASES_SHADOW_PRESET: CameraPreset = {
+  target: [PHASES_EARTH_POSITION[0] + 8, 0, -1],
+  radius: 44,
+  azimuth: -Math.PI / 2,
+  elevation: 0.04,
+  upAxis: [...ECLIPTIC_NORTH],
 }
 
 // How far the camera may back off from a shot's preset, where that differs from FIT_MAX_ZOOM_OUT:
-// the ground view and the shadow close-up stay exactly where their presets put them, however little
-// room the panel leaves; the long eclipse diagram backs off further to fit a portrait screen.
-const MAX_ZOOM_OUT: Partial<Record<ChapterKind, number>> = { eclipseShadow: 1, eclipseSky: 1, eclipseOrbit: 4 }
+// the shadow close-up stays exactly where its preset puts it, however little room the panel leaves,
+// and so does every view from the ground (its eye is the observer); the long eclipse diagram backs
+// off further to fit a portrait screen.
+const MAX_ZOOM_OUT: Partial<Record<ChapterKind, number>> = { eclipseShadow: 1, eclipseOrbit: 4, phasesOrbit: 3, phasesShadow: 3 }
 
-const FIXED_PRESETS: Record<Exclude<ChapterKind, 'sizes'>, CameraPreset> = {
+// Every shot but the sizes lineup (fitted to the screen) and the views from the ground (see
+// groundPreset).
+const FIXED_PRESETS: Partial<Record<ChapterKind, CameraPreset>> = {
   staged: STAGED_PRESET,
   orbit: ORBIT_PRESET,
   eclipseOrbit: ECLIPSE_ORBIT_PRESET,
   eclipseShadow: ECLIPSE_SHADOW_PRESET,
-  eclipseSky: skyPreset(),
+  phasesOrbit: PHASES_ORBIT_PRESET,
+  phasesShadow: PHASES_SHADOW_PRESET,
 }
+
+// From the ground: standing at the shot's eye and looking toward the middle of what it must show,
+// with the horizon level.
+const GROUND_TARGET_DISTANCE = 10
+
+function groundPreset(shot: GroundShot): CameraPreset {
+  const look = directionAtAltitude(shot, lookAltitudeDegrees(shot))
+  const { right, forward0 } = orbitBasisForUpAxis(shot.zenith)
+  const back = look.map((value) => -value) as Vec3
+  const dot = (a: ArrayLike<number>, b: ArrayLike<number>) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+  return {
+    target: pointAlong(shot.eye, look, GROUND_TARGET_DISTANCE),
+    radius: GROUND_TARGET_DISTANCE,
+    azimuth: Math.atan2(dot(back, right), dot(back, forward0)),
+    elevation: Math.asin(dot(back, shot.zenith)),
+    upAxis: shot.zenith,
+  }
+}
+
+// From the look direction, up to the shot's top altitude and down to its bottom one.
+function groundBounds(shot: GroundShot): ContentBounds {
+  const look = lookAltitudeDegrees(shot)
+  const across = (degrees: number) => GROUND_TARGET_DISTANCE * Math.tan((degrees * Math.PI) / 180)
+  return { top: across(shot.altitudes.top - look), bottom: -across(look - shot.altitudes.bottom), halfWidth: across(GROUND_HALF_WIDTH_DEGREES) }
+}
+
+const GROUND_HALF_WIDTH_DEGREES = 12
 
 // Sizes lineup: looking straight at the row (along +Z) with X horizontal, from just far enough to fit
 // the planets' width across the screen.
@@ -119,10 +148,16 @@ const FIT_MARGIN_BOTTOM = 0.04
 const FIT_MIN_BAND_BOTTOM = 0.5
 const FIT_MAX_ZOOM_OUT = 2
 
+interface ContentBounds {
+  top: number
+  bottom: number
+  halfWidth: number
+}
+
 // Each scene's extent around its camera target in scene units: vertically along the camera's up
 // axis (what must stay above the panel) and the farthest it reaches to either side (what must fit
-// across a narrow portrait screen).
-const CONTENT_BOUNDS: Record<ChapterKind, { top: number; bottom: number; halfWidth: number }> = {
+// across a narrow portrait screen). The views from the ground take theirs from their shot.
+const CONTENT_BOUNDS: Partial<Record<ChapterKind, ContentBounds>> = {
   // The axis's north end and label; Earth's southern limb and Location B; Earth's far limb and labels.
   staged: { top: 4.4, bottom: -2.7, halfWidth: 7.2 },
   // The axis above and below the orbit ellipse; sideways, the orbit circle plus labels.
@@ -133,12 +168,10 @@ const CONTENT_BOUNDS: Record<ChapterKind, { top: number; bottom: number; halfWid
   eclipseOrbit: { top: 4.5, bottom: -4, halfWidth: 30 },
   // Earth, where the shadow crosses it.
   eclipseShadow: { top: 1.8, bottom: -2.1, halfWidth: 2.6 },
-  // The Sun and some sky above it, and a strip of ground below the horizon.
-  eclipseSky: {
-    top: SKY_TARGET_DISTANCE * Math.tan(((SKY_ANGLES.top - SKY_LOOK_DEGREES) * Math.PI) / 180),
-    bottom: -SKY_TARGET_DISTANCE * Math.tan(((SKY_LOOK_DEGREES - SKY_ANGLES.bottom) * Math.PI) / 180),
-    halfWidth: SKY_TARGET_DISTANCE * Math.tan(4 * SUN_ANGULAR_RADIUS),
-  },
+  // The Moon's orbit and the phase names around it; the sunlight arrows on the left.
+  phasesOrbit: { top: 11.4, bottom: -11.8, halfWidth: 13.5 },
+  // Earth, its shadow, and the Moon's orbit seen edge-on.
+  phasesShadow: { top: 4.5, bottom: -5.5, halfWidth: 16 },
 }
 
 // Points the orbit camera at a lesson chapter's scene. Each chapter kind has a fixed shot, applied
@@ -151,13 +184,15 @@ export class LessonCamera {
     private readonly canvas: HTMLCanvasElement,
   ) {}
 
-  frame(kind: ChapterKind): void {
-    this.applyPreset(kind === 'sizes' ? this.sizesPreset() : FIXED_PRESETS[kind])
+  // A view from the ground passes its shot; it never backs off, as its eye is the observer.
+  frame(kind: ChapterKind, groundShot?: GroundShot | null): void {
+    this.applyPreset(groundShot ? groundPreset(groundShot) : this.presetFor(kind))
     // Lessons ignore the explore view's scale: the lineup is at true scale (the Sun's radius there is
-    // ~0.09 units), so its zoom floor and near plane come from its own framing distance; the seasons
-    // and eclipse scenes are drawn at Compact sizes.
+    // ~0.09 units), so its zoom floor and near plane come from its own framing distance; the seasons,
+    // eclipse and phases scenes are drawn at Compact sizes.
     this.lens.setLessonZoomFloor(kind === 'sizes' ? this.orbit.radius * 0.01 : COMPACT_MIN_ORBIT_RADIUS)
-    this.fitAbovePanel(kind)
+    if (groundShot) this.fitAbovePanel(groundBounds(groundShot), 1)
+    else this.fitAbovePanel(CONTENT_BOUNDS[kind] ?? CONTENT_BOUNDS.staged!, MAX_ZOOM_OUT[kind] ?? FIT_MAX_ZOOM_OUT)
   }
 
   release(): void {
@@ -174,6 +209,10 @@ export class LessonCamera {
     vec3.set(this.orbit.upAxis, ...preset.upAxis)
   }
 
+  private presetFor(kind: ChapterKind): CameraPreset {
+    return kind === 'sizes' ? this.sizesPreset() : (FIXED_PRESETS[kind] ?? STAGED_PRESET)
+  }
+
   private sizesPreset(): CameraPreset {
     const { minX, maxX } = LINEUP_PLANETS_EXTENT
     const halfWidthPerUnitDistance = Math.tan(VERTICAL_FOV_RADIANS / 2) * (this.canvas.width / this.canvas.height)
@@ -188,20 +227,19 @@ export class LessonCamera {
 
   // Centers the scene in the band of the screen above the lesson panel with a lens shift (which
   // changes no angle in the scene), backing the camera off only when the content is too tall for
-  // the band or too wide for the screen - never moving it closer than the preset.
-  private fitAbovePanel(kind: ChapterKind): void {
+  // the band or too wide for the screen - never moving it closer than the preset, and at most
+  // maxZoomOut times farther.
+  private fitAbovePanel(content: ContentBounds, maxZoomOut: number): void {
     const height = this.canvas.clientHeight
     if (height <= 0) return
     const panelTop = Math.max(LESSON_PANEL_MIN_TOP_PX, height - LESSON_PANEL_RESERVED_PX) / height
     const band = { top: FIT_MARGIN_TOP, bottom: Math.max(panelTop - FIT_MARGIN_BOTTOM, FIT_MIN_BAND_BOTTOM) }
-    const content = CONTENT_BOUNDS[kind]
     const tanHalfFov = Math.tan(VERTICAL_FOV_RADIANS / 2)
     const halfHeightToFit = Math.max(
       (content.top - content.bottom) / (2 * (band.bottom - band.top)),
       content.halfWidth / (this.canvas.clientWidth / height),
     )
     const presetRadius = this.orbit.radius
-    const maxZoomOut = MAX_ZOOM_OUT[kind] ?? FIT_MAX_ZOOM_OUT
     this.orbit.radius = Math.min(Math.max(presetRadius, halfHeightToFit / tanHalfFov), presetRadius * maxZoomOut)
     // A point y above the target lands at screen fraction 0.5 - y / (2 * halfHeight) - shift / 2
     // from the top; solve for the shift that puts the content's middle in the band's middle.

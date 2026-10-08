@@ -82,8 +82,10 @@ it yourself, or to work on it:
   staying a saturated orange, and the sky goes deep black.
 - **Learn** — the **Learn** button opens a lesson in place of the free view, with a panel to step
   through its chapters: **How big are the planets?** (the Sun and planets side by side at true
-  scale), **Why does Earth have seasons?** (Earth's tilted axis through a year) and **What happens
-  in a solar eclipse?** (the Moon's shadow from space, then the eclipse from the ground — through
+  scale), **Why does Earth have seasons?** (Earth's tilted axis through a year), **Why does the
+  Moon have phases?** (the Moon's orbit from above, then a month of evenings and mornings from the
+  ground — crescent with earthshine, quarters and the rising full Moon) and **What happens in a
+  solar eclipse?** (the Moon's shadow from space, then the eclipse from the ground — through
   eclipse glasses, the diamond ring, totality and a ring of fire).
 - **Things to look for** — fly behind Earth (or the Moon) until it covers the Sun: the exposure
   opens up and the Sun's corona appears in full, with its streamers and the red prominences at the
@@ -144,7 +146,8 @@ This is an npm-workspaces monorepo with three packages:
     `orbitPaths/`, `lensFlare/`, `bloom/`, `labels/` — one folder per thing you see.
   - `camera/` (orbit, free flight and their input in `camera/input/`, follow, the tour in
     `camera/tour/`), `learn/` (lessons, with
-    `seasons/`, `sizes/` and `eclipse/`), `hud/`, `time/`, `search/`, `solarSystem/` (body data and
+    `seasons/`, `sizes/`, `eclipse/`, `phases/` and the shared sky and horizon in `ground/`), `hud/`,
+    `time/`, `search/`, `solarSystem/` (body data and
     orbital mechanics).
   - `gpu/` and `lines/` hold the WebGPU plumbing the features share.
 - **`packages/data-pipeline`** — TypeScript. Offline conversion scripts (e.g. turning the Yale

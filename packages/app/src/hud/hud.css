@@ -645,6 +645,10 @@ body[data-app-mode='learn'] .hud-dock-btn[data-panel='camera'],
 body[data-app-mode='learn'] .hud-dock-btn[data-panel='time'] {
   display: none;
 }
+/* Lessons steer the camera themselves: the hint on how to drag and zoom doesn't apply. */
+body[data-app-mode='learn'] .hud-camera-hint {
+  display: none;
+}
 body[data-app-mode='learn'] #learn-mode-btn-label::before {
   content: 'Exit ';
 }
@@ -654,6 +658,61 @@ body[data-app-mode='learn'] #learn-mode-btn-label::before {
   font-size: 12.5px;
   line-height: 1.5;
   color: var(--hud-text);
+}
+
+/* The Moon phases lesson's "seen from Earth" card, in the top right corner of the space chapters. */
+.hud-phase-inset {
+  position: fixed;
+  top: 64px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px 10px 10px;
+  background: var(--hud-panel);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--hud-panel-border);
+  border-radius: 14px;
+  z-index: 1;
+  font-family: -apple-system, 'Segoe UI', Roboto, ui-sans-serif, system-ui, sans-serif;
+  color: var(--hud-text);
+  pointer-events: none;
+}
+.hud-phase-inset[hidden] {
+  display: none;
+}
+.hud-phase-moon {
+  width: 56px;
+  height: 56px;
+}
+.hud-phase-dark {
+  fill: #2a2c33;
+}
+.hud-phase-lit {
+  fill: #e9e6dc;
+}
+.hud-phase-caption {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12.5px;
+}
+.hud-phase-heading,
+.hud-phase-share {
+  font-size: 11px;
+  color: var(--hud-dim);
+}
+/* On a narrow screen the diagram spans the whole width: the card moves up into the top strip, which
+   the camera hint leaves free during a lesson. */
+@media (max-width: 600px) {
+  .hud-phase-inset {
+    top: 12px;
+    padding: 6px 10px 6px 6px;
+  }
+  .hud-phase-moon {
+    width: 40px;
+    height: 40px;
+  }
 }
 
 .hud-lesson-note {

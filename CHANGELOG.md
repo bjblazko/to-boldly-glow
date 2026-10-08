@@ -133,9 +133,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   horizon and the real stars around the Sun coming out; and an annular "ring of fire". The Moon
   slides smoothly from one stage to the next. The texts cover eye safety (ISO 12312-2 glasses, and
   when it is safe to look) and name the next total eclipse, 2 August 2027.
+- A "Why does the Moon have phases?" Learn-mode lesson in seven chapters. From above: the Moon
+  circling Earth with sunlight arriving from one side, the four main phases named around its orbit
+  and a card showing the Moon as seen from Earth at every moment; from the side, Earth's shadow
+  pointing away from the Sun with the full Moon passing below it (the phases are not Earth's
+  shadow); and a marker showing the Moon always turning the same side to Earth. Then from the
+  ground, the sky turning with the Moon: the evening crescent low over the dusk glow with
+  earthshine on its dark part, first quarter at sunset, the full Moon rising opposite the setting
+  Sun under the pink Belt of Venus, and last quarter at dawn. The Moon's shape comes from the real
+  lighting, not a drawing.
+- Earthshine: a lesson can light the Moon's night side with the sunlight Earth reflects, brightest
+  around new moon.
 
 ### Changed
 
+- The Learn-mode sky and horizon are shared by every lesson that shows the view from the ground:
+  at dusk and dawn the sky glows only on the Sun's side, with the pink band opposite. The camera
+  hint about dragging and zooming no longer shows during a lesson, which steers the camera itself.
 - The free-fly camera flies like a spaceship in a game instead of a plane: thrust and strafe with
   `W`/`A`/`S`/`D` or the arrow keys, rise and sink with `R`/`F`, roll with `Q`/`E`, boost with
   `Shift`, look around by dragging, set the speed with the mouse wheel. It eases in and out of

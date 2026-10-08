@@ -1,6 +1,7 @@
 import { vec3 } from 'gl-matrix'
 import { pointAlong, type Vec3 } from '../../math/tuples'
 import { ECLIPTIC_NORTH } from '../../solarSystem/poleOrientation'
+import type { GroundShot } from '../ground/groundShot'
 import { perpendicularUnit, SUN_RADIUS } from './eclipseGeometry'
 
 // The eclipse seen from the ground. The Sun stays at the origin; the observer stands far enough
@@ -57,17 +58,13 @@ export function besideTheSun(up: number, left: number): Vec3 {
   return pointAlong(OBSERVER, addScaled(SUNWARD, offset, 1), MOON_DISTANCE)
 }
 
-// Where the observer looks: along the horizon toward the Sun, raised `degrees` above it.
-export function lookDirection(degrees: number): Vec3 {
-  const angle = (degrees * Math.PI) / 180
-  return addScaled(scaled(TOWARD_SUN_ON_HORIZON, Math.cos(angle)), ZENITH, Math.sin(angle))
-}
-
-export const SKY_FRAMING = {
-  // The Sun's center, and how far the view reaches above it (in Sun radii) and below the horizon.
-  sunAltitudeDegrees: SUN_ALTITUDE_DEGREES,
-  sunRadiiAbove: 2.2,
-  groundDegrees: 1.5,
+// The camera at the observer, facing the Sun: the picture reaches from a strip of ground below the
+// horizon to a little more than two Sun radii above the Sun.
+export const ECLIPSE_SKY_SHOT: GroundShot = {
+  eye: OBSERVER,
+  zenith: ZENITH,
+  toward: TOWARD_SUN_ON_HORIZON,
+  altitudes: { top: SUN_ALTITUDE_DEGREES + (2.2 * SUN_ANGULAR_RADIUS * 180) / Math.PI, bottom: -1.5 },
 }
 
 function scaled(v: ArrayLike<number>, factor: number): Vec3 {

@@ -3,21 +3,26 @@
 //   [16..20) zenith    : vec4f (xyz = straight up from the observer; w = daylight, 0-1)
 //   [20..24) towardSun : vec4f (xyz = unit direction to the Sun; w = the Sun's angular radius)
 //   [24..28) north     : vec4f (xyz = a level direction, where the horizon's hills are counted from;
-//                       w = the totality glow along the horizon, 0-1)
+//                       w = the glow along the horizon, 0-1)
 //   [28..32) params    : vec4f (x = eclipse glasses, 0-1; y = how far the glasses scale the Sun's
-//                       light; z = how much of the stars and the Milky Way the daylight hides, 0-1)
-//   [32..36) diamond   : vec4f (xyz = direction of the Sun's last sliver; w = its glint, 0-1)
+//                       light; z = how much of the stars and the Milky Way the daylight hides, 0-1;
+//                       w = how far the glow spreads around the horizon: 1 all around, as in a total
+//                       eclipse, 0 only on the Sun's side, as at dusk and dawn)
+//   [32..36) diamond   : vec4f (xyz = direction of the Sun's last sliver in a solar eclipse; w = its
+//                       glint, 0-1)
 export const GROUND_SKY_UNIFORM_FLOAT_COUNT = 36
 
-// The eclipse lesson's view from the ground, in three fullscreen passes sharing one vertex stage:
+// The lessons' view from the ground, in three fullscreen passes sharing one vertex stage:
 // - fsDimBackdrop, right after the stars and the Milky Way: daylight hides them.
 // - fsSky, after the Sun, Moon and corona: the air's own light, added in front of everything above
-//   the horizon - so the Moon's dark disc vanishes into the blue sky except where it covers the Sun,
-//   just as it does in a real partial eclipse - and an opaque ground with low hills below it. As the
-//   Sun disappears the blue fades to the deep blue of totality, and the horizon glows all around
-//   like a sunset: that light comes from beyond the Moon's shadow, tens of kilometers away.
-//   Just before and after totality, the last sliver of the Sun glints like a diamond: far brighter
-//   than anything else in the sky, it floods the eye (and every camera) with glare and rays.
+//   the horizon - so the Moon's dark parts vanish into the blue sky except where they cover the Sun,
+//   just as they do in a real partial eclipse - and an opaque ground with low hills below it. With
+//   the Sun just below the horizon, the sky glows over the place it went down (or will come up),
+//   with a pink band opposite. In a total eclipse the blue fades to deep blue, and the horizon
+//   glows all around like a sunset: that light comes from beyond the Moon's shadow, tens of
+//   kilometers away. Just before and after totality, the last sliver of the Sun glints like a
+//   diamond: far brighter than anything else in the sky, it floods the eye (and every camera) with
+//   glare and rays.
 // - fsGlasses, last: eclipse glasses, which pass only the Sun itself, dimmed and orange-tinted.
 export const groundSkyShaderCode = /* wgsl */ `
 struct Uniforms {
@@ -42,6 +47,8 @@ const AUREOLE = vec3f(1.0, 0.9, 0.75);
 const DISTANT_HILLS = vec3f(0.16, 0.24, 0.36);
 const NEAR_LAND = vec3f(0.035, 0.05, 0.03);
 const TOTALITY_SKY = vec3f(0.008, 0.014, 0.04);
+const NIGHT_SKY = vec3f(0.002, 0.003, 0.008);
+const BELT_OF_VENUS = vec3f(0.5, 0.28, 0.36);
 const SUNSET_GLOW = vec3f(1.0, 0.48, 0.17);
 const TWILIGHT_BAND = vec3f(0.42, 0.32, 0.5);
 const GLASSES_TINT = vec3f(1.0, 0.66, 0.32);
@@ -69,13 +76,25 @@ fn hills(x: f32) -> f32 {
 
 // By day: blue, paler toward the horizon, with a bright aureole around the Sun - and the Sun's own
 // glare, so dazzling that the bite the Moon takes out of it can't be seen with the naked eye.
-fn skyColor(altitude: f32, angleToSun: f32) -> vec3f {
+fn skyColor(direction: vec3f, altitude: f32, angleToSun: f32) -> vec3f {
   let up = max(altitude, 0.0);
   let daylight = uni.zenith.w;
   let glare = AUREOLE * 5.0 * exp(-angleToSun / (uni.towardSun.w * 0.8)) * daylight;
   let day = mix(DAY_HORIZON, DAY_ZENITH, smoothstep(0.0, 0.6, up)) + AUREOLE * 0.45 * exp(-angleToSun / 0.07) + glare;
-  let glow = SUNSET_GLOW * 0.3 * exp(-up / 0.05) + TWILIGHT_BAND * 0.05 * exp(-up / 0.22) + TOTALITY_SKY;
-  return day * daylight + glow * uni.north.w * (1.0 - daylight);
+  let sunSide = sunSideOfHorizon(direction);
+  let afterglow = (SUNSET_GLOW * 0.3 * exp(-up / 0.05) + TWILIGHT_BAND * 0.05 * exp(-up / 0.22)) * mix(sunSide, 1.0, uni.params.w);
+  let belt = BELT_OF_VENUS * 0.16 * exp(-pow((up - 0.1) / 0.05, 2.0)) * (1.0 - sunSide) * (1.0 - uni.params.w);
+  let glow = afterglow + belt + TOTALITY_SKY;
+  return day * daylight + glow * uni.north.w * (1.0 - daylight) + NIGHT_SKY;
+}
+
+// 1 looking along the horizon toward the Sun, 0 looking away from it.
+fn sunSideOfHorizon(direction: vec3f) -> f32 {
+  let zenith = uni.zenith.xyz;
+  let level = direction - zenith * dot(direction, zenith);
+  let sunLevel = uni.towardSun.xyz - zenith * dot(uni.towardSun.xyz, zenith);
+  let facing = dot(level / max(length(level), 1e-5), sunLevel / max(length(sunLevel), 1e-5));
+  return pow(0.5 + 0.5 * facing, 3.0);
 }
 
 // The diamond's glare: a blinding core, a halo and four rays.
@@ -114,7 +133,7 @@ fn fsSky(in: VertexOutput) -> @location(0) vec4f {
   let altitude = asin(clamp(dot(direction, uni.zenith.xyz), -1.0, 1.0));
   let angleToSun = acos(clamp(dot(direction, uni.towardSun.xyz), -1.0, 1.0));
   let clear = 1.0 - uni.params.x;
-  let sky = (skyColor(altitude, angleToSun) + diamondGlint(direction)) * clear;
+  let sky = (skyColor(direction, altitude, angleToSun) + diamondGlint(direction)) * clear;
   let land = ground(direction, altitude);
   // Seen toward the Sun the land is backlit: hazy distant hills and dark nearer ones by day, a
   // black silhouette against the glow in totality.

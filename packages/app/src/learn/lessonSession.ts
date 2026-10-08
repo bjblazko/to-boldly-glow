@@ -7,16 +7,14 @@ import type { LearnModeController } from './learnModeController'
 import type { LessonCamera } from './lessonCamera'
 import type { LessonPanel } from './lessonPanel'
 import { LessonPlayer } from './lessonPlayer'
-import { isEclipseKind, type Chapter, type Lesson } from './lessonTypes'
+import type { Chapter, Lesson } from './lessonTypes'
 import { LESSONS_BY_ID } from './lessons/lessonCatalog'
-import type { EclipseLabels } from './eclipse/eclipseLabels'
-import { EclipseLesson } from './eclipse/eclipseLesson'
-import type { GroundSky } from './eclipse/groundSky'
 import { OrbitOverlay } from './seasons/orbitOverlay'
 import type { SeasonsLabels } from './seasons/seasonsLabels'
-import { SeasonsScene } from './seasons/seasonsScene'
+import { isSeasonsKind, SeasonsScene } from './seasons/seasonsScene'
 import { StagedOverlay } from './seasons/stagedOverlay'
 import { sizesLayout } from './sizes/sizesLineup'
+import type { StagedLessonScene } from './stagedLessonScene'
 
 export interface LessonSessionParts {
   modeController: LearnModeController
@@ -25,13 +23,13 @@ export interface LessonSessionParts {
   display: DisplaySettings
   panel: LessonPanel
   labels: SeasonsLabels
-  eclipseLabels: EclipseLabels
+  // The lessons that stage their own Sun, Earth and Moon (the solar eclipse, the Moon's phases).
+  stagedScenes: StagedLessonScene[]
 }
 
 export interface LessonGpu {
   device: GPUDevice
   linePipeline: GPURenderPipeline
-  groundSky: GroundSky
 }
 
 export interface LessonOverlayFrame {
@@ -58,7 +56,6 @@ export class LessonSession {
   private readonly seasons = new SeasonsScene()
   private readonly stagedOverlay: StagedOverlay
   private readonly orbitOverlay: OrbitOverlay
-  private readonly eclipse: EclipseLesson
   private borrowed: BorrowedState | null = null
 
   constructor(
@@ -68,7 +65,6 @@ export class LessonSession {
   ) {
     this.stagedOverlay = new StagedOverlay(gpu.device, gpu.linePipeline)
     this.orbitOverlay = new OrbitOverlay(gpu.device, gpu.linePipeline)
-    this.eclipse = new EclipseLesson(gpu, gpu.groundSky, parts.eclipseLabels)
     ui.learnButton.addEventListener('click', () => (this.active ? this.end() : this.togglePicker()))
     ui.picker.querySelectorAll<HTMLButtonElement>('.hud-lesson-picker-item').forEach((item) => {
       item.addEventListener('click', () => {
@@ -88,24 +84,36 @@ export class LessonSession {
     return this.player.currentChapter
   }
 
-  // The camera framing depends on the window's shape (see LessonCamera).
-  reframe(): void {
-    if (this.active) this.parts.lessonCamera.frame(this.chapter.kind)
+  // The staged lesson showing the current chapter, if one does.
+  private get stagedScene(): StagedLessonScene | undefined {
+    if (!this.active) return undefined
+    const { kind } = this.chapter
+    return this.parts.stagedScenes.find((scene) => scene.handles(kind))
   }
 
+  // The camera framing depends on the window's shape (see LessonCamera).
+  reframe(): void {
+    if (this.active) this.frameCamera()
+  }
+
+  // A view from the ground may move with its scene, so the camera follows it every frame.
   update(deltaSeconds: number): void {
     if (!this.active) return
     const { kind } = this.chapter
-    if (isEclipseKind(kind)) this.eclipse.update(deltaSeconds, kind)
-    else if (kind !== 'sizes') this.seasons.update(deltaSeconds, kind)
+    const staged = this.stagedScene
+    if (staged) {
+      staged.update(deltaSeconds, this.chapter)
+      if (staged.groundShot(this.chapter)) this.frameCamera()
+    } else if (isSeasonsKind(kind)) this.seasons.update(deltaSeconds, kind)
   }
 
   // The lesson's scene, or null outside lessons (the explore view's real solar system).
   layout(ephemeris: Ephemeris): SceneLayout | null {
     if (!this.active) return null
     const { kind } = this.chapter
-    if (isEclipseKind(kind)) return this.eclipse.layout(kind, ephemeris)
-    return kind === 'sizes' ? sizesLayout(ephemeris) : this.seasons.layout(kind, ephemeris)
+    const staged = this.stagedScene
+    if (staged) return staged.layout(this.chapter, ephemeris)
+    return isSeasonsKind(kind) ? this.seasons.layout(kind, ephemeris) : sizesLayout(ephemeris)
   }
 
   updateOverlays(layout: SceneLayout, viewpoint: Viewpoint, { nowSeconds, sunBrightness }: LessonOverlayFrame): void {
@@ -115,18 +123,21 @@ export class LessonSession {
     if (earth && kind === 'staged') this.stagedOverlay.update(earth, this.player.currentLesson.markerLatitudeDegrees, frame)
     else if (earth && kind === 'orbit') this.orbitOverlay.update(earth, frame)
     else this.parts.labels.hideAll()
-    if (kind && isEclipseKind(kind)) this.eclipse.updateOverlays(layout, kind, { viewpoint, nowSeconds, sunBrightness })
-    else this.eclipse.hideLabels()
+    const staged = this.stagedScene
+    for (const scene of this.parts.stagedScenes) {
+      if (scene === staged) scene.updateOverlays(layout, this.chapter, { viewpoint, nowSeconds, sunBrightness })
+      else scene.hideOverlays()
+    }
   }
 
   // Right after the sky's backdrop, before the Sun, planets and moons.
   drawBehindBodies(pass: GPURenderPassEncoder): void {
-    if (this.active && isEclipseKind(this.chapter.kind)) this.eclipse.drawBehindBodies(pass, this.chapter.kind)
+    this.stagedScene?.drawBehindBodies(pass, this.chapter)
   }
 
   // After every body and what surrounds them, before the overlay lines.
   drawInFrontOfBodies(pass: GPURenderPassEncoder): void {
-    if (this.active && isEclipseKind(this.chapter.kind)) this.eclipse.drawInFrontOfBodies(pass, this.chapter.kind)
+    this.stagedScene?.drawInFrontOfBodies(pass, this.chapter)
   }
 
   // Expects the line pipeline to be set on the pass.
@@ -135,7 +146,11 @@ export class LessonSession {
     const { kind } = this.chapter
     if (kind === 'staged') this.stagedOverlay.draw(pass)
     else if (kind === 'orbit') this.orbitOverlay.draw(pass)
-    else if (isEclipseKind(kind)) this.eclipse.drawOverlays(pass, kind)
+    else this.stagedScene?.drawOverlays(pass, this.chapter)
+  }
+
+  private frameCamera(): void {
+    this.parts.lessonCamera.frame(this.chapter.kind, this.stagedScene?.groundShot(this.chapter))
   }
 
   private togglePicker(): void {
@@ -144,15 +159,15 @@ export class LessonSession {
   }
 
   private start(lesson: Lesson): void {
-    const { camera, display, modeController, lessonCamera, panel } = this.parts
+    const { camera, display, modeController, panel } = this.parts
     this.ui.picker.hidden = true
     this.player.load(lesson)
     this.borrowed = { camera: camera.takeOverForLesson(), display: display.clearForLesson() }
     modeController.enter(lesson.id)
     this.ui.learnButton.classList.add('is-active')
-    lessonCamera.frame(this.chapter.kind)
     this.seasons.start(this.chapter.seasonPhaseDegrees)
-    this.eclipse.start(this.chapter)
+    this.stagedScene?.start(this.chapter)
+    this.frameCamera()
     panel.visible = true
     panel.show(this.player)
   }
@@ -172,14 +187,15 @@ export class LessonSession {
   }
 
   // A new chapter of the same kind turns Earth's axis (or moves the Moon) smoothly with the camera
-  // standing still; a change of kind re-frames the camera and snaps to the new scene.
+  // standing still - or, from the ground, turning with the sky; a change of kind re-frames the camera
+  // and snaps to the new scene.
   private goToChapter(navigate: () => void): void {
     const previousKind = this.chapter.kind
     navigate()
     const kindChanged = this.chapter.kind !== previousKind
-    if (kindChanged) this.parts.lessonCamera.frame(this.chapter.kind)
     this.seasons.showSeason(this.chapter.seasonPhaseDegrees, kindChanged)
-    this.eclipse.showChapter(this.chapter, kindChanged)
+    this.stagedScene?.showChapter(this.chapter, kindChanged)
+    if (kindChanged) this.frameCamera()
     this.parts.panel.show(this.player)
   }
 }

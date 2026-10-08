@@ -1,5 +1,4 @@
 import { mat4 } from 'gl-matrix'
-import { EasedTween } from '../../math/easedTween'
 import type { Vec3 } from '../../math/tuples'
 import { sunPose } from '../../scene/exploreLayout'
 import type { MoonPose, PlanetPose, SceneLayout } from '../../scene/sceneLayout'
@@ -9,6 +8,7 @@ import { MOONS } from '../../solarSystem/moons'
 import { axisAlignmentRotation } from '../../solarSystem/poleOrientation'
 import type { Ephemeris } from '../../time/ephemeris'
 import type { EclipseChapterKind, EclipseStage } from '../lessonTypes'
+import { StageTween } from '../stageTween'
 import { EARTH_POSITION, EARTH_RADIUS, MOON_RADIUS, moonOrbitTilt, newMoonOrbitAngleDegrees, stagedMoonPosition } from './eclipseGeometry'
 import { OBSERVER, skyMoon, ZENITH } from './skyGeometry'
 
@@ -31,39 +31,15 @@ const SHADOW_SWEEP_START_SECONDS = 3
 const STAGE_TWEEN_SECONDS = 2.5
 const STAGE_KEYS = ['nodeDegrees', 'skySeparation', 'moonSizeRatio', 'glasses'] as const
 
-// Every number of an eclipse stage, eased from one chapter's stage to the next.
-class StageTween {
-  private readonly tweens = Object.fromEntries(STAGE_KEYS.map((key) => [key, new EasedTween(0, STAGE_TWEEN_SECONDS)])) as Record<
-    (typeof STAGE_KEYS)[number],
-    EasedTween
-  >
-  private readonly current: EclipseStage = { nodeDegrees: 0, skySeparation: 0, moonSizeRatio: 1, glasses: 0 }
-
-  get stage(): EclipseStage {
-    return this.current
-  }
-
-  moveTo(target: EclipseStage, snap: boolean): void {
-    for (const key of STAGE_KEYS) {
-      this.tweens[key].retarget(target[key], snap ? target[key] : this.current[key])
-      if (snap) this.current[key] = target[key]
-    }
-  }
-
-  update(deltaSeconds: number): void {
-    for (const key of STAGE_KEYS) if (this.tweens[key].isAnimating) this.current[key] = this.tweens[key].update(deltaSeconds)
-  }
-}
-
 // The solar eclipse lesson's scenes: the Sun, Moon and Earth in a row seen from space, and the
 // Moon crossing the Sun seen from the ground.
 export class EclipseScene {
-  private readonly stageTween = new StageTween()
+  private readonly stageTween = new StageTween(STAGE_KEYS, STAGE_TWEEN_SECONDS)
   private sweepSeconds = 0
   private earthSpin = 0
 
   get stage(): EclipseStage {
-    return this.stageTween.stage
+    return this.stageTween.current
   }
 
   start(stage: EclipseStage): void {

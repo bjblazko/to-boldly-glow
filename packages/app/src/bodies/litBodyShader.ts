@@ -29,7 +29,7 @@ export const LIT_UNIFORM_FLOAT_COUNT = 100
 //                                 atmosphere - every moon and Mercury/Mars write this as all-zero)
 //   [68..72) bumpParams          : vec4f (x = bump/AO intensity, roughly 0-1; 0 means no effect;
 //                                 y = brightness of the lights on the night side, 0 for none;
-//                                 z/w unused)
+//                                 z = earthshine on a moon's night side, 0 for none; w unused)
 //   [72..76) northHemisphereTint : vec4f (rgb = tint color, a = blend strength; a of 0 means no
 //                                 tint - every body writes this as all-zero except learn mode's
 //                                 seasons-lesson Earth)
@@ -98,6 +98,20 @@ fn cloudShadow(worldPosition: vec3f, toLight: vec3f, incidence: f32) -> f32 {
   let crossing = worldPosition + toLight * (CLOUD_ALTITUDE * radius / max(incidence, 0.2));
   let local = normalize(transpose(frame) * (crossing - uni.world[3].xyz));
   return 1.0 - cloudCover(local, uni.surfaceDetail.z) * strength;
+}
+
+// Sunlight reflected off Earth is a little bluish.
+const EARTHSHINE_COLOR = vec3f(0.85, 0.92, 1.0);
+
+// A moon's night side, faintly lit by the sunlight its planet reflects - earthshine, on our Moon.
+// It comes from the parent, whose place a moon's first occluder slot holds.
+fn earthshine(albedo: vec3f, normal: vec3f, worldPosition: vec3f) -> vec3f {
+  let strength = uni.bumpParams.z;
+  if (strength <= 0.0) {
+    return vec3f(0.0);
+  }
+  let towardParent = normalize(uni.occluders[0].xyz - worldPosition);
+  return albedo * EARTHSHINE_COLOR * strength * max(dot(normal, towardParent), 0.0);
 }
 
 // The warm glow of sodium and LED street lighting seen from orbit.
@@ -169,7 +183,8 @@ fn fs(in: VertexOutput) -> @location(0) vec4f {
   );
   // aoFactor darkens what the surface itself reflects, but not the atmosphere's glow above it.
   let litColor = reflectedLight(albedo, shading) * aoFactor + rimGlow(normal, toLight, toCamera, sunlight)
-    + nightLights(lightsLevel, geometricNormal, toLight, in.worldPosition);
+    + nightLights(lightsLevel, geometricNormal, toLight, in.worldPosition)
+    + earthshine(albedo, geometricNormal, in.worldPosition);
 
   // Learn-mode hemisphere overlay: a translucent wash over the whole northern or southern half of
   // the globe (split at the body's own local +Z/pole axis, the same axis tangentFrame reads),

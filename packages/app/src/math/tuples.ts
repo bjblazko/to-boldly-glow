@@ -16,3 +16,9 @@ export function clamp(value: number, min: number, max: number): number {
 export function degreesToRadians(degrees: number): number {
   return (degrees * Math.PI) / 180
 }
+
+// 0 below edge0, 1 above edge1, and a smooth (Hermite) step in between.
+export function smoothstep(edge0: number, edge1: number, x: number): number {
+  const t = clamp((x - edge0) / (edge1 - edge0), 0, 1)
+  return t * t * (3 - 2 * t)
+}

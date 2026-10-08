@@ -3,11 +3,14 @@
 // direction - see seasons/seasonalPole.ts's ORBIT_FIXED_POLE_DIRECTION), 'staged' chapters show the existing
 // simplified diagram (fixed position, tilting axis - see seasons/seasonalPole.ts's seasonalPoleDirection) - plus
 // unrelated kinds: 'sizes' renders the Sun and all 8 planets as a single static real-scale
-// lineup, largest to smallest (see sizes/sizesLineup.ts), and the solar eclipse lesson's three
+// lineup, largest to smallest (see sizes/sizesLineup.ts), the solar eclipse lesson's three
 // shots (see eclipse/eclipseScene.ts): 'eclipseOrbit' (Sun, Moon and Earth side by side),
 // 'eclipseShadow' (the Moon's shadow on Earth, close up) and 'eclipseSky' (the eclipse seen from the
-// ground). `seasonPhaseDegrees` and `markerLatitudeDegrees` are ignored by every kind but 'orbit'
-// and 'staged' - both fields stay required only because those chapter kinds need them.
+// ground), and the Moon phases lesson's three (see phases/phasesScene.ts): 'phasesOrbit' (the
+// Moon's orbit seen from above), 'phasesShadow' (the full Moon passing Earth's shadow) and
+// 'phasesSky' (the Moon seen from the ground). `seasonPhaseDegrees` and `markerLatitudeDegrees` are
+// ignored by every kind but 'orbit' and 'staged' - both fields stay required only because those
+// chapter kinds need them.
 // `seasonPhaseDegrees` is this chapter's fixed position in an idealized annual cycle (0 = June
 // solstice, 90 = September equinox, 180 = December solstice, 270 = March equinox), reused with a
 // different meaning per kind: for 'staged' chapters it drives Earth's tilt orientation; for
@@ -17,17 +20,40 @@
 export interface Chapter {
   id: string
   title: string
-  kind: 'orbit' | 'staged' | 'sizes' | EclipseChapterKind
+  kind: 'orbit' | 'staged' | 'sizes' | EclipseChapterKind | PhasesChapterKind
   seasonPhaseDegrees: number
   text: string
   // The eclipse lesson's chapters: how the Sun, Moon and Earth stand (see EclipseStage).
   eclipse?: EclipseStage
+  // The Moon phases lesson's chapters: where the Moon is (see PhasesStage).
+  phases?: PhasesStage
 }
 
 export type EclipseChapterKind = 'eclipseOrbit' | 'eclipseShadow' | 'eclipseSky'
+export type PhasesChapterKind = 'phasesOrbit' | 'phasesShadow' | 'phasesSky'
 
 export function isEclipseKind(kind: Chapter['kind']): kind is EclipseChapterKind {
   return kind === 'eclipseOrbit' || kind === 'eclipseShadow' || kind === 'eclipseSky'
+}
+
+export function isPhasesKind(kind: Chapter['kind']): kind is PhasesChapterKind {
+  return kind === 'phasesOrbit' || kind === 'phasesShadow' || kind === 'phasesSky'
+}
+
+// One stage of the Moon phases lesson. Moving between two chapters of the same kind eases the
+// numbers from one stage to the next.
+export interface PhasesStage {
+  // How far the Moon has gone around Earth since new moon, in degrees: 90 at first quarter, 180 at
+  // full moon, 270 at last quarter.
+  moonAgeDegrees: number
+  // The Moon keeps going around Earth (from moonAgeDegrees on).
+  circling: boolean
+  // Marks the middle of the Moon's near side - the side it always turns to Earth.
+  showNearSide: boolean
+  // Seen from the ground: how high the Moon and the Sun stand above the horizon, in degrees (the
+  // Sun below it, at dusk or dawn).
+  moonAltitudeDegrees: number
+  sunAltitudeDegrees: number
 }
 
 // One stage of the solar eclipse lesson. Moving between two chapters of the same kind eases every

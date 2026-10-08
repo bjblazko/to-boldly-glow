@@ -13,7 +13,11 @@ import { LessonCamera } from '../learn/lessonCamera'
 import { LessonPanel } from '../learn/lessonPanel'
 import { LessonSession, type LessonGpu } from '../learn/lessonSession'
 import { EclipseLabels } from '../learn/eclipse/eclipseLabels'
-import { GroundSky } from '../learn/eclipse/groundSky'
+import { EclipseLesson } from '../learn/eclipse/eclipseLesson'
+import { GroundSky } from '../learn/ground/groundSky'
+import { PhaseInset } from '../learn/phases/phaseInset'
+import { PhasesLabels } from '../learn/phases/phasesLabels'
+import { PhasesLesson } from '../learn/phases/phasesLesson'
 import { SeasonsLabels } from '../learn/seasons/seasonsLabels'
 import { LensFlare } from '../lensFlare/lensFlare'
 import { createLinePipeline } from '../lines/lineStrip'
@@ -45,7 +49,7 @@ export async function startApp(canvas: HTMLCanvasElement): Promise<void> {
   const { targets, linePipeline, features, groundSky } = await createRendering(gpu, canvas)
   const display = new DisplaySettings(canvas, (selector) => requireElement<HTMLInputElement>(selector))
   const explorer = createExplorer(canvas, display, features.orbitPaths)
-  const lessons = createLessons(explorer, { device: gpu.device, linePipeline, groundSky })
+  const lessons = createLessons(explorer, { device: gpu.device, linePipeline }, groundSky)
   const renderer = new SceneRenderer(gpu.device, targets, { ...features, lessons }, { display, linePipeline })
   watchCanvasSize(canvas, () => {
     targets.resize()
@@ -61,7 +65,7 @@ async function createRendering(gpu: GpuContext, canvas: HTMLCanvasElement) {
   canvas.dataset.bloomSupported = String(targets.bloomSupported)
   const linePipeline = await createLinePipeline(gpu.device, targets.sceneFormat)
   const features = await createSceneFeatures(gpu.device, targets.sceneFormat, linePipeline)
-  // The eclipse lesson's sky and horizon, drawn only while one of its ground chapters is open.
+  // The lessons' sky and horizon, drawn only while a lesson shows the view from the ground.
   const groundSky = await GroundSky.create(gpu.device, targets.sceneFormat)
   canvas.dataset.texturesLoaded = 'true'
   canvas.dataset.starCount = String(features.starfield.starCount)
@@ -86,7 +90,7 @@ async function createSceneFeatures(device: GPUDevice, format: GPUTextureFormat, 
   return { sky, starfield, corona, asteroids, comets, bodies, saturnRing, atmosphereShells, clouds, aurora, lensFlare, orbitPaths: OrbitPaths.create(device, linePipeline, 1) }
 }
 
-function createLessons(explorer: ReturnType<typeof createExplorer>, gpu: LessonGpu): LessonSession {
+function createLessons(explorer: ReturnType<typeof createExplorer>, gpu: LessonGpu, groundSky: GroundSky): LessonSession {
   const { camera, lens, canvas, display, searchUi } = explorer
   const dock = new DockUI(
     document.querySelectorAll<HTMLButtonElement>('.hud-dock-btn:not(#learn-mode-btn)'),
@@ -102,11 +106,20 @@ function createLessons(explorer: ReturnType<typeof createExplorer>, gpu: LessonG
       display,
       panel: new LessonPanel(requireElement),
       labels: new SeasonsLabels(requireElement),
-      eclipseLabels: new EclipseLabels(requireElement),
+      stagedScenes: [new EclipseLesson(gpu, groundSky, new EclipseLabels(requireElement)), createPhasesLesson(gpu, groundSky)],
     },
     { learnButton: requireElement('#learn-mode-btn'), picker: requireElement('#lesson-picker') },
     gpu,
   )
+}
+
+function createPhasesLesson(gpu: LessonGpu, groundSky: GroundSky): PhasesLesson {
+  const inset = new PhaseInset(requireElement('#moon-phase-inset'), {
+    litShape: requireElement('#moon-phase-lit'),
+    name: requireElement('#moon-phase-name'),
+    lit: requireElement('#moon-phase-lit-share'),
+  })
+  return new PhasesLesson(gpu, groundSky, { labels: new PhasesLabels(requireElement), inset })
 }
 
 function renderFrame(app: Explorer, time: FrameTime): void {

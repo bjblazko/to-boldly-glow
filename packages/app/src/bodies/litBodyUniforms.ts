@@ -24,6 +24,8 @@ export interface LitBodyShading {
   material: SurfaceMaterial
   // How bright the lights on the night side shine (Earth's cities); 0 or absent for none.
   nightLights?: number
+  // A moon's night side lit by its planet (see litBodyShader.ts's earthshine); 0 or absent for none.
+  earthshine?: number
   // Drives the ocean's glitter and the clouds' drift.
   timeSeconds: number
   // Whether Earth's clouds are shown, and so cast their shadows.
@@ -46,7 +48,7 @@ export function packLitBodyUniforms(shading: LitBodyShading, viewpoint: Viewpoin
   shading.occluders.slice(0, MAX_OCCLUDERS).forEach((occluder, slot) => uniforms.set(occluder, 44 + slot * 4))
   uniforms.set([shading.sunRadius, ...(shading.ringRadii ?? [0, 0]), 0], 60)
   if (shading.atmosphere) uniforms.set(shading.atmosphere, 64)
-  uniforms.set([shading.bumpIntensity ?? 0, shading.nightLights ?? 0, 0, 0], 68)
+  uniforms.set([shading.bumpIntensity ?? 0, shading.nightLights ?? 0, shading.earthshine ?? 0, 0], 68)
   if (shading.hemisphereTints) {
     uniforms.set(shading.hemisphereTints.north, 72)
     uniforms.set(shading.hemisphereTints.south, 76)

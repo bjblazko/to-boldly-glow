@@ -35,6 +35,8 @@ export interface PlanetPose extends BodyPose {
 export interface MoonPose extends BodyPose {
   definition: MoonDefinition
   parent: PlanetPose
+  // The Moon phases lesson lights the Moon's night side with sunlight reflected off Earth.
+  earthshine?: number
 }
 
 // translation * (tilt * (spin * scale)) - the composition order every body has always used.

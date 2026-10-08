@@ -43,8 +43,10 @@ sidereal and synodic month, supermoon/perigee-syzygy.
 seen from Earth, scrubbable via the shared time controller.
 **Data needed**: ELP2000 lunar position (already in `packages/engine` for MVP) — mostly a new UI
 view, not new data.
-
-## Solar & lunar eclipses
+**Done**: a staged "Why does the Moon have phases?" lesson - the orbit from above with the phase as
+seen from Earth, why the phases aren't Earth's shadow, the same face, and the crescent (with
+earthshine), quarters and full Moon from the ground. **Next**: supermoons (perigee), and the real
+Moon's phase for the explore view's date, which needs its real orbit (see the eclipses entry).
 **What**: Visualize and explain solar/lunar eclipse geometry (umbra/penumbra, why eclipses don't
 happen every month due to orbital plane inclination), and let the user jump to real historical/
 future eclipse dates.

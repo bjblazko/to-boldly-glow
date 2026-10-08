@@ -23,6 +23,26 @@
       <div id="eclipse-orbit-plane-label" class="body-label" hidden>Plane of Earth's orbit</div>
       <div id="eclipse-glasses-label" class="body-label" hidden>Seen through eclipse glasses</div>
       <div id="eclipse-corona-label" class="body-label" hidden>Corona</div>
+      <div id="phases-sunlight-label" class="body-label" hidden>Sunlight</div>
+      <div id="phases-new-label" class="body-label" hidden>New moon</div>
+      <div id="phases-first-quarter-label" class="body-label" hidden>First quarter</div>
+      <div id="phases-full-label" class="body-label" hidden>Full moon</div>
+      <div id="phases-last-quarter-label" class="body-label" hidden>Last quarter</div>
+      <div id="phases-earth-shadow-label" class="body-label" hidden>Earth's shadow</div>
+      <div id="phases-moon-orbit-label" class="body-label" hidden>Moon's orbit</div>
+      <div id="phases-near-side-label" class="body-label" hidden>Near side</div>
+    </div>
+
+    <div id="moon-phase-inset" class="hud-phase-inset" hidden>
+      <svg class="hud-phase-moon" viewBox="-1.15 -1.15 2.3 2.3" aria-hidden="true">
+        <circle class="hud-phase-dark" r="1" />
+        <path id="moon-phase-lit" class="hud-phase-lit" d="" />
+      </svg>
+      <div class="hud-phase-caption">
+        <span class="hud-phase-heading">Seen from Earth</span>
+        <span id="moon-phase-name"></span>
+        <span id="moon-phase-lit-share" class="hud-phase-share"></span>
+      </div>
     </div>
 
     <div id="camera-hint" class="hud-camera-hint" role="status" hidden></div>
@@ -269,6 +289,9 @@
       </button>
       <button class="hud-lesson-picker-item" data-lesson-id="seasons" type="button">
         Why does Earth have seasons?
+      </button>
+      <button class="hud-lesson-picker-item" data-lesson-id="moonPhases" type="button">
+        Why does the Moon have phases?
       </button>
       <button class="hud-lesson-picker-item" data-lesson-id="solarEclipse" type="button">
         What happens in a solar eclipse?

@@ -11,6 +11,10 @@ import { OBLIQUITY_RADIANS, ORBIT_FIXED_POLE_DIRECTION, ORBIT_FIXED_TILT_MATRIX,
 
 export type SeasonsChapterKind = 'staged' | 'orbit'
 
+export function isSeasonsKind(kind: string): kind is SeasonsChapterKind {
+  return kind === 'staged' || kind === 'orbit'
+}
+
 // The staged chapters are a diagram, not a scale model: Earth is held at a fixed spot next to the
 // Sun (which never moves from the origin), enlarged for legibility.
 export const EARTH_STAGED_POSITION: Vec3 = [9, 0, 0]

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { circleOverlapFraction } from '../src/lensFlare/circleOverlap'
-import { diamondStrength, skyLight } from '../src/learn/eclipse/groundSky'
+import { diamondStrength, eclipseSkyLight as skyLight } from '../src/learn/eclipse/eclipseSkyLight'
 import { OBSERVER, REAL_SUN_ANGULAR_RADIUS, skyMoon, SUN_ANGULAR_RADIUS, SUNWARD, TOWARD_SUN_ON_HORIZON, ZENITH } from '../src/learn/eclipse/skyGeometry'
 import { SOLAR_ECLIPSE_LESSON } from '../src/learn/lessons/solarEclipse'
 
@@ -68,8 +68,8 @@ describe('the solar eclipse seen from the ground', () => {
   })
 
   it('fades the daylight as the Sun disappears - slowly at first, then all at once - into the glow of totality', () => {
-    expect(skyLight(1)).toEqual({ daylight: 1, glow: 0, hidesStars: 1 })
-    expect(skyLight(0)).toEqual({ daylight: 0, glow: 1, hidesStars: 0 })
+    expect(skyLight(1)).toEqual({ daylight: 1, glow: 0, glowSpread: 1, hidesStars: 1 })
+    expect(skyLight(0)).toEqual({ daylight: 0, glow: 1, glowSpread: 1, hidesStars: 0 })
     // With half the Sun gone the sky still looks like day.
     expect(skyLight(0.5).daylight).toBeGreaterThan(0.7)
     let previous = 0

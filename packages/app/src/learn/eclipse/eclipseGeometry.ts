@@ -32,8 +32,8 @@ export const MOON_ORBIT_RADIUS = EARTH_RADIUS + (MOON_RADIUS * (EARTH_POSITION[0
 export const REAL_MOON_ORBIT_TILT_DEGREES = 5.1
 export const MOON_ORBIT_TILT_DEGREES = 25
 
-export function moonOrbitTilt(nodeDegrees: number): mat4 {
-  return moonOrbitPlaneTiltMatrix(MOON_ORBIT_TILT_DEGREES, nodeDegrees, ECLIPTIC_NORTH)
+export function moonOrbitTilt(nodeDegrees: number, tiltDegrees = MOON_ORBIT_TILT_DEGREES): mat4 {
+  return moonOrbitPlaneTiltMatrix(tiltDegrees, nodeDegrees, ECLIPTIC_NORTH)
 }
 
 // The Moon's angle around its orbit (moonOrbit.ts's convention) at new moon - when it stands
@@ -42,11 +42,12 @@ export function newMoonOrbitAngleDegrees(nodeDegrees: number): number {
   return 180 - nodeDegrees
 }
 
-// Where the Moon is, `degreesPastNewMoon` along its orbit after new moon.
-export function stagedMoonPosition(nodeDegrees: number, degreesPastNewMoon: number): Vec3 {
+// Where the Moon is, `degreesPastNewMoon` along its orbit after new moon (around an Earth on the
+// Sun's +X side, by default this lesson's).
+export function stagedMoonPosition(nodeDegrees: number, degreesPastNewMoon: number, tiltDegrees = MOON_ORBIT_TILT_DEGREES, earth: Vec3 = EARTH_POSITION): Vec3 {
   const angle = ((newMoonOrbitAngleDegrees(nodeDegrees) + degreesPastNewMoon) * Math.PI) / 180
-  const offset = moonRelativePosition(MOON_ORBIT_RADIUS, angle, moonOrbitTilt(nodeDegrees))
-  return [EARTH_POSITION[0] + offset[0], EARTH_POSITION[1] + offset[1], EARTH_POSITION[2] + offset[2]]
+  const offset = moonRelativePosition(MOON_ORBIT_RADIUS, angle, moonOrbitTilt(nodeDegrees, tiltDegrees))
+  return [earth[0] + offset[0], earth[1] + offset[1], earth[2] + offset[2]]
 }
 
 export interface Sphere {

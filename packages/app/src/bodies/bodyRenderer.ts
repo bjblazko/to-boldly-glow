@@ -119,6 +119,7 @@ export class BodyRenderer {
         occluders: [occluderOf(moon.parent)],
         sunRadius: layout.sun.radius,
         bumpIntensity: moon.definition.bumpIntensity,
+        earthshine: moon.earthshine,
         material: surfaceMaterialOf(moon.definition.id),
         timeSeconds,
         clouds,

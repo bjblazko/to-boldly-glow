@@ -6,7 +6,7 @@ import { OrbitCamera } from '../src/camera/orbitCamera'
 import { createViewpoint, projectToPixels } from '../src/camera/viewpoint'
 import { EARTH_POSITION, stagedMoonPosition } from '../src/learn/eclipse/eclipseGeometry'
 import { SHADOW_SWEEP_DEGREES } from '../src/learn/eclipse/eclipseScene'
-import { OBSERVER, SUNWARD, ZENITH } from '../src/learn/eclipse/skyGeometry'
+import { ECLIPSE_SKY_SHOT, OBSERVER, SUNWARD, ZENITH } from '../src/learn/eclipse/skyGeometry'
 import { LessonCamera } from '../src/learn/lessonCamera'
 import { isEclipseKind } from '../src/learn/lessonTypes'
 import { LESSONS_BY_ID } from '../src/learn/lessons/lessonCatalog'
@@ -80,7 +80,7 @@ describe('the eclipse lesson camera', () => {
   it('stands exactly at the observer in the ground view, on any screen, looking toward the Sun with the horizon level', () => {
     for (const [width, height] of [[1280, 800], [1280, 480], [390, 844]]) {
       const { orbit, camera } = lessonCameraFor(width, height)
-      camera.frame('eclipseSky')
+      camera.frame('eclipseSky', ECLIPSE_SKY_SHOT)
       const eye = orbit.getEyePosition()
       for (let i = 0; i < 3; i++) expect(eye[i]).toBeCloseTo(OBSERVER[i], 4)
       const look = vec3.normalize(vec3.create(), vec3.subtract(vec3.create(), orbit.target, eye))
