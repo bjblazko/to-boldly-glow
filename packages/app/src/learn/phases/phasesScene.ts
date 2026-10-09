@@ -74,7 +74,7 @@ export class PhasesScene {
 
   groundShot(): GroundShot {
     const { moonAltitudeDegrees: moon, sunAltitudeDegrees: sun } = this.tween.current
-    return moonGroundShot(phasesMoonPosition(this.ageDegrees), { moon, sun }, this.ageDegrees)
+    return moonGroundShot(phasesMoonPosition(this.ageDegrees), { moon, sun })
   }
 
   private earth(): PlanetPose {

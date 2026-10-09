@@ -7,17 +7,20 @@ import type { Ephemeris } from '../../time/ephemeris'
 const GAP_UNITS = 0.015
 const TRUE_SCALE = 0
 
-interface LineupSlot {
+export interface LineupSlot {
   x: number
   radius: number
 }
+
+// The Sun's radius in the lineup (scene units).
+export const LINEUP_SUN_RADIUS = scaledBodyRadiusUnits(SUN.radiusKm, SUN.compactVisualRadius, TRUE_SCALE, AU_KM)
 
 // The planets at true scale, largest to smallest, edge to edge along -X starting just left of the
 // Sun. The Sun keeps its own place at the origin, so every planet is lit from the right direction
 // without any lesson-specific lighting.
 function buildLineup(): Map<string, LineupSlot> {
   const lineup = new Map<string, LineupSlot>()
-  let cursor = scaledBodyRadiusUnits(SUN.radiusKm, SUN.compactVisualRadius, TRUE_SCALE, AU_KM) + GAP_UNITS
+  let cursor = LINEUP_SUN_RADIUS + GAP_UNITS
   for (const planet of [...PLANETS].sort((a, b) => b.radiusKm - a.radiusKm)) {
     const radius = scaledBodyRadiusUnits(planet.radiusKm, planet.compactVisualRadius, TRUE_SCALE, AU_KM)
     lineup.set(planet.id, { x: -(cursor + radius), radius })
@@ -27,6 +30,13 @@ function buildLineup(): Map<string, LineupSlot> {
 }
 
 const LINEUP = buildLineup()
+
+// Where a planet sits in the lineup: its center's X and its radius (scene units).
+export function lineupSlot(planetId: string): LineupSlot {
+  const slot = LINEUP.get(planetId)
+  if (!slot) throw new Error(`No planet "${planetId}" in the size lineup`)
+  return slot
+}
 
 // The planets' extent along X, from Jupiter's edge nearest the Sun to Mercury's far edge. The Sun
 // is left out: at true scale it is far too big to fit alongside them, so it bulges in from the side.

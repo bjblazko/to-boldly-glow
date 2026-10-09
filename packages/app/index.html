@@ -127,6 +127,54 @@
       <symbol id="icon-chevron-down" viewBox="0 0 24 24">
         <path d="M6 9.5l6 6 6-6" />
       </symbol>
+      <!-- Pictograms for a planet's facts in the lesson panel (see lessonTypes.ts's FactIcon). -->
+      <symbol id="icon-diameter" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="8.25" />
+        <path d="M6.5 12h11M8.5 10l-2 2 2 2M15.5 10l2 2-2 2" />
+      </symbol>
+      <symbol id="icon-circumference" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="4.5" />
+        <path d="M20.25 12a8.25 8.25 0 1 1-2.42-5.83" />
+        <path d="M18.3 3.4l-.4 2.9-2.9-.3" />
+      </symbol>
+      <symbol id="icon-mass" viewBox="0 0 24 24">
+        <circle cx="12" cy="6" r="2.25" />
+        <path d="M7.4 9.5h9.2l2.9 10H4.5l2.9-10Z" />
+      </symbol>
+      <symbol id="icon-rock" viewBox="0 0 24 24">
+        <path d="M8 4.5l7.5 1 5 6-2.5 7.5-8 1.5-6-5.5 1-7.5L8 4.5Z" />
+        <path d="M8 4.5l3 6.5 9.5.5M11 11l-1 8.5M11 11l-6.5 3" />
+      </symbol>
+      <symbol id="icon-giant" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="8.25" />
+        <path d="M4.4 9h15.2M3.8 12.5h16.4M5 16h14" />
+      </symbol>
+      <symbol id="icon-atmosphere" viewBox="0 0 24 24">
+        <path d="M3.5 9h11a2.5 2.5 0 1 0-2.5-2.5" />
+        <path d="M3.5 13h15a2.5 2.5 0 1 1-2.5 2.5" />
+        <path d="M3.5 17h7" />
+      </symbol>
+      <symbol id="icon-thermometer" viewBox="0 0 24 24">
+        <path d="M10 13.6V5a2 2 0 1 1 4 0v8.6a4 4 0 1 1-4 0Z" />
+        <path d="M12 9v7.5" />
+      </symbol>
+      <symbol id="icon-sun-distance" viewBox="0 0 24 24">
+        <circle cx="6" cy="12" r="2.5" />
+        <path d="M6 6.5v1M6 16.5v1M.5 12h1M10.5 12h1M2.1 8.1l.7.7M9.2 15.2l.7.7M2.1 15.9l.7-.7M9.2 8.8l.7-.7" />
+        <path d="M13.5 12h4" stroke-dasharray="1.5 2" />
+        <circle cx="20.5" cy="12" r="1.75" />
+      </symbol>
+      <symbol id="icon-rotation" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="5" />
+        <path d="M12 3.5v17" />
+        <path d="M5 8.2a8.5 3.2 0 0 1 14 0" />
+        <path d="M16.7 5.6l2.3 2.6-3.3.9" />
+      </symbol>
+      <symbol id="icon-orbit" viewBox="0 0 24 24">
+        <ellipse cx="12" cy="12" rx="9.25" ry="5.5" />
+        <circle cx="12" cy="12" r="2" />
+        <circle cx="19.6" cy="15.1" r="1.4" />
+      </symbol>
     </svg>
 
     <!-- Top bar: the Explore / Learn mode switch, and search-everything and settings on the right. -->
@@ -441,6 +489,7 @@
       </div>
       <div id="lesson-panel-body" class="hud-lesson-panel-body">
         <p id="lesson-chapter-text" class="hud-lesson-text"></p>
+        <ul id="lesson-chapter-facts" class="hud-lesson-facts" hidden></ul>
         <p id="lesson-note" class="hud-lesson-note" hidden></p>
       </div>
     </div>

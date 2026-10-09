@@ -1,5 +1,6 @@
 import { makePanelDraggable } from '../hud/draggablePanel'
 import type { LessonPlayer } from './lessonPlayer'
+import type { ChapterFact } from './lessonTypes'
 
 type Find = <T extends HTMLElement>(selector: string) => T
 
@@ -7,6 +8,7 @@ interface PanelElements {
   panel: HTMLElement
   title: HTMLElement
   text: HTMLElement
+  facts: HTMLElement
   note: HTMLElement
   body: HTMLElement
   foldButton: HTMLButtonElement
@@ -21,6 +23,7 @@ function findPanelElements(find: Find): PanelElements {
     panel: find('#lesson-panel'),
     title: find('#lesson-chapter-title'),
     text: find('#lesson-chapter-text'),
+    facts: find('#lesson-chapter-facts'),
     note: find('#lesson-note'),
     body: find('#lesson-panel-body'),
     foldButton: find('#lesson-text-toggle'),
@@ -31,9 +34,9 @@ function findPanelElements(find: Find): PanelElements {
   }
 }
 
-// The lesson's text card (chapter title, text and the lesson's note on what is and isn't to scale,
-// foldable down to its title) and the lesson dock's chapter controls: back, next, and the chapter
-// counter that opens a list of every chapter to jump to.
+// The lesson's text card (chapter title, text, the chapter's facts as pictograms, and the lesson's
+// note on what is and isn't to scale, foldable down to its title) and the lesson dock's chapter
+// controls: back, next, and the chapter counter that opens a list of every chapter to jump to.
 export class LessonPanel {
   private readonly el: PanelElements
   readonly previousButton: HTMLButtonElement
@@ -63,6 +66,7 @@ export class LessonPanel {
     this.previousButton.disabled = !player.hasPreviousChapter
     this.nextButton.disabled = !player.hasNextChapter
     this.el.text.textContent = chapter.text
+    this.renderFacts(chapter.facts ?? [])
     this.el.note.textContent = lesson.note ?? ''
     this.el.note.hidden = !lesson.note
     this.el.panel.dataset.chapterId = chapter.id
@@ -82,6 +86,11 @@ export class LessonPanel {
     this.el.chapterButton.setAttribute('aria-expanded', String(open))
     this.el.chapterButton.classList.toggle('is-active', open)
     if (open) this.el.chapterList.querySelector<HTMLElement>('[aria-current] button')?.focus()
+  }
+
+  private renderFacts(facts: ChapterFact[]): void {
+    this.el.facts.replaceChildren(...facts.map(renderFact))
+    this.el.facts.hidden = facts.length === 0
   }
 
   private renderChapterList(titles: string[], current: number): void {
@@ -111,4 +120,24 @@ export class LessonPanel {
       this.setMenuOpen(false)
     })
   }
+}
+
+const SVG_NAMESPACE = 'http://www.w3.org/2000/svg'
+
+// A pictogram from index.html's icon sprite, a small label and the value.
+function renderFact(fact: ChapterFact): HTMLLIElement {
+  const icon = document.createElementNS(SVG_NAMESPACE, 'svg')
+  icon.setAttribute('class', 'icon')
+  icon.setAttribute('aria-hidden', 'true')
+  const use = document.createElementNS(SVG_NAMESPACE, 'use')
+  use.setAttribute('href', `#icon-${fact.icon}`)
+  icon.append(use)
+  const item = Object.assign(document.createElement('li'), { className: 'hud-lesson-fact' })
+  item.dataset.factIcon = fact.icon
+  item.append(
+    icon,
+    Object.assign(document.createElement('span'), { className: 'hud-lesson-fact-label', textContent: fact.label }),
+    Object.assign(document.createElement('span'), { className: 'hud-lesson-fact-value', textContent: fact.value }),
+  )
+  return item
 }

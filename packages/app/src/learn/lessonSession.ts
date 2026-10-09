@@ -92,6 +92,7 @@ export class LessonSession {
   // A view from the ground may move with its scene, so the camera follows it every frame.
   update(deltaSeconds: number): void {
     if (!this.active) return
+    this.parts.lessonCamera.update(deltaSeconds)
     const { kind } = this.chapter
     const staged = this.stagedScene
     if (staged) {
@@ -147,11 +148,11 @@ export class LessonSession {
     if (this.active) this.frameCamera()
   }
 
-  // Frames the chapter's shot. The user may look around a shot from space; a view from the ground
-  // is the observer's own eye and stands still, so camera input is off there.
-  private frameCamera(): void {
+  // Frames the chapter's shot, or flies there (glide). The user may look around a shot from space; a
+  // view from the ground is the observer's own eye and stands still, so camera input is off there.
+  private frameCamera(glide = false): void {
     const groundShot = this.stagedScene?.groundShot(this.chapter)
-    this.parts.lessonCamera.frame(this.chapter.kind, groundShot)
+    this.parts.lessonCamera.frame(this.chapter.kind, groundShot, { focusPlanetId: this.chapter.focusPlanetId, glide })
     const fixed = Boolean(groundShot)
     if (fixed === this.viewFixed) return
     this.viewFixed = fixed
@@ -193,15 +194,16 @@ export class LessonSession {
   }
 
   // A new chapter of the same kind turns Earth's axis (or moves the Moon) smoothly with the camera
-  // standing still - or, from the ground, turning with the sky; a change of kind re-frames the camera
-  // and snaps to the new scene.
+  // standing still - or, from the ground, turning with the sky - and in the sizes lineup flies the
+  // camera to the chapter's planet; a change of kind re-frames the camera and snaps to the new scene.
   private goToChapter(navigate: () => void): void {
-    const previousKind = this.chapter.kind
+    const previous = this.chapter
     navigate()
-    const kindChanged = this.chapter.kind !== previousKind
+    const kindChanged = this.chapter.kind !== previous.kind
     this.seasons.showSeason(this.chapter.seasonPhaseDegrees, kindChanged)
     this.stagedScene?.showChapter(this.chapter, kindChanged)
     if (kindChanged) this.frameCamera()
+    else if (this.chapter.focusPlanetId !== previous.focusPlanetId) this.frameCamera(true)
     this.showChapter()
   }
 }

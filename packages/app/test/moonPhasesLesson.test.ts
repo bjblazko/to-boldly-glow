@@ -11,6 +11,7 @@ import { MOON_PHASES_LESSON } from '../src/learn/lessons/moonPhases'
 import { litShapePath } from '../src/learn/phases/phaseInset'
 import { earthshineStrength, litFraction, moonGroundShot, phaseAngle, PHASES_EARTH_POSITION, phaseName, phasesMoonPosition } from '../src/learn/phases/phasesGeometry'
 import { twilightSkyLight } from '../src/learn/phases/phasesLesson'
+import { PhasesScene } from '../src/learn/phases/phasesScene'
 
 const stageOf = (id: string) => MOON_PHASES_LESSON.chapters.find((chapter) => chapter.id === id)!.phases!
 const degrees = (radians: number) => (radians * 180) / Math.PI
@@ -96,7 +97,7 @@ describe('the sky over the ground chapters', () => {
     it(`${id}: the Moon and the Sun stand at the chapter's altitudes, the Sun west of a waxing Moon and east of a waning one`, () => {
       const stage = stageOf(id)
       const moon = phasesMoonPosition(stage.moonAgeDegrees)
-      const shot = moonGroundShot(moon, { moon: stage.moonAltitudeDegrees, sun: stage.sunAltitudeDegrees }, stage.moonAgeDegrees)
+      const shot = moonGroundShot(moon, { moon: stage.moonAltitudeDegrees, sun: stage.sunAltitudeDegrees })
       expect(vec3.length(shot.zenith as vec3)).toBeCloseTo(1, 6)
       expect(altitude(fromEarth(moon), shot.zenith)).toBeCloseTo(stage.moonAltitudeDegrees, 1)
       expect(altitude(fromEarth([0, 0, 0]), shot.zenith)).toBeCloseTo(stage.sunAltitudeDegrees, 1)
@@ -108,6 +109,26 @@ describe('the sky over the ground chapters', () => {
       }
     })
   }
+
+  it('turns the sky smoothly from one ground chapter to the next, without flipping at full moon', () => {
+    for (const [from, to] of [
+      ['first-quarter', 'full-moon'],
+      ['full-moon', 'last-quarter'],
+      ['last-quarter', 'full-moon'],
+    ]) {
+      const scene = new PhasesScene()
+      scene.start(stageOf(from))
+      scene.showStage(stageOf(to), false)
+      let previous = scene.groundShot().zenith
+      for (let frame = 0; frame < 200; frame++) {
+        scene.update(1 / 60)
+        const { zenith } = scene.groundShot()
+        const turn = degrees(Math.acos(Math.min(1, vec3.dot(previous, zenith))))
+        expect(turn, `${from} -> ${to}, frame ${frame}`).toBeLessThan(1.5)
+        previous = zenith
+      }
+    }
+  })
 
   it('fades from day through a glowing dusk to night as the Sun sinks', () => {
     expect(twilightSkyLight(5).daylight).toBe(1)
@@ -126,7 +147,7 @@ describe('the sky over the ground chapters', () => {
       for (const id of ['evening-crescent', 'first-quarter', 'full-moon', 'last-quarter']) {
         const stage = stageOf(id)
         const moon = phasesMoonPosition(stage.moonAgeDegrees)
-        camera.frame('phasesSky', moonGroundShot(moon, { moon: stage.moonAltitudeDegrees, sun: stage.sunAltitudeDegrees }, stage.moonAgeDegrees))
+        camera.frame('phasesSky', moonGroundShot(moon, { moon: stage.moonAltitudeDegrees, sun: stage.sunAltitudeDegrees }))
         for (let i = 0; i < 3; i++) expect(orbit.getEyePosition()[i]).toBeCloseTo(PHASES_EARTH_POSITION[i], 4)
         const seen = projectToPixels(createViewpoint(orbit.getViewMatrix(), lens.projection(), canvas), moon)
         expect(seen.x).toBeCloseTo(width / 2, 0)

@@ -1,3 +1,8 @@
+// Ring extent in Saturn radii (the real rings span roughly 1.1-2.3). The ring is built for a unit
+// sphere and scaled with Saturn, so it follows the planet across the Realistic/Compact toggle.
+export const RING_INNER_RADIUS_FACTOR = 1.3
+export const RING_OUTER_RADIUS_FACTOR = 2.3
+
 export interface RingMesh {
   positions: Float32Array
   uvs: Float32Array

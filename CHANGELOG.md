@@ -144,6 +144,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   lighting, not a drawing.
 - Earthshine: a lesson can light the Moon's night side with the sunlight Earth reflects, brightest
   around new moon.
+- The "How big are the planets?" lesson flies the camera to each planet in turn, close enough to
+  fill the view (Saturn with its rings), turned toward the Sun so most of its face is lit. Each
+  planet's page lists its facts as bullet points with pictograms: diameter, circumference, mass,
+  rocky / gas giant / ice giant, atmosphere, temperatures (coldest and hottest on the rocky planets,
+  the cloud tops on the giants), distance from the Sun, how long it takes to spin once, and its year.
 
 ### Changed
 
@@ -158,6 +163,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   folds down to its title. Lesson scenes from space can be zoomed and turned a little (scroll,
   pinch, drag, or the buttons on the right), with a button back to the lesson's own view. Ctrl+K
   (Cmd+K) or the search button searches everything: objects, lessons and settings.
+- Search and Settings at the top right, and a lesson's zoom buttons, sit on small glass slabs like
+  the dock and the mode switch, as flat keys, instead of floating with hard white edges; open
+  Settings lights up like an open dock panel. On narrow phones the mode switch moves to the left
+  so it no longer overlaps them.
 - A new look for the HUD, "Dichroic Slab": the dock, its panels, the lesson panel and picker and
   the Moon-phase card are thick slabs of smoked glass with sharp corners, a facet split across each
   face and an edge that glows cyan, violet, magenta and gold. Buttons are glass keys that press in,
@@ -328,6 +337,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Lesson scenes are framed into the space above the lesson panel, which used to cover Location B
   and Earth's southern hemisphere (and the planet-size lineup) on common screen sizes; the panel
   itself no longer runs under the dock.
+- In the Moon phases lesson the sky seen from the ground no longer flips around the Moon for a few
+  frames on the way to full moon (or back from it): with the Sun nearly opposite the Moon its
+  altitude no longer decides how the sky leans, so the view turns smoothly and comes to rest
+  upright.
+- The planet-size lesson's facts were half German, half English; they are English throughout.
+- Seen from close to the Sun, its corona no longer ends in a hard-edged band across the sky; it
+  fades out to the side.
+- The Moon phases lesson's "seen from Earth" card no longer hides under the top bar on narrow
+  screens.
 
 ### Security
 

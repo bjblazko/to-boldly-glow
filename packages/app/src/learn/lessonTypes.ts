@@ -2,15 +2,15 @@
 // chapters show Earth's real position in its orbit (with its axis held in a single fixed
 // direction - see seasons/seasonalPole.ts's ORBIT_FIXED_POLE_DIRECTION), 'staged' chapters show the existing
 // simplified diagram (fixed position, tilting axis - see seasons/seasonalPole.ts's seasonalPoleDirection) - plus
-// unrelated kinds: 'sizes' renders the Sun and all 8 planets as a single static real-scale
-// lineup, largest to smallest (see sizes/sizesLineup.ts), the solar eclipse lesson's three
-// shots (see eclipse/eclipseScene.ts): 'eclipseOrbit' (Sun, Moon and Earth side by side),
-// 'eclipseShadow' (the Moon's shadow on Earth, close up) and 'eclipseSky' (the eclipse seen from the
-// ground), and the Moon phases lesson's three (see phases/phasesScene.ts): 'phasesOrbit' (the
-// Moon's orbit seen from above), 'phasesShadow' (the full Moon passing Earth's shadow) and
-// 'phasesSky' (the Moon seen from the ground). `seasonPhaseDegrees` and `markerLatitudeDegrees` are
-// ignored by every kind but 'orbit' and 'staged' - both fields stay required only because those
-// chapter kinds need them.
+// unrelated kinds: 'sizes' renders the Sun and all 8 planets as a single static real-scale lineup,
+// largest to smallest (see sizes/sizesLineup.ts; a chapter may close in on one planet, see
+// focusPlanetId), the solar eclipse lesson's three shots (see eclipse/eclipseScene.ts):
+// 'eclipseOrbit' (Sun, Moon and Earth side by side), 'eclipseShadow' (the Moon's shadow on Earth,
+// close up) and 'eclipseSky' (the eclipse seen from the ground), and the Moon phases lesson's three
+// (see phases/phasesScene.ts): 'phasesOrbit' (the Moon's orbit seen from above), 'phasesShadow'
+// (the full Moon passing Earth's shadow) and 'phasesSky' (the Moon seen from the ground).
+// `seasonPhaseDegrees` and `markerLatitudeDegrees` are ignored by every kind but 'orbit' and
+// 'staged' - both fields stay required only because those chapter kinds need them.
 // `seasonPhaseDegrees` is this chapter's fixed position in an idealized annual cycle (0 = June
 // solstice, 90 = September equinox, 180 = December solstice, 270 = March equinox), reused with a
 // different meaning per kind: for 'staged' chapters it drives Earth's tilt orientation; for
@@ -27,7 +27,32 @@ export interface Chapter {
   eclipse?: EclipseStage
   // The Moon phases lesson's chapters: where the Moon is (see PhasesStage).
   phases?: PhasesStage
+  // Shown under the text as a grid of pictograms with a label and a value each (the planet sizes
+  // lesson's numbers).
+  facts?: ChapterFact[]
+  // 'sizes' chapters: the planet the camera closes in on; without one it shows the whole lineup.
+  focusPlanetId?: string
 }
+
+// One fact in a chapter's grid. `icon` names a symbol in index.html's icon sprite (without its
+// "icon-" prefix).
+export interface ChapterFact {
+  icon: FactIcon
+  label: string
+  value: string
+}
+
+export type FactIcon =
+  | 'diameter'
+  | 'circumference'
+  | 'mass'
+  | 'rock'
+  | 'giant'
+  | 'atmosphere'
+  | 'thermometer'
+  | 'sun-distance'
+  | 'rotation'
+  | 'orbit'
 
 export type EclipseChapterKind = 'eclipseOrbit' | 'eclipseShadow' | 'eclipseSky'
 export type PhasesChapterKind = 'phasesOrbit' | 'phasesShadow' | 'phasesSky'

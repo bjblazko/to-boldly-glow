@@ -65,6 +65,10 @@ const CORONA_COLOR = vec3f(1.0, 0.95, 0.88);
 const HYDROGEN_COLOR = vec3f(1.0, 0.2, 0.36);
 // The chromosphere is only about 2,000 km deep (0.003 solar radii) - drawn a bit thicker to show.
 const CHROMOSPHERE_DEPTH: f32 = 0.006;
+// Seen from inside the corona: how far from the Sun's center (radians) its glow starts to fade, and
+// where it is gone - 70 and 86 degrees.
+const SIDEWAYS_FADE_START: f32 = 1.22;
+const SIDEWAYS_FADE_END: f32 = 1.50;
 
 @vertex
 fn vs(@builtin(vertex_index) vertexIndex: u32) -> VertexOutput {
@@ -162,7 +166,10 @@ fn fs(in: VertexOutput) -> @location(0) vec4f {
   let fine = 0.6 * valueNoise(ownDirection * 24.0) + 0.4 * valueNoise(ownDirection * 70.0);
   let rays = mix(1.0, 0.55 + 0.9 * fine, 0.35 + 0.4 * polar);
   let background = (1.0 - 0.55 * smoothstep(1.3, 3.0, b)) * (1.0 - 0.5 * polar);
-  let fade = 1.0 - smoothstep(0.6 * extent, extent, b);
+  // From inside the corona its quad ends about 87 degrees from the Sun (see coronaView.ts): fade the
+  // glow out before that edge, so a view turned away from a nearby Sun shows no hard border.
+  let fromSun = atan2(rho, d);
+  let fade = (1.0 - smoothstep(0.6 * extent, extent, b)) * (1.0 - smoothstep(SIDEWAYS_FADE_START, SIDEWAYS_FADE_END, fromSun));
   let raw = kCorona(b) * (background + streamerLight(b, skyDirection)) * rays * fade * uni.exposure.x;
   // The brightest inner corona rolls off softly instead of flaring the bloom over the eclipsing body.
   let corona = raw / (1.0 + 0.5 * raw);

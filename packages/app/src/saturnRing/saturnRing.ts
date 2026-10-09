@@ -5,13 +5,9 @@ import { worldViewProjection, type Viewpoint } from '../camera/viewpoint'
 import { createBodySampler } from '../bodies/bodySampler'
 import { sunlightDirection } from '../bodies/litBodyUniforms'
 import { findPlanet, tiltedFrameMatrix, type PlanetPose, type SceneLayout } from '../scene/sceneLayout'
-import { generateRingMesh } from './ringMesh'
+import { generateRingMesh, RING_INNER_RADIUS_FACTOR, RING_OUTER_RADIUS_FACTOR } from './ringMesh'
 import { ringShaderCode } from './ringShader'
 
-// Ring extent in Saturn radii (the real rings span roughly 1.1-2.3). The ring is built for a unit
-// sphere and scaled with Saturn, so it follows the planet across the Realistic/Compact toggle.
-const RING_INNER_RADIUS_FACTOR = 1.3
-const RING_OUTER_RADIUS_FACTOR = 2.3
 const RING_UNIFORM_FLOAT_COUNT = 36
 
 const RING_VERTEX_BUFFERS: GPUVertexBufferLayout[] = [

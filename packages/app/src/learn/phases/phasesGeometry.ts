@@ -70,29 +70,37 @@ export function phaseName(ageDegrees: number): string {
 // The Moon seen from Earth's center (where the ground chapters' camera stands): its angular radius.
 export const MOON_ANGULAR_RADIUS_DEGREES = (Math.asin(MOON_RADIUS / MOON_ORBIT_RADIUS) * 180) / Math.PI
 
+// Within about 6 degrees of new or full moon (the sine of the Sun's angle off the Moon's line), the
+// Sun's altitude gradually stops steering the sky (see zenithFor).
+const SUN_PULL_FADE = 0.1
+
 // The sky over an observer who sees the Moon `moonAltitude` degrees above the horizon and the Sun
-// `sunAltitude` degrees above it (below, if negative): straight up for them. With the Moon waxing,
-// the Sun stands to the right of it (west, for someone facing the Moon from the northern
-// hemisphere); waning, to the left. Altitudes the Sun-Moon angle can't allow are bent to the
-// nearest that it can.
-export function zenithFor(moonDirection: Vec3, sunDirection: Vec3, altitudes: { moon: number; sun: number }, isWaxing: boolean): Vec3 {
-  const cosAngle = vec3.dot(moonDirection, sunDirection)
-  const sinAngle = Math.sqrt(Math.max(0, 1 - cosAngle * cosAngle))
-  const across = sinAngle > 1e-6 ? perpendicularUnit(sunDirection, moonDirection) : perpendicularUnit(ECLIPTIC_NORTH, moonDirection)
-  const third = vec3.cross(vec3.create(), moonDirection, across)
+// `sunAltitude` degrees above it (below, if negative): straight up for them, on the north side of
+// Earth's orbit - so the Sun stands to the right of a waxing Moon (west, for someone in the northern
+// hemisphere facing it) and to the left of a waning one. Altitudes the Sun-Moon angle can't allow
+// are bent to the nearest that it can. The ground chapters' orbit lies flat in the plane of Earth's
+// orbit, so the Sun and the Moon both lie in it. Near new and full moon the Sun's altitude says ever
+// less about how the sky leans around the Moon (at full moon, nothing at all), so its pull fades out
+// there and the sky stays upright instead of flipping.
+export function zenithFor(moonDirection: Vec3, sunDirection: Vec3, altitudes: { moon: number; sun: number }): Vec3 {
+  const north = perpendicularUnit(ECLIPTIC_NORTH, moonDirection)
+  const side = vec3.cross(vec3.create(), north, moonDirection)
   const alongMoon = Math.sin(degreesToRadians(altitudes.moon))
-  const alongAcross = sinAngle > 1e-6 ? (Math.sin(degreesToRadians(altitudes.sun)) - alongMoon * cosAngle) / sinAngle : 0
-  const sideways = Math.sqrt(Math.max(0, 1 - alongMoon * alongMoon - alongAcross * alongAcross)) * (isWaxing ? -1 : 1)
-  const zenith = [0, 1, 2].map((i) => alongMoon * moonDirection[i] + alongAcross * across[i] + sideways * third[i])
+  const sunAlongSide = vec3.dot(sunDirection, side)
+  const fade = Math.min(1, Math.abs(sunAlongSide) / SUN_PULL_FADE)
+  const pull = fade * fade * (3 - 2 * fade)
+  const alongSide = pull > 0 ? ((Math.sin(degreesToRadians(altitudes.sun)) - alongMoon * vec3.dot(sunDirection, moonDirection)) / sunAlongSide) * pull : 0
+  const alongNorth = Math.sqrt(Math.max(0, 1 - alongMoon * alongMoon - alongSide * alongSide))
+  const zenith = [0, 1, 2].map((i) => alongMoon * moonDirection[i] + alongSide * side[i] + alongNorth * north[i])
   const unit = vec3.normalize(vec3.create(), zenith)
   return [unit[0], unit[1], unit[2]]
 }
 
 // The ground chapters' shot: from Earth's center toward the Moon, the horizon level under it.
-export function moonGroundShot(moonPosition: ArrayLike<number>, altitudes: { moon: number; sun: number }, ageDegrees: number): GroundShot {
+export function moonGroundShot(moonPosition: ArrayLike<number>, altitudes: { moon: number; sun: number }): GroundShot {
   const moonDirection = unitFromEarth(moonPosition)
   const sunDirection = unitFromEarth([0, 0, 0])
-  const zenith = zenithFor(moonDirection, sunDirection, altitudes, waxing(ageDegrees))
+  const zenith = zenithFor(moonDirection, sunDirection, altitudes)
   return {
     eye: PHASES_EARTH_POSITION,
     zenith,

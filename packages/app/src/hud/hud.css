@@ -49,6 +49,8 @@
 .hud-palette,
 .hud-library,
 .hud-modes,
+.hud-top-actions,
+.hud-view-controls,
 .hud-lesson-panel,
 .hud-phase-inset,
 .hud-camera-hint,
@@ -64,6 +66,8 @@
 .hud-palette,
 .hud-library,
 .hud-modes,
+.hud-top-actions,
+.hud-view-controls,
 .hud-lesson-panel,
 .hud-phase-inset,
 .gpu-lost-alert {
@@ -83,6 +87,8 @@
 .hud-palette::before,
 .hud-library::before,
 .hud-modes::before,
+.hud-top-actions::before,
+.hud-view-controls::before,
 .hud-lesson-panel::before,
 .hud-phase-inset::before,
 .gpu-lost-alert::before {
@@ -105,6 +111,8 @@
 .hud-palette::after,
 .hud-library::after,
 .hud-modes::after,
+.hud-top-actions::after,
+.hud-view-controls::after,
 .hud-lesson-panel::after,
 .hud-phase-inset::after,
 .gpu-lost-alert::after {
@@ -263,42 +271,59 @@
   outline: 2px solid #fff;
   outline-offset: 3px;
 }
+/* Search everything and settings: a small slab of their own, level with the mode switch, holding
+   flat keys like the dock's. */
 .hud-top-actions {
+  --hud-slab-depth: 5px;
   position: fixed;
-  top: 18px;
+  top: 14px;
   right: 24px;
   display: flex;
-  gap: 12px;
+  gap: 4px;
+  padding: 6px;
   z-index: 3;
 }
 .hud-top-btn {
+  position: relative;
   appearance: none;
   border: none;
   border-radius: 0;
   cursor: pointer;
   display: grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
-  color: var(--hud-text);
-  background: rgba(10, 12, 26, 0.5);
-  backdrop-filter: blur(16px);
-  box-shadow: var(--hud-lit), var(--hud-ring), var(--hud-ex-glass);
+  width: 38px;
+  height: 38px;
+  color: rgba(236, 240, 255, 0.78);
+  background: transparent;
   transition:
-    transform 0.08s ease,
-    box-shadow 0.08s ease,
-    background 0.12s ease;
+    background 0.12s ease,
+    color 0.12s ease;
 }
 .hud-top-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
+  color: var(--hud-text);
+  background: rgba(255, 255, 255, 0.07);
 }
 .hud-top-btn:active {
-  transform: translate(2px, 2px);
-  box-shadow: var(--hud-lit), var(--hud-ring), 1px 1px 0 rgba(255, 255, 255, 0.34);
+  background: rgba(255, 255, 255, 0.12);
 }
+/* The open settings: lit like the dock's open panel, with its dichroic bar. */
 .hud-top-btn.is-active {
-  background: rgba(255, 59, 189, 0.22);
-  box-shadow: var(--hud-lit), var(--hud-ring), var(--hud-ex-magenta);
+  color: #fff;
+  background: linear-gradient(132deg, rgba(255, 255, 255, 0.2) 0 40%, rgba(255, 255, 255, 0.08) 40%);
+  box-shadow:
+    var(--hud-lit),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.22),
+    0 0 30px -6px rgba(255, 59, 189, 0.8);
+}
+.hud-top-btn.is-active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 3px;
+  background: var(--hud-dichroic);
+  box-shadow: 0 0 14px rgba(255, 59, 189, 0.9);
 }
 
 /* Popovers: settings, and the lesson's chapter list. */
@@ -1124,6 +1149,14 @@
   .hud-dock-label {
     display: none;
   }
+  /* Too narrow to center the mode switch beside search and settings: it moves to the left edge. */
+  .hud-modes {
+    left: 12px;
+    transform: none;
+  }
+  .hud-top-actions {
+    right: 12px;
+  }
 }
 
 /* -------------------- app mode: learn -------------------- */
@@ -1332,21 +1365,35 @@ body:has(.hud-library:not([hidden]), .hud-palette:not([hidden])) .hud-camera-hin
   outline-offset: -2px;
 }
 
-/* Zoom in / out / back to the lesson's view, on the scene's right edge. */
+/* Zoom in / out / back to the lesson's view: a small upright slab on the scene's right edge, its
+   keys flat like the dock's. */
 .hud-view-controls {
+  --hud-slab-depth: 5px;
   position: fixed;
   right: 26px;
   top: 50%;
   transform: translateY(-50%);
   flex-direction: column;
-  gap: 12px;
+  gap: 4px;
+  padding: 6px;
   z-index: 1;
 }
 .hud-view-controls .hud-icon-btn {
-  background: rgba(10, 12, 26, 0.45);
-  backdrop-filter: blur(16px);
+  width: 38px;
+  height: 38px;
+  color: rgba(236, 240, 255, 0.78);
+  background: transparent;
+  box-shadow: none;
 }
-
+.hud-view-controls .hud-icon-btn:hover:not(:disabled) {
+  color: var(--hud-text);
+  background: rgba(255, 255, 255, 0.07);
+}
+.hud-view-controls .hud-icon-btn:active:not(:disabled) {
+  transform: none;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: none;
+}
 /* -------------------- lesson library -------------------- */
 .hud-library {
   --hud-slab-glow: rgba(123, 92, 255, 0.6);
@@ -1440,12 +1487,54 @@ body:has(.hud-library:not([hidden]), .hud-palette:not([hidden])) .hud-camera-hin
   color: rgba(236, 240, 255, 0.86);
 }
 
+/* A chapter's facts, as bullet points in two columns: a pictogram, a small label and the value. */
+.hud-lesson-facts {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  column-gap: 16px;
+  margin: 8px 0 0;
+  padding: 0;
+}
+.hud-lesson-facts[hidden] {
+  display: none;
+}
+.hud-lesson-fact {
+  display: grid;
+  grid-template-columns: 16px 80px 1fr;
+  column-gap: 8px;
+  align-items: start;
+  padding: 2px 0;
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.06);
+}
+.hud-lesson-fact .icon {
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  color: var(--hud-gold);
+}
+.hud-lesson-fact-label {
+  font-family: var(--hud-mono);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  line-height: 18px;
+  text-transform: uppercase;
+  color: var(--hud-dim);
+}
+.hud-lesson-fact-value {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 18px;
+  color: var(--hud-text);
+}
+
 /* The Moon phases lesson's "seen from Earth" card, in the top right corner of the space chapters. */
 .hud-phase-inset {
   --hud-slab-depth: 5px;
   --hud-slab-glow: rgba(34, 225, 255, 0.4);
   position: fixed;
-  top: 64px;
+  top: 78px;
   right: 22px;
   display: flex;
   align-items: center;
@@ -1486,11 +1575,12 @@ body:has(.hud-library:not([hidden]), .hud-palette:not([hidden])) .hud-camera-hin
   text-transform: uppercase;
   color: var(--hud-gold);
 }
-/* On a narrow screen the diagram spans the whole width: the card moves up into the top strip, which
-   the camera hint leaves free during a lesson. */
+/* On a narrow screen the diagram spans the whole width: the card shrinks into the corner under the
+   top bar. */
 @media (max-width: 600px) {
   .hud-phase-inset {
-    top: 12px;
+    top: 76px;
+    right: 12px;
     padding: 6px 12px 6px 6px;
   }
   .hud-phase-moon {
