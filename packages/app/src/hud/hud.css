@@ -1,33 +1,111 @@
-/* Explorer Deck: a floating bottom dock (Camera / Time / Display) that raises a contextual sheet.
-   Dark space app only — no light-mode variant, since the HUD floats over a rendered night sky. */
+/* Dichroic Slab: the HUD as thick slabs of smoked glass with razor-sharp corners, a facet split
+   across each face and a dichroic edge - the slab's bottom and right faces, seen from the top left,
+   glowing cyan, violet, magenta and gold. A floating bottom dock (Camera / Time / Display / Learn)
+   raises a contextual sheet. Dark space app only - no light-mode variant, since the HUD floats over
+   a rendered night sky. Design mock-ups: docs/design/glass-concepts/concept-e-dichroic-slab.* */
 
 :root {
-  --hud-text: #f5f5f7;
-  --hud-dim: #9da0ac;
-  --hud-panel: rgba(22, 24, 32, 0.9);
-  --hud-panel-border: rgba(255, 255, 255, 0.09);
-  --hud-control-bg: rgba(255, 255, 255, 0.05);
-  --hud-control-border: rgba(255, 255, 255, 0.09);
+  --hud-font: 'Inter Tight Variable', 'Inter Tight', -apple-system, 'Segoe UI', Roboto, ui-sans-serif, system-ui,
+    sans-serif;
+  --hud-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --hud-text: #f3f5ff;
+  --hud-dim: rgba(222, 228, 255, 0.62);
 
-  --hud-accent-camera: #6c7bff;
-  --hud-accent-camera-tint: rgba(108, 123, 255, 0.16);
-  --hud-accent-time: #ffb454;
-  --hud-accent-time-tint: rgba(255, 180, 84, 0.16);
-  --hud-accent-display: #4fd8c4;
-  --hud-accent-display-tint: rgba(79, 216, 196, 0.16);
-  --hud-accent-learn: #c98af0;
-  --hud-accent-learn-tint: rgba(201, 138, 240, 0.16);
-  --hud-shuttle-past: #6fc7e8;
+  --hud-cyan: #22e1ff;
+  --hud-violet: #7b5cff;
+  --hud-magenta: #ff3bbd;
+  --hud-gold: #ffcf4a;
+  --hud-dichroic: linear-gradient(100deg, #22e1ff, #7b5cff 40%, #ff3bbd 72%, #ffcf4a);
+  --hud-accent-camera: var(--hud-cyan);
+  --hud-accent-time: var(--hud-gold);
+  --hud-accent-display: var(--hud-magenta);
+  --hud-accent-learn: var(--hud-violet);
+  --hud-shuttle-past: var(--hud-cyan);
+
+  /* Glass faces: smoked tint under a hard facet split, lit along the top and left edges. */
+  --hud-glass: linear-gradient(132deg, rgba(255, 255, 255, 0.11) 0 36%, rgba(255, 255, 255, 0.035) 36% 100%),
+    rgba(10, 12, 26, 0.5);
+  --hud-glass-edge: inset 0 1px 0 rgba(255, 255, 255, 0.75), inset 1px 0 0 rgba(255, 255, 255, 0.4),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  --hud-lit: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  --hud-ring: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+  /* Wells (fields, tracks) are cut into the glass rather than standing on it. */
+  --hud-well: rgba(0, 0, 0, 0.34);
+  --hud-well-edge: inset 0 1px 2px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+  --hud-sheen: linear-gradient(115deg, rgba(255, 255, 255, 0.1) 0 28%, transparent 28%);
+
+  /* A control's glass thickness: hard shadows stacked toward the bottom right. A pressed control
+     moves into that space, so it reads as a key going down. */
+  --hud-ex-glass: 1px 1px 0 rgba(255, 255, 255, 0.34), 2px 2px 0 rgba(255, 255, 255, 0.22),
+    3px 3px 0 rgba(255, 255, 255, 0.13);
+  --hud-ex-cyan: 1px 1px 0 #63ecff, 2px 2px 0 #29bfe0, 3px 3px 0 #1e93b3, 4px 4px 0 #18708a;
+  --hud-ex-gold: 1px 1px 0 #ffe08a, 2px 2px 0 #e9b636, 3px 3px 0 #b98a1c;
+  --hud-ex-magenta: 1px 1px 0 #ff7ed4, 2px 2px 0 #df35a6, 3px 3px 0 #a82a80;
 }
 
 .hud-dock,
 .hud-sheet,
-.hud-toggle-chip,
-.hud-search,
-#entity-search-results {
-  font-family:
-    -apple-system, 'Segoe UI', Roboto, ui-sans-serif, system-ui, sans-serif;
+.hud-lesson-picker,
+.hud-lesson-panel,
+.hud-phase-inset,
+.hud-camera-hint,
+.gpu-lost-alert {
+  font-family: var(--hud-font);
   color: var(--hud-text);
+}
+
+/* -------------------- slabs: dock, sheet, lesson panel and picker, cards -------------------- */
+.hud-dock,
+.hud-sheet,
+.hud-lesson-picker,
+.hud-lesson-panel,
+.hud-phase-inset,
+.gpu-lost-alert {
+  --hud-slab-depth: 7px;
+  background: var(--hud-glass);
+  backdrop-filter: blur(28px) saturate(170%);
+  box-shadow:
+    var(--hud-glass-edge),
+    0 50px 80px -30px rgba(0, 0, 0, 0.85),
+    30px 40px 80px -40px var(--hud-slab-glow, rgba(123, 92, 255, 0.55));
+}
+/* The slab's bottom face, skewed to meet the right face at the back corner. Slabs that scroll keep
+   their overflow on an inner element, so these faces outside the box aren't clipped. */
+.hud-dock::before,
+.hud-sheet::before,
+.hud-lesson-picker::before,
+.hud-lesson-panel::before,
+.hud-phase-inset::before,
+.gpu-lost-alert::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 100%;
+  width: 100%;
+  height: var(--hud-slab-depth);
+  transform: skewX(45deg);
+  transform-origin: top left;
+  background: linear-gradient(90deg, rgba(34, 225, 255, 0.85), rgba(123, 92, 255, 0.85) 45%, rgba(255, 59, 189, 0.9));
+  box-shadow: 0 0 18px rgba(123, 92, 255, 0.5);
+  pointer-events: none;
+}
+/* ... and its right face. */
+.hud-dock::after,
+.hud-sheet::after,
+.hud-lesson-picker::after,
+.hud-lesson-panel::after,
+.hud-phase-inset::after,
+.gpu-lost-alert::after {
+  content: '';
+  position: absolute;
+  left: 100%;
+  top: 0;
+  width: var(--hud-slab-depth);
+  height: 100%;
+  transform: skewY(45deg);
+  transform-origin: top left;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 59, 189, 0.8) 40%, rgba(255, 207, 74, 0.9));
+  pointer-events: none;
 }
 
 /* -------------------- icons -------------------- */
@@ -43,7 +121,7 @@
   flex-shrink: 0;
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.8;
+  stroke-width: 1.7;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -52,76 +130,89 @@
 .hud-dock {
   position: fixed;
   left: 50%;
-  bottom: 16px;
+  bottom: 18px;
   transform: translateX(-50%);
   display: flex;
   gap: 4px;
-  background: var(--hud-panel);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--hud-panel-border);
-  border-radius: 20px;
   padding: 8px;
-  box-shadow: 0 16px 32px -16px rgba(0, 0, 0, 0.65);
   z-index: 3;
 }
 .hud-dock-btn {
+  position: relative;
   appearance: none;
   border: none;
+  border-radius: 0;
   cursor: pointer;
   background: transparent;
-  color: var(--hud-dim);
+  color: rgba(236, 240, 255, 0.72);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
-  padding: 9px 18px;
-  border-radius: 14px;
+  gap: 4px;
+  padding: 8px 18px;
   font: inherit;
-  font-size: 11px;
-  font-weight: 600;
-  min-width: 68px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  min-width: 76px;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+.hud-dock-btn .icon {
+  width: 20px;
+  height: 20px;
+  color: var(--hud-dock-accent);
+}
+.hud-dock-btn[data-panel='camera'] {
+  --hud-dock-accent: var(--hud-accent-camera);
+}
+.hud-dock-btn[data-panel='time'] {
+  --hud-dock-accent: var(--hud-accent-time);
+}
+.hud-dock-btn[data-panel='display'] {
+  --hud-dock-accent: var(--hud-accent-display);
+}
+/* Violet itself is too dark for a thin icon on smoked glass. */
+.hud-dock-btn[data-panel='learn'] {
+  --hud-dock-accent: #a594ff;
 }
 .hud-dock-btn:hover {
   color: var(--hud-text);
+  background: rgba(255, 255, 255, 0.05);
 }
 .hud-dock-btn:focus-visible {
   outline: 2px solid #fff;
   outline-offset: 2px;
 }
-.hud-dock-btn[data-panel='camera'].is-active {
-  background: var(--hud-accent-camera-tint);
-  color: #c1c8ff;
+.hud-dock-btn.is-active {
+  color: #fff;
+  background: linear-gradient(132deg, rgba(255, 255, 255, 0.2) 0 40%, rgba(255, 255, 255, 0.08) 40%);
+  box-shadow:
+    var(--hud-lit),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.22),
+    0 0 30px -6px rgba(123, 92, 255, 0.8);
 }
-.hud-dock-btn[data-panel='time'].is-active {
-  background: var(--hud-accent-time-tint);
-  color: #ffd8a8;
-}
-.hud-dock-btn[data-panel='display'].is-active {
-  background: var(--hud-accent-display-tint);
-  color: #a9f3e7;
-}
-.hud-dock-btn[data-panel='learn'].is-active {
-  background: var(--hud-accent-learn-tint);
-  color: #e6c9fb;
+/* The active button's dichroic bar along its top edge. */
+.hud-dock-btn.is-active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 3px;
+  background: var(--hud-dichroic);
+  box-shadow: 0 0 14px rgba(255, 59, 189, 0.9);
 }
 
 /* -------------------- sheet -------------------- */
+/* Rises above the dock (18px off the bottom, 68px tall) with room for its own 7px edge below it. */
 .hud-sheet {
   position: fixed;
   left: 50%;
-  bottom: 84px;
+  bottom: 104px;
   transform: translate(-50%, 10px);
-  width: min(420px, calc(100vw - 32px));
-  /* On a short screen the panel scrolls instead of growing past the top edge. */
-  max-height: calc(100vh - 136px);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  background: var(--hud-panel);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--hud-panel-border);
-  border-radius: 18px;
-  padding: 18px;
-  box-shadow: 0 20px 44px -18px rgba(0, 0, 0, 0.65);
+  width: min(420px, calc(100vw - 40px));
   opacity: 0;
   pointer-events: none;
   transition:
@@ -129,10 +220,26 @@
     opacity 0.16s ease;
   z-index: 2;
 }
+.hud-sheet:has(.hud-sheet-panel[data-panel='camera'].is-active) {
+  --hud-slab-glow: rgba(34, 225, 255, 0.5);
+}
+.hud-sheet:has(.hud-sheet-panel[data-panel='time'].is-active) {
+  --hud-slab-glow: rgba(255, 207, 74, 0.45);
+}
+.hud-sheet:has(.hud-sheet-panel[data-panel='display'].is-active) {
+  --hud-slab-glow: rgba(255, 59, 189, 0.55);
+}
 .hud-sheet.is-open {
   opacity: 1;
   pointer-events: auto;
   transform: translate(-50%, 0);
+}
+.hud-sheet-scroll {
+  /* On a short screen the panel scrolls instead of growing past the top edge. */
+  max-height: calc(100vh - 156px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 18px 20px;
 }
 .hud-sheet-panel {
   display: none;
@@ -142,42 +249,160 @@
 .hud-sheet-panel.is-active {
   display: flex;
 }
+.hud-sheet-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 -18px;
+  padding: 14px 16px 12px 18px;
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.1);
+}
+.hud-sheet-head .icon {
+  width: 19px;
+  height: 19px;
+}
+.hud-sheet-panel[data-panel='camera'] .hud-sheet-head .icon {
+  color: var(--hud-accent-camera);
+}
+.hud-sheet-panel[data-panel='time'] .hud-sheet-head .icon {
+  color: var(--hud-accent-time);
+}
+.hud-sheet-panel[data-panel='display'] .hud-sheet-head .icon {
+  color: var(--hud-accent-display);
+}
+.hud-sheet-title {
+  flex: 1;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* Close: a small square glass key with a magenta edge. */
+.hud-close {
+  appearance: none;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin-right: 3px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: var(--hud-lit), var(--hud-ring), var(--hud-ex-magenta);
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.08s ease,
+    background 0.12s ease;
+}
+.hud-close .icon {
+  width: 13px;
+  height: 13px;
+  stroke-width: 2;
+}
+.hud-close:hover {
+  background: rgba(255, 59, 189, 0.16);
+}
+.hud-close:active {
+  transform: translate(2px, 2px);
+  box-shadow: var(--hud-lit), var(--hud-ring), 1px 1px 0 #ff7ed4;
+}
+.hud-close:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
 
 /* -------------------- shared controls -------------------- */
 .hud-btn {
+  position: relative;
   appearance: none;
-  border: 1px solid var(--hud-control-border);
+  border: none;
+  border-radius: 0;
   cursor: pointer;
   font: inherit;
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--hud-text);
-  background: var(--hud-control-bg);
-  padding: 10px 14px;
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: var(--hud-lit), var(--hud-ring), var(--hud-ex-glass);
+  padding: 13px 16px;
+  margin-right: 4px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  gap: 9px;
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.08s ease,
+    background 0.12s ease,
+    filter 0.12s ease;
+}
+.hud-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--hud-sheen);
+  pointer-events: none;
+}
+.hud-btn .icon {
+  color: var(--hud-gold);
 }
 .hud-btn:hover {
-  background: rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.11);
+}
+.hud-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: var(--hud-lit), var(--hud-ring), 1px 1px 0 rgba(255, 255, 255, 0.34);
+}
+.hud-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
 }
 .hud-btn-primary {
-  background: var(--hud-accent-camera);
-  border-color: var(--hud-accent-camera);
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(40, 0, 60, 0.35);
+  background: linear-gradient(100deg, #ff3bbd, #7b5cff 52%, #22e1ff);
+  box-shadow:
+    var(--hud-lit),
+    var(--hud-ex-cyan),
+    0 18px 36px -14px rgba(255, 59, 189, 0.8),
+    0 0 46px -12px rgba(34, 225, 255, 0.7);
+}
+.hud-btn-primary::after {
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0.24) 0 28%, transparent 28%);
+}
+.hud-btn-primary .icon {
+  color: #fff;
 }
 .hud-btn-primary:hover {
-  background: #7d8aff;
+  background: linear-gradient(100deg, #ff3bbd, #7b5cff 52%, #22e1ff);
+  filter: brightness(1.08);
+}
+.hud-btn-primary:active {
+  transform: translate(3px, 3px);
+  box-shadow:
+    var(--hud-lit),
+    1px 1px 0 #63ecff,
+    0 12px 30px -14px rgba(255, 59, 189, 0.8);
 }
 
 .hud-search {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: var(--hud-control-bg);
-  border: 1px solid var(--hud-control-border);
-  border-radius: 12px;
-  padding: 9px 12px;
+  gap: 10px;
+  background: var(--hud-well);
+  box-shadow: var(--hud-well-edge);
+  padding: 12px 14px;
+  transition: box-shadow 0.12s ease;
+}
+.hud-search:focus-within {
+  box-shadow:
+    var(--hud-well-edge),
+    inset 0 0 0 1px var(--hud-cyan),
+    0 0 0 3px rgba(34, 225, 255, 0.16),
+    0 0 26px rgba(34, 225, 255, 0.35);
 }
 .hud-search .icon {
   color: var(--hud-dim);
@@ -186,8 +411,10 @@
   flex: 1;
   min-width: 0;
   font: inherit;
-  font-size: 13.5px;
+  font-size: 15px;
+  font-weight: 500;
   color: var(--hud-text);
+  caret-color: var(--hud-cyan);
   background: transparent;
   border: none;
   outline: none;
@@ -201,80 +428,129 @@
   overflow-y: auto;
 }
 #entity-search-results:not(:empty) {
-  border: 1px solid var(--hud-control-border);
-  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
   padding: 4px;
-  margin-top: -4px;
+  margin-top: -6px;
 }
 .hud-search-result {
-  border-radius: 8px;
-  padding: 7px 10px;
-  font-size: 13px;
+  padding: 9px 12px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
 }
 .hud-search-result:hover {
-  background: var(--hud-accent-camera-tint);
+  background: linear-gradient(90deg, rgba(34, 225, 255, 0.24), rgba(34, 225, 255, 0.02));
+  box-shadow: inset 2px 0 0 var(--hud-cyan);
 }
 
 .hud-chip {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   width: fit-content;
-  background: var(--hud-accent-camera-tint);
-  color: #c1c8ff;
-  border-radius: 999px;
-  padding: 7px 8px 7px 14px;
-  font-size: 13px;
+  background: rgba(255, 207, 74, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(255, 207, 74, 0.5);
+  padding: 6px 6px 6px 12px;
+  font-size: 13.5px;
+  font-weight: 500;
+}
+.hud-chip::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  background: var(--hud-gold);
+  box-shadow: 0 0 10px var(--hud-gold);
 }
 .hud-chip-close {
   appearance: none;
   border: none;
+  border-radius: 0;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: var(--hud-ring);
   color: #fff;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
+  width: 22px;
+  height: 22px;
   display: grid;
   place-items: center;
+}
+.hud-chip-close:hover {
+  background: rgba(255, 59, 189, 0.2);
 }
 .hud-chip-close .icon {
   width: 11px;
   height: 11px;
+  stroke-width: 2;
 }
 
 .hud-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 .hud-row-between {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 11.5px;
-  color: var(--hud-dim);
-  letter-spacing: 0.02em;
+  gap: 12px;
 }
 
+/* Square glass keys; the one carrying the main action of its row gets a dichroic face. */
 .hud-icon-btn {
   position: relative;
   appearance: none;
-  border: 1px solid var(--hud-control-border);
+  border: none;
+  border-radius: 0;
   cursor: pointer;
-  background: var(--hud-control-bg);
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: var(--hud-lit), var(--hud-ring), var(--hud-ex-glass);
   color: var(--hud-text);
   width: 40px;
   height: 40px;
-  border-radius: 50%;
+  flex-shrink: 0;
   display: grid;
   place-items: center;
   font: inherit;
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.08s ease,
+    background 0.12s ease,
+    opacity 0.12s ease;
 }
 .hud-icon-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.12);
+}
+.hud-icon-btn:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: var(--hud-lit), var(--hud-ring), 1px 1px 0 rgba(255, 255, 255, 0.34);
+}
+.hud-icon-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+.hud-icon-btn:disabled {
+  cursor: default;
+  opacity: 0.32;
+}
+#time-play-pause,
+#lesson-next-chapter {
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0.25) 0 30%, transparent 30%),
+    linear-gradient(100deg, #ff3bbd, #ffcf4a);
+  box-shadow:
+    var(--hud-lit),
+    var(--hud-ex-magenta),
+    0 0 28px -4px rgba(255, 59, 189, 0.8);
+}
+#time-play-pause:active,
+#lesson-next-chapter:active:not(:disabled) {
+  box-shadow: var(--hud-lit), 1px 1px 0 #ff7ed4;
+}
+#lesson-next-chapter:disabled {
+  box-shadow: var(--hud-lit), var(--hud-ex-magenta);
+}
+#time-play-pause .icon {
+  fill: currentColor;
 }
 #time-play-pause .btn-label {
   position: absolute;
@@ -295,48 +571,65 @@
 }
 
 .hud-select {
+  appearance: none;
+  color-scheme: dark;
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 500;
   color: var(--hud-text);
-  background: var(--hud-control-bg);
-  border: 1px solid var(--hud-control-border);
-  border-radius: 10px;
-  padding: 9px 10px;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  padding: 11px 34px 11px 12px;
+  background:
+    linear-gradient(45deg, transparent 50%, var(--hud-dim) 50%) calc(100% - 17px) 50% / 5px 5px no-repeat,
+    linear-gradient(135deg, var(--hud-dim) 50%, transparent 50%) calc(100% - 12px) 50% / 5px 5px no-repeat,
+    var(--hud-well);
+  box-shadow: var(--hud-well-edge);
+}
+.hud-select:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
 }
 
 .hud-range {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 20px;
+  height: 22px;
   background: transparent;
   cursor: pointer;
 }
 .hud-range::-webkit-slider-runnable-track {
   height: 4px;
-  border-radius: 999px;
   background: rgba(255, 255, 255, 0.14);
 }
 .hud-range::-moz-range-track {
   height: 4px;
-  border-radius: 999px;
   background: rgba(255, 255, 255, 0.14);
 }
+/* The thumb: a small white glass cube with a gold edge. */
 .hud-range::-webkit-slider-thumb {
   -webkit-appearance: none;
   margin-top: -6px;
   width: 16px;
   height: 16px;
-  border-radius: 50%;
-  background: #fff;
-  border: 2px solid var(--hud-accent-time);
+  border: none;
+  border-radius: 0;
+  background: linear-gradient(115deg, #fff 0 40%, #e6e9f5 40%);
+  box-shadow:
+    var(--hud-ex-gold),
+    0 0 14px rgba(255, 207, 74, 0.55);
 }
 .hud-range::-moz-range-thumb {
   width: 16px;
   height: 16px;
-  border-radius: 50%;
-  background: #fff;
-  border: 2px solid var(--hud-accent-time);
+  border: none;
+  border-radius: 0;
+  background: linear-gradient(115deg, #fff 0 40%, #e6e9f5 40%);
+  box-shadow:
+    var(--hud-ex-gold),
+    0 0 14px rgba(255, 207, 74, 0.55);
 }
 .hud-range:focus-visible {
   outline: 2px solid #fff;
@@ -344,9 +637,11 @@
 }
 
 .hud-readout {
+  font-family: var(--hud-mono);
   font-variant-numeric: tabular-nums;
   font-size: 13px;
-  color: var(--hud-dim);
+  letter-spacing: 0.02em;
+  color: var(--hud-text);
 }
 
 /* -------------------- time shuttle: center = 0, left = past, right = future -------------------- */
@@ -363,7 +658,7 @@
 .hud-shuttle-track-wrap {
   position: relative;
   flex: 1;
-  height: 20px;
+  height: 22px;
   display: flex;
   align-items: center;
 }
@@ -372,7 +667,6 @@
   left: 0;
   right: 0;
   height: 4px;
-  border-radius: 999px;
   background: rgba(255, 255, 255, 0.14);
   overflow: visible;
 }
@@ -381,23 +675,23 @@
   top: 0;
   bottom: 0;
   width: 0;
-  border-radius: 999px;
   background: var(--hud-accent-time);
+  box-shadow: 0 0 12px rgba(255, 207, 74, 0.7);
 }
 .hud-shuttle-fill.is-past {
   background: var(--hud-shuttle-past);
+  box-shadow: 0 0 12px rgba(34, 225, 255, 0.7);
 }
 /* The zero-mark: a bright tick straddling the track, always visible regardless of thumb position. */
 .hud-shuttle-center {
   position: absolute;
   left: 50%;
-  top: -5px;
-  bottom: -5px;
+  top: -6px;
+  bottom: -6px;
   width: 2px;
   margin-left: -1px;
-  border-radius: 1px;
   background: #fff;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.14);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.12);
 }
 .hud-shuttle-input {
   position: relative;
@@ -412,9 +706,10 @@
 .hud-shuttle-labels {
   display: flex;
   justify-content: space-between;
+  font-family: var(--hud-mono);
   font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  font-weight: 500;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--hud-dim);
   margin-top: -6px;
@@ -427,50 +722,55 @@
 /* -------------------- scale mode segmented control -------------------- */
 .hud-segmented {
   display: flex;
-  gap: 3px;
-  background: var(--hud-control-bg);
-  border: 1px solid var(--hud-control-border);
-  border-radius: 12px;
-  padding: 3px;
+  gap: 6px;
+  background: var(--hud-well);
+  box-shadow: var(--hud-well-edge);
+  padding: 4px 7px 7px 4px;
 }
 .hud-segmented-btn {
   appearance: none;
   flex: 1;
   border: none;
+  border-radius: 0;
   cursor: pointer;
   background: transparent;
   color: var(--hud-dim);
   font: inherit;
-  font-size: 12.5px;
+  font-size: 14px;
   font-weight: 600;
-  padding: 9px 0;
-  border-radius: 9px;
+  padding: 10px 0;
   transition:
     background 0.12s ease,
-    color 0.12s ease;
+    color 0.12s ease,
+    box-shadow 0.12s ease;
 }
 .hud-segmented-btn:hover {
   color: var(--hud-text);
 }
+/* The chosen mode: an opaque white key with a gold edge. */
 .hud-segmented-btn[aria-pressed='true'] {
-  color: #a9f3e7;
-  background: var(--hud-accent-display-tint);
+  color: #0b0d18;
+  background: linear-gradient(115deg, #fff 0 30%, #eef0f8 30%);
+  box-shadow:
+    var(--hud-ex-gold),
+    0 0 24px rgba(255, 207, 74, 0.35);
 }
 .hud-segmented-btn:focus-visible {
   outline: 2px solid #fff;
   outline-offset: 2px;
 }
 
-/* -------------------- display toggles -------------------- */
+/* -------------------- display toggles: switches -------------------- */
+/* Settings-style rows - the name on the left, an on/off switch on the right - in two columns. The
+   whole row is the (invisible) checkbox, so a click anywhere on it flips the switch. */
 .hud-toggle-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 6px;
 }
 .hud-toggle-chip {
   position: relative;
   display: block;
-  border-radius: 12px;
 }
 .hud-toggle-chip input[type='checkbox'] {
   position: absolute;
@@ -483,33 +783,59 @@
 .hud-toggle-visual {
   display: flex;
   align-items: center;
-  gap: 7px;
-  font-size: 12.5px;
-  font-weight: 600;
+  justify-content: space-between;
+  gap: 10px;
+  height: 100%;
+  box-sizing: border-box;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.25;
   color: var(--hud-dim);
-  background: var(--hud-control-bg);
-  border: 1px solid var(--hud-control-border);
-  border-radius: 12px;
-  padding: 9px 10px;
+  background: rgba(255, 255, 255, 0.035);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  padding: 9px 12px 9px 12px;
+  transition: color 0.12s ease;
 }
-.hud-toggle-visual .icon-check {
-  width: 13px;
-  height: 13px;
-  color: var(--hud-accent-display);
-  opacity: 0;
-  transform: scale(0.5);
-  transition:
-    opacity 0.12s ease,
-    transform 0.12s ease;
-}
+.hud-toggle-chip:hover .hud-toggle-visual,
 .hud-toggle-chip input:checked ~ .hud-toggle-visual {
-  color: #a9f3e7;
-  background: var(--hud-accent-display-tint);
-  border-color: rgba(79, 216, 196, 0.3);
+  color: var(--hud-text);
 }
-.hud-toggle-chip input:checked ~ .hud-toggle-visual .icon-check {
-  opacity: 1;
-  transform: scale(1);
+/* The switch: a glass track cut into the row with a white glass block that slides across; on, the
+   track lights up in the dichroic colors. */
+.hud-switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 42px;
+  height: 24px;
+  background: rgba(0, 0, 0, 0.4);
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.5),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+  transition:
+    background 0.16s ease,
+    box-shadow 0.16s ease;
+}
+.hud-switch::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 16px;
+  height: 16px;
+  background: linear-gradient(115deg, #fff 0 40%, #dfe3f2 40%);
+  box-shadow:
+    1px 1px 0 #b9bfd6,
+    2px 2px 0 #8d93ab;
+  transition: transform 0.16s ease;
+}
+.hud-toggle-chip input:checked ~ .hud-toggle-visual .hud-switch {
+  background: linear-gradient(90deg, #22e1ff, #7b5cff 55%, #ff3bbd);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 0 20px rgba(123, 92, 255, 0.6);
+}
+.hud-toggle-chip input:checked ~ .hud-toggle-visual .hud-switch::after {
+  transform: translateX(16px);
 }
 .hud-toggle-chip input:focus-visible ~ .hud-toggle-visual {
   outline: 2px solid #fff;
@@ -517,10 +843,12 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hud-sheet {
-    transition: none;
-  }
-  .hud-toggle-visual .icon-check {
+  .hud-sheet,
+  .hud-switch,
+  .hud-switch::after,
+  .hud-btn,
+  .hud-icon-btn,
+  .hud-close {
     transition: none;
   }
 }
@@ -528,7 +856,7 @@
 @media (max-width: 480px) {
   .hud-dock-btn {
     min-width: 0;
-    padding: 9px 12px;
+    padding: 8px 13px;
   }
   .hud-dock-label {
     display: none;
@@ -537,39 +865,42 @@
 
 /* -------------------- app mode: learn -------------------- */
 .hud-lesson-picker {
+  --hud-slab-depth: 6px;
+  --hud-slab-glow: rgba(123, 92, 255, 0.55);
   position: fixed;
   top: 60px;
-  right: 16px;
+  right: 22px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  background: var(--hud-panel);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--hud-panel-border);
-  border-radius: 14px;
+  gap: 2px;
   padding: 8px;
-  box-shadow: 0 20px 44px -18px rgba(0, 0, 0, 0.65);
   z-index: 2;
-  font-family: -apple-system, 'Segoe UI', Roboto, ui-sans-serif, system-ui, sans-serif;
 }
 .hud-lesson-picker-item {
   appearance: none;
   border: none;
+  border-radius: 0;
   cursor: pointer;
   background: transparent;
   color: var(--hud-text);
   text-align: left;
   font: inherit;
-  font-size: 13px;
-  padding: 9px 12px;
-  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 14px;
   white-space: nowrap;
 }
 .hud-lesson-picker-item:hover {
-  background: var(--hud-accent-learn-tint);
+  background: linear-gradient(90deg, rgba(123, 92, 255, 0.3), rgba(123, 92, 255, 0.03));
+  box-shadow: inset 2px 0 0 var(--hud-violet);
+}
+.hud-lesson-picker-item:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -2px;
 }
 
 .hud-lesson-panel {
+  --hud-slab-glow: rgba(255, 207, 74, 0.45);
   position: fixed;
   left: 50%;
   /* Anchored from the top, not the bottom - chapter text length varies a lot (the orbit chapter's
@@ -578,64 +909,84 @@
      first children, right below the panel's own top edge) up and down between clicks and forcing
      the user to re-aim their mouse. Anchoring from a fixed top keeps that row's screen position
      exactly stable across every chapter; only the panel's bottom edge (which nothing depends on)
-     moves as the text reflows. 300px reserves enough room for the longest chapter's text (plus the
-     lesson's scale note) at desktop widths; on narrower screens, where text wraps onto more lines,
-     max-height + overflow scroll the panel's contents instead of letting it run off the bottom. */
-  /* Ends 92px above the viewport bottom - clear of the dock (16px off the bottom, ~68px tall; the
-     free-roam sheet uses the same 84px offset) plus an 8px gap - which used to cover the panel's
-     last lines. max-height is the content box: the 14px vertical padding and 1px borders add 30px
-     on top, so 254px + 30px fills the 284px between top and that bottom edge. main.ts's
-     LESSON_PANEL_RESERVED_PX mirrors the 376px below to fit lesson scenes above the panel. */
+     moves as the text reflows. 275px holds the longest chapter's text (plus the lesson's scale
+     note) at desktop widths; on narrower screens, where text wraps onto more lines, the panel's
+     body scrolls instead of letting it run off the bottom. */
+  /* Ends at most 101px above the viewport bottom: clear of the dock (18px off the bottom, 68px
+     tall) plus an 8px gap plus the panel's own 7px edge. The panel has no padding or border, so
+     max-height is its full height: 376px - 101px = 275px; on short windows (top pinned at 16px)
+     16px + 117px keeps the same bottom edge. main.ts's LESSON_PANEL_RESERVED_PX mirrors the
+     376px below to fit lesson scenes above the panel. */
   top: max(16px, calc(100% - 376px));
-  max-height: min(254px, calc(100% - 138px));
-  overflow-y: auto;
+  max-height: min(275px, calc(100% - 117px));
+  display: flex;
+  flex-direction: column;
   transform: translateX(-50%);
-  width: min(560px, calc(100vw - 32px));
-  background: var(--hud-panel);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--hud-panel-border);
-  border-radius: 20px;
-  padding: 14px 18px;
-  box-shadow: 0 16px 32px -16px rgba(0, 0, 0, 0.65);
+  width: min(560px, calc(100vw - 40px));
   z-index: 2;
-  font-family: -apple-system, 'Segoe UI', Roboto, ui-sans-serif, system-ui, sans-serif;
-  color: var(--hud-text);
 }
 .hud-lesson-panel.is-dragging {
-  /* A slightly deeper shadow while actively dragged - the same "lifted off the surface" cue
-     used by native bottom-sheet/card drag interactions - plus disabling the backdrop blur's own
-     transition so it doesn't visibly lag behind fast pointer movement. */
-  box-shadow: 0 24px 48px -16px rgba(0, 0, 0, 0.75);
+  /* A brighter glow while actively dragged - the "lifted off the surface" cue used by native
+     bottom-sheet/card drag interactions - plus no transitions, so nothing visibly lags behind fast
+     pointer movement. */
+  box-shadow:
+    var(--hud-glass-edge),
+    0 60px 90px -30px rgba(0, 0, 0, 0.9),
+    30px 40px 90px -36px rgba(255, 207, 74, 0.6);
   transition: none;
+}
+.hud-lesson-panel-body {
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 20px 12px;
 }
 
 .hud-lesson-panel-grip {
   display: flex;
   justify-content: center;
-  padding: 2px 0 10px;
-  margin: -6px 0 0;
+  flex-shrink: 0;
+  padding: 8px 0 3px;
   cursor: grab;
   touch-action: none;
   -webkit-user-select: none;
   user-select: none;
+  /* Each stud's magenta edge; a filter here applies after the studs' mask below. */
+  filter: drop-shadow(1px 1px 0 rgba(255, 59, 189, 0.8));
 }
 .hud-lesson-panel-grip:active,
 .hud-lesson-panel.is-dragging .hud-lesson-panel-grip {
   cursor: grabbing;
 }
+/* The grip: two rows of small square studs - vertical stripes masked by horizontal bands. */
 .hud-lesson-panel-grip-bar {
-  width: 44px;
-  height: 5px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.28);
+  width: 46px;
+  height: 10px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.7) 4px, transparent 0) 0 0 / 7px 100%;
+  -webkit-mask: linear-gradient(180deg, #000 4px, transparent 0) 0 0 / 100% 6px;
+  mask: linear-gradient(180deg, #000 4px, transparent 0) 0 0 / 100% 6px;
   transition: background 0.15s ease;
 }
 .hud-lesson-panel-grip:hover .hud-lesson-panel-grip-bar {
-  background: rgba(255, 255, 255, 0.45);
+  background-image: linear-gradient(90deg, rgba(255, 255, 255, 0.88) 4px, transparent 0);
 }
 .hud-lesson-panel-grip:active .hud-lesson-panel-grip-bar,
 .hud-lesson-panel.is-dragging .hud-lesson-panel-grip-bar {
-  background: rgba(255, 255, 255, 0.65);
+  background-image: linear-gradient(90deg, #fff 4px, transparent 0);
+}
+
+.hud-lesson-title {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-left: 4px;
+}
+.hud-lesson-count {
+  margin-right: 6px;
+  font-family: var(--hud-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--hud-gold);
 }
 
 /* The free-roam sheet is fully replaced by the lesson panel while in learn mode - Camera and Time
@@ -654,28 +1005,24 @@ body[data-app-mode='learn'] #learn-mode-btn-label::before {
 }
 
 .hud-lesson-text {
-  margin: 0;
-  font-size: 12.5px;
-  line-height: 1.5;
-  color: var(--hud-text);
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.46;
+  color: rgba(236, 240, 255, 0.86);
 }
 
 /* The Moon phases lesson's "seen from Earth" card, in the top right corner of the space chapters. */
 .hud-phase-inset {
+  --hud-slab-depth: 5px;
+  --hud-slab-glow: rgba(34, 225, 255, 0.4);
   position: fixed;
   top: 64px;
-  right: 16px;
+  right: 22px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 14px 10px 10px;
-  background: var(--hud-panel);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--hud-panel-border);
-  border-radius: 14px;
+  gap: 12px;
+  padding: 10px 16px 10px 10px;
   z-index: 1;
-  font-family: -apple-system, 'Segoe UI', Roboto, ui-sans-serif, system-ui, sans-serif;
-  color: var(--hud-text);
   pointer-events: none;
 }
 .hud-phase-inset[hidden] {
@@ -694,20 +1041,28 @@ body[data-app-mode='learn'] #learn-mode-btn-label::before {
 .hud-phase-caption {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  font-size: 12.5px;
+  gap: 3px;
+  font-size: 14px;
+  font-weight: 600;
 }
 .hud-phase-heading,
 .hud-phase-share {
-  font-size: 11px;
+  font-family: var(--hud-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
   color: var(--hud-dim);
+}
+.hud-phase-heading {
+  text-transform: uppercase;
+  color: var(--hud-gold);
 }
 /* On a narrow screen the diagram spans the whole width: the card moves up into the top strip, which
    the camera hint leaves free during a lesson. */
 @media (max-width: 600px) {
   .hud-phase-inset {
     top: 12px;
-    padding: 6px 10px 6px 6px;
+    padding: 6px 12px 6px 6px;
   }
   .hud-phase-moon {
     width: 40px;
@@ -722,32 +1077,31 @@ body[data-app-mode='learn'] #learn-mode-btn-label::before {
   color: var(--hud-dim);
 }
 
-
-
 /* Shown when the GPU device is lost mid-session: nothing renders any more until a reload. */
 .gpu-lost-alert {
+  --hud-slab-depth: 5px;
+  --hud-slab-glow: rgba(255, 59, 189, 0.55);
   position: fixed;
   top: 16px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 100;
-  max-width: calc(100% - 32px);
-  padding: 10px 14px;
-  border: 1px solid var(--hud-panel-border);
-  border-radius: 12px;
-  background: var(--hud-panel);
-  color: var(--hud-text);
-  font: 13px/1.4 system-ui, sans-serif;
+  max-width: calc(100% - 40px);
+  padding: 10px 12px 10px 16px;
+  font-size: 14px;
+  line-height: 1.4;
 }
 
 .gpu-lost-alert button {
-  margin-left: 8px;
-  padding: 4px 10px;
-  border: 1px solid var(--hud-control-border);
-  border-radius: 8px;
-  background: var(--hud-control-bg);
+  margin-left: 10px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: var(--hud-lit), var(--hud-ring), var(--hud-ex-glass);
   color: inherit;
   font: inherit;
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -761,12 +1115,13 @@ body[data-app-mode='learn'] #learn-mode-btn-label::before {
   width: max-content;
   max-width: calc(100vw - 32px);
   box-sizing: border-box;
-  padding: 7px 14px;
-  border-radius: 999px;
-  background: var(--hud-panel);
-  border: 1px solid var(--hud-panel-border);
+  padding: 8px 16px;
+  background: var(--hud-glass);
+  backdrop-filter: blur(28px) saturate(170%);
+  box-shadow: var(--hud-glass-edge), 2px 2px 0 rgba(123, 92, 255, 0.6);
   color: var(--hud-dim);
-  font: 12px/1.4 system-ui, sans-serif;
+  font-size: 12.5px;
+  line-height: 1.4;
   text-align: center;
   pointer-events: none;
 }
@@ -776,8 +1131,8 @@ body[data-app-mode='learn'] #learn-mode-btn-label::before {
 .hud-touch-pad {
   position: fixed;
   left: 16px;
-  right: 16px;
-  bottom: 96px;
+  right: 22px;
+  bottom: 104px;
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
@@ -786,9 +1141,12 @@ body[data-app-mode='learn'] #learn-mode-btn-label::before {
 .hud-touch-stick {
   width: 124px;
   height: 124px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid var(--hud-control-border);
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12)) center / 1px 100% no-repeat,
+    linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12)) center / 100% 1px no-repeat,
+    rgba(10, 12, 26, 0.35);
+  backdrop-filter: blur(12px);
+  box-shadow: var(--hud-glass-edge);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -798,23 +1156,28 @@ body[data-app-mode='learn'] #learn-mode-btn-label::before {
 .hud-touch-knob {
   width: 52px;
   height: 52px;
-  border-radius: 50%;
-  background: var(--hud-accent-camera-tint);
-  border: 1px solid var(--hud-accent-camera);
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0.25) 0 30%, transparent 30%),
+    linear-gradient(100deg, #ff3bbd, #7b5cff 52%, #22e1ff);
+  box-shadow:
+    var(--hud-lit),
+    var(--hud-ex-cyan),
+    0 0 30px -6px rgba(34, 225, 255, 0.7);
   pointer-events: none;
 }
 .hud-touch-buttons {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   pointer-events: auto;
 }
 .hud-touch-btn {
   width: 52px;
   height: 52px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid var(--hud-control-border);
+  border: none;
+  border-radius: 0;
+  background: rgba(10, 12, 26, 0.45);
+  backdrop-filter: blur(12px);
+  box-shadow: var(--hud-lit), var(--hud-ring), var(--hud-ex-glass);
   color: var(--hud-text);
   font-size: 18px;
   touch-action: none;
@@ -822,5 +1185,7 @@ body[data-app-mode='learn'] #learn-mode-btn-label::before {
   user-select: none;
 }
 .hud-touch-btn:active {
-  background: var(--hud-accent-camera-tint);
+  transform: translate(2px, 2px);
+  background: rgba(123, 92, 255, 0.35);
+  box-shadow: var(--hud-lit), var(--hud-ring), 1px 1px 0 rgba(255, 255, 255, 0.34);
 }

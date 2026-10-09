@@ -13,7 +13,7 @@
   position: absolute;
   transform: translate(-50%, 4px);
   color: white;
-  font: 12px sans-serif;
+  font: 500 12px 'Inter Tight Variable', 'Inter Tight', sans-serif;
   text-shadow: 0 0 3px black, 0 0 3px black;
   white-space: nowrap;
 }

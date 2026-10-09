@@ -27,7 +27,10 @@ export class LessonPanel {
 
   show(player: LessonPlayer): void {
     const { currentChapter: chapter, currentLesson: lesson } = player
-    this.title.textContent = `${player.currentChapterIndex + 1} / ${lesson.chapters.length}: ${chapter.title}`
+    const count = document.createElement('span')
+    count.className = 'hud-lesson-count'
+    count.textContent = `${player.currentChapterIndex + 1} / ${lesson.chapters.length}`
+    this.title.replaceChildren(count, ` ${chapter.title}`)
     this.previousButton.disabled = !player.hasPreviousChapter
     this.nextButton.disabled = !player.hasNextChapter
     this.text.textContent = chapter.text

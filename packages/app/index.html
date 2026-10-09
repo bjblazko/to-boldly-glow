@@ -95,9 +95,6 @@
       <symbol id="icon-forward" viewBox="0 0 24 24">
         <path d="M11 6l6 6-6 6M5 6l6 6-6 6" />
       </symbol>
-      <symbol id="icon-check" viewBox="0 0 24 24">
-        <path d="M5 12.5l4.5 4.5L19 7" />
-      </symbol>
       <symbol id="icon-book" viewBox="0 0 24 24">
         <path d="M4 5.5c0-1 .8-1.5 2-1.5h5.5v15H6c-1.2 0-2 .5-2 1.5v-15Z" />
         <path d="M20 5.5c0-1-.8-1.5-2-1.5h-5.5v15H18c1.2 0 2 .5 2 1.5v-15Z" />
@@ -105,161 +102,184 @@
     </svg>
 
     <div class="hud-sheet" id="hud-sheet">
-      <div class="hud-sheet-panel" data-panel="camera">
-        <button id="camera-mode-toggle" class="hud-btn hud-btn-primary" type="button">
-          <svg class="icon" aria-hidden="true"><use href="#icon-camera"></use></svg>
-          <span class="btn-label">Switch to Free-fly Camera</span>
-        </button>
-        <button id="camera-tour-toggle" class="hud-btn" type="button">
-          <svg class="icon" aria-hidden="true"><use href="#icon-camera"></use></svg>
-          <span class="btn-label">Start Tour</span>
-        </button>
-        <div class="hud-search">
-          <svg class="icon" aria-hidden="true"><use href="#icon-search"></use></svg>
-          <input id="entity-search-input" type="text" placeholder="Search bodies…" />
-        </div>
-        <div id="entity-search-results"></div>
-        <div id="follow-indicator" class="hud-chip" hidden>
-          <span id="follow-indicator-label"></span>
-          <button id="follow-stop-button" class="hud-chip-close" type="button" aria-label="Stop following">
-            <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
+      <div class="hud-sheet-scroll">
+        <div class="hud-sheet-panel" data-panel="camera">
+          <div class="hud-sheet-head">
+            <svg class="icon" aria-hidden="true"><use href="#icon-camera"></use></svg>
+            <h2 class="hud-sheet-title">Camera</h2>
+            <button class="hud-close" type="button" data-sheet-close aria-label="Close camera panel">
+              <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
+            </button>
+          </div>
+          <button id="camera-mode-toggle" class="hud-btn hud-btn-primary" type="button">
+            <svg class="icon" aria-hidden="true"><use href="#icon-camera"></use></svg>
+            <span class="btn-label">Switch to Free-fly Camera</span>
           </button>
-        </div>
-      </div>
-
-      <div class="hud-sheet-panel" data-panel="time">
-        <div class="hud-row">
-          <button id="time-play-pause" class="hud-icon-btn" type="button">
-            <svg class="icon icon-pause-glyph" aria-hidden="true"><use href="#icon-pause"></use></svg>
-            <svg class="icon icon-play-glyph" aria-hidden="true"><use href="#icon-play"></use></svg>
-            <span class="btn-label">Pause</span>
+          <button id="camera-tour-toggle" class="hud-btn" type="button">
+            <svg class="icon" aria-hidden="true"><use href="#icon-camera"></use></svg>
+            <span class="btn-label">Start Tour</span>
           </button>
-          <button id="time-reverse" class="hud-icon-btn" type="button" aria-label="Reverse direction">
-            <svg class="icon" aria-hidden="true"><use href="#icon-reverse"></use></svg>
-          </button>
-          <select id="time-preset-select" class="hud-select"></select>
+          <div class="hud-search">
+            <svg class="icon" aria-hidden="true"><use href="#icon-search"></use></svg>
+            <input id="entity-search-input" type="text" placeholder="Search bodies…" />
+          </div>
+          <div id="entity-search-results"></div>
+          <div id="follow-indicator" class="hud-chip" hidden>
+            <span id="follow-indicator-label"></span>
+            <button id="follow-stop-button" class="hud-chip-close" type="button" aria-label="Stop following">
+              <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
+            </button>
+          </div>
         </div>
 
-        <div>
-          <div class="hud-shuttle">
-            <svg class="icon hud-shuttle-end" aria-hidden="true"><use href="#icon-rewind"></use></svg>
-            <div class="hud-shuttle-track-wrap">
-              <div class="hud-shuttle-track">
-                <div class="hud-shuttle-fill" id="time-shuttle-fill"></div>
-                <div class="hud-shuttle-center"></div>
+        <div class="hud-sheet-panel" data-panel="time">
+          <div class="hud-sheet-head">
+            <svg class="icon" aria-hidden="true"><use href="#icon-clock"></use></svg>
+            <h2 class="hud-sheet-title">Time</h2>
+            <button class="hud-close" type="button" data-sheet-close aria-label="Close time panel">
+              <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
+            </button>
+          </div>
+          <div class="hud-row">
+            <button id="time-play-pause" class="hud-icon-btn" type="button">
+              <svg class="icon icon-pause-glyph" aria-hidden="true"><use href="#icon-pause"></use></svg>
+              <svg class="icon icon-play-glyph" aria-hidden="true"><use href="#icon-play"></use></svg>
+              <span class="btn-label">Pause</span>
+            </button>
+            <button id="time-reverse" class="hud-icon-btn" type="button" aria-label="Reverse direction">
+              <svg class="icon" aria-hidden="true"><use href="#icon-reverse"></use></svg>
+            </button>
+            <select id="time-preset-select" class="hud-select"></select>
+          </div>
+
+          <div>
+            <div class="hud-shuttle">
+              <svg class="icon hud-shuttle-end" aria-hidden="true"><use href="#icon-rewind"></use></svg>
+              <div class="hud-shuttle-track-wrap">
+                <div class="hud-shuttle-track">
+                  <div class="hud-shuttle-fill" id="time-shuttle-fill"></div>
+                  <div class="hud-shuttle-center"></div>
+                </div>
+                <input
+                  id="time-shuttle"
+                  class="hud-range hud-shuttle-input"
+                  type="range"
+                  min="-100"
+                  max="100"
+                  value="0"
+                  aria-label="Time rate — negative rewinds, positive fast-forwards, center is stopped"
+                />
               </div>
-              <input
-                id="time-shuttle"
-                class="hud-range hud-shuttle-input"
-                type="range"
-                min="-100"
-                max="100"
-                value="0"
-                aria-label="Time rate — negative rewinds, positive fast-forwards, center is stopped"
-              />
+              <svg class="icon hud-shuttle-end" aria-hidden="true"><use href="#icon-forward"></use></svg>
             </div>
-            <svg class="icon hud-shuttle-end" aria-hidden="true"><use href="#icon-forward"></use></svg>
+            <div class="hud-shuttle-labels" aria-hidden="true">
+              <span>Past</span>
+              <span class="hud-shuttle-now">Now</span>
+              <span>Future</span>
+            </div>
           </div>
-          <div class="hud-shuttle-labels" aria-hidden="true">
-            <span>Past</span>
-            <span class="hud-shuttle-now">Now</span>
-            <span>Future</span>
-          </div>
+
+          <div id="time-display" class="hud-readout">—</div>
         </div>
 
-        <div id="time-display" class="hud-readout">—</div>
-      </div>
-
-      <div class="hud-sheet-panel" data-panel="display">
-        <div class="hud-segmented" role="group" aria-label="Scale mode">
-          <button id="scale-mode-realistic-btn" class="hud-segmented-btn" type="button" aria-pressed="false">Realistic</button>
-          <button id="scale-mode-compact-btn" class="hud-segmented-btn" type="button" aria-pressed="true">Compact</button>
-        </div>
-        <div class="hud-toggle-grid">
-          <label class="hud-toggle-chip">
-            <input id="orbit-paths-toggle" type="checkbox" checked />
-            <span class="hud-toggle-visual">
-              <svg class="icon icon-check" aria-hidden="true"><use href="#icon-check"></use></svg>
-              Planet orbits
-            </span>
-          </label>
-          <label class="hud-toggle-chip">
-            <input id="small-body-orbits-toggle" type="checkbox" />
-            <span class="hud-toggle-visual">
-              <svg class="icon icon-check" aria-hidden="true"><use href="#icon-check"></use></svg>
-              Comet &amp; dwarf orbits
-            </span>
-          </label>
-          <label class="hud-toggle-chip">
-            <input id="body-labels-toggle" type="checkbox" checked />
-            <span class="hud-toggle-visual">
-              <svg class="icon icon-check" aria-hidden="true"><use href="#icon-check"></use></svg>
-              Labels
-            </span>
-          </label>
-          <label class="hud-toggle-chip">
-            <input id="starfield-toggle" type="checkbox" checked />
-            <span class="hud-toggle-visual">
-              <svg class="icon icon-check" aria-hidden="true"><use href="#icon-check"></use></svg>
-              Stars
-            </span>
-          </label>
-          <label class="hud-toggle-chip">
-            <input id="milky-way-toggle" type="checkbox" checked />
-            <span class="hud-toggle-visual">
-              <svg class="icon icon-check" aria-hidden="true"><use href="#icon-check"></use></svg>
-              Milky Way
-            </span>
-          </label>
-          <label class="hud-toggle-chip">
-            <input id="asteroids-toggle" type="checkbox" checked />
-            <span class="hud-toggle-visual">
-              <svg class="icon icon-check" aria-hidden="true"><use href="#icon-check"></use></svg>
-              Asteroids
-            </span>
-          </label>
-          <label class="hud-toggle-chip">
-            <input id="comets-toggle" type="checkbox" checked />
-            <span class="hud-toggle-visual">
-              <svg class="icon icon-check" aria-hidden="true"><use href="#icon-check"></use></svg>
-              Comets
-            </span>
-          </label>
-          <label class="hud-toggle-chip">
-            <input id="bloom-toggle" type="checkbox" checked />
-            <span class="hud-toggle-visual">
-              <svg class="icon icon-check" aria-hidden="true"><use href="#icon-check"></use></svg>
-              Bloom
-            </span>
-          </label>
-          <label class="hud-toggle-chip" title="Film-like colors: very bright light burns out to white instead of staying saturated">
-            <input id="filmic-toggle" type="checkbox" />
-            <span class="hud-toggle-visual">
-              <svg class="icon icon-check" aria-hidden="true"><use href="#icon-check"></use></svg>
-              Filmic look
-            </span>
-          </label>
-          <label class="hud-toggle-chip">
-            <input id="flares-toggle" type="checkbox" checked />
-            <span class="hud-toggle-visual">
-              <svg class="icon icon-check" aria-hidden="true"><use href="#icon-check"></use></svg>
-              Lens flares
-            </span>
-          </label>
-          <label class="hud-toggle-chip">
-            <input id="moons-toggle" type="checkbox" checked />
-            <span class="hud-toggle-visual">
-              <svg class="icon icon-check" aria-hidden="true"><use href="#icon-check"></use></svg>
-              Moons
-            </span>
-          </label>
-          <label class="hud-toggle-chip">
-            <input id="clouds-toggle" type="checkbox" checked />
-            <span class="hud-toggle-visual">
-              <svg class="icon icon-check" aria-hidden="true"><use href="#icon-check"></use></svg>
-              Clouds
-            </span>
-          </label>
+        <div class="hud-sheet-panel" data-panel="display">
+          <div class="hud-sheet-head">
+            <svg class="icon" aria-hidden="true"><use href="#icon-layers"></use></svg>
+            <h2 class="hud-sheet-title">Display</h2>
+            <button class="hud-close" type="button" data-sheet-close aria-label="Close display panel">
+              <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
+            </button>
+          </div>
+          <div class="hud-segmented" role="group" aria-label="Scale mode">
+            <button id="scale-mode-realistic-btn" class="hud-segmented-btn" type="button" aria-pressed="false">Realistic</button>
+            <button id="scale-mode-compact-btn" class="hud-segmented-btn" type="button" aria-pressed="true">Compact</button>
+          </div>
+          <div class="hud-toggle-grid">
+            <label class="hud-toggle-chip">
+              <input id="orbit-paths-toggle" type="checkbox" role="switch" checked />
+              <span class="hud-toggle-visual">
+                <span class="hud-toggle-label">Planet orbits</span>
+                <span class="hud-switch" aria-hidden="true"></span>
+              </span>
+            </label>
+            <label class="hud-toggle-chip">
+              <input id="small-body-orbits-toggle" type="checkbox" role="switch" />
+              <span class="hud-toggle-visual">
+                <span class="hud-toggle-label">Comet &amp; dwarf orbits</span>
+                <span class="hud-switch" aria-hidden="true"></span>
+              </span>
+            </label>
+            <label class="hud-toggle-chip">
+              <input id="body-labels-toggle" type="checkbox" role="switch" checked />
+              <span class="hud-toggle-visual">
+                <span class="hud-toggle-label">Labels</span>
+                <span class="hud-switch" aria-hidden="true"></span>
+              </span>
+            </label>
+            <label class="hud-toggle-chip">
+              <input id="starfield-toggle" type="checkbox" role="switch" checked />
+              <span class="hud-toggle-visual">
+                <span class="hud-toggle-label">Stars</span>
+                <span class="hud-switch" aria-hidden="true"></span>
+              </span>
+            </label>
+            <label class="hud-toggle-chip">
+              <input id="milky-way-toggle" type="checkbox" role="switch" checked />
+              <span class="hud-toggle-visual">
+                <span class="hud-toggle-label">Milky Way</span>
+                <span class="hud-switch" aria-hidden="true"></span>
+              </span>
+            </label>
+            <label class="hud-toggle-chip">
+              <input id="asteroids-toggle" type="checkbox" role="switch" checked />
+              <span class="hud-toggle-visual">
+                <span class="hud-toggle-label">Asteroids</span>
+                <span class="hud-switch" aria-hidden="true"></span>
+              </span>
+            </label>
+            <label class="hud-toggle-chip">
+              <input id="comets-toggle" type="checkbox" role="switch" checked />
+              <span class="hud-toggle-visual">
+                <span class="hud-toggle-label">Comets</span>
+                <span class="hud-switch" aria-hidden="true"></span>
+              </span>
+            </label>
+            <label class="hud-toggle-chip">
+              <input id="bloom-toggle" type="checkbox" role="switch" checked />
+              <span class="hud-toggle-visual">
+                <span class="hud-toggle-label">Bloom</span>
+                <span class="hud-switch" aria-hidden="true"></span>
+              </span>
+            </label>
+            <label class="hud-toggle-chip" title="Film-like colors: very bright light burns out to white instead of staying saturated">
+              <input id="filmic-toggle" type="checkbox" role="switch" />
+              <span class="hud-toggle-visual">
+                <span class="hud-toggle-label">Filmic look</span>
+                <span class="hud-switch" aria-hidden="true"></span>
+              </span>
+            </label>
+            <label class="hud-toggle-chip">
+              <input id="flares-toggle" type="checkbox" role="switch" checked />
+              <span class="hud-toggle-visual">
+                <span class="hud-toggle-label">Lens flares</span>
+                <span class="hud-switch" aria-hidden="true"></span>
+              </span>
+            </label>
+            <label class="hud-toggle-chip">
+              <input id="moons-toggle" type="checkbox" role="switch" checked />
+              <span class="hud-toggle-visual">
+                <span class="hud-toggle-label">Moons</span>
+                <span class="hud-switch" aria-hidden="true"></span>
+              </span>
+            </label>
+            <label class="hud-toggle-chip">
+              <input id="clouds-toggle" type="checkbox" role="switch" checked />
+              <span class="hud-toggle-visual">
+                <span class="hud-toggle-label">Clouds</span>
+                <span class="hud-switch" aria-hidden="true"></span>
+              </span>
+            </label>
+          </div>
         </div>
       </div>
     </div>
@@ -302,18 +322,20 @@
       <div id="lesson-panel-grip" class="hud-lesson-panel-grip" aria-hidden="true">
         <span class="hud-lesson-panel-grip-bar"></span>
       </div>
-      <div class="hud-row-between">
-        <button id="lesson-prev-chapter" class="hud-icon-btn" type="button" aria-label="Previous chapter">
-          <svg class="icon" aria-hidden="true"><use href="#icon-rewind"></use></svg>
-        </button>
-        <button id="lesson-next-chapter" class="hud-icon-btn" type="button" aria-label="Next chapter">
-          <svg class="icon" aria-hidden="true"><use href="#icon-forward"></use></svg>
-        </button>
-        <span id="lesson-chapter-title"></span>
-      </div>
+      <div class="hud-lesson-panel-body">
+        <div class="hud-row-between">
+          <button id="lesson-prev-chapter" class="hud-icon-btn" type="button" aria-label="Previous chapter">
+            <svg class="icon" aria-hidden="true"><use href="#icon-rewind"></use></svg>
+          </button>
+          <button id="lesson-next-chapter" class="hud-icon-btn" type="button" aria-label="Next chapter">
+            <svg class="icon" aria-hidden="true"><use href="#icon-forward"></use></svg>
+          </button>
+          <span id="lesson-chapter-title" class="hud-lesson-title"></span>
+        </div>
 
-      <p id="lesson-chapter-text" class="hud-lesson-text"></p>
-      <p id="lesson-note" class="hud-lesson-note" hidden></p>
+        <p id="lesson-chapter-text" class="hud-lesson-text"></p>
+        <p id="lesson-note" class="hud-lesson-note" hidden></p>
+      </div>
     </div>
 
     <script type="module" src="/src/main.ts"></script>

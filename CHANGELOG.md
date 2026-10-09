@@ -147,6 +147,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- A new look for the HUD, "Dichroic Slab": the dock, its panels, the lesson panel and picker and
+  the Moon-phase card are thick slabs of smoked glass with sharp corners, a facet split across each
+  face and an edge that glows cyan, violet, magenta and gold. Buttons are glass keys that press in,
+  the main action of each panel has a dichroic face, the Display settings are on/off switches
+  whose track lights up in the edge colors, and the time slider has a gold-edged cube for a thumb.
+  Every dock panel has a title and a close button.
+  The HUD and the labels in the scene are set in Inter Tight, readouts in IBM Plex Mono, bundled
+  with the app instead of loaded from a font service. Mock-ups of this and five other directions
+  are in `docs/design/glass-concepts/`.
 - The Learn-mode sky and horizon are shared by every lesson that shows the view from the ground:
   at dusk and dawn the sky glows only on the Sun's side, with the pink band opposite. The camera
   hint about dragging and zooming no longer shows during a lesson, which steers the camera itself.

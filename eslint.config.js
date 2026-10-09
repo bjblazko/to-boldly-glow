@@ -32,6 +32,13 @@ export default defineConfig([
     rules: { '@typescript-eslint/unbound-method': 'off' },
   },
   {
+    // The design mock-ups: a page script run in the browser and a render script run by Node.
+    files: ['docs/design/**/*.{js,mjs}'],
+    languageOptions: {
+      globals: { window: 'readonly', document: 'readonly', process: 'readonly', console: 'readonly' },
+    },
+  },
+  {
     files: ['packages/*/src/**/*.ts', 'packages/engine/assembly/**/*.ts'],
     ignores: ['packages/engine/assembly/data/**'],
     rules: CODE_METRICS,

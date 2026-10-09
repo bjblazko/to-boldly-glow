@@ -1,7 +1,7 @@
 type PanelName = 'camera' | 'time' | 'display'
 
 // Wires the bottom dock's buttons to the sheet above it — only one panel open at a time; clicking
-// the already-active dock button closes the sheet instead of re-opening the same panel.
+// the already-active dock button, or the panel's close button, closes the sheet.
 export class DockUI {
   private activePanel: PanelName | null = null
 
@@ -12,6 +12,14 @@ export class DockUI {
   ) {
     this.dockButtons.forEach((button) => {
       button.addEventListener('click', () => this.togglePanel(button.dataset.panel as PanelName))
+    })
+    // Each panel's own close button; focus returns to the dock button that opened it.
+    this.sheet.querySelectorAll<HTMLButtonElement>('[data-sheet-close]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const opener = Array.from(this.dockButtons).find((dockButton) => dockButton.dataset.panel === this.activePanel)
+        this.closeActivePanel()
+        opener?.focus()
+      })
     })
   }
 

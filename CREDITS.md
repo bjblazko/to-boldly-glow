@@ -207,6 +207,16 @@ asteroid and Kuiper belt populations are generated from the general statistics o
 (semi-major axis ranges, the Kirkwood gaps, the 3:2 resonances of the Hildas and plutinos, the
 Trojans' L4/L5 swarms); no individual catalogued object is implied.
 
+## Fonts
+
+- [Inter Tight](https://github.com/rsms/inter-tight) — © 2022 The Inter Project Authors, SIL Open
+  Font License 1.1 (the HUD and the labels in the scene)
+- [IBM Plex Mono](https://github.com/IBM/plex) — © 2017 IBM Corp., SIL Open Font License 1.1
+  (readouts)
+
+Both are bundled from the [Fontsource](https://fontsource.org/) packages, not loaded from a font
+service at run time.
+
 ## Math library
 
 - [gl-matrix](https://glmatrix.net/) — MIT License (matrix/vector math for the WebGPU renderer:
