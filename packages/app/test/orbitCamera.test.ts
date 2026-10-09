@@ -138,3 +138,20 @@ describe('minOrbitRadiusForBlend', () => {
     expect(atHalf).toBeCloseTo(Math.sqrt(REALISTIC_MIN_ORBIT_RADIUS * COMPACT_MIN_ORBIT_RADIUS), 10)
   })
 })
+
+describe('OrbitCamera view limits', () => {
+  it('keeps a drag within the limits a lesson sets, and is free again once they are cleared', () => {
+    const camera = new OrbitCamera({ azimuth: 0, elevation: 0.5 })
+    camera.viewLimits = { azimuth: [-0.5, 0.5], elevation: [0.2, 0.8] }
+    camera.applyDrag(-1000, 1000)
+    expect(camera.azimuth).toBeCloseTo(0.5, 10)
+    expect(camera.elevation).toBeCloseTo(0.8, 10)
+    camera.applyDrag(1000, -1000)
+    expect(camera.azimuth).toBeCloseTo(-0.5, 10)
+    expect(camera.elevation).toBeCloseTo(0.2, 10)
+
+    camera.viewLimits = null
+    camera.applyDrag(1000, 0)
+    expect(camera.azimuth).toBeCloseTo(-5.5, 10)
+  })
+})

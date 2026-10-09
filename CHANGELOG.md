@@ -147,6 +147,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The HUD is organized around two modes, switched at the top of the screen: **Explore** and
+  **Learn**. Explore's dock has Find, Camera, Time and View. Find is a searchable tree of every body
+  by kind - the Sun, planets with their moons under them, dwarf planets, asteroids, comets - that
+  narrows down as you type (Enter flies to the first match). View holds what the scene shows (scale,
+  orbits, labels, bodies, sky); how the picture is rendered (bloom, lens flares, the filmic look)
+  moved to a Settings popover. Learn opens a lesson library with the lessons on topic shelves,
+  searchable, and remembers where each lesson was left; in a lesson its own dock has the library,
+  back, a chapter counter that lists every chapter to jump to, next, and View, and the text card
+  folds down to its title. Lesson scenes from space can be zoomed and turned a little (scroll,
+  pinch, drag, or the buttons on the right), with a button back to the lesson's own view. Ctrl+K
+  (Cmd+K) or the search button searches everything: objects, lessons and settings.
 - A new look for the HUD, "Dichroic Slab": the dock, its panels, the lesson panel and picker and
   the Moon-phase card are thick slabs of smoked glass with sharp corners, a facet split across each
   face and an edge that glows cyan, violet, magenta and gold. Buttons are glass keys that press in,

@@ -46,10 +46,10 @@ export async function labelAnchor(page: Page, selector: string): Promise<{ x: nu
 }
 
 export async function followEntity(page: Page, name: string): Promise<void> {
-  await page.locator('.hud-dock-btn[data-panel="camera"]').click()
+  await page.locator('.hud-dock-btn[data-panel="find"]').click()
   await page.locator('#entity-search-input').fill(name)
   await page.locator('#entity-search-input').press('Enter')
-  await page.locator('.hud-dock-btn[data-panel="camera"]').click()
+  await page.locator('.hud-dock-btn[data-panel="find"]').click()
   await renderFrames(page, 20)
 }
 
@@ -99,7 +99,10 @@ export async function dragCamera(page: Page, dx: number, dy: number): Promise<vo
 }
 
 export async function setDisplaySwitch(page: Page, selector: string, on: boolean): Promise<void> {
-  await page.locator('.hud-dock-btn[data-panel="display"]').click()
+  // Rendering switches (bloom, lens flares, the filmic look) are in Settings; the rest in View.
+  const inSettings = (await page.locator(`#settings-panel ${selector}`).count()) > 0
+  const opener = page.locator(inSettings ? '#settings-btn' : '.hud-dock-btn[data-panel="view"]:visible')
+  await opener.click()
   await page.locator(selector).setChecked(on)
-  await page.locator('.hud-dock-btn[data-panel="display"]').click()
+  await opener.click()
 }

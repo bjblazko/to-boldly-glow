@@ -11,7 +11,7 @@ test('all 8 planets render, and the scale toggle + orbit-path controls affect th
   // exposed for testing, proving the control is actually wired to the renderer's state — not
   // merely present in the DOM. (Mirrors the time-controls e2e test's positive-control pattern.)
   // The scale mode control lives behind the dock's "Display" sheet.
-  await page.locator('.hud-dock-btn[data-panel="display"]').click()
+  await page.locator('.hud-dock-btn[data-panel="view"]:visible').click()
   const compactButton = page.locator('#scale-mode-compact-btn')
   const realisticButton = page.locator('#scale-mode-realistic-btn')
   await expect(compactButton).toHaveAttribute('aria-pressed', 'true')

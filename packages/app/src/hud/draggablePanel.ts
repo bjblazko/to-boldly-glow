@@ -23,6 +23,8 @@ export function makePanelDraggable(panel: HTMLElement, grip: HTMLElement): void 
     const rect = panel.getBoundingClientRect()
     panel.style.left = `${rect.left}px`
     panel.style.top = `${rect.top}px`
+    // A panel anchored by its bottom edge would otherwise stretch between the two.
+    panel.style.bottom = 'auto'
     panel.style.transform = 'none'
     pointerOffset = { x: event.clientX - rect.left, y: event.clientY - rect.top }
     panel.classList.add('is-dragging')

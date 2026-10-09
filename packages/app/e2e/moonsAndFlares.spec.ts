@@ -7,13 +7,16 @@ test('moons and lens flares can each be toggled independently', async ({ page })
 
   await openApp(page)
 
-  // Display toggles live behind the dock's "Display" sheet — open it before interacting.
-  await page.locator('.hud-dock-btn[data-panel="display"]').click()
+  // What the scene shows lives behind the dock's View sheet - open it before interacting.
+  await page.locator('.hud-dock-btn[data-panel="view"]:visible').click()
 
   const moonsToggle = page.locator('#moons-toggle')
   await expect(moonsToggle).toBeChecked()
   await moonsToggle.uncheck()
   await expect(page.locator('#scene')).toHaveAttribute('data-moons', 'false')
+
+  // Lens flares and bloom are rendering settings: they live in the Settings popover.
+  await page.locator('#settings-btn').click()
 
   // A subtle flare is on by default; turn it off and back on, then off again.
   const flaresToggle = page.locator('#flares-toggle')

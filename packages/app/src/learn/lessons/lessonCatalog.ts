@@ -4,10 +4,20 @@ import { PLANET_SIZES_LESSON } from './planetSizes'
 import { SEASONS_LESSON } from './seasons'
 import { SOLAR_ECLIPSE_LESSON } from './solarEclipse'
 
-// Every lesson, by the id its entry in the lesson picker (index.html) names.
-export const LESSONS_BY_ID: Record<string, Lesson> = {
-  [SEASONS_LESSON.id]: SEASONS_LESSON,
-  [PLANET_SIZES_LESSON.id]: PLANET_SIZES_LESSON,
-  [SOLAR_ECLIPSE_LESSON.id]: SOLAR_ECLIPSE_LESSON,
-  [MOON_PHASES_LESSON.id]: MOON_PHASES_LESSON,
+// A shelf of the lesson library. A new lesson goes onto the topic it belongs to (or a new topic):
+// the library lists it from here.
+export interface LessonTopic {
+  title: string
+  lessons: Lesson[]
 }
+
+export const LESSON_TOPICS: LessonTopic[] = [
+  { title: 'Planets & scale', lessons: [PLANET_SIZES_LESSON] },
+  { title: 'Earth & Moon', lessons: [SEASONS_LESSON, MOON_PHASES_LESSON] },
+  { title: 'Sky events', lessons: [SOLAR_ECLIPSE_LESSON] },
+]
+
+// Every lesson, by its id (the library's cards name them by it).
+export const LESSONS_BY_ID: Record<string, Lesson> = Object.fromEntries(
+  LESSON_TOPICS.flatMap((topic) => topic.lessons).map((lesson) => [lesson.id, lesson]),
+)

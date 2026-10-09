@@ -51,10 +51,17 @@ it yourself, or to work on it:
 
 ### Using the app
 
+- **Explore and Learn** — the switch at the top of the screen chooses between flying around the
+  solar system and taking a lesson. Each mode has its own dock at the bottom; the buttons at the
+  top right search everything and open the settings.
+- **Find** — the **Find** panel lists every body as a tree, by kind: the Sun, the planets with their
+  moons under them, dwarf planets, asteroids and comets. Typing narrows it down (Enter flies to the
+  first match); pick a body to fly the camera to it and lock on. A "Following: …" chip appears with
+  a **×** to stop following and return to free manual control.
 - **Camera** — by default, drag to orbit the current target (it keeps turning a little when you let
   go), scroll or pinch to zoom; `W`/`A`/`S`/`D` or the arrow keys turn the view and `R`/`F` zoom.
   Double-click (or double-tap) any planet, moon, comet or dwarf planet to fly there and follow it.
-  Use the **Camera** panel (bottom dock) to switch to free flight, flown like a spaceship in a game:
+  Use the **Camera** panel to switch to free flight, flown like a spaceship in a game:
   `W`/`S` (or `↑`/`↓`) thrust forward/back, `A`/`D` (or `←`/`→`) strafe, `R`/`F` rise/sink, `Q`/`E`
   roll, `Shift` boosts, drag to look around and scroll to set the speed. The ship eases in and out of
   motion, slows down near planets and speeds up in open space (so the same keys work at every
@@ -64,29 +71,32 @@ it yourself, or to work on it:
   short hint at the top of the screen recalls the controls whenever you switch. The same
   panel has **Start Tour**, an endless autopilot flight past every planet, flown like a spaceship —
   it accelerates, brakes on arrival, banks into turns and circles each planet once (any camera input
-  hands control back, exactly where the tour was), and a search box — type a body's name (planets,
-  moons, comets like Halley or Encke, Ceres, Vesta, Pallas, Pluto), then press Enter or click a result to fly
-  the camera to it and lock on; a "Following: …" chip appears with a **×** to stop following and
-  return to free manual control.
+  hands control back, exactly where the tour was).
 - **Time** — the **Time** panel has play/pause, a reverse-direction button, and rate presets
   (real-time up to a year per second). The shuttle slider lets you dial in a rate directly: the
   center tick is zero (the clock is stopped), the left half rewinds, the right half fast-forwards
   — the fill color and the Past/Future labels show which side you're on. The panel also shows the
   current simulated date/time (UTC).
-- **Display** — the **Display** panel switches between **Realistic** (true-to-scale distances and
-  sizes) and **Compact** (a compressed view that's easier to fly around in), and toggles planet
-  orbits, comet and dwarf-planet orbits, name labels, the stars (in their real colors), the Milky Way
-  (with its nebulae and the nearest galaxies), the asteroid and Kuiper belts, comets, Earth's
-  clouds, HDR bloom, lens flares, and moons independently. **Filmic look** (off by default) renders
-  the picture's colors like film (AgX tonemapping): the Sun burns out to white-hot instead of
-  staying a saturated orange, and the sky goes deep black.
-- **Learn** — the **Learn** button opens a lesson in place of the free view, with a panel to step
-  through its chapters: **How big are the planets?** (the Sun and planets side by side at true
-  scale), **Why does Earth have seasons?** (Earth's tilted axis through a year), **Why does the
-  Moon have phases?** (the Moon's orbit from above, then a month of evenings and mornings from the
-  ground — crescent with earthshine, quarters and the rising full Moon) and **What happens in a
-  solar eclipse?** (the Moon's shadow from space, then the eclipse from the ground — through
-  eclipse glasses, the diamond ring, totality and a ring of fire).
+- **View** — what the scene shows: the **View** panel switches between **Realistic** (true-to-scale
+  distances and sizes) and **Compact** (a compressed view that's easier to fly around in), and
+  toggles planet orbits, comet and dwarf-planet orbits, name labels, the stars (in their real
+  colors), the Milky Way (with its nebulae and the nearest galaxies), the asteroid and Kuiper belts,
+  comets, Earth's clouds and moons independently.
+- **Settings** — how the picture is rendered: HDR bloom, lens flares and the **Filmic look** (off by
+  default), which renders the picture's colors like film (AgX tonemapping): the Sun burns out to
+  white-hot instead of staying a saturated orange, and the sky goes deep black.
+- **Search everything** — `Ctrl+K` (`Cmd+K` on a Mac) or the search button finds objects, lessons
+  and settings in one list.
+- **Learn** — the lesson library shows the lessons by topic, with a search, and remembers where you
+  left each one: **How big are the planets?** (the Sun and planets side by side at true scale),
+  **Why does Earth have seasons?** (Earth's tilted axis through a year), **Why does the Moon have
+  phases?** (the Moon's orbit from above, then a month of evenings and mornings from the ground —
+  crescent with earthshine, quarters and the rising full Moon) and **What happens in a solar
+  eclipse?** (the Moon's shadow from space, then the eclipse from the ground — through eclipse
+  glasses, the diamond ring, totality and a ring of fire). In a lesson, its dock steps through the
+  chapters (the chapter counter lists them all to jump to) and the text card folds down to its
+  title. Scenes in space can be zoomed and turned a little — scroll, pinch, drag, or the buttons on
+  the right — with a button back to the lesson's own view.
 - **Things to look for** — fly behind Earth (or the Moon) until it covers the Sun: the exposure
   opens up and the Sun's corona appears in full, with its streamers and the red prominences at the
   limb. Earth's night side shows its city lights, and the aurora glows around both poles — best seen

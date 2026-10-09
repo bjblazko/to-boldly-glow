@@ -47,6 +47,8 @@ view, not new data.
 seen from Earth, why the phases aren't Earth's shadow, the same face, and the crescent (with
 earthshine), quarters and full Moon from the ground. **Next**: supermoons (perigee), and the real
 Moon's phase for the explore view's date, which needs its real orbit (see the eclipses entry).
+
+## Solar & lunar eclipses
 **What**: Visualize and explain solar/lunar eclipse geometry (umbra/penumbra, why eclipses don't
 happen every month due to orbital plane inclination), and let the user jump to real historical/
 future eclipse dates.

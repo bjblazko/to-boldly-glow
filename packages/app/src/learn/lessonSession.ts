@@ -7,8 +7,9 @@ import type { LearnModeController } from './learnModeController'
 import type { LessonCamera } from './lessonCamera'
 import type { LessonPanel } from './lessonPanel'
 import { LessonPlayer } from './lessonPlayer'
+import type { LessonProgress } from './lessonProgress'
 import type { Chapter, Lesson } from './lessonTypes'
-import { LESSONS_BY_ID } from './lessons/lessonCatalog'
+import type { LessonViewControls } from './lessonViewControls'
 import { OrbitOverlay } from './seasons/orbitOverlay'
 import type { SeasonsLabels } from './seasons/seasonsLabels'
 import { isSeasonsKind, SeasonsScene } from './seasons/seasonsScene'
@@ -22,6 +23,8 @@ export interface LessonSessionParts {
   lessonCamera: LessonCamera
   display: DisplaySettings
   panel: LessonPanel
+  viewControls: LessonViewControls
+  progress: LessonProgress
   labels: SeasonsLabels
   // The lessons that stage their own Sun, Earth and Moon (the solar eclipse, the Moon's phases).
   stagedScenes: StagedLessonScene[]
@@ -38,42 +41,32 @@ export interface LessonOverlayFrame {
   sunBrightness: number
 }
 
-export interface LessonPickerUi {
-  learnButton: HTMLButtonElement
-  picker: HTMLElement
-}
-
 // What a lesson borrowed from the explore view and gives back when it ends.
 interface BorrowedState {
   camera: CameraSnapshot
   display: LessonDisplaySnapshot
 }
 
-// Runs the learn mode: opening a lesson from the picker, moving between its chapters, staging each
-// chapter's scene, and handing the camera and display settings back when the lesson ends.
+// Runs a lesson: starting it, moving between its chapters, staging each chapter's scene and framing
+// the camera on it, and handing the camera and display settings back when the lesson ends.
 export class LessonSession {
   private readonly player = new LessonPlayer()
   private readonly seasons = new SeasonsScene()
   private readonly stagedOverlay: StagedOverlay
   private readonly orbitOverlay: OrbitOverlay
   private borrowed: BorrowedState | null = null
+  // Whether the current shot stands still for the user (a view from the ground) - see frameCamera.
+  private viewFixed: boolean | null = null
 
   constructor(
     private readonly parts: LessonSessionParts,
-    private readonly ui: LessonPickerUi,
     gpu: LessonGpu,
   ) {
     this.stagedOverlay = new StagedOverlay(gpu.device, gpu.linePipeline)
     this.orbitOverlay = new OrbitOverlay(gpu.device, gpu.linePipeline)
-    ui.learnButton.addEventListener('click', () => (this.active ? this.end() : this.togglePicker()))
-    ui.picker.querySelectorAll<HTMLButtonElement>('.hud-lesson-picker-item').forEach((item) => {
-      item.addEventListener('click', () => {
-        const lesson = LESSONS_BY_ID[item.dataset.lessonId ?? '']
-        if (lesson) this.start(lesson)
-      })
-    })
     parts.panel.previousButton.addEventListener('click', () => this.goToChapter(() => this.player.previousChapter()))
     parts.panel.nextButton.addEventListener('click', () => this.goToChapter(() => this.player.nextChapter()))
+    parts.panel.onChapterPicked = (index) => this.goToChapter(() => this.player.goToChapter(index))
   }
 
   get active(): boolean {
@@ -149,31 +142,41 @@ export class LessonSession {
     else this.stagedScene?.drawOverlays(pass, this.chapter)
   }
 
+  // Brings the chapter's own framing back after the user zoomed or turned the view.
+  resetView(): void {
+    if (this.active) this.frameCamera()
+  }
+
+  // Frames the chapter's shot. The user may look around a shot from space; a view from the ground
+  // is the observer's own eye and stands still, so camera input is off there.
   private frameCamera(): void {
-    this.parts.lessonCamera.frame(this.chapter.kind, this.stagedScene?.groundShot(this.chapter))
+    const groundShot = this.stagedScene?.groundShot(this.chapter)
+    this.parts.lessonCamera.frame(this.chapter.kind, groundShot)
+    const fixed = Boolean(groundShot)
+    if (fixed === this.viewFixed) return
+    this.viewFixed = fixed
+    this.parts.camera.setInputEnabled(!fixed)
+    this.parts.viewControls.setFixed(fixed)
   }
 
-  private togglePicker(): void {
-    this.ui.picker.hidden = !this.ui.picker.hidden
-    this.ui.learnButton.classList.toggle('is-active', !this.ui.picker.hidden)
-  }
-
-  private start(lesson: Lesson): void {
+  // Opens a lesson at the given chapter; a lesson already running ends first.
+  start(lesson: Lesson, chapterIndex = 0): void {
     const { camera, display, modeController, panel } = this.parts
-    this.ui.picker.hidden = true
-    this.player.load(lesson)
+    if (this.active) this.end()
+    this.player.load(lesson, chapterIndex)
     this.borrowed = { camera: camera.takeOverForLesson(), display: display.clearForLesson() }
     modeController.enter(lesson.id)
-    this.ui.learnButton.classList.add('is-active')
     this.seasons.start(this.chapter.seasonPhaseDegrees)
     this.stagedScene?.start(this.chapter)
+    this.viewFixed = null
     this.frameCamera()
     panel.visible = true
-    panel.show(this.player)
+    this.showChapter()
   }
 
-  private end(): void {
+  end(): void {
     const { camera, display, modeController, lessonCamera, panel } = this.parts
+    if (!this.active) return
     modeController.exit()
     if (this.borrowed) {
       camera.restoreAfterLesson(this.borrowed.camera)
@@ -182,8 +185,11 @@ export class LessonSession {
       this.borrowed = null
     }
     panel.visible = false
-    this.ui.picker.hidden = true
-    this.ui.learnButton.classList.remove('is-active')
+  }
+
+  private showChapter(): void {
+    this.parts.panel.show(this.player)
+    this.parts.progress.record(this.player.currentLesson, this.player.currentChapterIndex)
   }
 
   // A new chapter of the same kind turns Earth's axis (or moves the Moon) smoothly with the camera
@@ -196,6 +202,6 @@ export class LessonSession {
     this.seasons.showSeason(this.chapter.seasonPhaseDegrees, kindChanged)
     this.stagedScene?.showChapter(this.chapter, kindChanged)
     if (kindChanged) this.frameCamera()
-    this.parts.panel.show(this.player)
+    this.showChapter()
   }
 }

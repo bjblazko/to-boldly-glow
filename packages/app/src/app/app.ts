@@ -7,11 +7,16 @@ import { fitCanvasToDisplaySize, watchCanvasSize } from '../gpu/canvasSize'
 import { initWebGpu, onDeviceLost, type GpuContext } from '../gpu/device'
 import { TextureLoader } from '../gpu/textureLoader'
 import { DisplaySettings } from '../hud/displaySettings'
+import { CommandPalette } from '../hud/commandPalette'
 import { DockUI } from '../hud/dockUI'
+import { SettingsPanel } from '../hud/settingsPanel'
 import { LearnModeController } from '../learn/learnModeController'
+import { LearnUi } from '../learn/learnUi'
 import { LessonCamera } from '../learn/lessonCamera'
 import { LessonPanel } from '../learn/lessonPanel'
+import { LessonProgress } from '../learn/lessonProgress'
 import { LessonSession, type LessonGpu } from '../learn/lessonSession'
+import { LessonViewControls } from '../learn/lessonViewControls'
 import { EclipseLabels } from '../learn/eclipse/eclipseLabels'
 import { EclipseLesson } from '../learn/eclipse/eclipseLesson'
 import { GroundSky } from '../learn/ground/groundSky'
@@ -32,10 +37,13 @@ import { CometRenderer } from '../smallBodies/cometRenderer'
 import { Starfield } from '../starfield/starfield'
 import { SunCorona } from '../sunCorona/sunCorona'
 import { ephemerisAt } from '../time/ephemeris'
+import type { Lesson } from '../learn/lessonTypes'
+import type { SolarSystemEntity } from '../solarSystem/entities'
 import { requireElement } from './dom'
 import { showDeviceLost } from './errorMessages'
 import { createExplorer, obstaclesIn, shownSmallBodies, type ShownFrame } from './explorer'
 import { runFrameLoop, type FrameTime } from './frameLoop'
+import { gatherPaletteItems } from './paletteItems'
 
 type SceneFeatures = Omit<SceneParts, 'lessons'>
 
@@ -90,27 +98,67 @@ async function createSceneFeatures(device: GPUDevice, format: GPUTextureFormat, 
   return { sky, starfield, corona, asteroids, comets, bodies, saturnRing, atmosphereShells, clouds, aurora, lensFlare, orbitPaths: OrbitPaths.create(device, linePipeline, 1) }
 }
 
+// The lessons, and the HUD around both modes: the docks, the Explore / Learn switch with the lesson
+// library, the settings popover and the search-everything palette.
 function createLessons(explorer: ReturnType<typeof createExplorer>, gpu: LessonGpu, groundSky: GroundSky): LessonSession {
   const { camera, lens, canvas, display, searchUi } = explorer
   const dock = new DockUI(
-    document.querySelectorAll<HTMLButtonElement>('.hud-dock-btn:not(#learn-mode-btn)'),
+    document.querySelectorAll<HTMLButtonElement>('.hud-dock-btn[data-panel]'),
     requireElement('#hud-sheet'),
     document.querySelectorAll<HTMLElement>('.hud-sheet-panel'),
   )
-  const modeController = new LearnModeController(document.body, { setEnabled: (on) => camera.setInputEnabled(on) }, dock, searchUi)
-  return new LessonSession(
+  const cameraInput = { setEnabled: (on: boolean) => camera.setInputEnabled(on), setPickEnabled: (on: boolean) => camera.setPickEnabled(on) }
+  const progress = new LessonProgress()
+  const session: LessonSession = new LessonSession(
     {
-      modeController,
+      modeController: new LearnModeController(document.body, cameraInput, dock, searchUi),
       camera,
       lessonCamera: new LessonCamera(camera.orbit, lens, canvas),
       display,
       panel: new LessonPanel(requireElement),
+      viewControls: new LessonViewControls(requireElement('#lesson-view-controls'), { zoom: (factor) => camera.zoom(factor), reset: () => session.resetView() }),
+      progress,
       labels: new SeasonsLabels(requireElement),
       stagedScenes: [new EclipseLesson(gpu, groundSky, new EclipseLabels(requireElement)), createPhasesLesson(gpu, groundSky)],
     },
-    { learnButton: requireElement('#learn-mode-btn'), picker: requireElement('#lesson-picker') },
     gpu,
   )
+  const learnUi = createLearnUi(session, progress, dock)
+  new SettingsPanel(requireElement('#settings-panel'), requireElement('#settings-btn'), requireElement('#settings-close'))
+  createPalette(learnUi, explorer.select)
+  return session
+}
+
+function createLearnUi(session: LessonSession, progress: LessonProgress, dock: DockUI): LearnUi {
+  const library = {
+    dialog: requireElement('#lesson-library'),
+    topics: requireElement('#library-topics'),
+    search: requireElement<HTMLInputElement>('#library-search'),
+    closeButton: requireElement<HTMLButtonElement>('#library-close'),
+  }
+  const buttons = {
+    exploreButton: requireElement<HTMLButtonElement>('#explore-mode-btn'),
+    learnButton: requireElement<HTMLButtonElement>('#learn-mode-btn'),
+    libraryButton: requireElement<HTMLButtonElement>('#lesson-library-btn'),
+  }
+  return new LearnUi({ ...buttons, library }, session, progress, () => dock.closeActivePanel())
+}
+
+function createPalette(learnUi: LearnUi, select: (entity: SolarSystemEntity) => void): CommandPalette {
+  const elements = {
+    dialog: requireElement('#command-palette'),
+    input: requireElement<HTMLInputElement>('#palette-input'),
+    results: requireElement('#palette-results'),
+    openButton: requireElement<HTMLButtonElement>('#palette-btn'),
+  }
+  const actions = {
+    goTo: (entity: SolarSystemEntity) => {
+      learnUi.explore()
+      select(entity)
+    },
+    openLesson: (lesson: Lesson) => learnUi.openLesson(lesson),
+  }
+  return new CommandPalette(elements, () => gatherPaletteItems(actions))
 }
 
 function createPhasesLesson(gpu: LessonGpu, groundSky: GroundSky): PhasesLesson {

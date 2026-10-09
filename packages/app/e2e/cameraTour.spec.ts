@@ -38,7 +38,10 @@ test('picking a search result during the tour stops it and flies to the result',
   await page.locator('#camera-tour-toggle').click()
   await expect(tourLabel).toHaveText('Stop Tour')
 
-  // Typing goes to the search box, not the camera, so it doesn't stop the tour on its own...
+  // Opening Find and typing goes to the search box, not the camera, so it doesn't stop the tour on
+  // its own...
+  await page.locator('.hud-dock-btn[data-panel="find"]').click()
+  await expect(tourLabel).toHaveText('Stop Tour')
   await page.locator('#entity-search-input').pressSequentially('Saturn')
   await expect(tourLabel).toHaveText('Stop Tour')
 

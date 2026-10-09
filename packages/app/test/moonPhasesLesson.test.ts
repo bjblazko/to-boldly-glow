@@ -1,4 +1,3 @@
-import { readFileSync } from 'node:fs'
 import { vec3 } from 'gl-matrix'
 import { describe, expect, it } from 'vitest'
 import { CameraLens } from '../src/camera/cameraLens'
@@ -7,7 +6,7 @@ import { createViewpoint, projectToPixels } from '../src/camera/viewpoint'
 import { EARTH_RADIUS, MOON_ORBIT_TILT_DEGREES, MOON_RADIUS, SUN_RADIUS, shadowEdgeLines } from '../src/learn/eclipse/eclipseGeometry'
 import { LessonCamera } from '../src/learn/lessonCamera'
 import { isPhasesKind } from '../src/learn/lessonTypes'
-import { LESSONS_BY_ID } from '../src/learn/lessons/lessonCatalog'
+import { LESSON_TOPICS, LESSONS_BY_ID } from '../src/learn/lessons/lessonCatalog'
 import { MOON_PHASES_LESSON } from '../src/learn/lessons/moonPhases'
 import { litShapePath } from '../src/learn/phases/phaseInset'
 import { earthshineStrength, litFraction, moonGroundShot, phaseAngle, PHASES_EARTH_POSITION, phaseName, phasesMoonPosition } from '../src/learn/phases/phasesGeometry'
@@ -52,9 +51,9 @@ describe('MOON_PHASES_LESSON', () => {
     expect(phaseName(stageOf('last-quarter').moonAgeDegrees)).toBe('Last quarter')
   })
 
-  it('is registered in LESSONS_BY_ID and offered in the lesson picker', () => {
+  it('is registered in LESSONS_BY_ID and on a shelf of the lesson library', () => {
     expect(LESSONS_BY_ID['moonPhases']).toBe(MOON_PHASES_LESSON)
-    expect(readFileSync(new URL('../index.html', import.meta.url), 'utf8')).toContain('data-lesson-id="moonPhases"')
+    expect(LESSON_TOPICS.some((topic) => topic.lessons.includes(MOON_PHASES_LESSON))).toBe(true)
   })
 
   it('says what is and is not to scale', () => {

@@ -67,6 +67,12 @@ export function orbitBasisForUpAxis(upAxis: readonly [number, number, number]): 
   return { right, forward0 }
 }
 
+// How far a lesson lets the view turn away from its framing (radians, absolute angles).
+export interface OrbitViewLimits {
+  azimuth: [number, number]
+  elevation: [number, number]
+}
+
 export interface OrbitCameraOptions {
   target?: [number, number, number]
   radius?: number
@@ -107,6 +113,8 @@ export class OrbitCamera {
   minRadius: number
   maxRadius: number
   upAxis: vec3
+  // Set while a lesson lets the user look around its scene a little; null leaves the view free.
+  viewLimits: OrbitViewLimits | null = null
 
   constructor(options: OrbitCameraOptions = {}) {
     const settings = { ...DEFAULT_ORBIT_CAMERA, ...options }
@@ -139,6 +147,9 @@ export class OrbitCamera {
   applyDrag(deltaX: number, deltaY: number, sensitivity = 0.005): void {
     this.azimuth -= deltaX * sensitivity
     this.elevation = clamp(this.elevation + deltaY * sensitivity, -MAX_ELEVATION, MAX_ELEVATION)
+    if (!this.viewLimits) return
+    this.azimuth = clamp(this.azimuth, ...this.viewLimits.azimuth)
+    this.elevation = clamp(this.elevation, ...this.viewLimits.elevation)
   }
 
   applyZoom(deltaY: number, sensitivity = 0.001): void {

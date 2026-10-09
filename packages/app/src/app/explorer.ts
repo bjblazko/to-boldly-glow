@@ -13,7 +13,7 @@ import { BodyLabels } from '../labels/bodyLabels'
 import type { Vec3 } from '../math/tuples'
 import type { OrbitPaths } from '../orbitPaths/orbitPaths'
 import type { SceneLayout } from '../scene/sceneLayout'
-import { EntitySearchUI } from '../search/entitySearchUI'
+import { EntityFinder } from '../search/entityFinder'
 import { heliocentricPosition } from '../smallBodies/keplerOrbit'
 import { SMALL_BODIES } from '../smallBodies/smallBodyCatalog'
 import { ALL_ENTITIES, type SolarSystemEntity } from '../solarSystem/entities'
@@ -54,7 +54,7 @@ export function createExplorer(canvas: HTMLCanvasElement, display: DisplaySettin
   const lens = new CameraLens(camera.orbit, canvas)
   lens.applyZoomFloor(scaleMode.blend)
   const bodyLabels = new BodyLabels(requireElement('#body-labels'))
-  return { canvas, display, scaleMode, camera, lens, clock, timeControls: createTimeControls(clock), bodyLabels, orbitPaths, searchUi, shown }
+  return { canvas, display, scaleMode, camera, lens, clock, timeControls: createTimeControls(clock), bodyLabels, orbitPaths, searchUi, shown, select }
 }
 
 interface CameraWiring {
@@ -150,11 +150,11 @@ function startTour(camera: CameraDirector, clock: SimulationClock, now: () => Si
   camera.startTour(ephemeris, scaleBlend)
 }
 
-function createEntitySearch(camera: CameraDirector, select: (entity: SolarSystemEntity) => void): EntitySearchUI {
-  return new EntitySearchUI(
+function createEntitySearch(camera: CameraDirector, select: (entity: SolarSystemEntity) => void): EntityFinder {
+  return new EntityFinder(
     {
       input: requireElement('#entity-search-input'),
-      results: requireElement('#entity-search-results'),
+      tree: requireElement('#entity-tree'),
       followIndicator: requireElement('#follow-indicator'),
       followLabel: requireElement('#follow-indicator-label'),
       stopButton: requireElement('#follow-stop-button'),

@@ -12,6 +12,7 @@ import {
   renderFrames,
   setDisplaySwitch,
 } from './support/renderedApp'
+import { exitLesson, openLesson } from './support/hud'
 
 // These tests check what actually lands in the frame, not just app state - see support/renderedApp.ts.
 test.use({ viewport: { width: 480, height: 300 } })
@@ -33,7 +34,7 @@ test('turning the starfield off removes the stars from the frame', async ({ page
   const errors = await openRenderedApp(page)
   // Orbit paths, the Milky Way, asteroids and comets off first, so only stars can light up the
   // empty corner being counted.
-  await page.locator('.hud-dock-btn[data-panel="display"]').click()
+  await page.locator('.hud-dock-btn[data-panel="view"]:visible').click()
   for (const toggle of ['#orbit-paths-toggle', '#milky-way-toggle', '#asteroids-toggle', '#comets-toggle']) await page.locator(toggle).uncheck()
   const withStars = countBrightPixels(await captureFrame(page), 0, 0, 120, 80)
   await page.locator('#starfield-toggle').uncheck()
@@ -46,8 +47,7 @@ test('turning the starfield off removes the stars from the frame', async ({ page
 
 test('planets in the size lineup are lit on the side facing the Sun', async ({ page }) => {
   const errors = await openRenderedApp(page)
-  await page.locator('#learn-mode-btn').click()
-  await page.locator('.hud-lesson-picker-item[data-lesson-id="planetSizes"]').click()
+  await openLesson(page, 'planetSizes')
   await renderFrames(page, 3)
   const frame = await captureFrame(page)
   // The Sun bulges in from one side edge of the lineup view (its label is off-screen there).
@@ -125,9 +125,9 @@ const NO_JUMP = 0.05
 test('the tour moves the view smoothly and hands over to free-fly without a jump', async ({ page }) => {
   test.setTimeout(120_000)
   const errors = await openRenderedApp(page)
-  await page.locator('.hud-dock-btn[data-panel="display"]').click()
+  await page.locator('.hud-dock-btn[data-panel="view"]:visible').click()
   await page.locator('#orbit-paths-toggle').uncheck()
-  await page.locator('.hud-dock-btn[data-panel="display"]').click()
+  await page.locator('.hud-dock-btn[data-panel="view"]:visible').click()
   await page.locator('.hud-dock-btn[data-panel="camera"]').click()
   await page.locator('#camera-tour-toggle').click()
   await page.locator('.hud-dock-btn[data-panel="camera"]').click()
@@ -155,9 +155,9 @@ test('the tour flies on when the scale is switched mid-flight', async ({ page })
   await page.locator('.hud-dock-btn[data-panel="camera"]').click()
   await renderFrames(page, 40)
 
-  await page.locator('.hud-dock-btn[data-panel="display"]').click()
+  await page.locator('.hud-dock-btn[data-panel="view"]:visible').click()
   await page.locator('#scale-mode-realistic-btn').click()
-  await page.locator('.hud-dock-btn[data-panel="display"]').click()
+  await page.locator('.hud-dock-btn[data-panel="view"]:visible').click()
   // The scale eases over 1.5 s.
   await renderFrames(page, 20)
   await expect(page.locator('#scene')).toHaveAttribute('data-scale-mode', 'realistic')
@@ -174,10 +174,12 @@ test('a full session renders without GPU errors', async ({ page }) => {
   test.setTimeout(240_000)
   const errors = await openRenderedApp(page)
 
-  await page.locator('.hud-dock-btn[data-panel="display"]').click()
+  await page.locator('#settings-btn').click()
   await page.locator('#flares-toggle').check()
+  await page.locator('#settings-btn').click()
+  await page.locator('.hud-dock-btn[data-panel="view"]:visible').click()
   await page.locator('#scale-mode-realistic-btn').click()
-  await page.locator('.hud-dock-btn[data-panel="display"]').click()
+  await page.locator('.hud-dock-btn[data-panel="view"]:visible').click()
   await renderFrames(page, 18)
   await followEntity(page, 'Saturn')
   await followEntity(page, 'Europa')
@@ -189,14 +191,13 @@ test('a full session renders without GPU errors', async ({ page }) => {
   await page.keyboard.press('KeyW')
   await renderFrames(page, 3)
 
-  await page.locator('#learn-mode-btn').click()
-  await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
+  await openLesson(page, 'seasons')
   for (let chapter = 0; chapter < 5; chapter++) {
     await renderFrames(page, 4)
     await page.locator('#lesson-next-chapter').click()
   }
   await renderFrames(page, 4)
-  await page.locator('#learn-mode-btn').click()
+  await exitLesson(page)
   await renderFrames(page, 3)
 
   expect(errors).toEqual([])

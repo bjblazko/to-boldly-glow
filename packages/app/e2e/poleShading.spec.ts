@@ -7,7 +7,7 @@ test('viewing a planet near-pole-on renders without WebGPU errors', async ({ pag
 
   await openApp(page)
 
-  await page.locator('.hud-dock-btn[data-panel="camera"]').click()
+  await page.locator('.hud-dock-btn[data-panel="find"]').click()
   await page.locator('#entity-search-input').fill('Saturn')
   await page.locator('#entity-search-input').press('Enter')
   await page.waitForTimeout(2000) // let the fly-to tween settle

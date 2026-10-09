@@ -1,48 +1,48 @@
 import { expect, test } from '@playwright/test'
 import { openApp } from './support/appBoot'
+import { openLesson, exitLesson } from './support/hud'
 
-test('entering and exiting learn mode toggles app-mode state and hides/restores the free-roam dock buttons', async ({ page }) => {
+test('entering and exiting learn mode toggles app-mode state and swaps the explore dock for the lesson dock', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
   await openApp(page)
 
   await expect(page.locator('body')).not.toHaveAttribute('data-app-mode', 'learn')
-  await expect(page.locator('.hud-dock')).toBeVisible()
+  await expect(page.locator('.hud-explore-dock')).toBeVisible()
 
-  await page.locator('#learn-mode-btn').click()
-  await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
+  await openLesson(page, 'seasons')
 
   await expect(page.locator('body')).toHaveAttribute('data-app-mode', 'learn')
   await expect(page.locator('body')).toHaveAttribute('data-lesson-id', 'seasons')
-  // The dock itself stays (it holds Display and the Learn/exit button); only the free-roam Camera
-  // and Time buttons hide - see hud.css's body[data-app-mode='learn'] rules.
-  await expect(page.locator('.hud-dock-btn[data-panel="camera"]')).toBeHidden()
-  await expect(page.locator('.hud-dock-btn[data-panel="time"]')).toBeHidden()
-  await expect(page.locator('#display-corner-btn')).toBeVisible()
-  await expect(page.locator('#learn-mode-btn')).toBeVisible()
+  // The lesson dock (library, chapters, View) takes the explore dock's place - see hud.css's
+  // body[data-app-mode='learn'] rules - and the mode switch shows Learn.
+  await expect(page.locator('.hud-explore-dock')).toBeHidden()
+  await expect(page.locator('.hud-lesson-dock')).toBeVisible()
+  await expect(page.locator('#learn-mode-btn')).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.locator('#lesson-view-controls')).toBeVisible()
 
-  await page.locator('#learn-mode-btn').click()
+  await exitLesson(page)
 
   await expect(page.locator('body')).not.toHaveAttribute('data-app-mode', 'learn')
-  await expect(page.locator('.hud-dock-btn[data-panel="camera"]')).toBeVisible()
-  await expect(page.locator('.hud-dock-btn[data-panel="time"]')).toBeVisible()
+  await expect(page.locator('.hud-explore-dock')).toBeVisible()
+  await expect(page.locator('.hud-lesson-dock')).toBeHidden()
+  await expect(page.locator('#explore-mode-btn')).toHaveAttribute('aria-pressed', 'true')
 
   expect(errors).toEqual([])
 })
 
-test('the corner Display button still opens and closes its panel while in learn mode', async ({ page }) => {
+test("the lesson dock's View button opens and closes the View panel while in learn mode", async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
   await openApp(page)
 
-  await page.locator('#learn-mode-btn').click()
-  await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
+  await openLesson(page, 'seasons')
   await expect(page.locator('body')).toHaveAttribute('data-app-mode', 'learn')
 
-  const displayButton = page.locator('#display-corner-btn')
-  const displayPanel = page.locator('.hud-sheet-panel[data-panel="display"]')
+  const displayButton = page.locator('.hud-lesson-dock [data-panel="view"]')
+  const displayPanel = page.locator('.hud-sheet-panel[data-panel="view"]')
 
   await displayButton.click()
   await expect(displayButton).toHaveClass(/is-active/)
@@ -62,8 +62,7 @@ test('chapter navigation updates lesson-panel state, including the kind change a
 
   await openApp(page)
 
-  await page.locator('#learn-mode-btn').click()
-  await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
+  await openLesson(page, 'seasons')
   await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-id', 'orbit')
   await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-kind', 'orbit')
   await expect(page.locator('#lesson-prev-chapter')).toBeDisabled()
@@ -91,7 +90,7 @@ test('orbit paths still render (via the shared, now dash-capable line pipeline) 
   // dash-uniform-carrying) line pipeline to rebind and redraw in both states, catching any
   // LINE_UNIFORM_FLOAT_COUNT/vertex-layout mismatch introduced by generalizing the pipeline beyond
   // its original orbit-paths-only shape.
-  await page.locator('#display-corner-btn').click()
+  await page.locator('.hud-dock-btn[data-panel="view"]:visible').click()
   const orbitPathsToggle = page.locator('#orbit-paths-toggle')
 
   await orbitPathsToggle.uncheck()
@@ -113,30 +112,28 @@ test('lens flares are force-hidden on learn-mode entry and restored to their pri
 
   // Turn flares OFF (a user preference; they default to on): learn mode must leave them off on
   // exit, not flip them back on.
-  await page.locator('.hud-dock-btn[data-panel="display"]').click()
+  await page.locator('#settings-btn').click()
   await page.locator('#flares-toggle').uncheck()
-  await page.locator('.hud-dock-btn[data-panel="display"]').click()
-  await page.locator('#learn-mode-btn').click()
-  await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
+  await page.locator('#settings-btn').click()
+  await openLesson(page, 'seasons')
   await expect(page.locator('body')).toHaveAttribute('data-app-mode', 'learn')
   await expect(page.locator('#scene')).toHaveAttribute('data-flares', 'false')
 
-  await page.locator('#learn-mode-btn').click()
+  await exitLesson(page)
   await expect(page.locator('body')).not.toHaveAttribute('data-app-mode', 'learn')
   await expect(page.locator('#scene')).toHaveAttribute('data-flares', 'false')
 
   // Now turn flares ON: entering learn mode must force them off, and exiting must restore ON - not
   // leave them off, which would silently mutate the user's own explore-mode preference.
-  await page.locator('.hud-dock-btn[data-panel="display"]').click()
+  await page.locator('#settings-btn').click()
   await page.locator('#flares-toggle').check()
   await expect(page.locator('#scene')).toHaveAttribute('data-flares', 'true')
-  await page.locator('.hud-dock-btn[data-panel="display"]').click()
+  await page.locator('#settings-btn').click()
 
-  await page.locator('#learn-mode-btn').click()
-  await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
+  await openLesson(page, 'seasons')
   await expect(page.locator('#scene')).toHaveAttribute('data-flares', 'false')
 
-  await page.locator('#learn-mode-btn').click()
+  await exitLesson(page)
   await expect(page.locator('#scene')).toHaveAttribute('data-flares', 'true')
 
   expect(errors).toEqual([])
@@ -150,19 +147,17 @@ test("Earth's clouds are hidden during a lesson and come back afterward", async 
   await openApp(page)
   await expect(page.locator('#scene')).toHaveAttribute('data-clouds', 'true')
 
-  await page.locator('#learn-mode-btn').click()
-  await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
+  await openLesson(page, 'seasons')
   await expect(page.locator('#scene')).toHaveAttribute('data-clouds', 'false')
-  await page.locator('#learn-mode-btn').click()
+  await exitLesson(page)
   await expect(page.locator('#scene')).toHaveAttribute('data-clouds', 'true')
 
   // Switched off by the user, they stay off after a lesson.
-  await page.locator('#display-corner-btn').click()
+  await page.locator('.hud-dock-btn[data-panel="view"]:visible').click()
   await page.locator('#clouds-toggle').uncheck()
-  await page.locator('#display-corner-btn').click()
-  await page.locator('#learn-mode-btn').click()
-  await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
-  await page.locator('#learn-mode-btn').click()
+  await page.locator('.hud-dock-btn[data-panel="view"]:visible').click()
+  await openLesson(page, 'seasons')
+  await exitLesson(page)
   await expect(page.locator('#scene')).toHaveAttribute('data-clouds', 'false')
   expect(errors).toEqual([])
 })
@@ -173,22 +168,23 @@ test('entity search is explicitly disabled in learn mode, not just unreachable b
 
   await openApp(page)
 
-  await page.locator('#learn-mode-btn').click()
-  await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
+  await openLesson(page, 'seasons')
   await expect(page.locator('body')).toHaveAttribute('data-app-mode', 'learn')
 
   const searchInput = page.locator('#entity-search-input')
   await expect(searchInput).toBeDisabled()
 
   // Simulate a hotkey/focus path reaching the (hidden) search box directly, bypassing the hidden
-  // Camera dock entirely - dispatchEvent doesn't require the element to be visible/actionable,
-  // unlike fill()/type(), so this exercises EntitySearchUI.setEnabled's own guard rather than
+  // explore dock entirely - dispatchEvent doesn't require the element to be visible/actionable,
+  // unlike fill()/type(), so this exercises EntityFinder.setEnabled's own guard rather than
   // relying on the dock's hiddenness to keep the input unreachable.
   await searchInput.evaluate((el: HTMLInputElement) => {
     el.value = 'Earth'
     el.dispatchEvent(new Event('input'))
+    el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }))
   })
-  await expect(page.locator('#entity-search-results')).toBeEmpty()
+  // The tree didn't narrow down to the typed name, and nothing flew anywhere.
+  await expect(page.locator('#entity-tree mark')).toHaveCount(0)
   await expect(page.locator('#follow-indicator')).toBeHidden()
 
   expect(errors).toEqual([])
@@ -200,8 +196,7 @@ test('globe overlays and both location markers render without WebGPU errors acro
 
   await openApp(page)
 
-  await page.locator('#learn-mode-btn').click()
-  await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
+  await openLesson(page, 'seasons')
   await page.waitForTimeout(1500) // let the orbit chapter's continuous revolution get going
 
   // Location A/B are staged-chapter-only - hidden during the orbit chapter.
@@ -244,8 +239,7 @@ test('the lesson panel can be dragged by its grip handle, clamped to the viewpor
 
   await openApp(page)
 
-  await page.locator('#learn-mode-btn').click()
-  await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
+  await openLesson(page, 'seasons')
 
   const panel = page.locator('#lesson-panel')
   const grip = page.locator('#lesson-panel-grip')
@@ -285,17 +279,16 @@ test('opening a lesson while following a body ends the follow, so it cannot drag
 
   await openApp(page)
 
-  await page.locator('.hud-dock-btn[data-panel="camera"]').click()
+  await page.locator('.hud-dock-btn[data-panel="find"]').click()
   await page.locator('#entity-search-input').fill('Mars')
   await page.locator('#entity-search-input').press('Enter')
   await expect(page.locator('#scene')).toHaveAttribute('data-following-id', 'mars')
 
-  await page.locator('#learn-mode-btn').click()
-  await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
+  await openLesson(page, 'seasons')
   await expect(page.locator('body')).toHaveAttribute('data-app-mode', 'learn')
   await expect(page.locator('#scene')).not.toHaveAttribute('data-following-id')
 
-  await page.locator('#learn-mode-btn').click()
+  await exitLesson(page)
   await expect(page.locator('#follow-indicator')).toBeHidden()
 
   expect(errors).toEqual([])
@@ -304,14 +297,12 @@ test('opening a lesson while following a body ends the follow, so it cannot drag
 test('each lesson says what is and is not to scale', async ({ page }) => {
   await openApp(page)
 
-  await page.locator('#learn-mode-btn').click()
-  await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
+  await openLesson(page, 'seasons')
   await expect(page.locator('#lesson-note')).toBeVisible()
   await expect(page.locator('#lesson-note')).toContainText('All angles shown are true')
-  await page.locator('#learn-mode-btn').click()
+  await exitLesson(page)
 
-  await page.locator('#learn-mode-btn').click()
-  await page.locator('.hud-lesson-picker-item[data-lesson-id="planetSizes"]').click()
+  await openLesson(page, 'planetSizes')
   await expect(page.locator('#lesson-note')).toContainText('Sizes are to scale')
 })
 
@@ -320,13 +311,12 @@ test('the seasons lesson keeps working when the explore view is at Realistic sca
   page.on('pageerror', (error) => errors.push(error.message))
 
   await openApp(page)
-  await page.locator('#display-corner-btn').click()
+  await page.locator('.hud-dock-btn[data-panel="view"]:visible').click()
   await page.locator('#scale-mode-realistic-btn').click()
   await expect(page.locator('#scene')).toHaveAttribute('data-scale-mode', 'realistic')
-  await page.locator('#display-corner-btn').click()
+  await page.locator('.hud-dock-btn[data-panel="view"]:visible').click()
 
-  await page.locator('#learn-mode-btn').click()
-  await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
+  await openLesson(page, 'seasons')
   await page.locator('#lesson-next-chapter').click() // orbit -> intro (staged)
   await page.waitForTimeout(1500)
   await expect(page.locator('#axis-tilt-label')).toHaveText('23.4° toward the Sun')

@@ -38,13 +38,16 @@ export class CameraDirector {
   private readonly follow = new CameraFollowController(this.orbit)
   private readonly tour = new TourController(ALL_ENTITIES.filter((entity) => entity.kind === 'planet'))
   private touring = false
+  private pickEnabled = true
 
   constructor(
     canvas: HTMLCanvasElement,
     private readonly events: CameraDirectorEvents,
   ) {
     this.input = new CameraInputController(canvas, this.orbit, this.fly, {
-      onDoubleTap: (x, y) => events.onPick(x, y),
+      onDoubleTap: (x, y) => {
+        if (this.pickEnabled) events.onPick(x, y)
+      },
       onSpeedLevelChange: (level) => events.onSpeedLevelChange(level),
     })
   }
@@ -136,6 +139,15 @@ export class CameraDirector {
 
   setInputEnabled(enabled: boolean): void {
     this.input.setEnabled(enabled)
+  }
+
+  // Lessons let the user look around their scene but not fly off to a double-clicked body.
+  setPickEnabled(enabled: boolean): void {
+    this.pickEnabled = enabled
+  }
+
+  zoom(logFactor: number): void {
+    this.input.zoom(logFactor)
   }
 
   // The bodies around the camera (from the last frame's scene): free flight slows near them and

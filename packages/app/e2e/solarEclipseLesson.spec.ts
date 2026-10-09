@@ -2,6 +2,7 @@ import { expect, test, type Page } from '@playwright/test'
 import { openApp } from './support/appBoot'
 import { meanLuminance, type CapturedFrame } from './support/frameCapture'
 import { captureFrame, labelAnchor, luminanceAt, openRenderedApp, renderFrames } from './support/renderedApp'
+import { openLesson, exitLesson } from './support/hud'
 
 const CHAPTERS: [id: string, kind: string][] = [
   ['new-moon', 'eclipseOrbit'],
@@ -15,8 +16,7 @@ const CHAPTERS: [id: string, kind: string][] = [
 ]
 
 async function openEclipseLesson(page: Page): Promise<void> {
-  await page.locator('#learn-mode-btn').click()
-  await page.locator('.hud-lesson-picker-item[data-lesson-id="solarEclipse"]').click()
+  await openLesson(page, 'solarEclipse')
 }
 
 async function nextChapter(page: Page, times = 1): Promise<void> {
@@ -45,7 +45,7 @@ test('the solar eclipse lesson goes from space down to the ground and back out t
   await expect(page.locator('#lesson-next-chapter')).toBeDisabled()
   await expect(page.locator('#lesson-note')).toContainText('Not to scale')
 
-  await page.locator('#learn-mode-btn').click()
+  await exitLesson(page)
   await expect(page.locator('body')).not.toHaveAttribute('data-app-mode', 'learn')
   for (const label of ['umbra', 'penumbra', 'moon-orbit', 'orbit-plane', 'glasses', 'corona']) {
     await expect(page.locator(`#eclipse-${label}-label`)).toBeHidden()

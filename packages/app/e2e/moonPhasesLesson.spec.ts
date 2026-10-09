@@ -2,6 +2,7 @@ import { expect, test, type Page } from '@playwright/test'
 import { openApp } from './support/appBoot'
 import { meanLuminance, type CapturedFrame } from './support/frameCapture'
 import { captureFrame, openRenderedApp, renderFrames } from './support/renderedApp'
+import { openLesson, exitLesson } from './support/hud'
 
 const CHAPTERS: [id: string, kind: string][] = [
   ['always-half-lit', 'phasesOrbit'],
@@ -14,8 +15,7 @@ const CHAPTERS: [id: string, kind: string][] = [
 ]
 
 async function openPhasesLesson(page: Page): Promise<void> {
-  await page.locator('#learn-mode-btn').click()
-  await page.locator('.hud-lesson-picker-item[data-lesson-id="moonPhases"]').click()
+  await openLesson(page, 'moonPhases')
 }
 
 async function nextChapter(page: Page, times = 1): Promise<void> {
@@ -48,7 +48,7 @@ test('the Moon phases lesson goes from the orbit down to the evening sky and bac
   }
   await expect(page.locator('#lesson-next-chapter')).toBeDisabled()
 
-  await page.locator('#learn-mode-btn').click()
+  await exitLesson(page)
   await expect(page.locator('body')).not.toHaveAttribute('data-app-mode', 'learn')
   await expect(page.locator('#moon-phase-inset')).toBeHidden()
   for (const label of ['sunlight', 'new', 'first-quarter', 'full', 'last-quarter', 'earth-shadow', 'moon-orbit', 'near-side']) {

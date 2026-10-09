@@ -13,7 +13,7 @@ test('a real star catalog loads and the starfield can be toggled', async ({ page
   expect(starCount).toBeGreaterThan(5000)
 
   // Display toggles live behind the dock's "Display" sheet — open it before interacting.
-  await page.locator('.hud-dock-btn[data-panel="display"]').click()
+  await page.locator('.hud-dock-btn[data-panel="view"]:visible').click()
 
   const toggle = page.locator('#starfield-toggle')
   await expect(toggle).toBeChecked()

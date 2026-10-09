@@ -137,16 +137,28 @@ const GROUND_HALF_WIDTH_DEGREES = 12
 // the planets' width across the screen.
 const SIZES_FRAMING_MARGIN = 1.15
 
-// The lesson panel covers the canvas's bottom; mirrors .hud-lesson-panel's
-// `top: max(16px, calc(100% - 376px))` in hud.css - keep the two in sync.
+// The lesson panel covers the canvas's bottom; its top rises at most to max(16px, 100% - 376px)
+// (see .hud-lesson-panel in hud.css) - keep the two in sync.
 const LESSON_PANEL_RESERVED_PX = 376
 const LESSON_PANEL_MIN_TOP_PX = 16
+// The top bar (the Explore / Learn switch) covers the canvas's top 76px.
+const TOP_BAR_RESERVED_PX = 76
 const FIT_MARGIN_TOP = 0.05
 const FIT_MARGIN_BOTTOM = 0.04
 // On short windows the panel covers most of the screen; the scene still gets at least the top half
 // (the panel can be dragged aside), and the camera backs off at most this far from the preset.
 const FIT_MIN_BAND_BOTTOM = 0.5
+// Nor does the top bar squeeze the scene below this share of the screen: on short windows the
+// scene reaches up beside the (narrow) mode switch instead.
+const FIT_MIN_BAND_HEIGHT = 0.4
 const FIT_MAX_ZOOM_OUT = 2
+
+// How far the user may look around a scene from where the chapter frames it: turn the view by up to
+// 30 degrees either way, zoom in to 30% of the framing distance (never past the scene's own zoom
+// floor) and back off to twice it.
+const LOOK_AROUND_RADIANS = Math.PI / 6
+const ZOOM_IN_LIMIT = 0.3
+const ZOOM_OUT_LIMIT = 2
 
 interface ContentBounds {
   top: number
@@ -176,8 +188,12 @@ const CONTENT_BOUNDS: Partial<Record<ChapterKind, ContentBounds>> = {
 
 // Points the orbit camera at a lesson chapter's scene. Each chapter kind has a fixed shot, applied
 // once when the kind changes - never every chapter - so the camera stays still while a chapter's
-// scene animates.
+// scene animates. From there the user may look around a little (see LOOK_AROUND_RADIANS); framing
+// again (a new kind, or the reset button) brings the shot back.
 export class LessonCamera {
+  // The orbit camera's own zoom-out limit, put back when the lesson ends.
+  private freeMaxRadius: number | null = null
+
   constructor(
     private readonly orbit: OrbitCamera,
     private readonly lens: CameraLens,
@@ -190,15 +206,32 @@ export class LessonCamera {
     // Lessons ignore the explore view's scale: the lineup is at true scale (the Sun's radius there is
     // ~0.09 units), so its zoom floor and near plane come from its own framing distance; the seasons,
     // eclipse and phases scenes are drawn at Compact sizes.
-    this.lens.setLessonZoomFloor(kind === 'sizes' ? this.orbit.radius * 0.01 : COMPACT_MIN_ORBIT_RADIUS)
+    const sceneFloor = kind === 'sizes' ? this.orbit.radius * 0.01 : COMPACT_MIN_ORBIT_RADIUS
+    this.lens.setLessonZoomFloor(sceneFloor)
     if (groundShot) this.fitAbovePanel(groundBounds(groundShot), 1)
     else this.fitAbovePanel(CONTENT_BOUNDS[kind] ?? CONTENT_BOUNDS.staged!, MAX_ZOOM_OUT[kind] ?? FIT_MAX_ZOOM_OUT)
+    // The observer's eye on the ground stays put (the lesson doesn't take camera input there).
+    if (!groundShot) this.allowLookingAround(sceneFloor)
   }
 
   release(): void {
+    this.orbit.viewLimits = null
+    if (this.freeMaxRadius !== null) this.orbit.maxRadius = this.freeMaxRadius
+    this.freeMaxRadius = null
     this.lens.setLessonZoomFloor(null)
     this.lens.lensShiftNdc = 0
     this.orbit.radius = Math.max(this.orbit.radius, this.orbit.minRadius)
+  }
+
+  private allowLookingAround(sceneFloor: number): void {
+    const { azimuth, elevation, radius } = this.orbit
+    this.freeMaxRadius ??= this.orbit.maxRadius
+    this.orbit.viewLimits = {
+      azimuth: [azimuth - LOOK_AROUND_RADIANS, azimuth + LOOK_AROUND_RADIANS],
+      elevation: [elevation - LOOK_AROUND_RADIANS, elevation + LOOK_AROUND_RADIANS],
+    }
+    this.orbit.maxRadius = radius * ZOOM_OUT_LIMIT
+    this.lens.setLessonZoomFloor(Math.max(sceneFloor, radius * ZOOM_IN_LIMIT))
   }
 
   private applyPreset(preset: CameraPreset): void {
@@ -233,7 +266,8 @@ export class LessonCamera {
     const height = this.canvas.clientHeight
     if (height <= 0) return
     const panelTop = Math.max(LESSON_PANEL_MIN_TOP_PX, height - LESSON_PANEL_RESERVED_PX) / height
-    const band = { top: FIT_MARGIN_TOP, bottom: Math.max(panelTop - FIT_MARGIN_BOTTOM, FIT_MIN_BAND_BOTTOM) }
+    const bottom = Math.max(panelTop - FIT_MARGIN_BOTTOM, FIT_MIN_BAND_BOTTOM)
+    const band = { top: Math.max(FIT_MARGIN_TOP, Math.min(TOP_BAR_RESERVED_PX / height, bottom - FIT_MIN_BAND_HEIGHT)), bottom }
     const tanHalfFov = Math.tan(VERTICAL_FOV_RADIANS / 2)
     const halfHeightToFit = Math.max(
       (content.top - content.bottom) / (2 * (band.bottom - band.top)),

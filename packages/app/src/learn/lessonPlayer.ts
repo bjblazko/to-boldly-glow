@@ -9,9 +9,10 @@ export class LessonPlayer {
   private lesson: Lesson | null = null
   private chapterIndex = 0
 
-  load(lesson: Lesson): void {
+  // Starts at the given chapter (clamped to the lesson's), so a lesson can resume where it was left.
+  load(lesson: Lesson, chapterIndex = 0): void {
     this.lesson = lesson
-    this.chapterIndex = 0
+    this.chapterIndex = Math.min(Math.max(0, Math.trunc(chapterIndex)), lesson.chapters.length - 1)
   }
 
   get currentLesson(): Lesson {
@@ -43,5 +44,9 @@ export class LessonPlayer {
   previousChapter(): void {
     if (!this.hasPreviousChapter) return
     this.chapterIndex -= 1
+  }
+
+  goToChapter(index: number): void {
+    if (index >= 0 && index < this.currentLesson.chapters.length) this.chapterIndex = index
   }
 }

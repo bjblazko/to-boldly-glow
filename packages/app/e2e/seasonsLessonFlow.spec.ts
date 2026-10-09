@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { openApp } from './support/appBoot'
+import { openLesson, exitLesson } from './support/hud'
 
 test('full seasons lesson flow: enter, all 6 chapters, exit', async ({ page }) => {
   const errors: string[] = []
@@ -7,8 +8,7 @@ test('full seasons lesson flow: enter, all 6 chapters, exit', async ({ page }) =
 
   await openApp(page)
 
-  await page.locator('#learn-mode-btn').click()
-  await page.locator('.hud-lesson-picker-item[data-lesson-id="seasons"]').click()
+  await openLesson(page, 'seasons')
   await expect(page.locator('body')).toHaveAttribute('data-app-mode', 'learn')
 
   const expectedChapterIds = ['orbit', 'intro', 'march-equinox', 'june-solstice', 'september-equinox', 'december-solstice']
@@ -21,7 +21,7 @@ test('full seasons lesson flow: enter, all 6 chapters, exit', async ({ page }) =
   }
   await expect(page.locator('#lesson-next-chapter')).toBeDisabled()
 
-  await page.locator('#learn-mode-btn').click() // exit
+  await exitLesson(page) // exit
   await expect(page.locator('body')).not.toHaveAttribute('data-app-mode', 'learn')
   await expect(page.locator('.hud-dock')).toBeVisible()
 

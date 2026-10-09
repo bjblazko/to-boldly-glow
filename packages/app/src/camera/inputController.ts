@@ -79,6 +79,11 @@ export class CameraInputController {
     this.flyCamera.stop()
   }
 
+  // A zoom step from a button: glides like a wheel notch (positive moves out). Orbit camera only.
+  zoom(logFactor: number): void {
+    if (this.enabled && this.mode === 'orbit') this.orbitMotion.zoom(logFactor)
+  }
+
   // The bodies around the ship this frame: they set its cruising speed and stop it at their surfaces.
   setObstacles(obstacles: readonly Obstacle[]): void {
     this.obstacles = obstacles

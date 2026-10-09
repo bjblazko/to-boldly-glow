@@ -1,4 +1,3 @@
-import { readFileSync } from 'node:fs'
 import { vec3 } from 'gl-matrix'
 import { describe, expect, it } from 'vitest'
 import { CameraLens } from '../src/camera/cameraLens'
@@ -9,7 +8,7 @@ import { SHADOW_SWEEP_DEGREES } from '../src/learn/eclipse/eclipseScene'
 import { ECLIPSE_SKY_SHOT, OBSERVER, SUNWARD, ZENITH } from '../src/learn/eclipse/skyGeometry'
 import { LessonCamera } from '../src/learn/lessonCamera'
 import { isEclipseKind } from '../src/learn/lessonTypes'
-import { LESSONS_BY_ID } from '../src/learn/lessons/lessonCatalog'
+import { LESSON_TOPICS, LESSONS_BY_ID } from '../src/learn/lessons/lessonCatalog'
 import { SOLAR_ECLIPSE_LESSON } from '../src/learn/lessons/solarEclipse'
 
 const ids = SOLAR_ECLIPSE_LESSON.chapters.map((chapter) => chapter.id)
@@ -63,9 +62,9 @@ describe('SOLAR_ECLIPSE_LESSON', () => {
     expect(SOLAR_ECLIPSE_LESSON.note).toContain('5 times more steeply')
   })
 
-  it('is registered in LESSONS_BY_ID and offered in the lesson picker', () => {
+  it('is registered in LESSONS_BY_ID and on a shelf of the lesson library', () => {
     expect(LESSONS_BY_ID['solarEclipse']).toBe(SOLAR_ECLIPSE_LESSON)
-    expect(readFileSync(new URL('../index.html', import.meta.url), 'utf8')).toContain('data-lesson-id="solarEclipse"')
+    expect(LESSON_TOPICS.some((topic) => topic.lessons.includes(SOLAR_ECLIPSE_LESSON))).toBe(true)
   })
 })
 

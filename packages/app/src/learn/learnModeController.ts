@@ -1,22 +1,27 @@
 import type { DockUI } from '../hud/dockUI'
-import type { EntitySearchUI } from '../search/entitySearchUI'
+import type { EntityFinder } from '../search/entityFinder'
 
 export type AppMode = 'explore' | 'learn'
 
-// Owns the top-level explore/learn mode switch: hides/relocates free-roam HUD via a
-// `data-app-mode` attribute (see hud.css's `body[data-app-mode='learn']` rules), locks out free
-// camera input and entity search, and closes any dock panel left open from free-roam use.
-// Deliberately holds no lesson-specific state (current chapter, scrub position, latitude) —
-// that's LessonPlayer's job (see learn/lessonPlayer.ts) — so this class stays a pure mode switch,
-// reusable unchanged if a future lesson picker ever offers more than one lesson.
+export interface LessonCameraInput {
+  setEnabled(enabled: boolean): void
+  setPickEnabled(enabled: boolean): void
+}
+
+// Owns the top-level explore/learn mode switch: swaps the explore dock for the lesson dock via a
+// `data-app-mode` attribute (see hud.css's `body[data-app-mode='learn']` rules), takes the camera
+// away from the user until the lesson has framed its shot (LessonSession hands back what a shot
+// allows), switches off double-click fly-to and the object finder, and closes any dock panel left
+// open. Deliberately holds no lesson-specific state (current chapter) - that's LessonPlayer's job
+// (see learn/lessonPlayer.ts) - so this class stays a pure mode switch.
 export class LearnModeController {
   private mode: AppMode = 'explore'
 
   constructor(
     private readonly body: HTMLElement,
-    private readonly cameraInput: { setEnabled(enabled: boolean): void },
+    private readonly cameraInput: LessonCameraInput,
     private readonly dockUI: DockUI,
-    private readonly entitySearch: EntitySearchUI,
+    private readonly entityFinder: EntityFinder,
   ) {}
 
   get currentMode(): AppMode {
@@ -28,9 +33,10 @@ export class LearnModeController {
     this.body.dataset.appMode = 'learn'
     this.body.dataset.lessonId = lessonId
     this.cameraInput.setEnabled(false)
-    // Entity search must be robustly unreachable in learn mode, not just incidentally hidden
-    // behind the (also-hidden) Camera dock panel - see EntitySearchUI.setEnabled's doc comment.
-    this.entitySearch.setEnabled(false)
+    this.cameraInput.setPickEnabled(false)
+    // The finder must be robustly unusable in learn mode, not just out of sight in the hidden
+    // explore dock's panel - see EntityFinder.setEnabled.
+    this.entityFinder.setEnabled(false)
     this.dockUI.closeActivePanel()
   }
 
@@ -39,6 +45,8 @@ export class LearnModeController {
     this.body.dataset.appMode = 'explore'
     delete this.body.dataset.lessonId
     this.cameraInput.setEnabled(true)
-    this.entitySearch.setEnabled(true)
+    this.cameraInput.setPickEnabled(true)
+    this.entityFinder.setEnabled(true)
+    this.dockUI.closeActivePanel()
   }
 }

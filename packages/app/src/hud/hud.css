@@ -45,7 +45,10 @@
 
 .hud-dock,
 .hud-sheet,
-.hud-lesson-picker,
+.hud-popover,
+.hud-palette,
+.hud-library,
+.hud-modes,
 .hud-lesson-panel,
 .hud-phase-inset,
 .hud-camera-hint,
@@ -54,10 +57,13 @@
   color: var(--hud-text);
 }
 
-/* -------------------- slabs: dock, sheet, lesson panel and picker, cards -------------------- */
+/* -------------------- slabs: docks, sheet, popovers, library, lesson panel, cards -------------------- */
 .hud-dock,
 .hud-sheet,
-.hud-lesson-picker,
+.hud-popover,
+.hud-palette,
+.hud-library,
+.hud-modes,
 .hud-lesson-panel,
 .hud-phase-inset,
 .gpu-lost-alert {
@@ -73,7 +79,10 @@
    their overflow on an inner element, so these faces outside the box aren't clipped. */
 .hud-dock::before,
 .hud-sheet::before,
-.hud-lesson-picker::before,
+.hud-popover::before,
+.hud-palette::before,
+.hud-library::before,
+.hud-modes::before,
 .hud-lesson-panel::before,
 .hud-phase-inset::before,
 .gpu-lost-alert::before {
@@ -92,7 +101,10 @@
 /* ... and its right face. */
 .hud-dock::after,
 .hud-sheet::after,
-.hud-lesson-picker::after,
+.hud-popover::after,
+.hud-palette::after,
+.hud-library::after,
+.hud-modes::after,
 .hud-lesson-panel::after,
 .hud-phase-inset::after,
 .gpu-lost-alert::after {
@@ -205,6 +217,184 @@
   box-shadow: 0 0 14px rgba(255, 59, 189, 0.9);
 }
 
+/* -------------------- top bar: mode switch, search everything, settings -------------------- */
+.hud-modes {
+  --hud-slab-depth: 6px;
+  position: fixed;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  padding: 6px 9px 9px 6px;
+  z-index: 3;
+}
+.hud-mode-btn {
+  appearance: none;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  background: transparent;
+  color: var(--hud-dim);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+.hud-mode-btn:hover {
+  color: var(--hud-text);
+}
+/* The current mode: an opaque white key with a gold edge, like the scale switch's choice. */
+.hud-mode-btn.is-active {
+  color: #0b0d18;
+  background: linear-gradient(115deg, #fff 0 30%, #eef0f8 30%);
+  box-shadow:
+    var(--hud-ex-gold),
+    0 0 24px rgba(255, 207, 74, 0.35);
+}
+.hud-mode-btn:focus-visible,
+.hud-top-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+.hud-top-actions {
+  position: fixed;
+  top: 18px;
+  right: 24px;
+  display: flex;
+  gap: 12px;
+  z-index: 3;
+}
+.hud-top-btn {
+  appearance: none;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  color: var(--hud-text);
+  background: rgba(10, 12, 26, 0.5);
+  backdrop-filter: blur(16px);
+  box-shadow: var(--hud-lit), var(--hud-ring), var(--hud-ex-glass);
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.08s ease,
+    background 0.12s ease;
+}
+.hud-top-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+.hud-top-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: var(--hud-lit), var(--hud-ring), 1px 1px 0 rgba(255, 255, 255, 0.34);
+}
+.hud-top-btn.is-active {
+  background: rgba(255, 59, 189, 0.22);
+  box-shadow: var(--hud-lit), var(--hud-ring), var(--hud-ex-magenta);
+}
+
+/* Popovers: settings, and the lesson's chapter list. */
+.hud-popover {
+  position: fixed;
+}
+.hud-settings {
+  --hud-slab-depth: 6px;
+  --hud-slab-glow: rgba(255, 59, 189, 0.5);
+  top: 74px;
+  right: 24px;
+  width: min(340px, calc(100vw - 40px));
+  padding: 0 18px 18px;
+  z-index: 4;
+}
+.hud-settings .hud-sheet-head {
+  margin: 0 -18px 4px;
+}
+.hud-group-title {
+  margin: 4px 0 -4px;
+  font-family: var(--hud-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--hud-gold);
+}
+.hud-settings .hud-group-title,
+.hud-library-shelf .hud-group-title {
+  margin: 12px 0 10px;
+}
+.hud-group-hint {
+  margin-left: 8px;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--hud-dim);
+}
+
+/* Search everything. */
+.hud-palette {
+  --hud-slab-depth: 6px;
+  --hud-slab-glow: rgba(34, 225, 255, 0.5);
+  position: fixed;
+  top: 74px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(560px, calc(100vw - 40px));
+  padding: 14px;
+  z-index: 5;
+}
+.hud-kbd {
+  font-family: var(--hud-mono);
+  font-size: 10.5px;
+  color: var(--hud-dim);
+  padding: 2px 6px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+.hud-palette-results {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  max-height: min(420px, calc(100vh - 200px));
+  overflow-y: auto;
+}
+.hud-palette-group {
+  margin: 10px 0 4px;
+  padding: 0 10px;
+  font-family: var(--hud-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--hud-gold);
+}
+.hud-palette-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 9px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.hud-palette-item[aria-selected='true'] {
+  background: linear-gradient(90deg, rgba(34, 225, 255, 0.24), rgba(34, 225, 255, 0.02));
+  box-shadow: inset 2px 0 0 var(--hud-cyan);
+}
+.hud-palette-detail {
+  font-family: var(--hud-mono);
+  font-size: 11px;
+  color: var(--hud-dim);
+  white-space: nowrap;
+}
+.hud-palette-empty {
+  padding: 0 12px;
+}
+
 /* -------------------- sheet -------------------- */
 /* Rises above the dock (18px off the bottom, 68px tall) with room for its own 7px edge below it. */
 .hud-sheet {
@@ -235,8 +425,8 @@
   transform: translate(-50%, 0);
 }
 .hud-sheet-scroll {
-  /* On a short screen the panel scrolls instead of growing past the top edge. */
-  max-height: calc(100vh - 156px);
+  /* On a short screen the panel scrolls instead of growing into the top bar. */
+  max-height: calc(100vh - 190px);
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 0 18px 20px;
@@ -423,25 +613,108 @@
   color: var(--hud-dim);
 }
 
-#entity-search-results {
-  max-height: 160px;
-  overflow-y: auto;
+/* The object tree: groups that fold open, bodies as rows, moons indented under their planet. */
+.hud-tree {
+  margin-top: -4px;
 }
-#entity-search-results:not(:empty) {
-  background: rgba(0, 0, 0, 0.2);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
-  padding: 4px;
-  margin-top: -6px;
+.hud-tree-group {
+  margin-bottom: 2px;
 }
-.hud-search-result {
-  padding: 9px 12px;
+.hud-tree-summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  list-style: none;
+  cursor: pointer;
+  font-size: 13.5px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.035);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+.hud-tree-summary::-webkit-details-marker {
+  display: none;
+}
+/* A small chevron that turns down when the group is open. */
+.hud-tree-summary::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid var(--hud-dim);
+  border-bottom: 1.5px solid var(--hud-dim);
+  transform: rotate(-45deg);
+  transition: transform 0.12s ease;
+}
+.hud-tree-group[open] > .hud-tree-summary::before {
+  transform: rotate(45deg);
+}
+.hud-tree-summary:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+.hud-tree-summary:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -2px;
+}
+.hud-tree-count {
+  margin-left: auto;
+  font-family: var(--hud-mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--hud-dim);
+}
+.hud-tree-list {
+  list-style: none;
+  margin: 0;
+  padding: 2px 0 4px;
+}
+/* Moons hang under their planet, along a hairline. */
+.hud-tree-list .hud-tree-list {
+  margin-left: 14px;
+  padding: 0 0 2px;
+  box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.14);
+}
+.hud-tree-item {
+  appearance: none;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 12px;
+  background: transparent;
+  color: var(--hud-text);
+  text-align: left;
+  font: inherit;
   font-size: 14px;
   font-weight: 500;
-  cursor: pointer;
 }
-.hud-search-result:hover {
+.hud-tree-list .hud-tree-list .hud-tree-item {
+  color: rgba(236, 240, 255, 0.82);
+  font-size: 13.5px;
+}
+.hud-tree-item:hover {
   background: linear-gradient(90deg, rgba(34, 225, 255, 0.24), rgba(34, 225, 255, 0.02));
   box-shadow: inset 2px 0 0 var(--hud-cyan);
+}
+.hud-tree-item:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -2px;
+}
+.hud-tree-item mark {
+  background: none;
+  color: var(--hud-cyan);
+  font-weight: 700;
+}
+/* The body the camera follows. */
+.hud-tree-item[aria-current]::after {
+  content: '';
+  width: 7px;
+  height: 7px;
+  margin-left: auto;
+  background: var(--hud-gold);
+  box-shadow: 0 0 10px var(--hud-gold);
 }
 
 .hud-chip {
@@ -490,11 +763,6 @@
   gap: 12px;
   flex-wrap: wrap;
 }
-.hud-row-between {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
 
 /* Square glass keys; the one carrying the main action of its row gets a dichroic face. */
 .hud-icon-btn {
@@ -533,8 +801,7 @@
   cursor: default;
   opacity: 0.32;
 }
-#time-play-pause,
-#lesson-next-chapter {
+#time-play-pause {
   background: linear-gradient(115deg, rgba(255, 255, 255, 0.25) 0 30%, transparent 30%),
     linear-gradient(100deg, #ff3bbd, #ffcf4a);
   box-shadow:
@@ -542,12 +809,8 @@
     var(--hud-ex-magenta),
     0 0 28px -4px rgba(255, 59, 189, 0.8);
 }
-#time-play-pause:active,
-#lesson-next-chapter:active:not(:disabled) {
+#time-play-pause:active {
   box-shadow: var(--hud-lit), 1px 1px 0 #ff7ed4;
-}
-#lesson-next-chapter:disabled {
-  box-shadow: var(--hud-lit), var(--hud-ex-magenta);
 }
 #time-play-pause .icon {
   fill: currentColor;
@@ -864,60 +1127,19 @@
 }
 
 /* -------------------- app mode: learn -------------------- */
-.hud-lesson-picker {
-  --hud-slab-depth: 6px;
-  --hud-slab-glow: rgba(123, 92, 255, 0.55);
-  position: fixed;
-  top: 60px;
-  right: 22px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 8px;
-  z-index: 2;
-}
-.hud-lesson-picker-item {
-  appearance: none;
-  border: none;
-  border-radius: 0;
-  cursor: pointer;
-  background: transparent;
-  color: var(--hud-text);
-  text-align: left;
-  font: inherit;
-  font-size: 14px;
-  font-weight: 500;
-  padding: 10px 14px;
-  white-space: nowrap;
-}
-.hud-lesson-picker-item:hover {
-  background: linear-gradient(90deg, rgba(123, 92, 255, 0.3), rgba(123, 92, 255, 0.03));
-  box-shadow: inset 2px 0 0 var(--hud-violet);
-}
-.hud-lesson-picker-item:focus-visible {
-  outline: 2px solid #fff;
-  outline-offset: -2px;
-}
-
 .hud-lesson-panel {
   --hud-slab-glow: rgba(255, 207, 74, 0.45);
   position: fixed;
   left: 50%;
-  /* Anchored from the top, not the bottom - chapter text length varies a lot (the orbit chapter's
-     text is roughly 4x longer than the shortest staged chapter's), so a bottom-anchored panel
-     would grow upward by a different amount per chapter, moving the Prev/Next buttons (the row's
-     first children, right below the panel's own top edge) up and down between clicks and forcing
-     the user to re-aim their mouse. Anchoring from a fixed top keeps that row's screen position
-     exactly stable across every chapter; only the panel's bottom edge (which nothing depends on)
-     moves as the text reflows. 275px holds the longest chapter's text (plus the lesson's scale
-     note) at desktop widths; on narrower screens, where text wraps onto more lines, the panel's
-     body scrolls instead of letting it run off the bottom. */
-  /* Ends at most 101px above the viewport bottom: clear of the dock (18px off the bottom, 68px
-     tall) plus an 8px gap plus the panel's own 7px edge. The panel has no padding or border, so
-     max-height is its full height: 376px - 101px = 275px; on short windows (top pinned at 16px)
-     16px + 117px keeps the same bottom edge. main.ts's LESSON_PANEL_RESERVED_PX mirrors the
-     376px below to fit lesson scenes above the panel. */
-  top: max(16px, calc(100% - 376px));
+  /* Sits on the lesson dock and grows upward with its text (the chapter controls are in the dock,
+     so nothing here needs to hold still between chapters); folded, it shrinks to its title. It
+     ends 101px above the viewport bottom: clear of the dock (18px off the bottom, 68px tall) plus
+     an 8px gap plus the panel's own 7px edge. The panel has no padding or border, so max-height is
+     its full height: 275px holds the longest chapter's text (plus the lesson's scale note) at
+     desktop widths, so its top never rises above 100% - 376px (on short windows, 16px), which
+     lessonCamera.ts's LESSON_PANEL_RESERVED_PX mirrors to fit lesson scenes above it. On narrower
+     screens, where text wraps onto more lines, the panel's body scrolls. */
+  bottom: 101px;
   max-height: min(275px, calc(100% - 117px));
   display: flex;
   flex-direction: column;
@@ -974,38 +1196,245 @@
   background-image: linear-gradient(90deg, #fff 4px, transparent 0);
 }
 
+.hud-lesson-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  padding: 0 14px 8px 20px;
+}
 .hud-lesson-title {
+  flex: 1;
   font-size: 16px;
   font-weight: 600;
   letter-spacing: -0.01em;
-  margin-left: 4px;
 }
-.hud-lesson-count {
-  margin-right: 6px;
+.hud-collapse .icon {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.16s ease;
+}
+.hud-lesson-panel.is-folded .hud-collapse .icon {
+  transform: rotate(180deg);
+}
+.hud-lesson-panel.is-folded .hud-lesson-panel-head {
+  padding-bottom: 12px;
+}
+
+/* In a lesson the lesson dock takes the explore dock's place, and the scene gets its zoom buttons. */
+.hud-lesson-dock,
+.hud-view-controls {
+  display: none;
+}
+body[data-app-mode='learn'] .hud-explore-dock {
+  display: none;
+}
+body[data-app-mode='learn'] .hud-lesson-dock {
+  display: flex;
+}
+body[data-app-mode='learn'] .hud-view-controls {
+  display: flex;
+}
+/* Lessons frame the camera themselves: the hint on flying and orbiting doesn't apply - nor while
+   the library or the palette is open over the scene. */
+body[data-app-mode='learn'] .hud-camera-hint,
+body:has(.hud-library:not([hidden]), .hud-palette:not([hidden])) .hud-camera-hint {
+  display: none;
+}
+.hud-lesson-dock .hud-dock-btn:disabled {
+  cursor: default;
+  opacity: 0.32;
+}
+.hud-lesson-dock .hud-dock-btn[data-panel] .icon,
+#lesson-library-btn .icon {
+  color: var(--hud-dock-accent, #a594ff);
+}
+/* Next: the lesson's main action, with the dichroic face. */
+#lesson-next-chapter:not(:disabled) {
+  color: #fff;
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0.25) 0 30%, transparent 30%),
+    linear-gradient(100deg, #ff3bbd, #ffcf4a);
+  box-shadow:
+    var(--hud-lit),
+    var(--hud-ex-magenta),
+    0 0 28px -4px rgba(255, 59, 189, 0.8);
+}
+#lesson-next-chapter:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: var(--hud-lit), 1px 1px 0 #ff7ed4;
+}
+.hud-chapter-count {
   font-family: var(--hud-mono);
-  font-size: 11.5px;
+  font-size: 15px;
   font-weight: 500;
-  letter-spacing: 0.08em;
+  line-height: 20px;
   color: var(--hud-gold);
 }
 
-/* The free-roam sheet is fully replaced by the lesson panel while in learn mode - Camera and Time
-   make no sense here (no free camera, no live simulation clock control) - so those two dock
-   buttons hide, leaving Display and Learn (the exit control) visible in the dock. */
-body[data-app-mode='learn'] .hud-dock-btn[data-panel='camera'],
-body[data-app-mode='learn'] .hud-dock-btn[data-panel='time'] {
-  display: none;
+/* The chapter list, above the dock's chapter counter. */
+.hud-chapter-menu {
+  --hud-slab-depth: 6px;
+  position: fixed;
+  left: 50%;
+  bottom: 104px;
+  transform: translateX(-50%);
+  width: min(380px, calc(100vw - 40px));
+  z-index: 4;
 }
-/* Lessons steer the camera themselves: the hint on how to drag and zoom doesn't apply. */
-body[data-app-mode='learn'] .hud-camera-hint {
-  display: none;
+.hud-chapter-list {
+  list-style: none;
+  counter-reset: chapter;
+  max-height: min(420px, calc(100vh - 180px));
+  overflow-y: auto;
+  margin: 0;
+  padding: 8px;
 }
-body[data-app-mode='learn'] #learn-mode-btn-label::before {
-  content: 'Exit ';
+.hud-chapter-list li {
+  counter-increment: chapter;
+}
+.hud-chapter-item {
+  appearance: none;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  background: transparent;
+  color: var(--hud-dim);
+  text-align: left;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 9px 12px;
+}
+.hud-chapter-item::before {
+  content: counter(chapter, decimal-leading-zero);
+  font-family: var(--hud-mono);
+  font-size: 11px;
+  color: var(--hud-dim);
+}
+.hud-chapter-item:hover {
+  color: var(--hud-text);
+  background: linear-gradient(90deg, rgba(123, 92, 255, 0.3), rgba(123, 92, 255, 0.03));
+  box-shadow: inset 2px 0 0 var(--hud-violet);
+}
+.hud-chapter-list [aria-current] .hud-chapter-item {
+  color: #fff;
+  box-shadow: inset 2px 0 0 var(--hud-gold);
+}
+.hud-chapter-list [aria-current] .hud-chapter-item::before {
+  color: var(--hud-gold);
+}
+.hud-chapter-item:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -2px;
+}
+
+/* Zoom in / out / back to the lesson's view, on the scene's right edge. */
+.hud-view-controls {
+  position: fixed;
+  right: 26px;
+  top: 50%;
+  transform: translateY(-50%);
+  flex-direction: column;
+  gap: 12px;
+  z-index: 1;
+}
+.hud-view-controls .hud-icon-btn {
+  background: rgba(10, 12, 26, 0.45);
+  backdrop-filter: blur(16px);
+}
+
+/* -------------------- lesson library -------------------- */
+.hud-library {
+  --hud-slab-glow: rgba(123, 92, 255, 0.6);
+  position: fixed;
+  left: 50%;
+  top: 72px;
+  transform: translateX(-50%);
+  width: min(720px, calc(100vw - 40px));
+  max-height: calc(100vh - 190px);
+  display: flex;
+  flex-direction: column;
+  z-index: 4;
+}
+.hud-library > .hud-sheet-head {
+  margin: 0;
+}
+.hud-library > .hud-search {
+  margin: 12px 18px 4px;
+}
+.hud-library-topics {
+  min-height: 0;
+  overflow-y: auto;
+  padding: 4px 18px 20px;
+}
+.hud-library-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+.hud-lesson-card {
+  position: relative;
+  appearance: none;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 88px;
+  margin: 0 4px 4px 0;
+  padding: 14px 14px 12px;
+  text-align: left;
+  color: var(--hud-text);
+  font: inherit;
+  background: linear-gradient(132deg, rgba(255, 255, 255, 0.1) 0 40%, rgba(255, 255, 255, 0.04) 40%);
+  box-shadow: var(--hud-lit), var(--hud-ring), var(--hud-ex-glass);
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.08s ease,
+    background 0.12s ease;
+}
+.hud-lesson-card:hover {
+  background: linear-gradient(132deg, rgba(255, 255, 255, 0.16) 0 40%, rgba(255, 255, 255, 0.07) 40%);
+  box-shadow: var(--hud-lit), var(--hud-ring), var(--hud-ex-magenta), 0 0 30px -8px rgba(255, 59, 189, 0.7);
+}
+.hud-lesson-card:active {
+  transform: translate(2px, 2px);
+  box-shadow: var(--hud-lit), var(--hud-ring), 1px 1px 0 rgba(255, 255, 255, 0.34);
+}
+.hud-lesson-card:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+.hud-lesson-card-title {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.hud-lesson-card-meta {
+  margin-top: auto;
+  font-family: var(--hud-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--hud-dim);
+}
+.hud-lesson-card.is-done .hud-lesson-card-meta {
+  color: var(--hud-gold);
+}
+.hud-library-empty,
+.hud-tree-empty,
+.hud-palette-empty {
+  margin: 8px 0;
+  color: var(--hud-dim);
+  font-size: 13.5px;
 }
 
 .hud-lesson-text {
-  margin: 8px 0 0;
+  margin: 0;
   font-size: 13px;
   line-height: 1.46;
   color: rgba(236, 240, 255, 0.86);
@@ -1077,12 +1506,13 @@ body[data-app-mode='learn'] #learn-mode-btn-label::before {
   color: var(--hud-dim);
 }
 
-/* Shown when the GPU device is lost mid-session: nothing renders any more until a reload. */
+/* Shown when the GPU device is lost mid-session: nothing renders any more until a reload. It sits
+   under the mode switch, not over it. */
 .gpu-lost-alert {
   --hud-slab-depth: 5px;
   --hud-slab-glow: rgba(255, 59, 189, 0.55);
   position: fixed;
-  top: 16px;
+  top: 84px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 100;
@@ -1109,7 +1539,7 @@ body[data-app-mode='learn'] #learn-mode-btn-label::before {
 /* How the camera is steered, briefly, after switching camera mode. */
 .hud-camera-hint {
   position: fixed;
-  top: 14px;
+  top: 78px;
   left: 50%;
   transform: translateX(-50%);
   width: max-content;
