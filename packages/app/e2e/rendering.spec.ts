@@ -56,12 +56,18 @@ test('planets in the size lineup are lit on the side facing the Sun', async ({ p
   const sunOnLeft = leftEdge > rightEdge
   expect(Math.max(leftEdge, rightEdge)).toBeGreaterThan(120)
 
-  for (const name of ['Jupiter', 'Saturn']) {
+  // Measured against the way to the next planet's center, as the disks' edges don't stand out
+  // reliably: the sky by the Sun glows brighter than their night sides, and Saturn's rings, seen
+  // from the side, run on along the row. Each disk's radius is about a third of that way.
+  for (const [name, next] of [
+    ['Jupiter', 'Saturn'],
+    ['Saturn', 'Uranus'],
+  ]) {
     const planet = await labelAnchor(page, `#body-labels .body-label:text-is("${name}")`)
-    const radius = diskRadiusAlongRow(frame, planet.x, planet.y)
+    const way = Math.abs((await labelAnchor(page, `#body-labels .body-label:text-is("${next}")`)).x - planet.x)
     const towardSun = sunOnLeft ? -1 : 1
-    const sunSide = meanLuminance(frame, planet.x + towardSun * radius * 0.6, planet.y, radius * 0.15)
-    const farSide = meanLuminance(frame, planet.x - towardSun * radius * 0.6, planet.y, radius * 0.15)
+    const sunSide = meanLuminance(frame, planet.x + towardSun * way * 0.2, planet.y, way * 0.05)
+    const farSide = meanLuminance(frame, planet.x - towardSun * way * 0.2, planet.y, way * 0.05)
     expect(sunSide, name).toBeGreaterThan(farSide * 2)
   }
   expect(errors).toEqual([])

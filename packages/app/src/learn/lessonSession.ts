@@ -14,6 +14,7 @@ import { OrbitOverlay } from './seasons/orbitOverlay'
 import type { SeasonsLabels } from './seasons/seasonsLabels'
 import { isSeasonsKind, SeasonsScene } from './seasons/seasonsScene'
 import { StagedOverlay } from './seasons/stagedOverlay'
+import { PlanetTurntable } from './sizes/planetTurntable'
 import { sizesLayout } from './sizes/sizesLineup'
 import type { StagedLessonScene } from './stagedLessonScene'
 
@@ -52,6 +53,7 @@ interface BorrowedState {
 export class LessonSession {
   private readonly player = new LessonPlayer()
   private readonly seasons = new SeasonsScene()
+  private readonly turntable = new PlanetTurntable()
   private readonly stagedOverlay: StagedOverlay
   private readonly orbitOverlay: OrbitOverlay
   private borrowed: BorrowedState | null = null
@@ -99,6 +101,7 @@ export class LessonSession {
       staged.update(deltaSeconds, this.chapter)
       if (staged.groundShot(this.chapter)) this.frameCamera()
     } else if (isSeasonsKind(kind)) this.seasons.update(deltaSeconds, kind)
+    else if (kind === 'sizes') this.turntable.update(deltaSeconds, this.chapter.focusPlanetId)
   }
 
   // The lesson's scene, or null outside lessons (the explore view's real solar system).
@@ -107,7 +110,7 @@ export class LessonSession {
     const { kind } = this.chapter
     const staged = this.stagedScene
     if (staged) return staged.layout(this.chapter, ephemeris)
-    return isSeasonsKind(kind) ? this.seasons.layout(kind, ephemeris) : sizesLayout(ephemeris)
+    return isSeasonsKind(kind) ? this.seasons.layout(kind, ephemeris) : sizesLayout(ephemeris, this.turntable)
   }
 
   updateOverlays(layout: SceneLayout, viewpoint: Viewpoint, { nowSeconds, sunBrightness }: LessonOverlayFrame): void {

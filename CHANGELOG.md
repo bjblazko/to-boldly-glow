@@ -144,14 +144,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   lighting, not a drawing.
 - Earthshine: a lesson can light the Moon's night side with the sunlight Earth reflects, brightest
   around new moon.
-- The "How big are the planets?" lesson flies the camera to each planet in turn, close enough to
+- The "Get to know the planets" lesson flies the camera to each planet in turn, close enough to
   fill the view (Saturn with its rings), turned toward the Sun so most of its face is lit. Each
   planet's page lists its facts as bullet points with pictograms: diameter, circumference, mass,
   rocky / gas giant / ice giant, atmosphere, temperatures (coldest and hottest on the rocky planets,
   the cloud tops on the giants), distance from the Sun, how long it takes to spin once, and its year.
+- "Get to know the planets": the planet in focus turns slowly on its axis, the way it really
+  spins (Venus and Uranus backwards) but every planet equally fast, one turn in 30 seconds.
 
 ### Changed
 
+- "How big are the planets?" is now "Get to know the planets", as each planet's page tells more
+  than its size.
 - The HUD is organized around two modes, switched at the top of the screen: **Explore** and
   **Learn**. Explore's dock has Find, Camera, Time and View. Find is a searchable tree of every body
   by kind - the Sun, planets with their moons under them, dwarf planets, asteroids, comets - that
@@ -234,6 +238,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- "Get to know the planets" looked at the lineup along the ecliptic's axis, so the planets
+  showed a pole instead of their equator. The camera now looks across the row from the side, with
+  ecliptic north up, and each planet's axis is tipped sideways by its real axial tilt, as in a
+  picture book: Earth leans by 23°, Uranus lies on its side and Venus stands on its head.
 - On phones the whole interface rendered at desktop size and tiny (the page had no viewport meta
   tag); it now fits the screen, and taps on the HUD no longer trigger the browser's double-tap zoom.
 - The Display panel scrolls instead of growing past the top of a short window.

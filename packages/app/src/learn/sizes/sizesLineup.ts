@@ -1,8 +1,11 @@
-import { AU_KM, PLANETS, SUN } from '../../solarSystem/bodies'
+import { AU_KM, PLANETS, SUN, type BodyDefinition } from '../../solarSystem/bodies'
 import { scaledBodyRadiusUnits } from '../../solarSystem/sceneScale'
 import { realOrientation, sunPose } from '../../scene/exploreLayout'
-import type { SceneLayout } from '../../scene/sceneLayout'
+import type { PlanetPose, SceneLayout } from '../../scene/sceneLayout'
+import { axisAlignmentRotation } from '../../solarSystem/poleOrientation'
+import type { Vec3 } from '../../math/tuples'
 import type { Ephemeris } from '../../time/ephemeris'
+import type { PlanetTurntable } from './planetTurntable'
 
 const GAP_UNITS = 0.015
 const TRUE_SCALE = 0
@@ -45,13 +48,28 @@ export const LINEUP_PLANETS_EXTENT = {
   maxX: Math.max(...[...LINEUP.values()].map((slot) => slot.x + slot.radius)),
 }
 
-// The "How big are the planets?" scene: the Sun and all eight planets at true relative size.
-export function sizesLayout(ephemeris: Ephemeris): SceneLayout {
+// A planet's axis as a picture book shows it: tipped from ecliptic north by its real axial tilt,
+// but sideways in the picture plane (toward -X, the screen's right) instead of in its real
+// direction in space, which may point at the camera - Uranus's does, almost exactly. So the
+// equator faces the camera and the poles sit at top and bottom, Uranus lies on its side and Venus
+// stands on its head. The spin is the real one.
+function lineupOrientation(definition: BodyDefinition, ephemeris: Ephemeris): Pick<PlanetPose, 'poleDirection' | 'tilt' | 'spinRadians'> {
+  const real = realOrientation(definition, ephemeris)
+  const tiltFromNorth = Math.acos(Math.min(1, Math.max(-1, real.poleDirection[2])))
+  const poleDirection: Vec3 = [-Math.sin(tiltFromNorth), 0, Math.cos(tiltFromNorth)]
+  return { poleDirection, tilt: axisAlignmentRotation(poleDirection), spinRadians: real.spinRadians }
+}
+
+// The "Get to know the planets" scene: the Sun and all eight planets at true relative size, the one
+// in focus turning on the turntable.
+export function sizesLayout(ephemeris: Ephemeris, turntable?: PlanetTurntable): SceneLayout {
   return {
     sun: sunPose(ephemeris, TRUE_SCALE),
     planets: PLANETS.map((definition) => {
       const slot = LINEUP.get(definition.id)!
-      return { definition, position: [slot.x, 0, 0], radius: slot.radius, ...realOrientation(definition, ephemeris) }
+      const orientation = lineupOrientation(definition, ephemeris)
+      const spinRadians = orientation.spinRadians + (turntable?.extraSpin(definition.id) ?? 0)
+      return { definition, position: [slot.x, 0, 0], radius: slot.radius, ...orientation, spinRadians }
     }),
     moons: [],
     alwaysShowBodyLabels: true,

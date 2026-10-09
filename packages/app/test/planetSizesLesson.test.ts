@@ -5,7 +5,9 @@ import { OrbitCamera } from '../src/camera/orbitCamera'
 import { createViewpoint, projectToPixels } from '../src/camera/viewpoint'
 import { LessonCamera } from '../src/learn/lessonCamera'
 import { PLANET_SIZES_LESSON } from '../src/learn/lessons/planetSizes'
-import { LINEUP_SUN_RADIUS, lineupSlot } from '../src/learn/sizes/sizesLineup'
+import { LINEUP_SUN_RADIUS, lineupSlot, sizesLayout } from '../src/learn/sizes/sizesLineup'
+import { realOrientation } from '../src/scene/exploreLayout'
+import { ephemerisAt } from '../src/time/ephemeris'
 
 const PAGE = readFileSync(new URL('../index.html', import.meta.url), 'utf8')
 const planetChapters = PLANET_SIZES_LESSON.chapters.filter((chapter) => chapter.focusPlanetId)
@@ -120,5 +122,37 @@ describe('the camera on a planet chapter', () => {
     expect(arrived.radius).toBeCloseTo(saturn.radius, 9)
     expect(arrived.azimuth).toBeCloseTo(saturn.azimuth, 9)
     expect(arrived.lensShift).toBeCloseTo(saturn.lensShift, 9)
+  })
+})
+
+describe('the planets in the lineup', () => {
+  const tiltFromEclipticNorth = (pole: readonly number[]) => Math.acos(pole[2])
+
+  it('stand with their poles up and down and their equators toward the camera, each leaning by its real axial tilt', () => {
+    for (const date of ['2026-01-01T00:00:00Z', '2031-07-15T12:00:00Z']) {
+      const ephemeris = ephemerisAt(new Date(date))
+      for (const planet of sizesLayout(ephemeris).planets) {
+        const where = `${planet.definition.id} on ${date}`
+        // In the picture plane (X across the row, ecliptic north up), leaning the same way.
+        expect(planet.poleDirection[1], where).toBeCloseTo(0, 9)
+        expect(planet.poleDirection[0], where).toBeLessThanOrEqual(0)
+        const real = realOrientation(planet.definition, ephemeris)
+        expect(tiltFromEclipticNorth(planet.poleDirection), where).toBeCloseTo(tiltFromEclipticNorth(real.poleDirection), 9)
+        expect(planet.spinRadians, where).toBe(real.spinRadians)
+      }
+    }
+  })
+
+  it('are seen from the side, with ecliptic north up on the screen, both whole and close up', () => {
+    const { orbit, camera } = lessonCamera(1280, 800)
+    for (const focusPlanetId of [undefined, ...planetChapters.map((chapter) => chapter.focusPlanetId)]) {
+      camera.frame('sizes', null, { focusPlanetId })
+      const view = orbit.getViewMatrix()
+      const screenUp = [view[1], view[5], view[9]]
+      const eye = orbit.getEyePosition()
+      const where = focusPlanetId ?? 'lineup'
+      expect(screenUp[2], where).toBeGreaterThan(Math.cos(0.15))
+      expect(Math.abs(eye[2] - orbit.target[2]) / orbit.radius, where).toBeLessThan(Math.sin(0.15))
+    }
   })
 })

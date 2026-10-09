@@ -136,8 +136,9 @@ function groundBounds(shot: GroundShot): ContentBounds {
 
 const GROUND_HALF_WIDTH_DEGREES = 12
 
-// Sizes lineup: looking straight at the row (along +Z) with X horizontal, from just far enough to fit
-// the planets' width across the screen.
+// Sizes lineup: looking across the row (along -Y, from the side of the ecliptic) with X horizontal
+// and ecliptic north up, so the planets show their equators, from just far enough to fit the
+// planets' width across the screen.
 const SIZES_FRAMING_MARGIN = 1.15
 const SIZES_ELEVATION = 0.1
 
@@ -384,7 +385,7 @@ export class LessonCamera {
       radius: focusReach(planetId) / Math.tan(VERTICAL_FOV_RADIANS / 2),
       azimuth: Math.PI / 2, // turned toward the Sun once fitted (see frame)
       elevation: SIZES_ELEVATION,
-      upAxis: [0, 1, 0],
+      upAxis: [...ECLIPTIC_NORTH],
     }
   }
 
@@ -396,7 +397,7 @@ export class LessonCamera {
       radius: ((maxX - minX) * SIZES_FRAMING_MARGIN) / 2 / halfWidthPerUnitDistance,
       azimuth: Math.PI / 2,
       elevation: SIZES_ELEVATION,
-      upAxis: [0, 1, 0],
+      upAxis: [...ECLIPTIC_NORTH],
     }
   }
 
