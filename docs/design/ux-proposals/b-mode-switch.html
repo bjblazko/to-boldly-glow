@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>UX proposal B: Mode Switch</title>
+<style>
+  body { font: 14px system-ui, sans-serif; margin: 20px; max-width: 1100px; }
+  .screen { position: relative; height: 560px; border: 2px solid #333; background: #ddd; margin: 8px 0 28px; }
+  .scene { position: absolute; inset: 0; display: grid; place-items: center; color: #888; }
+  .box { position: absolute; border: 1px solid #333; background: #fff; padding: 6px 8px; font-size: 13px; overflow: hidden; }
+  .box h4 { margin: 0 0 4px; }
+  details { margin-left: 14px; } ul { margin: 2px 0; padding-left: 18px; }
+  .sel { background: #ffd; } .dim { color: #888; }
+  .card { display: inline-block; vertical-align: top; width: 150px; height: 70px; border: 1px solid #333; margin: 3px; padding: 4px; }
+</style>
+</head>
+<body>
+<h1>B: Mode Switch</h1>
+<p><b>Idea:</b> keep today's dock, but split the app into two <b>modes</b> with a switch at the top: <b>Explore</b> and <b>Learn</b>.
+Each mode has its own dock, so neither is crowded. Explore's dock is <b>Find · Camera · Time · View</b>. Learn opens a lesson
+<b>library</b> first, then a lesson dock. A <b>command palette</b> (Ctrl+K / 🔍) searches objects, lessons and settings in one
+list. <b>Graphics</b> move behind ⚙.</p>
+
+<h3>1. Explore: the Find sheet (searchable tree)</h3>
+<div class="screen">
+  <div class="scene">3D scene</div>
+  <div class="box" style="left:calc(50% - 110px);top:8px;width:220px;text-align:center">[<b>Explore</b> | Learn]</div>
+  <div class="box" style="right:8px;top:8px">🔍 &nbsp; ⚙</div>
+
+  <div class="box" style="left:calc(50% - 190px);width:380px;bottom:70px;height:380px">
+    <h4>Find <span style="float:right">[×]</span></h4>
+    <input placeholder="Search…" style="width:95%"><br>
+    Filter: [All] [Planets] [Moons] [Dwarf planets] [Asteroids] [Comets]
+    <details open><summary>☉ Sun</summary></details>
+    <details open><summary>Planets</summary>
+      <details><summary>Earth</summary><ul><li>Moon</li></ul></details>
+      <details open><summary>Jupiter</summary><ul><li>Io</li><li class="sel">Europa ← [Fly to] [Follow]</li><li>Ganymede</li><li>Callisto</li></ul></details>
+      <span class="dim">… Mercury, Venus, Mars, Saturn, Uranus, Neptune</span>
+    </details>
+    <details><summary>Dwarf planets (2)</summary></details>
+    <details><summary>Asteroids (2)</summary></details>
+    <details><summary>Comets (7)</summary></details>
+    <hr>Following: Europa [×]
+  </div>
+
+  <div class="box" style="left:calc(50% - 170px);width:340px;bottom:8px;height:52px;text-align:center">
+    [<b>Find</b>] [Camera] [Time] [View]
+  </div>
+  <div class="box" style="right:8px;bottom:8px;width:200px">
+    <span class="dim">Other sheets:</span><br>
+    <b>Camera:</b> Orbit/Fly, Tour, zoom, reset<br>
+    <b>Time:</b> play, direction, speed, shuttle, date<br>
+    <b>View:</b> scale, orbits, bodies, sky, labels, clouds
+  </div>
+</div>
+
+<h3>2. Learn: library first (grows with more lessons)</h3>
+<div class="screen" style="height:330px">
+  <div class="box" style="left:calc(50% - 110px);top:8px;width:220px;text-align:center">[Explore | <b>Learn</b>]</div>
+  <div class="box" style="left:20px;right:20px;top:52px;bottom:20px">
+    <h4>Lesson library &nbsp; <input placeholder="Search lessons"> &nbsp; Topic: [All ▾] &nbsp; Level: [All ▾]</h4>
+    <b>Planets &amp; scale</b><br>
+    <div class="card">How big are the planets?<br><span class="dim">9 chapters · ✓ done</span></div>
+    <div class="card dim">Kepler's laws<br>(future)</div><br>
+    <b>Earth &amp; Moon</b><br>
+    <div class="card">Why does Earth have seasons?<br><span class="dim">6 chapters</span></div>
+    <div class="card sel">Why does the Moon have phases?<br><span class="dim">7 chapters · continue at 3</span></div><br>
+    <b>Sky events</b><br>
+    <div class="card">What happens in a solar eclipse?<br><span class="dim">8 chapters</span></div>
+    <div class="card dim">Lunar eclipse<br>(future)</div>
+  </div>
+</div>
+
+<h3>3. Learn: inside a lesson (zoomable scene)</h3>
+<div class="screen">
+  <div class="scene">3D lesson scene: drag to turn a little, wheel/pinch to zoom</div>
+  <div class="box" style="left:calc(50% - 110px);top:8px;width:220px;text-align:center">[Explore | <b>Learn</b>]</div>
+  <div class="box" style="right:8px;top:120px;width:44px;text-align:center">[+]<br>[−]<br>[⟲]</div>
+  <div class="box" style="left:calc(50% - 280px);width:560px;bottom:70px;height:96px">
+    <b>Always the Same Face</b> <span style="float:right">[▾ hide text]</span><br>
+    The Moon turns once around itself in exactly the time it takes to go once around Earth…<br>
+    <span class="dim">Not to scale: …</span>
+  </div>
+  <div class="box" style="left:calc(50% - 230px);width:460px;bottom:8px;height:52px;text-align:center">
+    [Library] &nbsp; [◀] [<b>3 / 7 ▾</b> chapter list] [▶] &nbsp; [View]
+  </div>
+</div>
+
+<h3>4. Command palette (Ctrl+K or 🔍): one search for everything</h3>
+<div class="screen" style="height:220px">
+  <div class="box" style="left:25%;right:25%;top:20px">
+    <input value="moon" style="width:95%">
+    <b>Objects</b><ul><li class="sel">Moon · Earth's moon</li><li>Moons of Jupiter (4)</li></ul>
+    <b>Lessons</b><ul><li>Why does the Moon have phases?</li></ul>
+    <b>Settings</b><ul><li>Show moons ☑</li></ul>
+  </div>
+</div>
+
+<h3>Notes</h3>
+<ul>
+  <li><b>+</b> Closest to today's UI, so the cheapest to build. The scene stays mostly free; one sheet at a time.</li>
+  <li><b>+</b> The library scales to many lessons (topics, search, progress). Explore and Learn never fight over the screen.</li>
+  <li><b>−</b> Panels are still one at a time; you can't watch Time and View together.</li>
+  <li><b>−</b> The command palette is extra work and only useful for keyboard users (the Find sheet covers touch).</li>
+</ul>
+</body>
+</html>

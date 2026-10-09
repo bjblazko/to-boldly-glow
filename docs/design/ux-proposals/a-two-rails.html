@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>UX proposal A: Two Rails</title>
+<style>
+  body { font: 14px system-ui, sans-serif; margin: 20px; max-width: 1100px; }
+  .screen { position: relative; height: 580px; border: 2px solid #333; background: #ddd; margin: 8px 0 28px; }
+  .scene { position: absolute; inset: 0; display: grid; place-items: center; color: #888; }
+  .box { position: absolute; border: 1px solid #333; background: #fff; padding: 6px 8px; font-size: 13px; overflow: hidden; }
+  .box h4 { margin: 0 0 4px; }
+  details { margin-left: 14px; } summary { cursor: pointer; } ul { margin: 2px 0; padding-left: 18px; }
+  .sel { background: #ffd; } .dim { color: #888; }
+</style>
+</head>
+<body>
+<h1>A: Two Rails</h1>
+<p><b>Idea:</b> a desktop-app layout. The <b>left rail</b> answers "what am I looking at?" (objects, lessons). The <b>right rail</b> answers
+"what is shown?" (layers). <b>Time</b> is a strip along the bottom, <b>camera</b> is a small cluster bottom-right. <b>Graphics</b>
+(renderer settings) leave the main UI for a settings dialog behind ⚙. Both rails can be collapsed to icons; on a phone they become
+bottom sheets.</p>
+
+<h3>1. Explore: finding an object in the searchable tree</h3>
+<div class="screen">
+  <div class="scene">3D scene</div>
+  <div class="box" style="left:0;right:0;top:0;height:34px">☰ To Boldly Glow &nbsp;&nbsp; <input placeholder="Find… (Ctrl+K)" style="width:240px">
+    <span style="float:right">[Explore] [Learn] &nbsp; ⚙</span></div>
+
+  <div class="box" style="left:8px;top:44px;width:250px;bottom:62px">
+    <h4>Objects</h4>
+    <input value="ti" style="width:95%"> <span class="dim">(filters tree, keeps parents)</span>
+    <details open><summary>Planets</summary>
+      <details open><summary>Saturn</summary><ul><li class="sel">Titan</li></ul></details>
+      <details open><summary>Uranus</summary><ul><li>Titania</li></ul></details>
+    </details>
+    <hr>
+    <span class="dim">Unfiltered:</span>
+    <details><summary>☉ Sun</summary></details>
+    <details open><summary>Planets (8)</summary>
+      <details><summary>Mercury</summary></details><details><summary>Venus</summary></details>
+      <details><summary>Earth</summary><ul><li>Moon</li></ul></details>
+      <details><summary>Mars</summary></details>
+      <details><summary>Jupiter</summary><ul><li>Io</li><li>Europa</li><li>Ganymede</li><li>Callisto</li></ul></details>
+      <details><summary>Saturn</summary><ul><li>Titan</li></ul></details>
+      <details><summary>Uranus</summary><ul><li>Titania</li><li>Oberon</li></ul></details>
+      <details><summary>Neptune</summary><ul><li>Triton</li></ul></details>
+    </details>
+    <details><summary>Dwarf planets (2)</summary><ul><li>Ceres</li><li>Pluto</li></ul></details>
+    <details><summary>Asteroids (2)</summary><ul><li>Vesta</li><li>Pallas</li></ul></details>
+    <details><summary>Comets (7)</summary><ul><li>Halley's Comet</li><li>Encke</li><li>67P</li><li>Hale–Bopp</li><li>Swift–Tuttle</li><li>Pons–Brooks</li><li>NEOWISE</li></ul></details>
+    <hr>
+    <b>Titan</b> · moon of Saturn<br>[Fly to] [Follow] [Show only its orbit]<br><span class="dim">Lessons: none yet</span>
+  </div>
+
+  <div class="box" style="right:8px;top:44px;width:200px">
+    <h4>View <span class="dim">(what is shown)</span></h4>
+    Scale: (•) Realistic ( ) Compact<br>
+    <b>Orbits</b><br>☑ Planets ☐ Comets &amp; dwarfs<br>
+    <b>Bodies</b><br>☑ Moons ☑ Asteroids ☑ Comets<br>
+    <b>Sky</b><br>☑ Stars ☑ Milky Way<br>
+    <b>Annotations</b><br>☑ Labels<br>
+    <b>Details</b><br>☑ Earth's clouds
+  </div>
+
+  <div class="box" style="right:8px;bottom:62px;width:200px">
+    <h4>Camera</h4>[Orbit | Fly] &nbsp; [+] [−] [⟲ Reset]<br>[▶ Start tour]
+  </div>
+
+  <div class="box" style="left:0;right:0;bottom:0;height:52px">
+    <b>Time</b> &nbsp; [⏸] [⇄] [1 day/s ▾] &nbsp; past |━━━━●━━━━| future &nbsp; 2026-10-09 14:32 UTC &nbsp; [Now]
+  </div>
+</div>
+
+<h3>2. Learn: library, then inside a lesson</h3>
+<div class="screen">
+  <div class="scene">3D lesson scene: drag to turn (±30°), wheel/pinch to zoom</div>
+  <div class="box" style="left:0;right:0;top:0;height:34px">☰ To Boldly Glow &nbsp; <input placeholder="Find… (Ctrl+K)" style="width:240px">
+    <span style="float:right">[Explore] [<b>Learn</b>] &nbsp; ⚙</span></div>
+
+  <div class="box" style="left:8px;top:44px;width:250px;bottom:8px">
+    <h4>Lessons</h4>
+    <input placeholder="Search lessons" style="width:95%">
+    <details open><summary>Planets &amp; scale</summary><ul><li>How big are the planets? <span class="dim">9 ch · ✓ done</span></li></ul></details>
+    <details open><summary>Earth &amp; Moon</summary><ul>
+      <li>Why does Earth have seasons? <span class="dim">6 ch</span></li>
+      <li class="sel"><b>Why does the Moon have phases?</b> <span class="dim">7 ch · 3/7</span>
+        <ol><li>Always Half Lit</li><li>Not Earth's Shadow</li><li class="sel"><b>Always the Same Face</b></li><li>Evening Crescent</li><li>First Quarter</li><li>Full Moon Rising</li><li>Last Quarter</li></ol></li>
+    </ul></details>
+    <details open><summary>Sky events</summary><ul><li>What happens in a solar eclipse? <span class="dim">8 ch</span></li><li class="dim">Lunar eclipse (soon)</li></ul></details>
+    [Exit lesson]
+  </div>
+
+  <div class="box" style="right:8px;top:44px;width:200px">
+    <h4>Scene</h4>[+] [−] zoom<br>[⟲ Reset to lesson view]<br>
+    <span class="dim">View layers stay in the right rail; a lesson can lock the ones it needs.</span>
+  </div>
+
+  <div class="box" style="left:272px;right:220px;bottom:8px;height:110px">
+    <b>3 / 7 · Always the Same Face</b> &nbsp; <span style="float:right">[◀ Prev] [Next ▶] [▾ collapse]</span><br>
+    The Moon turns once around itself in exactly the time it takes to go once around Earth…<br>
+    <span class="dim">Not to scale: …</span>
+  </div>
+</div>
+
+<h3>3. ⚙ Settings: the renderer lives here, set once</h3>
+<div class="screen" style="height:220px">
+  <div class="box" style="left:30%;right:30%;top:20px;bottom:20px">
+    <h4>Settings &nbsp; [Graphics] [Controls] [About]</h4>
+    <b>Graphics</b> <span class="dim">(how the picture is rendered)</span><br>
+    ☑ Bloom &nbsp; ☑ Lens flares &nbsp; ☐ Filmic look<br>
+    Quality: ( ) Low (•) High <span class="dim">(future)</span>
+  </div>
+</div>
+
+<h3>Notes</h3>
+<ul>
+  <li><b>+</b> Everything visible at once on a desktop; no hunting through a dock. Lessons and objects share the left rail, so more lessons just mean a longer, grouped list.</li>
+  <li><b>+</b> The lesson outline shows all chapters, so you can jump straight to one.</li>
+  <li><b>−</b> Two rails eat into the scene on small screens; they must collapse well (icon strip / bottom sheets).</li>
+  <li><b>−</b> More chrome than today; the "floating over space" feeling is weaker.</li>
+</ul>
+</body>
+</html>

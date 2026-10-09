@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>UX proposal C: Map Style</title>
+<style>
+  body { font: 14px system-ui, sans-serif; margin: 20px; max-width: 1100px; }
+  .screen { position: relative; height: 560px; border: 2px solid #333; background: #ddd; margin: 8px 0 28px; }
+  .scene { position: absolute; inset: 0; display: grid; place-items: center; color: #888; }
+  .box { position: absolute; border: 1px solid #333; background: #fff; padding: 6px 8px; font-size: 13px; overflow: hidden; }
+  .box h4 { margin: 0 0 4px; }
+  details { margin-left: 14px; } ul { margin: 2px 0; padding-left: 18px; }
+  .sel { background: #ffd; } .dim { color: #888; }
+</style>
+</head>
+<body>
+<h1>C: Map Style</h1>
+<p><b>Idea:</b> work like Google Maps, but for space. A <b>search box top-left</b> is the main way in. It opens a categorized
+tree of objects <i>and</i> matching lessons. Picking something opens a <b>card</b> with its actions. Everything else is a
+few floating buttons: <b>Layers</b> (what is shown) top-right, <b>zoom / tilt / reset</b> bottom-right, and a <b>timeline</b>
+along the bottom. Graphics settings sit at the foot of the Layers popover ("Graphics…"), out of the way. There is no dock.</p>
+
+<h3>1. Searching: tree + lessons in one dropdown</h3>
+<div class="screen">
+  <div class="scene">3D scene</div>
+  <div class="box" style="left:8px;top:8px;width:300px;height:420px">
+    <input value="sat" style="width:95%">
+    <b>Objects</b>
+    <details open><summary>Planets</summary>
+      <details open><summary class="sel">Saturn</summary><ul><li>Titan</li></ul></details>
+    </details>
+    <b>Lessons</b><ul><li class="dim">none match "sat"</li></ul>
+    <hr><span class="dim">Empty box → browse:</span>
+    <details><summary>☉ Sun</summary></details>
+    <details open><summary>Planets (8)</summary><span class="dim">Mercury … Neptune, each opens to its moons</span></details>
+    <details><summary>Dwarf planets (2)</summary></details>
+    <details><summary>Asteroids (2)</summary></details>
+    <details><summary>Comets (7)</summary></details>
+    <details><summary>📚 Lessons (4)</summary></details>
+    <span class="dim">Recently visited: Mars, Europa</span>
+  </div>
+  <div class="box" style="right:8px;top:8px">[◧ Layers] [🎓 Learn]</div>
+  <div class="box" style="right:8px;bottom:70px;width:44px;text-align:center">[+]<br>[−]<br>[⤾]<br>[⟲]<br>[✈]</div>
+  <div class="box" style="left:8px;right:8px;bottom:8px;height:52px">
+    [⏸] [1 day/s ▾] &nbsp; ◀ 2020 · · · · · ▮ <b>now</b> · · · · · 2030 ▶ &nbsp; 2026-10-09 14:32 UTC
+  </div>
+</div>
+
+<h3>2. An object is selected: card + Layers popover</h3>
+<div class="screen">
+  <div class="scene">3D scene, flying to Saturn</div>
+  <div class="box" style="left:8px;top:8px;width:300px">
+    <input value="Saturn" style="width:95%"><br>
+    <h4>Saturn</h4>
+    <span class="dim">Planet · 9.5 AU from the Sun · 1 moon shown</span><br>
+    [Fly to] [Follow ✓] [Orbit only]<br>
+    Moons: [Titan]<br>
+    Lessons: [How big are the planets? → Saturn chapter]
+  </div>
+  <div class="box" style="right:8px;top:8px;width:220px">
+    <h4>Layers</h4>
+    Scale: [Realistic | <b>Compact</b>]<br>
+    <b>Orbits</b> ☑ Planets ☐ Comets &amp; dwarfs<br>
+    <b>Bodies</b> ☑ Moons ☑ Asteroids ☑ Comets<br>
+    <b>Sky</b> ☑ Stars ☑ Milky Way<br>
+    <b>Labels</b> ☑ &nbsp; <b>Clouds</b> ☑
+    <hr>Graphics… <span class="dim">(bloom, lens flares, filmic, quality)</span>
+  </div>
+  <div class="box" style="right:8px;bottom:70px;width:44px;text-align:center">[+]<br>[−]<br>[⤾]<br>[⟲]<br>[✈]</div>
+  <div class="box" style="left:8px;right:8px;bottom:8px;height:52px">[⏸] [1 day/s ▾] &nbsp; timeline … &nbsp; 2026-10-09 14:32 UTC</div>
+</div>
+
+<h3>3. Learn: library drawer, then a lesson with a chapter strip</h3>
+<div class="screen">
+  <div class="scene">3D lesson scene: zoom, tilt (±30°), reset to the lesson's view</div>
+  <div class="box" style="left:8px;right:8px;top:8px;height:40px">
+    <b>Why does the Moon have phases?</b> &nbsp;
+    [1] [2] [<b>3 Always the Same Face</b>] [4] [5] [6] [7] &nbsp; <span style="float:right">[📚 Library] [× Exit]</span>
+  </div>
+  <div class="box" style="left:8px;top:58px;width:300px;height:150px">
+    <b>Always the Same Face</b> <span style="float:right">[–]</span><br>
+    The Moon turns once around itself in exactly the time it takes to go once around Earth…<br>
+    <span class="dim">Not to scale: …</span><br>[◀ Prev] [Next ▶]
+  </div>
+  <div class="box" style="right:8px;top:58px;width:240px;height:290px">
+    <h4>📚 Library (drawer) <span style="float:right">[×]</span></h4>
+    <input placeholder="Search lessons" style="width:92%">
+    <details open><summary>Planets &amp; scale</summary><ul><li>How big are the planets? ✓</li></ul></details>
+    <details open><summary>Earth &amp; Moon</summary><ul><li>Seasons</li><li class="sel">Moon phases · 3/7</li></ul></details>
+    <details open><summary>Sky events</summary><ul><li>Solar eclipse</li><li class="dim">Lunar eclipse (soon)</li></ul></details>
+  </div>
+  <div class="box" style="right:8px;bottom:70px;width:44px;text-align:center">[+]<br>[−]<br>[⤾]<br>[⟲]</div>
+  <div class="box" style="left:8px;right:8px;bottom:8px;height:52px"><span class="dim">Timeline hidden: the lesson sets the time</span></div>
+</div>
+
+<h3>Notes</h3>
+<ul>
+  <li><b>+</b> The least chrome: one search box, a few floating buttons, the scene everywhere else. A familiar pattern (maps).</li>
+  <li><b>+</b> Objects and lessons are linked both ways: Saturn's card offers its lessons, a lesson hit appears in search.</li>
+  <li><b>+</b> The chapter strip makes the lesson's length and position obvious; the zoom/tilt cluster is the same in Explore and Learn.</li>
+  <li><b>−</b> The biggest rebuild of the three (cards, timeline, drawer). Object facts on the card need data we don't show yet.</li>
+  <li><b>−</b> A long chapter strip (9+ chapters) needs to scroll or collapse to numbers on narrow screens.</li>
+</ul>
+</body>
+</html>
