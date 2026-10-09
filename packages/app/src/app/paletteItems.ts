@@ -8,6 +8,7 @@ export interface PaletteActions {
   // Flies to the body and follows it (back in explore mode first, if a lesson runs).
   goTo(entity: SolarSystemEntity): void
   openLesson(lesson: Lesson): void
+  hideInterface(): void
 }
 
 const KIND_LABEL: Record<SolarSystemEntity['kind'], string> = {
@@ -22,7 +23,8 @@ const KIND_LABEL: Record<SolarSystemEntity['kind'], string> = {
 // Everything the command palette can find: every body, every lesson, and every switch and the scale
 // buttons as the View and Settings panels show them right now.
 export function gatherPaletteItems(actions: PaletteActions): PaletteItem[] {
-  return [...objectItems(actions), ...lessonItems(actions), ...settingItems()]
+  const hide: PaletteItem = { group: 'Settings', label: 'Hide interface', detail: 'H', run: () => actions.hideInterface() }
+  return [...objectItems(actions), ...lessonItems(actions), ...settingItems(), hide]
 }
 
 function objectItems(actions: PaletteActions): PaletteItem[] {

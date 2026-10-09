@@ -12,7 +12,7 @@ export async function openRenderedApp(page: Page, start: Date = DEFAULT_START): 
   await installOffscreenSwapchain(page)
   await page.clock.install({ time: start })
   await page.clock.pauseAt(start)
-  await page.goto('/')
+  await page.goto('/?tour=off')
   await page.waitForFunction(() => document.querySelector<HTMLElement>('#scene')?.dataset.starCount)
   for (let attempt = 0; attempt < 40; attempt++) {
     await page.clock.runFor(17)
@@ -99,7 +99,7 @@ export async function dragCamera(page: Page, dx: number, dy: number): Promise<vo
 }
 
 export async function setDisplaySwitch(page: Page, selector: string, on: boolean): Promise<void> {
-  // Rendering switches (bloom, lens flares, the filmic look) are in Settings; the rest in View.
+  // Rendering switches (bloom, lens flares) are in Settings; the rest in View.
   const inSettings = (await page.locator(`#settings-panel ${selector}`).count()) > 0
   const opener = page.locator(inSettings ? '#settings-btn' : '.hud-dock-btn[data-panel="view"]:visible')
   await opener.click()

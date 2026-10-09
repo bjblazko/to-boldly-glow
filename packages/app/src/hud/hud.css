@@ -267,7 +267,8 @@
     0 0 24px rgba(255, 207, 74, 0.35);
 }
 .hud-mode-btn:focus-visible,
-.hud-top-btn:focus-visible {
+.hud-top-btn:focus-visible,
+.hud-show-ui:focus-visible {
   outline: 2px solid #fff;
   outline-offset: 3px;
 }
@@ -324,6 +325,82 @@
   height: 3px;
   background: var(--hud-dichroic);
   box-shadow: 0 0 14px rgba(255, 59, 189, 0.9);
+}
+
+/* Hidden interface (Explore only): nothing but the scene and its labels, and one quiet key in the
+   hide button's exact spot (the top actions' 14px + 6px padding from the top, 24px + 6px from the
+   right) to bring it all back. visibility, not display, so open panels return as they were and
+   nothing hidden keeps the keyboard focus. */
+body[data-app-mode='learn'] #hide-ui-btn {
+  display: none;
+}
+body[data-ui-hidden] :is(.hud-modes, .hud-top-actions, .hud-dock, .hud-sheet, .hud-popover, .hud-palette, .hud-camera-hint, .hud-touch-pad) {
+  visibility: hidden;
+}
+.hud-show-ui {
+  position: fixed;
+  top: 20px;
+  right: 30px;
+  z-index: 3;
+  appearance: none;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  color: rgba(236, 240, 255, 0.5);
+  background: rgba(8, 10, 22, 0.35);
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+.hud-show-ui[hidden] {
+  display: none;
+}
+.hud-show-ui:hover,
+.hud-show-ui:focus-visible {
+  color: var(--hud-text);
+  background: rgba(8, 10, 22, 0.6);
+}
+
+/* Always there, in every mode and with the interface hidden: the app is a beta. Quiet, and out of
+   the way of every control (no pointer events). */
+.hud-beta-note {
+  position: fixed;
+  left: 16px;
+  top: 16px;
+  z-index: 2;
+  padding: 4px 8px;
+  border: 1px solid rgba(236, 240, 255, 0.24);
+  border-radius: 2px;
+  font-family: var(--hud-font);
+  font-size: 12px;
+  line-height: 16px;
+  color: rgba(236, 240, 255, 0.78);
+  background: rgba(8, 10, 22, 0.6);
+  pointer-events: none;
+}
+
+/* The frame-rate readout (Settings, off by default): plain figures in the lower left corner, clear
+   of the centered dock. It stays when the interface is hidden - switched on, it is wanted. */
+.hud-fps {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 2;
+  padding: 4px 8px;
+  border-radius: 2px;
+  font-family: var(--hud-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--hud-text);
+  background: rgba(8, 10, 22, 0.6);
+  pointer-events: none;
+}
+.hud-fps[hidden] {
+  display: none;
 }
 
 /* Popovers: settings, and the lesson's chapter list. */
@@ -1156,6 +1233,14 @@
   }
   .hud-top-actions {
     right: 12px;
+  }
+  .hud-show-ui {
+    right: 18px;
+  }
+  /* The mode switch takes the top left corner here: the note goes just below it. */
+  .hud-beta-note {
+    left: 12px;
+    top: 80px;
   }
 }
 

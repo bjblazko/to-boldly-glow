@@ -11,7 +11,7 @@ test('a lost GPU device is reported with a way to reload instead of a silently f
       return device
     }
   })
-  await page.goto('/')
+  await page.goto('/?tour=off')
   const alert = page.getByRole('alert')
   await expect(alert).toContainText('graphics device stopped working')
   await expect(alert).toContainText('simulated loss')

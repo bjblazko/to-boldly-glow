@@ -45,6 +45,8 @@
       </div>
     </div>
 
+    <div class="hud-beta-note">Beta version</div>
+    <div id="fps-display" class="hud-fps" aria-hidden="true" hidden>— fps</div>
     <div id="camera-hint" class="hud-camera-hint" role="status" hidden></div>
     <div id="touch-flight-pad" class="hud-touch-pad" hidden>
       <div id="touch-flight-stick" class="hud-touch-stick" aria-label="Fly">
@@ -124,6 +126,15 @@
       <symbol id="icon-next" viewBox="0 0 24 24">
         <path d="M9.5 6l6 6-6 6" />
       </symbol>
+      <symbol id="icon-eye" viewBox="0 0 24 24">
+        <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" />
+        <circle cx="12" cy="12" r="3" />
+      </symbol>
+      <symbol id="icon-eye-off" viewBox="0 0 24 24">
+        <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" />
+        <circle cx="12" cy="12" r="3" />
+        <path d="M4 20 20 4" />
+      </symbol>
       <symbol id="icon-chevron-down" viewBox="0 0 24 24">
         <path d="M6 9.5l6 6 6-6" />
       </symbol>
@@ -193,7 +204,14 @@
       <button id="settings-btn" class="hud-top-btn" type="button" aria-label="Settings" aria-expanded="false" aria-controls="settings-panel">
         <svg class="icon" aria-hidden="true"><use href="#icon-sliders"></use></svg>
       </button>
+      <button id="hide-ui-btn" class="hud-top-btn" type="button" aria-label="Hide interface" title="Hide interface (H)">
+        <svg class="icon" aria-hidden="true"><use href="#icon-eye-off"></use></svg>
+      </button>
     </div>
+    <!-- With the interface hidden, the one control left: in the hide button's spot, it brings everything back. -->
+    <button id="show-ui-btn" class="hud-show-ui" type="button" aria-label="Show interface" title="Show interface (H)" hidden>
+      <svg class="icon" aria-hidden="true"><use href="#icon-eye"></use></svg>
+    </button>
 
     <div id="settings-panel" class="hud-popover hud-settings" hidden>
       <div class="hud-sheet-head">
@@ -219,10 +237,10 @@
             <span class="hud-switch" aria-hidden="true"></span>
           </span>
         </label>
-        <label class="hud-toggle-chip" title="Film-like colors: very bright light burns out to white instead of staying saturated">
-          <input id="filmic-toggle" type="checkbox" role="switch" />
+        <label class="hud-toggle-chip" title="Frames per second, in the lower left corner">
+          <input id="fps-toggle" type="checkbox" role="switch" />
           <span class="hud-toggle-visual">
-            <span class="hud-toggle-label">Filmic look</span>
+            <span class="hud-toggle-label">FPS counter</span>
             <span class="hud-switch" aria-hidden="true"></span>
           </span>
         </label>

@@ -33,19 +33,16 @@ function ringLuminance(frame: CapturedFrame, center: { x: number; y: number }, r
   return sum / samples
 }
 
-test('the filmic look burns the over-bright Sun out toward white, where the classic look keeps it saturated', async ({ page }) => {
+test('the over-bright Sun burns out toward white (AgX tonemapping)', async ({ page }) => {
   const errors = await openRenderedApp(page)
   await setDisplaySwitch(page, '#body-labels-toggle', false)
   await followEntity(page, 'Sun')
-  const center = { x: 240, y: 150 }
-  const classic = await captureFrame(page)
-  await setDisplaySwitch(page, '#filmic-toggle', true)
-  await expect(page.locator('#scene')).toHaveAttribute('data-filmic', 'true')
-  const filmic = await captureFrame(page)
+  const frame = await captureFrame(page)
 
-  expect(meanSaturation(filmic, center.x, center.y, 10)).toBeLessThan(meanSaturation(classic, center.x, center.y, 10) - 0.15)
-  // The sky stays dark either way.
-  expect(meanLuminance(filmic, 20, 20, 15)).toBeLessThan(40)
+  // Per-channel tonemapping (Reinhard, the former look) kept it orange: a saturation above 0.37.
+  expect(meanSaturation(frame, 240, 150, 10)).toBeLessThan(0.3)
+  // The sky stays dark.
+  expect(meanLuminance(frame, 20, 20, 15)).toBeLessThan(40)
   expect(errors).toEqual([])
 })
 

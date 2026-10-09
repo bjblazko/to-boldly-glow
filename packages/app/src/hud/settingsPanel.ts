@@ -1,7 +1,7 @@
 // The settings popover behind the top-right sliders button: how the picture is rendered (bloom,
-// lens flares, the filmic look) - set once, unlike the View panel's layers, which change what the
-// scene shows. Opens and closes from its button; closes on its close button, Escape, or a press
-// anywhere outside it.
+// lens flares) and the frame-rate readout - set once, unlike the View panel's layers, which change
+// what the scene shows. Opens and closes from its button; closes on its close button, Escape, or a
+// press anywhere outside it.
 export class SettingsPanel {
   constructor(
     private readonly panel: HTMLElement,

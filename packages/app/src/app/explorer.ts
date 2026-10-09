@@ -46,7 +46,7 @@ export function createExplorer(canvas: HTMLCanvasElement, display: DisplaySettin
   const shown: { frame: ShownFrame | null } = { frame: null }
   const select = (entity: SolarSystemEntity) => selectEntity(entity, camera, display, now())
   const camera = createCamera(canvas, {
-    startTour: () => startTour(camera, clock, now),
+    startTour: () => tour(),
     pick: (x, y) => pickAt({ canvas, frame: shown.frame }, x, y, select),
     following: (entity) => searchUi.setFollowing(entity),
   })
@@ -54,7 +54,8 @@ export function createExplorer(canvas: HTMLCanvasElement, display: DisplaySettin
   const lens = new CameraLens(camera.orbit, canvas)
   lens.applyZoomFloor(scaleMode.blend)
   const bodyLabels = new BodyLabels(requireElement('#body-labels'))
-  return { canvas, display, scaleMode, camera, lens, clock, timeControls: createTimeControls(clock), bodyLabels, orbitPaths, searchUi, shown, select }
+  const tour = () => startTour(camera, clock, now)
+  return { canvas, display, scaleMode, camera, lens, clock, timeControls: createTimeControls(clock), bodyLabels, orbitPaths, searchUi, shown, select, startTour: tour }
 }
 
 interface CameraWiring {

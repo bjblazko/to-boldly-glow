@@ -3,7 +3,6 @@ import { ADDITIVE_BLEND } from '../gpu/scenePipeline'
 import { createFullscreenPipeline, runFullscreenPass } from '../gpu/fullscreenPass'
 import { downsampleShaderCode } from '../gpu/downsampleShader'
 import { bloomCompositeShaderCode, bloomUpsampleShaderCode, brightPassShaderCode } from './bloomShaders'
-import { TONEMAPPERS, type Tonemapper } from './tonemapWgsl'
 
 export const HDR_FORMAT: GPUTextureFormat = 'rgba16float'
 const MAX_BLOOM_MIP_LEVELS = 5
@@ -13,7 +12,7 @@ interface BloomPipelines {
   brightPass: GPURenderPipeline
   downsample: GPURenderPipeline
   upsample: GPURenderPipeline
-  composite: Record<Tonemapper, GPURenderPipeline>
+  composite: GPURenderPipeline
 }
 
 interface BloomTargets {
@@ -25,8 +24,7 @@ interface BloomTargets {
   // downsample[i] reads mip i and is drawn into mip i+1; upsample[i] reads mip i+1 and is added onto mip i.
   downsampleBindGroups: GPUBindGroup[]
   upsampleBindGroups: GPUBindGroup[]
-  // One per tonemapper: each composite pipeline has a bind group layout of its own.
-  compositeBindGroups: Record<Tonemapper, GPUBindGroup>
+  compositeBindGroup: GPUBindGroup
 }
 
 // HDR glow around the Sun: the scene renders into an HDR target, whose over-bright parts are blurred
@@ -65,7 +63,7 @@ export class Bloom {
   }
 
   // Bright pass -> downsample chain -> upsample chain -> composite + tonemap onto the swapchain.
-  composite(encoder: GPUCommandEncoder, swapchainView: GPUTextureView, tonemapper: Tonemapper): void {
+  composite(encoder: GPUCommandEncoder, swapchainView: GPUTextureView): void {
     const { pipelines, targets } = this
     const mipView = (level: number) => targets.bloomTexture.createView({ baseMipLevel: level, mipLevelCount: 1 })
     const pass = (pipeline: GPURenderPipeline, bindGroup: GPUBindGroup, target: GPUTextureView, loadOp: GPULoadOp = 'clear') =>
@@ -73,7 +71,7 @@ export class Bloom {
     pass(pipelines.brightPass, targets.brightPassBindGroup, mipView(0))
     for (let i = 0; i < targets.mipCount - 1; i++) pass(pipelines.downsample, targets.downsampleBindGroups[i], mipView(i + 1))
     for (let i = targets.mipCount - 2; i >= 0; i--) pass(pipelines.upsample, targets.upsampleBindGroups[i], mipView(i), 'load')
-    pass(pipelines.composite[tonemapper], targets.compositeBindGroups[tonemapper], swapchainView)
+    pass(pipelines.composite, targets.compositeBindGroup, swapchainView)
   }
 }
 
@@ -83,23 +81,8 @@ async function createBloomPipelines(device: GPUDevice, swapchainFormat: GPUTextu
     brightPass: await createFullscreenPipeline(device, { label: 'bright-pass pipeline', code: brightPassShaderCode, format: HDR_FORMAT }),
     downsample: await createFullscreenPipeline(device, { label: 'bloom downsample pipeline', code: downsampleShaderCode, format: HDR_FORMAT }),
     upsample: await createFullscreenPipeline(device, { label: 'bloom upsample pipeline', code: bloomUpsampleShaderCode, format: HDR_FORMAT, blend: ADDITIVE_BLEND }),
-    composite: await createCompositePipelines(device, swapchainFormat),
+    composite: await createFullscreenPipeline(device, { label: 'bloom composite pipeline', code: bloomCompositeShaderCode, format: swapchainFormat }),
   }
-}
-
-// Both tonemappers are compiled up front, so switching between them is instant.
-async function createCompositePipelines(device: GPUDevice, swapchainFormat: GPUTextureFormat): Promise<Record<Tonemapper, GPURenderPipeline>> {
-  const pipelines = await Promise.all(
-    TONEMAPPERS.map(async (tonemapper) => {
-      const label = `bloom composite pipeline (${tonemapper})`
-      return [tonemapper, await createFullscreenPipeline(device, { label, code: bloomCompositeShaderCode(tonemapper), format: swapchainFormat })] as const
-    }),
-  )
-  return Object.fromEntries(pipelines) as Record<Tonemapper, GPURenderPipeline>
-}
-
-function perTonemapper<T>(make: (tonemapper: Tonemapper) => T): Record<Tonemapper, T> {
-  return Object.fromEntries(TONEMAPPERS.map((tonemapper) => [tonemapper, make(tonemapper)])) as Record<Tonemapper, T>
 }
 
 function computeMipCount(width: number, height: number): number {
@@ -135,7 +118,7 @@ function createBloomTargets(device: GPUDevice, pipelines: BloomPipelines, size: 
     brightPassBindGroup: bindGroup(pipelines.brightPass, [hdrResolveTexture.createView()]),
     downsampleBindGroups: levels.map((i) => bindGroup(pipelines.downsample, [mipView(i)])),
     upsampleBindGroups: levels.map((i) => bindGroup(pipelines.upsample, [mipView(i + 1)])),
-    compositeBindGroups: perTonemapper((tonemapper) => bindGroup(pipelines.composite[tonemapper], [hdrResolveTexture.createView(), mipView(0)])),
+    compositeBindGroup: bindGroup(pipelines.composite, [hdrResolveTexture.createView(), mipView(0)]),
   }
 }
 

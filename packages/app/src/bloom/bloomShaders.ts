@@ -1,5 +1,5 @@
 import { FULLSCREEN_TRIANGLE_VERTEX_WGSL } from '../gpu/fullscreenTriangle'
-import { tonemapWgsl, type Tonemapper } from './tonemapWgsl'
+import { TONEMAP_WGSL } from './tonemapWgsl'
 
 // Bright-pass: extracts the portion of the HDR scene color above THRESHOLD (per channel, not
 // luminance — simpler, and sufficient for a single dominant bloom source like the Sun). Rendered
@@ -51,10 +51,9 @@ fn fs(in: VertexOutput) -> @location(0) vec4f {
 // tonemapWgsl.ts) before writing to the swapchain. This is the only pass that touches the swapchain.
 const BLOOM_INTENSITY = 0.6
 
-export function bloomCompositeShaderCode(tonemapper: Tonemapper): string {
-  return /* wgsl */ `
+export const bloomCompositeShaderCode = /* wgsl */ `
 ${FULLSCREEN_TRIANGLE_VERTEX_WGSL}
-${tonemapWgsl(tonemapper)}
+${TONEMAP_WGSL}
 
 @group(0) @binding(0) var inputSampler: sampler;
 @group(0) @binding(1) var hdrTexture: texture_2d<f32>;
@@ -68,4 +67,3 @@ fn fs(in: VertexOutput) -> @location(0) vec4f {
   return vec4f(tonemap(combined), 1.0);
 }
 `
-}

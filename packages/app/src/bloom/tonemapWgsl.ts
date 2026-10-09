@@ -1,26 +1,7 @@
 // How the HDR scene's light is squeezed into what a display can show. Part of the bloom composite
-// (see bloomShaders.ts): each takes scene-linear light and returns display-encoded color. Reinhard
-// squeezes each color channel on its own, so over-bright light stays saturated, as if painted;
-// AgX - the Display panel's "Filmic look" - burns it out toward white the way film does.
-export type Tonemapper = 'reinhard' | 'agx'
-
-export const TONEMAPPERS: readonly Tonemapper[] = ['reinhard', 'agx']
-
-const GAMMA_ENCODE_WGSL = /* wgsl */ `
-// The swapchain is a plain unorm format, so nothing downstream gamma-encodes for us. Gamma 2.2
-// rather than the exact sRGB curve: the scene's darkest colors (the sky's navy, faint stars) are
-// tuned to it, and the sRGB curve's linear toe would crush them to black.
-fn gammaEncode(color: vec3f) -> vec3f {
-  return pow(max(color, vec3f(0.0)), vec3f(1.0 / 2.2));
-}
-`
-
-// Per channel: x / (1 + x).
-const REINHARD_WGSL = /* wgsl */ `
-fn tonemap(color: vec3f) -> vec3f {
-  return gammaEncode(color / (vec3f(1.0) + color));
-}
-`
+// (see bloomShaders.ts): it takes scene-linear light and returns display-encoded color. AgX burns
+// over-bright light out toward white the way film does, instead of keeping it saturated as
+// per-channel curves (Reinhard, the app's former look) do.
 
 // AgX (Troy Sobotka), in Benjamin Wrensch's minimal fit: compresses in a log space spanning
 // 16.5 stops around middle gray and desaturates toward white the brighter a color gets, so bright
@@ -49,18 +30,10 @@ fn agxBase(color: vec3f) -> vec3f {
 `
 
 // Its contrast curve already returns display-encoded values: no gamma on top.
-const AGX_WGSL = /* wgsl */ `
+export const TONEMAP_WGSL = /* wgsl */ `
 ${AGX_BASE_WGSL}
 fn tonemap(color: vec3f) -> vec3f {
   return clamp(agxBase(color), vec3f(0.0), vec3f(1.0));
 }
 `
 
-const TONEMAP_WGSL: Record<Tonemapper, string> = {
-  reinhard: REINHARD_WGSL,
-  agx: AGX_WGSL,
-}
-
-export function tonemapWgsl(tonemapper: Tonemapper): string {
-  return GAMMA_ENCODE_WGSL + TONEMAP_WGSL[tonemapper]
-}

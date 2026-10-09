@@ -82,8 +82,12 @@ export class CommandPalette {
     if (event.key in moves) {
       event.preventDefault()
       this.choose(this.chosen + moves[event.key])
-    } else if (event.key === 'Enter') this.run(this.shown[this.chosen])
-    else if (event.key === 'Escape') this.close()
+    } else if (event.key === 'Enter') {
+      // The item may move the focus to a button (Hide interface does); without this, the browser
+      // would deliver the same Enter's activation to that button and click it straight away.
+      event.preventDefault()
+      this.run(this.shown[this.chosen])
+    } else if (event.key === 'Escape') this.close()
   }
 
   private run(item: PaletteItem | undefined): void {

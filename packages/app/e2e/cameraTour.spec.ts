@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { openApp } from './support/appBoot'
+import { openApp, waitForFirstFrame } from './support/appBoot'
 
 test('the tour toggle starts and stops from the keyboard', async ({ page }) => {
   const errors: string[] = []
@@ -51,4 +51,20 @@ test('picking a search result during the tour stops it and flies to the result',
   await expect(tourLabel).toHaveText('Start Tour')
 
   expect(errors).toEqual([])
+})
+
+test('the tour sets off on its own a moment after the scene first shows', async ({ page }) => {
+  await page.goto('/')
+  await waitForFirstFrame(page)
+  const tourLabel = page.locator('#camera-tour-toggle .btn-label')
+  await expect(tourLabel).toHaveText('Start Tour')
+  await expect(tourLabel).toHaveText('Stop Tour', { timeout: 10_000 })
+})
+
+test('a click on the scene before the tour sets off keeps the camera still', async ({ page }) => {
+  await page.goto('/')
+  await waitForFirstFrame(page)
+  await page.locator('#scene').click()
+  await page.waitForTimeout(3000)
+  await expect(page.locator('#camera-tour-toggle .btn-label')).toHaveText('Start Tour')
 })

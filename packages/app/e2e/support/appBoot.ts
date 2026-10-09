@@ -11,6 +11,6 @@ export async function waitForFirstFrame(page: Page): Promise<void> {
 }
 
 export async function openApp(page: Page): Promise<void> {
-  await page.goto('/')
+  await page.goto('/?tour=off')
   await waitForFirstFrame(page)
 }

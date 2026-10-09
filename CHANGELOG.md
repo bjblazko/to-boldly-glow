@@ -151,9 +151,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the cloud tops on the giants), distance from the Sun, how long it takes to spin once, and its year.
 - "Get to know the planets": the planet in focus turns slowly on its axis, the way it really
   spins (Venus and Uranus backwards) but every planet equally fast, one turn in 30 seconds.
+- Hide the interface in Explore: the eye button at the top right, H, or "Hide interface" in the
+  search leaves only the scene and its labels; one quiet button in the same spot, H, Esc or
+  Ctrl/Cmd+K bring it back.
+- The planet tour starts on its own 2 seconds after the scene first shows, unless the user acts
+  first; `?tour=off` in the address keeps the camera still.
+- An FPS counter switch in Settings (off by default), shown in the lower left corner.
+- A "Beta version" note, always visible in the top left corner.
 
 ### Changed
 
+- AgX ("Filmic look") is now the only tonemapping: the Reinhard path and the Settings switch for
+  it are gone.
 - "How big are the planets?" is now "Get to know the planets", as each planet's page tells more
   than its size.
 - The HUD is organized around two modes, switched at the top of the screen: **Explore** and

@@ -5,7 +5,7 @@ test('app boots, WebGPU is available, and a frame actually renders', async ({ pa
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
-  await page.goto('/')
+  await page.goto('/?tour=off')
   await expect(page.locator('#scene')).toBeAttached()
 
   const hasWebGpu = await page.evaluate(() => 'gpu' in navigator)

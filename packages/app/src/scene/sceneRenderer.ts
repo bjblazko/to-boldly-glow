@@ -62,7 +62,7 @@ export class SceneRenderer {
     this.draw(pass, frame.layout)
     pass.end()
     this.drawCameraEffects(encoder)
-    this.targets.present(encoder, this.settings.display.filmic.on ? 'agx' : 'reinhard')
+    this.targets.present(encoder)
     this.device.queue.submit([encoder.finish()])
   }
 

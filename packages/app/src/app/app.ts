@@ -9,6 +9,8 @@ import { TextureLoader } from '../gpu/textureLoader'
 import { DisplaySettings } from '../hud/displaySettings'
 import { CommandPalette } from '../hud/commandPalette'
 import { DockUI } from '../hud/dockUI'
+import { FpsMeter } from '../hud/fpsMeter'
+import { InterfaceVisibility } from '../hud/interfaceVisibility'
 import { SettingsPanel } from '../hud/settingsPanel'
 import { LearnModeController } from '../learn/learnModeController'
 import { LearnUi } from '../learn/learnUi'
@@ -44,11 +46,12 @@ import { showDeviceLost } from './errorMessages'
 import { createExplorer, obstaclesIn, shownSmallBodies, type ShownFrame } from './explorer'
 import { runFrameLoop, type FrameTime } from './frameLoop'
 import { gatherPaletteItems } from './paletteItems'
+import { scheduleStartupTour, startupTourWanted } from './startupTour'
 
 type SceneFeatures = Omit<SceneParts, 'lessons'>
 
 // Everything the frame loop drives.
-type Explorer = ReturnType<typeof createExplorer> & { lessons: LessonSession; renderer: SceneRenderer }
+type Explorer = ReturnType<typeof createExplorer> & { lessons: LessonSession; renderer: SceneRenderer; fps: FpsMeter }
 
 export async function startApp(canvas: HTMLCanvasElement): Promise<void> {
   fitCanvasToDisplaySize(canvas)
@@ -63,7 +66,8 @@ export async function startApp(canvas: HTMLCanvasElement): Promise<void> {
     targets.resize()
     lessons.reframe()
   })
-  const app: Explorer = { ...explorer, lessons, renderer }
+  const fps = new FpsMeter(requireElement('#fps-display'), () => display.fps.on)
+  const app: Explorer = { ...explorer, lessons, renderer, fps }
   runFrameLoop((time) => renderFrame(app, time))
 }
 
@@ -125,7 +129,8 @@ function createLessons(explorer: ReturnType<typeof createExplorer>, gpu: LessonG
   )
   const learnUi = createLearnUi(session, progress, dock)
   new SettingsPanel(requireElement('#settings-panel'), requireElement('#settings-btn'), requireElement('#settings-close'))
-  createPalette(learnUi, explorer.select)
+  const ui = new InterfaceVisibility(document.body, { hide: requireElement('#hide-ui-btn'), show: requireElement('#show-ui-btn') })
+  createPalette(learnUi, explorer.select, () => ui.hide())
   return session
 }
 
@@ -144,7 +149,7 @@ function createLearnUi(session: LessonSession, progress: LessonProgress, dock: D
   return new LearnUi({ ...buttons, library }, session, progress, () => dock.closeActivePanel())
 }
 
-function createPalette(learnUi: LearnUi, select: (entity: SolarSystemEntity) => void): CommandPalette {
+function createPalette(learnUi: LearnUi, select: (entity: SolarSystemEntity) => void, hideInterface: () => void): CommandPalette {
   const elements = {
     dialog: requireElement('#command-palette'),
     input: requireElement<HTMLInputElement>('#palette-input'),
@@ -157,6 +162,7 @@ function createPalette(learnUi: LearnUi, select: (entity: SolarSystemEntity) => 
       select(entity)
     },
     openLesson: (lesson: Lesson) => learnUi.openLesson(lesson),
+    hideInterface,
   }
   return new CommandPalette(elements, () => gatherPaletteItems(actions))
 }
@@ -188,7 +194,22 @@ function renderFrame(app: Explorer, time: FrameTime): void {
   const layout = lessons.layout(ephemeris) ?? exploreLayout(ephemeris, scaleMode.blend, display.moons.on)
   showFrame(app, { layout, viewpoint, smallBodies: shownSmallBodies(display, ephemeris, scaleMode.blend) })
   app.renderer.render({ layout, viewpoint, nowSeconds: time.nowSeconds, clock: { daysSinceEpoch: ephemeris.daysSinceEpoch, scaleBlend: scaleMode.blend } })
-  canvas.dataset.rendered = 'true'
+  frameShown(app, time)
+}
+
+function frameShown(app: Explorer, time: FrameTime): void {
+  app.fps.frame(time.realDeltaSeconds)
+  markRendered(app)
+}
+
+// The first frame (everything is loaded by then: startApp awaits it all) is where tests start, and
+// where the tour sets off from.
+function markRendered(app: Explorer): void {
+  if (app.canvas.dataset.rendered) return
+  app.canvas.dataset.rendered = 'true'
+  if (!startupTourWanted(window.location.search)) return
+  const exploring = () => document.body.dataset.appMode !== 'learn' && !app.canvas.dataset.followingId
+  scheduleStartupTour(app.startTour, exploring, window)
 }
 
 // Labels, and what free flight and picking work from in the next frame.
