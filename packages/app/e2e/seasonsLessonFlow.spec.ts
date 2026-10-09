@@ -23,7 +23,7 @@ test('full seasons lesson flow: enter, all 6 chapters, exit', async ({ page }) =
 
   await exitLesson(page) // exit
   await expect(page.locator('body')).not.toHaveAttribute('data-app-mode', 'learn')
-  await expect(page.locator('.hud-dock')).toBeVisible()
+  await expect(page.locator('.hud-explore-dock')).toBeVisible()
 
   expect(errors).toEqual([])
 })
