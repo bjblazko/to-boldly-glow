@@ -5,7 +5,10 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { chromium } from 'playwright';
 
 const dir = path.dirname(fileURLToPath(import.meta.url));
-const all = ['concept-a-candy-glass', 'concept-b-liquid-prism', 'concept-c-neon-reactor'];
+const all = [
+  'concept-a-candy-glass', 'concept-b-liquid-prism', 'concept-c-neon-reactor',
+  'concept-d-cut-crystal', 'concept-e-dichroic-slab', 'concept-f-deco-jewel',
+];
 const names = process.argv.length > 2 ? process.argv.slice(2) : all;
 
 const proxy = process.env.HTTPS_PROXY ? { server: process.env.HTTPS_PROXY } : undefined;

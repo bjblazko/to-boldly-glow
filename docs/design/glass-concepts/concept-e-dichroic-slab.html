@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Concept E: Dichroic Slab</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=block">
+<link rel="stylesheet" href="layout.css">
+<style>
+  :root {
+    --cyan: #22e1ff; --violet: #7b5cff; --magenta: #ff3bbd; --gold: #ffcf4a;
+    --dichroic: linear-gradient(100deg, #22e1ff, #7b5cff 40%, #ff3bbd 72%, #ffcf4a);
+    --text: #f3f5ff; --dim: rgba(222, 228, 255, 0.6);
+    --ring: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+    --lit: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    /* extruded glass thickness, seen from the top left */
+    --ex-glass: 1px 1px 0 rgba(255,255,255,.34), 2px 2px 0 rgba(255,255,255,.22), 3px 3px 0 rgba(255,255,255,.13);
+    --ex-cyan: 1px 1px 0 #63ecff, 2px 2px 0 #29bfe0, 3px 3px 0 #1e93b3, 4px 4px 0 #18708a;
+    --ex-gold: 1px 1px 0 #ffe08a, 2px 2px 0 #e9b636, 3px 3px 0 #b98a1c;
+    --ex-magenta: 1px 1px 0 #ff7ed4, 2px 2px 0 #df35a6, 3px 3px 0 #a82a80;
+    --mono: 'IBM Plex Mono', ui-monospace, monospace;
+  }
+  body { font-family: 'Inter Tight', 'Inter', sans-serif; color: var(--text); }
+  .icon { stroke-width: 1.6; }
+
+  .wash {
+    background:
+      radial-gradient(640px 480px at 0% 38%, rgba(34, 225, 255, 0.32), transparent 70%),
+      radial-gradient(640px 480px at 100% 22%, rgba(255, 59, 189, 0.34), transparent 70%),
+      radial-gradient(900px 300px at 50% 110%, rgba(123, 92, 255, 0.42), transparent 70%),
+      radial-gradient(360px 260px at 70% 78%, rgba(255, 207, 74, 0.14), transparent 70%);
+    mix-blend-mode: screen;
+  }
+
+  /* Caption */
+  .caption-kicker { font-family: var(--mono); font-size: 11px; letter-spacing: 0.3em; color: var(--dim); }
+  .caption-title { margin-top: 6px; font-size: 56px; font-weight: 600; letter-spacing: -0.035em; line-height: 1; color: #fff; }
+  .caption-title::after { content: ''; display: block; width: 132px; height: 3px; margin-top: 12px; background: var(--dichroic);
+    box-shadow: 0 0 14px rgba(255, 59, 189, 0.6); }
+  .caption-sub { margin-top: 12px; font-size: 15px; font-weight: 400; color: var(--dim); }
+  .swatches { gap: 12px; margin-top: 14px; }
+  .swatches i { width: 16px; height: 16px; border-radius: 0; background: var(--c); box-shadow: 1px 1px 0 rgba(255,255,255,.5), 2px 2px 0 rgba(255,255,255,.25), 0 0 14px var(--c); }
+
+  /* Glass slab: sharp corners, a facet split, and a visible dichroic edge */
+  .panel, .dock {
+    border-radius: 0;
+    background:
+      linear-gradient(132deg, rgba(255,255,255,.11) 0 36%, rgba(255,255,255,.035) 36% 100%),
+      rgba(10, 12, 26, 0.42);
+    backdrop-filter: blur(28px) saturate(170%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.75), inset 1px 0 0 rgba(255,255,255,.4), inset 0 0 0 1px rgba(255,255,255,.12),
+      0 50px 80px -30px rgba(0, 0, 0, 0.85), 30px 40px 80px -40px var(--glow, rgba(255, 59, 189, 0.6));
+  }
+  .panel::before, .dock::before { /* bottom face */
+    content: ''; position: absolute; left: 0; top: 100%; width: 100%; height: 8px; transform: skewX(45deg); transform-origin: top left;
+    background: linear-gradient(90deg, rgba(34,225,255,.85), rgba(123,92,255,.85) 45%, rgba(255,59,189,.9));
+    box-shadow: 0 0 18px rgba(123, 92, 255, 0.5);
+  }
+  .panel::after, .dock::after { /* right face */
+    content: ''; position: absolute; left: 100%; top: 0; width: 8px; height: 100%; transform: skewY(45deg); transform-origin: top left;
+    background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,59,189,.8) 40%, rgba(255,207,74,.9));
+  }
+  .camera { --glow: rgba(34, 225, 255, 0.55); }
+  .lesson { --glow: rgba(255, 207, 74, 0.45); }
+
+  .panel-head { padding: 16px 18px 14px; margin-bottom: 14px; box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.1); }
+  .panel-title { font-size: 19px; font-weight: 600; letter-spacing: -0.01em; gap: 10px; }
+  .panel-title .icon { width: 19px; height: 19px; }
+  .camera .panel-title .icon { color: var(--cyan); }
+  .display .panel-title .icon { color: var(--magenta); }
+
+  /* Move handle: etched grid of square studs */
+  .grip { gap: 3px; padding: 4px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14); }
+  .grip span { width: 4px; height: 4px; border-radius: 0; background: rgba(255, 255, 255, 0.8); box-shadow: 1px 1px 0 rgba(255, 59, 189, 0.8); }
+  .grip-top { top: 10px; grid-template-columns: repeat(6, 4px); gap: 4px; }
+
+  /* Close: square glass key */
+  .close { width: 30px; height: 30px; border-radius: 0; color: #fff; background: rgba(255, 255, 255, 0.06);
+    box-shadow: var(--lit), var(--ring), var(--ex-magenta); }
+  .close .icon { width: 13px; height: 13px; stroke-width: 1.8; }
+  .lesson-close { top: 16px; right: 18px; }
+
+  /* Buttons */
+  .btn { position: relative; height: 48px; border-radius: 0; font-size: 14.5px; font-weight: 600; letter-spacing: 0.005em; }
+  .btn::after { content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(115deg, rgba(255,255,255,.24) 0 28%, transparent 28%); }
+  .btn-primary { color: #fff; background: linear-gradient(100deg, #ff3bbd, #7b5cff 52%, #22e1ff);
+    box-shadow: var(--lit), var(--ex-cyan), 0 18px 36px -14px rgba(255, 59, 189, 0.8), 0 0 46px -12px rgba(34, 225, 255, 0.7); }
+  .btn-secondary { color: #fff; background: rgba(255, 255, 255, 0.07); box-shadow: var(--lit), var(--ring), var(--ex-glass); }
+  .btn-secondary::after { background: linear-gradient(115deg, rgba(255,255,255,.1) 0 28%, transparent 28%); }
+  .btn-secondary .icon { color: var(--gold); fill: var(--gold); }
+
+  /* Text field */
+  .field { height: 48px; margin-top: 4px; border-radius: 0; background: rgba(0, 0, 0, 0.34); font-size: 16px; font-weight: 500;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,.5), var(--ring); }
+  .field.is-focused { box-shadow: inset 0 1px 2px rgba(0,0,0,.5), inset 0 0 0 1px var(--cyan), 0 0 0 3px rgba(34, 225, 255, 0.16), 0 0 26px rgba(34, 225, 255, 0.35); }
+  .field > .icon { color: var(--dim); }
+  .caret { background: var(--cyan); box-shadow: 0 0 6px var(--cyan); border-radius: 0; }
+  .field-ghost { color: rgba(255, 255, 255, 0.32); }
+  .field-count { border-radius: 0; font-family: var(--mono); font-size: 11px; color: var(--gold); background: none; box-shadow: inset 0 0 0 1px rgba(255, 207, 74, 0.6); }
+
+  .results li { border-radius: 0; height: 40px; font-size: 15.5px; font-weight: 500; }
+  .results li.is-active { background: linear-gradient(90deg, rgba(34, 225, 255, 0.24), rgba(34, 225, 255, 0.02)); box-shadow: inset 2px 0 0 var(--cyan); }
+  .results em { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); }
+
+  .chip { height: 38px; border-radius: 0; font-size: 14px; background: rgba(255, 207, 74, 0.06); box-shadow: inset 0 0 0 1px rgba(255, 207, 74, 0.5); }
+  .chip-dot { width: 7px; height: 7px; border-radius: 0; background: var(--gold); box-shadow: 0 0 10px var(--gold); }
+  .chip b { font-weight: 600; }
+  .chip-close { width: 24px; height: 24px; box-shadow: var(--ring); }
+
+  /* Segmented */
+  .segmented { height: 44px; padding: 4px; border-radius: 0; background: rgba(0, 0, 0, 0.34); box-shadow: inset 0 1px 2px rgba(0,0,0,.5), var(--ring); }
+  .segmented button { border-radius: 0; font-size: 14px; font-weight: 600; color: var(--dim); }
+  .segmented .is-on { color: #0b0d18; background: linear-gradient(115deg, #ffffff 0 30%, #eef0f8 30%);
+    box-shadow: var(--ex-gold), 0 0 24px rgba(255, 207, 74, 0.35); }
+
+  /* Toggle switches */
+  .switch-label { font-size: 16px; font-weight: 600; }
+  .switch-hint { font-size: 12.5px; color: var(--dim); }
+  .switch { width: 56px; height: 28px; border-radius: 0; background: rgba(0, 0, 0, 0.4); box-shadow: inset 0 1px 2px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.22); }
+  .switch i { top: 4px; left: 4px; width: 20px; height: 20px; border-radius: 0; background: linear-gradient(115deg, #fff 0 40%, #dfe3f2 40%);
+    box-shadow: 1px 1px 0 #b9bfd6, 2px 2px 0 #8d93ab; }
+  .switch.is-on { background: linear-gradient(90deg, #22e1ff, #7b5cff 55%, #ff3bbd);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 0 24px rgba(123, 92, 255, 0.65); }
+  .switch.is-on i { left: 31px; }
+
+  /* Checkboxes */
+  .check { height: 46px; border-radius: 0; font-size: 14.5px; font-weight: 500; background: rgba(255, 255, 255, 0.035); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+  .check.is-on { background: rgba(255, 255, 255, 0.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.14), inset 2px 0 0 var(--magenta); }
+  .box { width: 18px; height: 18px; border-radius: 0; background: rgba(0, 0, 0, 0.3); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4); }
+  .check.is-on .box { background: linear-gradient(135deg, #22e1ff, #7b5cff 50%, #ff3bbd);
+    box-shadow: 1px 1px 0 #ff7ed4, 2px 2px 0 #b62d8c, 0 0 14px rgba(255, 59, 189, 0.55); }
+  .box .icon { width: 13px; height: 13px; color: #fff; stroke-width: 2.6; }
+
+  /* Lesson */
+  .lesson { padding-top: 32px; }
+  .lesson-kicker { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); }
+  .lesson-kicker b { margin-left: 8px; font-weight: 500; color: #fff; }
+  .lesson-title { margin: 6px 0 8px; font-size: 36px; font-weight: 600; letter-spacing: -0.03em; line-height: 1.05; }
+  .lesson-text { font-size: 15.5px; line-height: 1.6; color: rgba(236, 240, 255, 0.84); }
+  .round { width: 40px; height: 40px; border-radius: 0; color: #fff; background: rgba(255, 255, 255, 0.07); box-shadow: var(--lit), var(--ring), var(--ex-glass); }
+  .round-next { background: linear-gradient(115deg, rgba(255,255,255,.25) 0 30%, transparent 30%), linear-gradient(100deg, #ff3bbd, #ffcf4a);
+    box-shadow: var(--lit), var(--ex-magenta), 0 0 28px -4px rgba(255, 59, 189, 0.8); }
+  .round .icon { stroke-width: 2; }
+  .progress { gap: 5px; }
+  .progress i { width: 16px; height: 2px; border-radius: 0; background: rgba(255, 255, 255, 0.2); }
+  .progress i.done { background: rgba(255, 255, 255, 0.75); }
+  .progress i.now { width: 36px; background: var(--dichroic); box-shadow: 0 0 10px rgba(255, 59, 189, 0.8); }
+  .lesson-note { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); }
+
+  /* Dock */
+  .dock { padding: 8px; gap: 4px; --glow: rgba(123, 92, 255, 0.6); }
+  .dock-btn { position: relative; border-radius: 0; font-size: 12.5px; font-weight: 500; color: rgba(236, 240, 255, 0.72); gap: 6px; }
+  .dock-btn[data-accent='camera'] .icon { color: var(--cyan); }
+  .dock-btn[data-accent='time'] .icon { color: var(--gold); }
+  .dock-btn[data-accent='display'] .icon { color: #fff; }
+  .dock-btn[data-accent='learn'] .icon { color: var(--magenta); }
+  .dock-btn.is-active { color: #fff; background: linear-gradient(132deg, rgba(255,255,255,.2) 0 40%, rgba(255,255,255,.08) 40%);
+    box-shadow: var(--lit), inset 0 0 0 1px rgba(255,255,255,.22), 0 0 30px -6px rgba(123, 92, 255, 0.8); }
+  .dock-btn.is-active::after { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: var(--dichroic);
+    box-shadow: 0 0 14px rgba(255, 59, 189, 0.9); }
+</style>
+</head>
+<body>
+<script>
+  window.CONCEPT = {
+    kicker: 'CONCEPT E',
+    name: 'Dichroic Slab',
+    tagline: 'Thick architectural glass, razor-sharp corners, colour living in the cut edges',
+    chapter: '03 / 07',
+    swatches: ['#22e1ff', '#7b5cff', '#ff3bbd', '#ffcf4a', '#ffffff'],
+    starTints: ['#ffffff', '#d4f7ff', '#ffd9f1'],
+    seed: 53,
+  };
+</script>
+<script src="scene.js"></script>
+</body>
+</html>

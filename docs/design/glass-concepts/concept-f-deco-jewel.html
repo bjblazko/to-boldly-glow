@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Concept F: Deco Jewel</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Montserrat:wght@300;400;500;600&display=block">
+<link rel="stylesheet" href="layout.css">
+<style>
+  :root {
+    --gold: #e2bd72; --gold-hi: #fbe6b0; --gold-lo: #9c7432;
+    --gold-text: linear-gradient(180deg, #fff3cf 10%, #e6c27a 55%, #b88d40 100%);
+    --emerald: #00d39a; --ruby: #ff2a5f; --sapphire: #3a6bff; --citrine: #ffc83d;
+    --ivory: #f3ead6; --dim: rgba(240, 228, 200, 0.6);
+    --cinzel: 'Cinzel', Georgia, serif;
+    --facets: linear-gradient(115deg, rgba(255,255,255,.24) 0 26%, rgba(255,255,255,0) 26% 66%, rgba(0,0,0,.16) 66%);
+  }
+  body { font-family: 'Montserrat', 'Inter', sans-serif; color: var(--ivory); }
+  .icon { stroke-width: 1.5; }
+
+  .wash {
+    background:
+      radial-gradient(560px 460px at 2% 40%, rgba(0, 211, 154, 0.26), transparent 70%),
+      radial-gradient(600px 480px at 100% 24%, rgba(255, 42, 95, 0.28), transparent 70%),
+      radial-gradient(900px 300px at 50% 110%, rgba(58, 107, 255, 0.34), transparent 70%),
+      linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18));
+  }
+
+  /* Caption */
+  .caption-kicker { font-size: 11px; font-weight: 500; letter-spacing: 0.46em; color: var(--gold); }
+  .caption-title { margin-top: 8px; font-family: var(--cinzel); font-size: 54px; font-weight: 600; letter-spacing: 0.06em; line-height: 1;
+    background: var(--gold-text); -webkit-background-clip: text; color: transparent; filter: drop-shadow(0 0 16px rgba(226, 189, 114, 0.35)); }
+  .caption-title::after { content: ''; display: block; width: 260px; height: 1px; margin-top: 14px;
+    background: linear-gradient(90deg, var(--gold), transparent); }
+  .caption-sub { margin-top: 12px; font-size: 14.5px; font-weight: 300; letter-spacing: 0.04em; color: var(--dim); }
+  .swatches { gap: 14px; margin-top: 16px; padding-left: 4px; }
+  .swatches i { width: 14px; height: 14px; border-radius: 0; transform: rotate(45deg); border: 1px solid var(--gold);
+    background: var(--facets), var(--c); box-shadow: 0 0 12px var(--c); }
+
+  /* Black glass, gold-leaf double frame, octagonal cut */
+  .panel, .dock {
+    border-radius: 22px; corner-shape: bevel;
+    background:
+      linear-gradient(124deg, rgba(255,255,255,.075) 0 22%, rgba(255,255,255,.02) 22% 64%, rgba(255,255,255,.05) 64%),
+      rgba(6, 7, 12, 0.62);
+    backdrop-filter: blur(18px) saturate(150%);
+    border: 1px solid var(--gold);
+    box-shadow: inset 0 1px 0 rgba(255, 241, 200, 0.35), 0 40px 80px -30px rgba(0, 0, 0, 0.9), 0 0 54px -18px rgba(226, 189, 114, 0.45);
+  }
+  .panel::before, .dock::before {
+    content: ''; position: absolute; inset: 5px; pointer-events: none;
+    border-radius: 19px; corner-shape: bevel; border: 1px solid rgba(226, 189, 114, 0.4);
+  }
+  /* jewel clasp on the bottom edge */
+  .panel::after {
+    content: ''; position: absolute; left: 50%; bottom: -7px; width: 12px; height: 12px; margin-left: -6px; transform: rotate(45deg);
+    border: 1px solid var(--gold-hi); background: var(--facets), var(--clasp, var(--ruby)); box-shadow: 0 0 12px var(--clasp, var(--ruby));
+  }
+  .camera { --clasp: var(--sapphire); }
+  .display { --clasp: var(--emerald); }
+
+  .panel-head { position: relative; margin: 0 16px 14px; padding: 18px 2px 14px; box-shadow: inset 0 -1px 0 rgba(226, 189, 114, 0.3); }
+  .panel-head::after { content: ''; position: absolute; left: 50%; bottom: -3.5px; width: 6px; height: 6px; margin-left: -3px; transform: rotate(45deg);
+    background: var(--gold); }
+  .panel-title { gap: 12px; }
+  .panel-title span { font-family: var(--cinzel); font-size: 18px; font-weight: 600; letter-spacing: 0.2em;
+    background: var(--gold-text); -webkit-background-clip: text; color: transparent; }
+  .panel-title .icon { color: var(--gold); }
+  .panel-body { padding: 0 20px 24px; }
+
+  /* Move handle: a lattice of gold diamonds */
+  .grip { grid-template-columns: repeat(2, 5px); gap: 5px; padding: 2px; }
+  .grip span { width: 5px; height: 5px; border-radius: 0; transform: rotate(45deg); background: var(--gold); }
+  .grip span:nth-child(odd) { background: var(--gold-hi); }
+  .grip-top { top: 14px; grid-template-columns: repeat(6, 5px); gap: 7px; }
+
+  /* Close: gold-framed octagon */
+  .close { width: 32px; height: 32px; border-radius: 9px; corner-shape: bevel; color: var(--gold-hi);
+    border: 1px solid var(--gold); background: rgba(226, 189, 114, 0.07); box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.35); }
+  .close .icon { width: 13px; height: 13px; stroke-width: 1.6; }
+  .lesson-close { top: 18px; right: 18px; }
+
+  /* Buttons: cut jewels set in gold */
+  .btn { position: relative; height: 48px; border-radius: 12px; corner-shape: bevel; border: 1px solid var(--gold);
+    font-family: var(--cinzel); font-size: 13.5px; font-weight: 600; letter-spacing: 0.16em; }
+  .btn .icon { width: 16px; height: 16px; }
+  .btn-primary { color: #fff; text-shadow: 0 1px 2px rgba(90, 0, 25, 0.6);
+    background: var(--facets), linear-gradient(180deg, #ff5a83, #d6104a);
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.14), inset 0 1px 0 rgba(255,255,255,.5), 0 0 30px -6px rgba(255, 42, 95, 0.8); }
+  .btn-secondary { color: var(--gold-hi); background: rgba(226, 189, 114, 0.06); box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.3); }
+  .btn-secondary .icon { fill: var(--gold); color: var(--gold); }
+
+  /* Text field */
+  .field { height: 48px; border-radius: 10px; corner-shape: bevel; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(226, 189, 114, 0.35);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6); font-size: 16px; font-weight: 400; color: #fff; }
+  .field.is-focused { border-color: var(--gold-hi); box-shadow: inset 0 2px 4px rgba(0,0,0,.6), 0 0 22px rgba(226, 189, 114, 0.4); }
+  .field > .icon { color: var(--gold); }
+  .caret { width: 1.5px; background: var(--gold-hi); box-shadow: 0 0 6px var(--gold); }
+  .field-ghost { color: rgba(240, 228, 200, 0.35); }
+  .field-count { border-radius: 4px; corner-shape: bevel; font-family: var(--cinzel); font-weight: 600; color: var(--gold-hi); background: none;
+    border: 1px solid var(--gold); }
+
+  .results li { position: relative; height: 40px; padding-left: 30px; border-radius: 8px; corner-shape: bevel; font-size: 15.5px; }
+  .results li::before { content: ''; position: absolute; left: 12px; top: 50%; width: 6px; height: 6px; margin-top: -3px; transform: rotate(45deg);
+    border: 1px solid var(--gold); }
+  .results li.is-active { background: linear-gradient(90deg, rgba(226, 189, 114, 0.2), rgba(226, 189, 114, 0.02)); box-shadow: inset 0 0 0 1px rgba(226, 189, 114, 0.3); }
+  .results li.is-active::before { background: var(--gold-hi); box-shadow: 0 0 8px var(--gold); }
+  .results em { font-family: var(--cinzel); font-size: 11.5px; font-weight: 600; letter-spacing: 0.16em; color: var(--dim); }
+
+  .chip { height: 38px; border-radius: 9px; corner-shape: bevel; font-size: 14px; border: 1px solid rgba(226, 189, 114, 0.55); background: rgba(0, 0, 0, 0.35); }
+  .chip-dot { width: 8px; height: 8px; border-radius: 0; transform: rotate(45deg); background: var(--emerald); box-shadow: 0 0 10px var(--emerald); }
+  .chip b { font-weight: 600; color: #fff; }
+  .chip-close { width: 26px; height: 26px; border-radius: 6px; }
+
+  /* Segmented */
+  .segmented { height: 46px; padding: 4px; border-radius: 11px; corner-shape: bevel; background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(226, 189, 114, 0.4); }
+  .segmented button { border-radius: 8px; corner-shape: bevel; font-family: var(--cinzel); font-size: 13px; font-weight: 600; letter-spacing: 0.16em; color: var(--dim); }
+  .segmented .is-on { color: #fff; border: 1px solid var(--gold); text-shadow: 0 1px 2px rgba(0, 20, 80, 0.6);
+    background: var(--facets), linear-gradient(180deg, #6b93ff, #2350e0);
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.14), 0 0 24px -4px rgba(58, 107, 255, 0.85); }
+
+  /* Toggle switches with a gold octagon knob */
+  .switch-label { font-family: var(--cinzel); font-size: 17px; font-weight: 600; letter-spacing: 0.06em; color: #fff; }
+  .switch-hint { font-size: 12px; font-weight: 300; color: var(--dim); }
+  .switch { width: 60px; height: 30px; border-radius: 8px; corner-shape: bevel; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(226, 189, 114, 0.5); }
+  .switch i { top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 6px; corner-shape: bevel;
+    background: linear-gradient(135deg, #fff1c8 0 30%, #e2bd72 30% 66%, #a97d34 66%);
+    box-shadow: inset 0 0 0 1px rgba(255, 245, 210, 0.6), 0 2px 5px rgba(0, 0, 0, 0.6); }
+  .switch.is-on { border-color: var(--gold); background: var(--facets), linear-gradient(180deg, #2ef0b8, #00a777);
+    box-shadow: 0 0 22px -2px rgba(0, 211, 154, 0.8); }
+  .switch.is-on i { left: 33px; }
+
+  /* Checkboxes: jewel diamonds */
+  .check { height: 46px; gap: 14px; padding-left: 16px; border-radius: 9px; corner-shape: bevel; font-size: 14.5px;
+    border: 1px solid rgba(226, 189, 114, 0.18); background: rgba(255, 255, 255, 0.02); }
+  .check.is-on { border-color: rgba(226, 189, 114, 0.38); }
+  .box { width: 16px; height: 16px; border-radius: 0; transform: rotate(45deg); border: 1px solid var(--gold); background: rgba(0, 0, 0, 0.45); }
+  .check:nth-child(4n+1) { --g: var(--sapphire); }
+  .check:nth-child(4n+2) { --g: var(--ruby); }
+  .check:nth-child(4n+3) { --g: var(--emerald); }
+  .check:nth-child(4n+4) { --g: var(--citrine); }
+  .check.is-on .box { border-color: var(--gold-hi); background: var(--facets), var(--g); box-shadow: 0 0 14px var(--g); }
+  .box .icon { width: 12px; height: 12px; transform: rotate(-45deg); color: #fff; stroke-width: 2.6; filter: drop-shadow(0 1px 1px rgba(0,0,0,.5)); }
+
+  /* Lesson */
+  .lesson { padding-top: 36px; --clasp: var(--citrine); }
+  .lesson-kicker { font-family: var(--cinzel); font-size: 12.5px; font-weight: 600; letter-spacing: 0.18em; color: var(--gold); }
+  .lesson-kicker b { margin-left: 10px; color: #fff; letter-spacing: 0.12em; }
+  .lesson-title { margin: 6px 0 8px; font-family: var(--cinzel); font-size: 32px; font-weight: 600; letter-spacing: 0.05em; line-height: 1.1;
+    background: var(--gold-text); -webkit-background-clip: text; color: transparent; }
+  .lesson-text { font-size: 15px; font-weight: 400; line-height: 1.68; color: rgba(243, 234, 214, 0.88); }
+  .round { width: 42px; height: 42px; border-radius: 12px; corner-shape: bevel; color: var(--gold-hi); border: 1px solid var(--gold);
+    background: rgba(226, 189, 114, 0.06); box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.3); }
+  .round-next { color: #fff; background: var(--facets), linear-gradient(180deg, #2ef0b8, #00a777);
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.14), 0 0 26px -4px rgba(0, 211, 154, 0.85); }
+  .round .icon { width: 18px; height: 18px; stroke-width: 1.8; }
+  .progress { gap: 11px; }
+  .progress i { width: 7px; height: 7px; border-radius: 0; transform: rotate(45deg); border: 1px solid rgba(226, 189, 114, 0.5); background: none; }
+  .progress i.done { background: var(--gold); border-color: var(--gold); }
+  .progress i.now { width: 11px; height: 11px; border-color: var(--gold-hi); background: var(--facets), var(--ruby); box-shadow: 0 0 10px var(--ruby); }
+  .lesson-note { font-family: var(--cinzel); font-size: 11.5px; font-weight: 600; letter-spacing: 0.18em; color: var(--dim); }
+
+  /* Dock */
+  .dock { border-radius: 22px; padding: 10px; gap: 6px; }
+  .dock-btn { position: relative; border-radius: 12px; corner-shape: bevel; font-family: var(--cinzel); font-size: 12px; font-weight: 600;
+    letter-spacing: 0.18em; color: rgba(243, 234, 214, 0.75); gap: 6px; }
+  .dock-btn .icon { color: var(--gold); }
+  .dock-btn.is-active { color: #fff; border: 1px solid var(--gold); text-shadow: 0 1px 2px rgba(0, 20, 80, 0.6);
+    background: var(--facets), linear-gradient(180deg, #6b93ff, #2350e0);
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.14), 0 0 30px -4px rgba(58, 107, 255, 0.85); }
+  .dock-btn.is-active .icon { color: #fff; }
+</style>
+</head>
+<body>
+<script>
+  window.CONCEPT = {
+    kicker: 'CONCEPT F',
+    name: 'Deco Jewel',
+    tagline: 'Black cut glass, gold-leaf frames and jewel inlays: Art Deco grandeur',
+    chapter: 'III · VII',
+    swatches: ['#00d39a', '#ff2a5f', '#3a6bff', '#ffc83d', '#e2bd72'],
+    starTints: ['#ffffff', '#fff1d0', '#e0e8ff'],
+    seed: 67,
+  };
+</script>
+<script src="scene.js"></script>
+</body>
+</html>

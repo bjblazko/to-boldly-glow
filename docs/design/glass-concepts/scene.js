@@ -87,7 +87,7 @@
   <section class="panel lesson" data-accent="learn">
     ${grip('grip-top')}
     ${close('lesson-close')}
-    <div class="lesson-kicker">${icon('book')}<span>Why does the Moon have phases?</span><b>3 / 7</b></div>
+    <div class="lesson-kicker">${icon('book')}<span>Why does the Moon have phases?</span><b>${c.chapter || '3 / 7'}</b></div>
     <h2 class="lesson-title">Always the Same Face</h2>
     <p class="lesson-text">The Moon turns once around itself in exactly the time it takes to go once around Earth,
       so it always shows us the same side. The far side is not dark, though: at new moon it is the far side
