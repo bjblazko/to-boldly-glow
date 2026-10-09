@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Concept C: Neon Reactor</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&display=block">
+<link rel="stylesheet" href="layout.css">
+<style>
+  :root {
+    --pink: #ff2bd6; --cyan: #00f0ff; --lime: #b6ff3b; --amber: #ffb02e; --violet: #8a5cff;
+    --pink-rgb: 255, 43, 214; --cyan-rgb: 0, 240, 255; --lime-rgb: 182, 255, 59; --amber-rgb: 255, 176, 46;
+    --text: #eef3ff; --dim: rgba(205, 215, 255, 0.62);
+  }
+  body { font-family: 'Chakra Petch', 'Inter', sans-serif; color: var(--text); }
+  [data-accent='camera'] { --n: var(--cyan); --n-rgb: var(--cyan-rgb); }
+  [data-accent='time'] { --n: var(--amber); --n-rgb: var(--amber-rgb); }
+  [data-accent='display'] { --n: var(--lime); --n-rgb: var(--lime-rgb); }
+  [data-accent='learn'] { --n: var(--pink); --n-rgb: var(--pink-rgb); }
+
+  .wash {
+    background:
+      radial-gradient(1000px 240px at 50% 106%, rgba(var(--pink-rgb), 0.42), transparent 70%),
+      radial-gradient(520px 360px at 0% 30%, rgba(var(--cyan-rgb), 0.16), transparent 70%),
+      radial-gradient(560px 420px at 100% 20%, rgba(138, 92, 255, 0.24), transparent 70%),
+      linear-gradient(180deg, rgba(4, 8, 40, 0.5), rgba(10, 4, 40, 0.3) 60%, rgba(50, 0, 60, 0.35));
+  }
+  /* faint HUD grid */
+  .scene::after { content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+      repeating-linear-gradient(90deg, rgba(var(--cyan-rgb), 0.05) 0 1px, transparent 1px 48px),
+      repeating-linear-gradient(0deg, rgba(var(--cyan-rgb), 0.05) 0 1px, transparent 1px 48px);
+    -webkit-mask: radial-gradient(1100px 700px at 50% 50%, transparent 30%, #000 100%); z-index: 0; }
+  .panel, .dock, .caption { z-index: 1; }
+
+  /* Caption */
+  .caption-kicker { font-size: 13px; font-weight: 600; letter-spacing: 0.3em; color: var(--cyan); text-shadow: 0 0 10px var(--cyan); }
+  .caption-title { margin-top: 6px; font-size: 46px; font-weight: 700; letter-spacing: 0.06em; line-height: 1; text-transform: uppercase; color: #fff;
+    text-shadow: -2px 0 rgba(var(--cyan-rgb), 0.85), 2px 0 rgba(var(--pink-rgb), 0.85), 0 0 24px rgba(var(--pink-rgb), 0.7); }
+  .caption-sub { margin-top: 8px; font-size: 15.5px; color: var(--dim); letter-spacing: 0.02em; }
+  .swatches i { border-radius: 3px; background: var(--c); box-shadow: 0 0 12px var(--c), 0 0 2px #fff; }
+
+  /* Smoked, edge-lit glass */
+  .panel, .dock {
+    --n: var(--cyan); --n-rgb: var(--cyan-rgb);
+    border-radius: 14px; corner-shape: bevel;
+    background: linear-gradient(160deg, rgba(16, 20, 54, 0.62), rgba(8, 8, 28, 0.72));
+    backdrop-filter: blur(16px) saturate(170%);
+    border: 1.5px solid var(--n);
+    box-shadow:
+      0 0 0 1px rgba(var(--n-rgb), 0.18),
+      0 0 22px rgba(var(--n-rgb), 0.55),
+      0 0 70px rgba(var(--n-rgb), 0.22),
+      inset 0 0 26px rgba(var(--n-rgb), 0.16),
+      inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  }
+  .display { --n: var(--lime); --n-rgb: var(--lime-rgb); }
+  .lesson { --n: var(--pink); --n-rgb: var(--pink-rgb); }
+  /* scanlines + holographic sheen */
+  .panel::after, .dock::after { content: ''; position: absolute; inset: 0; border-radius: inherit; corner-shape: bevel; pointer-events: none;
+    background:
+      repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 3px),
+      linear-gradient(115deg, rgba(var(--pink-rgb), 0.12), transparent 30%, transparent 70%, rgba(var(--cyan-rgb), 0.12));
+    mix-blend-mode: screen; }
+  /* corner brackets */
+  .panel::before { content: ''; position: absolute; inset: -9px; pointer-events: none; opacity: 0.9;
+    --b: linear-gradient(var(--n), var(--n));
+    background:
+      var(--b) top left / 22px 2px no-repeat, var(--b) top left / 2px 22px no-repeat,
+      var(--b) top right / 22px 2px no-repeat, var(--b) top right / 2px 22px no-repeat,
+      var(--b) bottom left / 22px 2px no-repeat, var(--b) bottom left / 2px 22px no-repeat,
+      var(--b) bottom right / 22px 2px no-repeat, var(--b) bottom right / 2px 22px no-repeat;
+    filter: drop-shadow(0 0 5px var(--n)); }
+
+  .panel-title { font-size: 16px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--n);
+    text-shadow: 0 0 12px rgba(var(--n-rgb), 0.9); }
+  .panel-title .icon { filter: drop-shadow(0 0 6px var(--n)); }
+
+  /* Move handle: ribbed grip with an LED strip */
+  .grip { position: relative; grid-template-columns: repeat(6, 3px); gap: 4px; padding: 6px 8px 8px;
+    border: 1px solid rgba(var(--n-rgb), 0.45); border-radius: 4px; background: rgba(0, 0, 0, 0.3); }
+  .grip span { width: 3px; height: 16px; border-radius: 1px; background: rgba(var(--n-rgb), 0.55); box-shadow: 0 0 5px rgba(var(--n-rgb), 0.7); }
+  .grip::after { content: ''; position: absolute; left: 6px; right: 6px; bottom: 2px; height: 2px; border-radius: 1px;
+    background: var(--n); box-shadow: 0 0 8px var(--n), 0 0 2px #fff; }
+  .grip-top { position: absolute; top: -1px; padding: 4px 10px 8px; border-top: 0; border-radius: 0 0 6px 6px; }
+  .grip-top span { height: 10px; }
+
+  /* Close: neon ring */
+  .close { width: 32px; height: 32px; color: #ffd0f5; border: 1.5px solid var(--pink); background: rgba(var(--pink-rgb), 0.1);
+    box-shadow: 0 0 14px rgba(var(--pink-rgb), 0.85), inset 0 0 10px rgba(var(--pink-rgb), 0.6); }
+  .close .icon { filter: drop-shadow(0 0 4px var(--pink)); }
+  .lesson-close { top: 16px; right: 16px; }
+
+  /* Buttons */
+  .btn { height: 48px; border-radius: 10px; corner-shape: bevel; font-size: 14px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; }
+  .btn-primary { color: #fff; border: 1.5px solid var(--pink); text-shadow: 0 0 10px var(--pink);
+    background: linear-gradient(180deg, rgba(var(--pink-rgb), 0.5), rgba(var(--pink-rgb), 0.14));
+    box-shadow: 0 0 20px rgba(var(--pink-rgb), 0.75), 0 0 46px rgba(var(--pink-rgb), 0.32),
+      inset 0 0 18px rgba(var(--pink-rgb), 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.45); }
+  .btn-secondary { color: #c9fcff; border: 1.5px solid rgba(var(--cyan-rgb), 0.85); text-shadow: 0 0 8px var(--cyan);
+    background: rgba(var(--cyan-rgb), 0.07);
+    box-shadow: 0 0 14px rgba(var(--cyan-rgb), 0.45), inset 0 0 12px rgba(var(--cyan-rgb), 0.22); }
+  .btn .icon { filter: drop-shadow(0 0 5px currentColor); }
+  .btn-secondary .icon { fill: currentColor; }
+
+  /* Text field with block caret */
+  .field { border-radius: 8px; corner-shape: bevel; background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(var(--cyan-rgb), 0.35);
+    font-size: 17px; font-weight: 500; letter-spacing: 0.04em; }
+  .field.is-focused { border-color: var(--cyan);
+    box-shadow: 0 0 0 1px rgba(var(--cyan-rgb), 0.5), 0 0 20px rgba(var(--cyan-rgb), 0.6), inset 0 0 16px rgba(var(--cyan-rgb), 0.25); }
+  .field > .icon { color: var(--cyan); filter: drop-shadow(0 0 5px var(--cyan)); }
+  .caret { width: 10px; height: 20px; margin: 0 2px; background: var(--cyan); box-shadow: 0 0 10px var(--cyan); opacity: 0.9; }
+  .field-ghost { color: rgba(var(--cyan-rgb), 0.38); }
+  .field-count { border-radius: 3px; color: var(--lime); border: 1px solid var(--lime); font-weight: 600;
+    box-shadow: 0 0 10px rgba(var(--lime-rgb), 0.6); text-shadow: 0 0 6px var(--lime); }
+
+  .results li { border-radius: 4px; font-size: 16px; font-weight: 500; letter-spacing: 0.03em; border-left: 3px solid transparent; }
+  .results li.is-active { border-left-color: var(--cyan); background: linear-gradient(90deg, rgba(var(--cyan-rgb), 0.28), rgba(var(--cyan-rgb), 0.04));
+    box-shadow: -6px 0 16px -6px var(--cyan); }
+  .results em { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(var(--cyan-rgb), 0.75); }
+
+  .chip { border-radius: 6px; font-size: 14px; letter-spacing: 0.04em; border: 1px solid rgba(var(--lime-rgb), 0.6);
+    background: rgba(var(--lime-rgb), 0.08); box-shadow: 0 0 14px rgba(var(--lime-rgb), 0.3); }
+  .chip-dot { border-radius: 2px; background: var(--lime); box-shadow: 0 0 10px var(--lime), 0 0 2px #fff; }
+  .chip b { font-weight: 600; color: #e4ffbf; }
+  .chip-close { width: 24px; height: 24px; }
+
+  /* Segmented toggle */
+  .segmented { border-radius: 8px; corner-shape: bevel; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(var(--lime-rgb), 0.4); }
+  .segmented button { font-size: 13.5px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(210, 255, 160, 0.62); }
+  .segmented .is-on { color: #0d1600; border-radius: 6px; corner-shape: bevel;
+    background: linear-gradient(180deg, #d4ff7a, #9ae620);
+    box-shadow: 0 0 18px rgba(var(--lime-rgb), 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.7); }
+
+  /* Toggle switches that light up */
+  .switch-label { font-size: 16px; font-weight: 600; letter-spacing: 0.04em; }
+  .switch-hint { color: var(--dim); }
+  .switch { height: 30px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.25); background: rgba(0, 0, 0, 0.45); }
+  .switch::before { content: 'OFF'; position: absolute; right: 7px; top: 50%; transform: translateY(-50%);
+    font-size: 9px; font-weight: 700; letter-spacing: 0.12em; color: rgba(255, 255, 255, 0.4); }
+  .switch i { top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 3px; background: #3a3f55;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 2px 4px rgba(0,0,0,.5); }
+  .switch.is-on { border-color: var(--lime); background: rgba(var(--lime-rgb), 0.2);
+    box-shadow: 0 0 16px rgba(var(--lime-rgb), 0.65), inset 0 0 12px rgba(var(--lime-rgb), 0.4); }
+  .switch.is-on::before { content: 'ON'; right: auto; left: 8px; color: #e4ffbf; text-shadow: 0 0 6px var(--lime); }
+  .switch.is-on i { left: 31px; background: var(--lime); box-shadow: 0 0 14px var(--lime), 0 0 3px #fff, inset 0 1px 0 #fff; }
+
+  /* Checkboxes */
+  .check { border-radius: 6px; font-size: 15px; font-weight: 500; letter-spacing: 0.03em; background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(var(--lime-rgb), 0.14); }
+  .check.is-on { border-color: rgba(var(--lime-rgb), 0.35); background: rgba(var(--lime-rgb), 0.06); }
+  .box { width: 20px; height: 20px; border-radius: 3px; border: 1.5px solid rgba(var(--lime-rgb), 0.45); background: rgba(0, 0, 0, 0.35); }
+  .check.is-on .box { border-color: var(--lime); background: rgba(var(--lime-rgb), 0.2);
+    box-shadow: 0 0 12px rgba(var(--lime-rgb), 0.75), inset 0 0 6px rgba(var(--lime-rgb), 0.5); }
+  .box .icon { color: var(--lime); filter: drop-shadow(0 0 4px var(--lime)); }
+
+  /* Lesson */
+  .lesson-kicker { font-size: 12.5px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--cyan);
+    text-shadow: 0 0 8px rgba(var(--cyan-rgb), 0.8); }
+  .lesson-kicker b { padding: 1px 8px; border: 1px solid var(--pink); border-radius: 3px; color: #ffd0f5; text-shadow: 0 0 6px var(--pink);
+    box-shadow: 0 0 10px rgba(var(--pink-rgb), 0.5); }
+  .lesson-title { font-size: 31px; font-weight: 600; letter-spacing: 0.02em; color: #fff;
+    text-shadow: -1.5px 0 rgba(var(--cyan-rgb), 0.7), 1.5px 0 rgba(var(--pink-rgb), 0.7), 0 0 20px rgba(var(--pink-rgb), 0.55); }
+  .lesson-text { font-size: 16px; line-height: 1.5; color: rgba(225, 232, 255, 0.9); }
+  .round { border-radius: 10px; corner-shape: bevel; color: var(--cyan); border: 1.5px solid rgba(var(--cyan-rgb), 0.8);
+    box-shadow: 0 0 12px rgba(var(--cyan-rgb), 0.5), inset 0 0 8px rgba(var(--cyan-rgb), 0.3); }
+  .round-next { color: #fff; border-color: var(--pink); background: rgba(var(--pink-rgb), 0.3);
+    box-shadow: 0 0 18px rgba(var(--pink-rgb), 0.85), inset 0 0 12px rgba(var(--pink-rgb), 0.6); }
+  .round .icon { stroke-width: 2.4; filter: drop-shadow(0 0 4px currentColor); }
+  .progress i { border-radius: 1px; width: 14px; height: 4px; background: rgba(var(--pink-rgb), 0.22); }
+  .progress i.done { background: rgba(var(--pink-rgb), 0.75); box-shadow: 0 0 6px var(--pink); }
+  .progress i.now { width: 30px; background: #fff; box-shadow: 0 0 8px var(--pink), 0 0 16px var(--pink); }
+  .lesson-note { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--dim); }
+
+  /* Dock */
+  .dock { --n: var(--violet); --n-rgb: 138, 92, 255; border-radius: 16px; padding: 8px; gap: 6px; }
+  .dock-btn { position: relative; border-radius: 8px; corner-shape: bevel; font-size: 11.5px; font-weight: 600; letter-spacing: 0.18em;
+    text-transform: uppercase; color: rgba(225, 230, 255, 0.72); }
+  .dock-btn .icon { color: var(--n); filter: drop-shadow(0 0 6px var(--n)); }
+  .dock-btn.is-active { color: #efffd6; text-shadow: 0 0 8px var(--lime); border: 1.5px solid var(--lime);
+    background: linear-gradient(180deg, rgba(var(--lime-rgb), 0.28), rgba(var(--lime-rgb), 0.06));
+    box-shadow: 0 0 20px rgba(var(--lime-rgb), 0.6), inset 0 0 14px rgba(var(--lime-rgb), 0.35); }
+  .dock-btn.is-active::after { content: ''; position: absolute; left: 24px; right: 24px; bottom: -9px; height: 3px; border-radius: 2px;
+    background: var(--lime); box-shadow: 0 0 10px var(--lime), 0 0 3px #fff; }
+</style>
+</head>
+<body>
+<script>
+  window.CONCEPT = {
+    kicker: 'CONCEPT C // SYS.UI',
+    name: 'Neon Reactor',
+    tagline: 'Smoked glass, edge-lit, sci-fi: every control emits light',
+    swatches: ['#ff2bd6', '#00f0ff', '#b6ff3b', '#ffb02e', '#8a5cff'],
+    starTints: ['#ffffff', '#c9f9ff', '#ffd0f5'],
+    seed: 37,
+  };
+</script>
+<script src="scene.js"></script>
+</body>
+</html>

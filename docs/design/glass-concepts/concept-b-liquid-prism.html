@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Concept B: Liquid Prism</title>
+<link rel="stylesheet" href="layout.css">
+<style>
+  :root {
+    --camera: #6c7bff; --time: #ffb454; --display: #4fd8c4; --learn: #c98af0;
+    --text: #f5f7ff; --dim: rgba(232, 236, 255, 0.66);
+    --rim: inset 0 1px 1px rgba(255, 255, 255, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+    --sunken: inset 0 1px 3px rgba(0, 0, 0, 0.38), inset 0 0 0 1px rgba(255, 255, 255, 0.12), inset 0 -1px 0 rgba(255, 255, 255, 0.14);
+  }
+  body { font-family: 'Inter', sans-serif; color: var(--text); font-feature-settings: 'ss01', 'cv11'; }
+  [data-accent='camera'] { --accent: var(--camera); }
+  [data-accent='time'] { --accent: var(--time); }
+  [data-accent='display'] { --accent: var(--display); }
+  [data-accent='learn'] { --accent: var(--learn); }
+
+  .wash {
+    background:
+      radial-gradient(720px 240px at 22% 14%, rgba(79, 216, 196, 0.42), transparent 70%),
+      radial-gradient(520px 400px at 2% 62%, rgba(108, 123, 255, 0.42), transparent 70%),
+      radial-gradient(640px 460px at 98% 38%, rgba(201, 138, 240, 0.42), transparent 70%),
+      radial-gradient(880px 280px at 58% 108%, rgba(79, 216, 196, 0.32), transparent 70%),
+      radial-gradient(360px 260px at 70% 70%, rgba(255, 180, 84, 0.16), transparent 70%);
+    mix-blend-mode: screen;
+  }
+
+  /* Caption */
+  .caption-kicker { font-size: 12px; font-weight: 600; letter-spacing: 0.24em; color: var(--dim); }
+  .caption-title { margin-top: 8px; font-family: 'Inter Display', 'Inter', sans-serif; font-size: 46px; font-weight: 600;
+    letter-spacing: -0.02em; line-height: 1;
+    background: linear-gradient(100deg, #ffffff 10%, #9ff6ff 35%, #b9a8ff 55%, #ffb3e2 72%, #ffe1a3 90%);
+    -webkit-background-clip: text; color: transparent; filter: drop-shadow(0 0 22px rgba(160, 200, 255, 0.4)); }
+  .caption-sub { margin-top: 8px; font-size: 15.5px; color: var(--dim); }
+  .swatches i { width: 22px; height: 22px; position: relative;
+    background: radial-gradient(circle at 50% 35%, rgba(255,255,255,.55), transparent 55%), var(--c);
+    box-shadow: inset 0 1px 1px #fff, inset 0 -2px 4px rgba(0,0,0,.25), 0 0 16px var(--c); }
+
+  /* Liquid glass surface */
+  .panel, .dock {
+    border-radius: 30px;
+    background: linear-gradient(140deg, rgba(255,255,255,.17), rgba(255,255,255,.04) 48%, rgba(255,255,255,.09));
+    backdrop-filter: blur(32px) saturate(220%) brightness(1.12);
+    box-shadow:
+      inset 0 1px 1px rgba(255, 255, 255, 0.6),
+      inset 0 -1px 1px rgba(255, 255, 255, 0.16),
+      inset 0 0 26px rgba(255, 255, 255, 0.05),
+      0 30px 60px -26px rgba(0, 0, 0, 0.75),
+      0 26px 90px -30px var(--accent, #8fa0ff);
+  }
+  /* Iridescent rim */
+  .panel::before, .dock::before {
+    content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px; pointer-events: none;
+    background: conic-gradient(from 210deg, rgba(255,255,255,.95), #7cf3ff 11%, rgba(255,255,255,.12) 24%, #a58bff 38%,
+      #ff9ad8 50%, rgba(255,255,255,.1) 61%, #ffd27a 74%, #8cffd2 87%, rgba(255,255,255,.95));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude; opacity: 0.8;
+  }
+  /* Specular sweep */
+  .panel::after, .dock::after {
+    content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+    background: linear-gradient(118deg, rgba(255,255,255,.16) 0%, rgba(255,255,255,0) 26%, rgba(255,255,255,0) 74%, rgba(255,255,255,.06) 100%);
+  }
+
+  .panel-head { padding-top: 26px; }
+  .panel-title { font-family: 'Inter Display', 'Inter', sans-serif; font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+  .panel-title .icon { width: 22px; height: 22px; color: var(--accent); filter: drop-shadow(0 0 8px var(--accent)); }
+
+  /* Move handle: liquid capsule grabber */
+  .grip { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); display: block;
+    width: 52px; height: 6px; border-radius: 999px;
+    background: linear-gradient(90deg, rgba(255,255,255,.35), #ffffff 50%, rgba(255,255,255,.35));
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.55), 0 0 2px #fff; }
+  .grip span { display: none; }
+
+  /* Close: frosted bead with halo */
+  .close { width: 32px; height: 32px; color: rgba(255, 255, 255, 0.92);
+    background: radial-gradient(circle at 50% 30%, rgba(255,255,255,.3), rgba(255,255,255,.08) 70%);
+    box-shadow: var(--rim), 0 0 0 5px rgba(255, 255, 255, 0.045), 0 0 20px rgba(255, 255, 255, 0.2); }
+
+  /* Buttons */
+  .btn { position: relative; overflow: hidden; border-radius: 999px; font-size: 15.5px; font-weight: 600; letter-spacing: -0.005em; }
+  .btn::after { content: ''; position: absolute; left: 22px; right: 22px; top: 1px; height: 40%; border-radius: 999px;
+    background: linear-gradient(rgba(255,255,255,.3), rgba(255,255,255,0)); pointer-events: none; }
+  .btn-primary { color: #fff;
+    background: linear-gradient(180deg, rgba(150, 162, 255, 0.9), rgba(98, 110, 250, 0.72));
+    box-shadow: inset 0 1px 1px rgba(255,255,255,.75), inset 0 -2px 6px rgba(30, 30, 120, 0.3), inset 0 0 0 1px rgba(255,255,255,.25),
+      0 10px 30px -8px rgba(108, 123, 255, 0.95), 0 0 44px -6px rgba(108, 123, 255, 0.7); }
+  .btn-secondary { color: #fff; background: rgba(255, 255, 255, 0.08); box-shadow: var(--rim); }
+  .btn-secondary::after { height: 34%; background: linear-gradient(rgba(255,255,255,.14), rgba(255,255,255,0)); }
+  .btn-secondary .icon { color: var(--time); fill: var(--time); filter: drop-shadow(0 0 6px var(--time)); }
+
+  /* Text field */
+  .field { border-radius: 999px; background: rgba(0, 0, 0, 0.2); box-shadow: var(--sunken); font-size: 16px; font-weight: 500; }
+  .field.is-focused { background: rgba(10, 14, 40, 0.28);
+    box-shadow: var(--sunken), 0 0 0 1.5px rgba(170, 180, 255, 0.95), 0 0 0 6px rgba(108, 123, 255, 0.2), 0 0 30px rgba(108, 123, 255, 0.55); }
+  .field > .icon { color: var(--dim); }
+  .caret { background: #b3bcff; box-shadow: 0 0 8px #8f9cff; border-radius: 1px; }
+  .field-ghost { color: rgba(255, 255, 255, 0.34); }
+  .field-count { color: #fff; background: rgba(255, 255, 255, 0.14); box-shadow: var(--rim); font-weight: 600; }
+
+  .results li { border-radius: 16px; font-size: 15.5px; font-weight: 500; }
+  .results li.is-active { background: rgba(108, 123, 255, 0.24);
+    box-shadow: inset 0 0 0 1px rgba(170, 180, 255, 0.5), inset 0 1px 1px rgba(255,255,255,.35), 0 0 22px rgba(108, 123, 255, 0.35); }
+  .results em { color: var(--dim); }
+
+  .chip { border-radius: 999px; font-size: 14px; background: rgba(255, 255, 255, 0.08); box-shadow: var(--rim); }
+  .chip-dot { background: var(--time); box-shadow: 0 0 10px var(--time), 0 0 2px #fff; }
+  .chip b { font-weight: 600; }
+  .chip-close { width: 26px; height: 26px; box-shadow: var(--rim); }
+
+  /* Segmented toggle with a lens selection */
+  .segmented { border-radius: 999px; background: rgba(0, 0, 0, 0.22); box-shadow: var(--sunken); }
+  .segmented button { font-size: 15px; font-weight: 600; color: var(--dim); }
+  .segmented .is-on { color: #fff;
+    background: linear-gradient(180deg, rgba(255,255,255,.28), rgba(255,255,255,.08));
+    box-shadow: inset 0 1px 1px rgba(255,255,255,.85), inset 0 -1px 2px rgba(255,255,255,.2), inset 0 0 0 1px rgba(255,255,255,.2),
+      0 4px 14px rgba(0,0,0,.3), 0 0 24px rgba(79, 216, 196, 0.5); }
+
+  /* Toggle switches with a glass-bead knob */
+  .switch-label { font-size: 16px; font-weight: 600; }
+  .switch-hint { color: var(--dim); }
+  .switch { border-radius: 999px; background: rgba(255, 255, 255, 0.1); box-shadow: var(--sunken); }
+  .switch.is-on { background: linear-gradient(90deg, rgba(79,216,196,.95), rgba(124,243,255,.92));
+    box-shadow: inset 0 1px 1px rgba(255,255,255,.65), 0 0 22px rgba(79, 216, 196, 0.75), 0 0 46px rgba(79, 216, 196, 0.3); }
+  .switch i { background: radial-gradient(circle at 50% 30%, #fff, #e9ecf7);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4), inset 0 -1px 2px rgba(0, 0, 0, 0.1); }
+  .switch.is-on i { top: -1px; left: 23px; width: 34px; height: 34px;
+    background: radial-gradient(circle at 50% 50%, rgba(255,255,255,.05) 40%, rgba(255,255,255,.55) 100%);
+    backdrop-filter: blur(1px) brightness(1.35) saturate(1.6);
+    box-shadow: inset 0 1px 1px #fff, inset 0 -1px 2px rgba(255,255,255,.6), inset 0 0 0 1px rgba(255,255,255,.5), 0 3px 8px rgba(0, 40, 50, 0.4); }
+
+  /* Checkboxes */
+  .check { border-radius: 16px; font-size: 14.5px; font-weight: 500; background: rgba(255, 255, 255, 0.05);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.09); }
+  .check.is-on { background: rgba(79, 216, 196, 0.1); box-shadow: inset 0 0 0 1px rgba(124, 243, 255, 0.24); }
+  .box { width: 22px; height: 22px; border-radius: 7px; background: rgba(255, 255, 255, 0.08); box-shadow: var(--sunken), inset 0 0 0 1.5px rgba(255,255,255,.3); }
+  .check.is-on .box { background: linear-gradient(160deg, rgba(124,243,255,.6), rgba(79,216,196,.32));
+    box-shadow: inset 0 1px 1px rgba(255,255,255,.8), inset 0 0 0 1px rgba(160,255,240,.85), 0 0 14px rgba(79, 216, 196, 0.7); }
+  .box .icon { color: #fff; filter: drop-shadow(0 0 3px #b8fff4); }
+
+  /* Lesson */
+  .lesson-kicker { font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #e6c9fb; }
+  .lesson-kicker .icon { color: var(--learn); filter: drop-shadow(0 0 6px var(--learn)); }
+  .lesson-kicker b { padding: 2px 9px; border-radius: 999px; color: #fff; letter-spacing: 0.06em; background: rgba(201,138,240,.22);
+    box-shadow: inset 0 0 0 1px rgba(230, 201, 251, 0.45); }
+  .lesson-title { font-family: 'Inter Display', 'Inter', sans-serif; font-size: 30px; font-weight: 600; letter-spacing: -0.02em; }
+  .lesson-text { font-size: 15.5px; line-height: 1.55; color: rgba(240, 242, 255, 0.86); }
+  .round { color: #fff; background: rgba(255, 255, 255, 0.09); box-shadow: var(--rim); }
+  .round-next { background: linear-gradient(180deg, rgba(214,164,247,.85), rgba(170,100,225,.7));
+    box-shadow: inset 0 1px 1px rgba(255,255,255,.75), inset 0 0 0 1px rgba(255,255,255,.25), 0 0 26px rgba(201, 138, 240, 0.7); }
+  .round .icon { stroke-width: 2.4; }
+  .progress i { background: rgba(255, 255, 255, 0.24); }
+  .progress i.done { background: rgba(230, 201, 251, 0.85); }
+  .progress i.now { background: linear-gradient(90deg, #c98af0, #ff9ad8); box-shadow: 0 0 12px #c98af0; }
+  .lesson-note { color: var(--dim); }
+
+  /* Dock */
+  .dock { border-radius: 38px; padding: 8px; gap: 6px; --accent: #4fd8c4; }
+  .dock-btn { position: relative; border-radius: 28px; font-size: 13px; font-weight: 600; color: rgba(240, 242, 255, 0.72); }
+  .dock-btn .icon { color: var(--accent); opacity: 0.85; }
+  .dock-btn.is-active { color: #fff;
+    background: linear-gradient(180deg, rgba(255,255,255,.24), rgba(255,255,255,.06));
+    box-shadow: inset 0 1px 1px rgba(255,255,255,.9), inset 0 0 0 1px rgba(255,255,255,.22), inset 0 -10px 18px rgba(79,216,196,.25),
+      0 0 30px rgba(79, 216, 196, 0.55), 0 8px 18px -6px rgba(0, 0, 0, 0.45); }
+  .dock-btn.is-active .icon { opacity: 1; filter: drop-shadow(0 0 8px var(--display)); }
+</style>
+</head>
+<body>
+<script>
+  window.CONCEPT = {
+    kicker: 'CONCEPT B',
+    name: 'Liquid Prism',
+    tagline: 'Clear, refined, iridescent: crystal glass that keeps today’s accent colours',
+    swatches: ['#6c7bff', '#ffb454', '#4fd8c4', '#c98af0', '#ffffff'],
+    starTints: ['#ffffff', '#d8f8ff', '#e8ddff'],
+    seed: 23,
+  };
+</script>
+<script src="scene.js"></script>
+</body>
+</html>

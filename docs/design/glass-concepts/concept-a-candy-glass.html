@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Concept A: Candy Glass</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=block">
+<link rel="stylesheet" href="layout.css">
+<style>
+  :root {
+    --pink: #ff4fd8; --hot: #ff2e9a; --tang: #ff9a3c; --lemon: #ffe45c; --aqua: #3df5ff; --grape: #8a5bff;
+    --well: rgba(46, 6, 70, 0.42);
+    --well-shadow: inset 0 3px 8px rgba(24, 0, 44, 0.55), inset 0 -1px 0 rgba(255, 255, 255, 0.28);
+  }
+  body { font-family: 'Fredoka', 'Inter', sans-serif; color: #fff; }
+
+  .wash {
+    background:
+      radial-gradient(560px 460px at 6% 34%, rgba(255, 50, 200, 0.55), transparent 70%),
+      radial-gradient(600px 480px at 98% 24%, rgba(125, 80, 255, 0.6), transparent 70%),
+      radial-gradient(760px 320px at 50% 108%, rgba(61, 245, 255, 0.38), transparent 70%),
+      radial-gradient(420px 320px at 74% 82%, rgba(255, 154, 60, 0.28), transparent 70%);
+    mix-blend-mode: screen;
+  }
+
+  /* Caption */
+  .caption-kicker { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 600;
+    letter-spacing: 0.14em; background: rgba(255, 255, 255, 0.18); box-shadow: inset 0 1px 0 rgba(255,255,255,.6); }
+  .caption-title { margin-top: 8px; font-size: 44px; font-weight: 700; line-height: 1;
+    background: linear-gradient(90deg, #ff7ae6, #ffb03a 55%, #ffe873); -webkit-background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 18px rgba(255, 79, 216, 0.55)); }
+  .caption-sub { margin-top: 6px; font-size: 16px; color: rgba(255, 255, 255, 0.8); }
+  .swatches i { width: 22px; height: 22px; box-shadow: 0 0 14px var(--c), inset 0 -3px 5px rgba(0,0,0,.25), inset 0 2px 0 rgba(255,255,255,.7);
+    background: radial-gradient(circle at 35% 30%, #fff 0 12%, var(--c) 40%); }
+
+  /* Glass */
+  .panel, .dock {
+    border-radius: 34px;
+    background: linear-gradient(165deg, rgba(255,255,255,.34) 0%, rgba(255,255,255,.13) 36%, rgba(255,255,255,.06) 62%, rgba(255,150,235,.18) 100%);
+    backdrop-filter: blur(26px) saturate(200%);
+    border: 1.5px solid rgba(255, 255, 255, 0.55);
+    box-shadow:
+      inset 0 2px 0 rgba(255, 255, 255, 0.8),
+      inset 0 -16px 36px var(--inner, rgba(255, 79, 216, 0.24)),
+      0 26px 60px -14px rgba(110, 10, 140, 0.75),
+      0 0 50px -6px var(--glow, rgba(255, 79, 216, 0.5));
+    text-shadow: 0 1px 2px rgba(80, 0, 90, 0.35);
+  }
+  .panel::before, .dock::before {
+    content: ''; position: absolute; left: 12px; right: 12px; top: 5px; height: 64px; pointer-events: none;
+    border-radius: 28px 28px 50% 50% / 28px 28px 22px 22px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0));
+  }
+  .camera { --glow: rgba(255, 79, 216, 0.6); }
+  .display { --glow: rgba(61, 245, 255, 0.55); --inner: rgba(61, 245, 255, 0.2); }
+  .lesson { --glow: rgba(255, 154, 60, 0.5); --inner: rgba(255, 154, 60, 0.2); }
+
+  .panel-title { font-size: 21px; font-weight: 600; }
+  .panel-title .icon { width: 36px; height: 36px; padding: 8px; border-radius: 50%; color: #fff;
+    background: radial-gradient(circle at 35% 28%, rgba(255,255,255,.9) 0 10%, transparent 34%), linear-gradient(160deg, var(--i1), var(--i2));
+    box-shadow: 0 0 16px var(--i1), inset 0 -3px 6px rgba(0,0,0,.25); filter: none; }
+  .camera .panel-title .icon { --i1: #ff8ae8; --i2: #e0208f; }
+  .display .panel-title .icon { --i1: #8ffcff; --i2: #14a9d6; }
+
+  /* Move handle: candy pill with glowing dots */
+  .grip { grid-template-columns: repeat(3, 6px); gap: 4px; padding: 7px 9px; border-radius: 999px;
+    background: rgba(255, 255, 255, 0.2); box-shadow: inset 0 1px 0 rgba(255,255,255,.7), inset 0 -2px 4px rgba(60,0,80,.2); }
+  .grip span { width: 6px; height: 6px; background: #d5feff; box-shadow: 0 0 6px var(--aqua), 0 0 2px #fff; }
+  .grip-top { grid-template-columns: repeat(6, 6px); padding: 6px 12px; top: 10px; }
+
+  /* Close: glossy pink orb */
+  .close { width: 32px; height: 32px; color: #fff;
+    background: radial-gradient(circle at 35% 27%, #fff 0 9%, #ffb3e6 18%, #ff4fb4 50%, #c8157a 100%);
+    box-shadow: 0 4px 12px -2px rgba(255, 46, 154, 0.85), 0 0 20px rgba(255, 79, 216, 0.6),
+      inset 0 -3px 6px rgba(120, 0, 60, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.55); }
+  .close .icon { filter: drop-shadow(0 1px 0 rgba(120, 0, 60, 0.7)); }
+  .lesson-close { top: 16px; right: 16px; }
+
+  /* Buttons: jelly pills */
+  .btn { position: relative; overflow: hidden; border-radius: 999px; font-size: 16.5px; font-weight: 600; }
+  .btn::after { content: ''; position: absolute; left: 18px; right: 18px; top: 3px; height: 46%; border-radius: 999px;
+    background: linear-gradient(rgba(255,255,255,.85), rgba(255,255,255,.06)); opacity: .7; pointer-events: none; }
+  .btn-primary { color: #fff; text-shadow: 0 1px 1px rgba(140, 0, 80, 0.6);
+    background: linear-gradient(180deg, #ff8ae8 0%, #ff4fc8 45%, #f02d9e 100%);
+    box-shadow: inset 0 -5px 12px rgba(150, 0, 90, 0.45), inset 0 0 0 1.5px rgba(255, 255, 255, 0.45),
+      0 10px 26px -6px rgba(255, 46, 170, 0.95), 0 0 32px rgba(255, 79, 216, 0.5); }
+  .btn-secondary { color: #fff;
+    background: linear-gradient(180deg, rgba(255,255,255,.32), rgba(255,255,255,.08));
+    box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.6), inset 0 -5px 12px rgba(61, 245, 255, 0.28), 0 0 24px rgba(61, 245, 255, 0.38); }
+  .btn-secondary .icon { color: var(--aqua); fill: var(--aqua); filter: drop-shadow(0 0 6px var(--aqua)); }
+
+  /* Text field: sunken well with a candy focus ring */
+  .field { border-radius: 999px; background: var(--well); box-shadow: var(--well-shadow); font-size: 17px; font-weight: 500; }
+  .field.is-focused { box-shadow: var(--well-shadow), 0 0 0 2px rgba(255,255,255,.95), 0 0 0 6px rgba(255, 79, 216, 0.55), 0 0 30px rgba(255, 79, 216, 0.75); }
+  .field > .icon { color: #ffc4f0; }
+  .caret { background: var(--pink); box-shadow: 0 0 8px var(--pink); border-radius: 2px; }
+  .field-ghost { color: rgba(255, 255, 255, 0.4); }
+  .field-count { background: linear-gradient(#fff6a8, #ffcb3c); color: #8a3b00; font-weight: 700; text-shadow: none;
+    box-shadow: 0 0 12px rgba(255, 228, 92, 0.8), inset 0 1px 0 #fff; }
+
+  .results li { border-radius: 999px; font-size: 16px; font-weight: 500; }
+  .results li.is-active { background: linear-gradient(90deg, rgba(255,79,216,.5), rgba(138,91,255,.38));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 0 20px rgba(255, 79, 216, 0.4); }
+  .results em { padding: 2px 10px; border-radius: 999px; background: rgba(255, 255, 255, 0.18); color: rgba(255,255,255,.85); }
+
+  .chip { border-radius: 999px; font-size: 15px; background: linear-gradient(rgba(255,255,255,.3), rgba(255,255,255,.1));
+    box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.5), 0 0 18px rgba(255, 228, 92, 0.3); }
+  .chip-dot { background: var(--lemon); box-shadow: 0 0 10px var(--lemon), 0 0 3px #fff; }
+  .chip b { font-weight: 600; color: #fff3a6; }
+  .chip-close { width: 26px; height: 26px; }
+
+  /* Segmented toggle */
+  .segmented { border-radius: 999px; background: var(--well); box-shadow: var(--well-shadow); }
+  .segmented button { font-size: 16px; font-weight: 600; color: rgba(255, 255, 255, 0.78); position: relative; }
+  .segmented .is-on { color: #7a2a00; text-shadow: 0 1px 0 rgba(255,255,255,.6);
+    background: linear-gradient(180deg, #fff08a, #ffb83f 52%, #ff8a2a);
+    box-shadow: inset 0 -3px 6px rgba(160, 60, 0, 0.35), inset 0 2px 0 rgba(255,255,255,.85),
+      0 6px 18px -4px rgba(255, 154, 60, 0.95), 0 0 24px rgba(255, 200, 80, 0.55); }
+
+  /* Toggle switches: gel capsule with a glossy bead */
+  .switch-label { font-size: 17px; font-weight: 600; }
+  .switch-hint { color: rgba(255, 255, 255, 0.68); }
+  .switch { border-radius: 999px; background: var(--well); box-shadow: var(--well-shadow), inset 0 0 0 1px rgba(255,255,255,.25); }
+  .switch.is-on { background: linear-gradient(90deg, #3df5ff, #8a5bff 60%, #ff4fd8);
+    box-shadow: inset 0 -3px 6px rgba(60, 0, 120, 0.35), inset 0 2px 0 rgba(255,255,255,.55), 0 0 24px rgba(61, 245, 255, 0.6), 0 0 40px rgba(255, 79, 216, 0.35); }
+  .switch i { background: radial-gradient(circle at 35% 28%, #fff 0 26%, #f3ecff 55%, #cbbcff 100%);
+    box-shadow: 0 3px 8px rgba(60, 0, 90, 0.55), inset 0 -2px 3px rgba(100, 60, 160, 0.3); }
+
+  /* Checkboxes: gem squircles in rotating candy colours */
+  .check { border-radius: 20px; font-size: 15.5px; font-weight: 500; background: rgba(255, 255, 255, 0.09);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); }
+  .box { border-radius: 9px; background: var(--well); box-shadow: var(--well-shadow), inset 0 0 0 1.5px rgba(255,255,255,.35); }
+  .check:nth-child(4n+1) { --g1: #8ffcff; --g2: #12a6d4; }
+  .check:nth-child(4n+2) { --g1: #ff9aee; --g2: #e0208f; }
+  .check:nth-child(4n+3) { --g1: #fff08a; --g2: #ff9a2a; }
+  .check:nth-child(4n+4) { --g1: #c6a8ff; --g2: #6a3cf0; }
+  .check.is-on .box { background: radial-gradient(circle at 32% 24%, rgba(255,255,255,.95) 0 9%, transparent 30%), linear-gradient(160deg, var(--g1), var(--g2));
+    box-shadow: 0 0 16px var(--g1), inset 0 -2px 4px rgba(0,0,0,.25), inset 0 0 0 1px rgba(255,255,255,.6); }
+  .box .icon { color: #fff; filter: drop-shadow(0 1px 0 rgba(0,0,0,.35)); }
+
+  /* Lesson */
+  .lesson-kicker { font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #ffe27a; }
+  .lesson-kicker b { padding: 2px 10px; border-radius: 999px; color: #fff; letter-spacing: 0.04em;
+    background: linear-gradient(180deg, #ff8ae8, #f02d9e); box-shadow: 0 0 12px rgba(255,79,216,.6); }
+  .lesson-title { font-size: 31px; font-weight: 600; }
+  .lesson-text { font-size: 16px; line-height: 1.5; color: rgba(255, 255, 255, 0.94); }
+  .round-prev { color: #fff; background: linear-gradient(rgba(255,255,255,.32), rgba(255,255,255,.08));
+    box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.55), inset 0 -4px 8px rgba(138, 91, 255, .3); }
+  .round-next { color: #fff; background: radial-gradient(circle at 35% 27%, #fff 0 7%, #ffb3e6 16%, #ff4fb4 50%, #c8157a 100%);
+    box-shadow: 0 6px 16px -4px rgba(255,46,154,.9), 0 0 22px rgba(255,79,216,.6), inset 0 -3px 6px rgba(120,0,60,.4); }
+  .round .icon { stroke-width: 2.6; }
+  .progress i { background: rgba(255, 255, 255, 0.3); }
+  .progress i.done { background: #ff8ae8; box-shadow: 0 0 6px #ff4fd8; }
+  .progress i.now { background: linear-gradient(90deg, #ff4fd8, #ffb03a); box-shadow: 0 0 12px #ff4fd8; }
+  .lesson-note { color: rgba(255, 255, 255, 0.65); }
+
+  /* Dock */
+  .dock { border-radius: 38px; padding: 9px; gap: 8px; --glow: rgba(61, 245, 255, 0.45); }
+  .dock-btn { position: relative; overflow: hidden; border-radius: 28px; font-size: 14px; font-weight: 600; color: rgba(255,255,255,.9); }
+  .dock-btn .icon { stroke-width: 2.1; }
+  .dock-btn[data-accent='camera'] .icon { color: #ff9aee; filter: drop-shadow(0 0 6px #ff4fd8); }
+  .dock-btn[data-accent='time'] .icon { color: #ffc46a; filter: drop-shadow(0 0 6px #ff9a3c); }
+  .dock-btn[data-accent='learn'] .icon { color: #c6a8ff; filter: drop-shadow(0 0 6px #8a5bff); }
+  .dock-btn.is-active { color: #00384a; text-shadow: 0 1px 0 rgba(255,255,255,.55);
+    background: linear-gradient(180deg, #b4fdff, #3df5ff 46%, #12b5d9);
+    box-shadow: inset 0 -4px 10px rgba(0, 80, 120, 0.35), inset 0 2px 0 rgba(255,255,255,.85),
+      0 10px 28px -6px rgba(61, 245, 255, 0.95), 0 0 36px rgba(61, 245, 255, 0.6); }
+  .dock-btn.is-active::after { content: ''; position: absolute; left: 12px; right: 12px; top: 3px; height: 40%; border-radius: 999px;
+    background: linear-gradient(rgba(255,255,255,.8), rgba(255,255,255,0)); opacity: .6; }
+</style>
+</head>
+<body>
+<script>
+  window.CONCEPT = {
+    kicker: 'CONCEPT A',
+    name: 'Candy Glass',
+    tagline: 'Bubbly, glossy, maximum pop: thick frosted gel and jelly controls',
+    swatches: ['#ff4fd8', '#ff9a3c', '#ffe45c', '#3df5ff', '#8a5bff'],
+    starTints: ['#ffffff', '#ffd6f5', '#d6fbff', '#fff3c4'],
+    seed: 11,
+  };
+</script>
+<script src="scene.js"></script>
+</body>
+</html>
