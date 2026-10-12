@@ -36,8 +36,9 @@ export class InterfaceVisibility {
   }
 
   private onKeyDown = (event: KeyboardEvent) => {
-    const command = event.ctrlKey || event.metaKey
-    if (command && event.key.toLowerCase() === 'k') {
+    // A modal dialog (About) has the keys while it is open; Escape there closes it, nothing else.
+    if (document.querySelector('dialog[open]')) return
+    if (isPaletteShortcut(event)) {
       if (this.isHidden) this.reveal()
     } else if (event.key === 'Escape') {
       this.show()
@@ -52,4 +53,8 @@ export class InterfaceVisibility {
     if (event.ctrlKey || event.metaKey || event.altKey) return false
     return !isTextEntryTarget(event.target)
   }
+}
+
+function isPaletteShortcut(event: KeyboardEvent): boolean {
+  return (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k'
 }

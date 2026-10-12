@@ -48,6 +48,7 @@
 .hud-popover,
 .hud-palette,
 .hud-library,
+.hud-about,
 .hud-modes,
 .hud-top-actions,
 .hud-view-controls,
@@ -65,6 +66,7 @@
 .hud-popover,
 .hud-palette,
 .hud-library,
+.hud-about,
 .hud-modes,
 .hud-top-actions,
 .hud-view-controls,
@@ -86,6 +88,7 @@
 .hud-popover::before,
 .hud-palette::before,
 .hud-library::before,
+.hud-about::before,
 .hud-modes::before,
 .hud-top-actions::before,
 .hud-view-controls::before,
@@ -110,6 +113,7 @@
 .hud-popover::after,
 .hud-palette::after,
 .hud-library::after,
+.hud-about::after,
 .hud-modes::after,
 .hud-top-actions::after,
 .hud-view-controls::after,
@@ -381,6 +385,95 @@ body[data-ui-hidden] :is(.hud-modes, .hud-top-actions, .hud-dock, .hud-sheet, .h
   color: rgba(236, 240, 255, 0.78);
   background: rgba(8, 10, 22, 0.6);
   pointer-events: none;
+}
+
+/* About: a modal slab like the lesson library, its text scrolling inside. */
+.hud-about {
+  --hud-slab-glow: rgba(123, 92, 255, 0.6);
+  position: fixed;
+  inset: 72px auto auto 50%;
+  transform: translateX(-50%);
+  width: min(640px, calc(100vw - 40px));
+  max-width: none;
+  max-height: calc(100vh - 120px);
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  overflow: visible;
+}
+.hud-about[open] {
+  display: flex;
+  flex-direction: column;
+}
+.hud-about::backdrop {
+  background: rgba(4, 5, 12, 0.55);
+}
+.hud-about > .hud-sheet-head {
+  margin: 0;
+}
+.hud-about-body {
+  min-height: 0;
+  overflow-y: auto;
+  padding: 4px 18px 20px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.hud-about-body p {
+  margin: 8px 0;
+}
+.hud-about-body a {
+  color: var(--hud-text);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.hud-about-body a:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+.hud-about-body .hud-group-title {
+  margin: 20px 0 4px;
+}
+.hud-about-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 8px 0;
+  padding: 0;
+  list-style: none;
+}
+.hud-about-subtitle {
+  margin: 28px 0 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+.hud-credits {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.hud-credits li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(236, 240, 255, 0.12);
+}
+.hud-credit-name {
+  font-weight: 600;
+}
+.hud-credit-use {
+  color: var(--hud-dim);
+}
+.hud-credit-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  font-size: 13px;
+}
+.hud-credit-meta > span {
+  font-family: var(--hud-mono);
+  font-size: 12px;
 }
 
 /* The frame-rate readout (Settings, off by default): plain figures in the lower left corner, clear
@@ -1226,21 +1319,9 @@ body[data-ui-hidden] :is(.hud-modes, .hud-top-actions, .hud-dock, .hud-sheet, .h
   .hud-dock-label {
     display: none;
   }
-  /* Too narrow to center the mode switch beside search and settings: it moves to the left edge. */
   .hud-modes {
     left: 12px;
     transform: none;
-  }
-  .hud-top-actions {
-    right: 12px;
-  }
-  .hud-show-ui {
-    right: 18px;
-  }
-  /* The mode switch takes the top left corner here: the note goes just below it. */
-  .hud-beta-note {
-    left: 12px;
-    top: 80px;
   }
 }
 
@@ -1793,4 +1874,41 @@ body:has(.hud-library:not([hidden]), .hud-palette:not([hidden])) .hud-camera-hin
   transform: translate(2px, 2px);
   background: rgba(123, 92, 255, 0.35);
   box-shadow: var(--hud-lit), var(--hud-ring), 1px 1px 0 rgba(255, 255, 255, 0.34);
+}
+
+/* Phones: the mode switch and the four top buttons don't fit side by side. The mode switch keeps
+   the first row (with its words), the buttons take the right end of a second row beside the beta
+   note, and everything that hangs below the top bar moves down by that row. Last in the file, so
+   it wins over each element's own placement. */
+@media (max-width: 480px) {
+  .hud-top-actions {
+    top: 80px;
+    right: 12px;
+  }
+  .hud-show-ui {
+    top: 86px;
+    right: 18px;
+  }
+  .hud-beta-note {
+    left: 12px;
+    top: 92px;
+  }
+  .hud-settings,
+  .hud-palette,
+  .hud-library,
+  .hud-about,
+  .hud-camera-hint,
+  .hud-phase-inset {
+    top: 146px;
+  }
+  .hud-settings {
+    right: 12px;
+  }
+  .gpu-lost-alert {
+    top: 152px;
+  }
+  .hud-library,
+  .hud-about {
+    max-height: calc(100vh - 230px);
+  }
 }

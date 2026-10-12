@@ -20,7 +20,9 @@ Catalogue.
 - [Changelog](CHANGELOG.md) — what's shipped so far.
 - [Credits](CREDITS.md) — third-party data and library attributions.
 
-Licensed under the [MIT License](LICENSE).
+The code is licensed under the [MIT License](LICENSE). Third-party images, data and fonts keep their
+own licenses (CC BY 4.0, public domain, SIL OFL 1.1 and others) - see [CREDITS.md](CREDITS.md). The
+app's About dialog (the info button at the top right) lists them too, with their license texts.
 
 ## For users
 

@@ -185,7 +185,7 @@ about 95 km up and its red emission around 250 km - typical published values.
 
 ## Tonemapping
 
-The "Filmic look" (`packages/app/src/bloom/tonemapWgsl.ts`) follows Troy Sobotka's AgX view
+The tonemapping (`packages/app/src/bloom/tonemapWgsl.ts`) follows Troy Sobotka's AgX view
 transform, using the inset/outset matrices and the polynomial fit of its contrast curve published
 by Benjamin Wrensch ("Minimal AgX Implementation", iolite engine blog, 2023). The shader code is
 written for this project.
@@ -222,9 +222,22 @@ service at run time.
 - [gl-matrix](https://glmatrix.net/) — MIT License (matrix/vector math for the WebGPU renderer:
   perspective/lookAt matrices, vector normalization)
 
-## Build tooling
+## Built into the app by the build
 
-- [AssemblyScript](https://www.assemblyscript.org/) — MIT License
+- [AssemblyScript](https://www.assemblyscript.org/) — Apache License 2.0. Compiles the orbit
+  engine to WebAssembly; its runtime and standard library end up inside `engine.wasm`, so its
+  license and NOTICE ship with the app.
+- [Rolldown](https://rolldown.rs/) (Vite's bundler) — MIT License. A few lines of its module
+  runtime end up in the bundle.
+
+## License texts in the app
+
+Every license text the built app needs travels with it in `packages/app/public/licenses/`, copied
+from the exact installed versions; the About dialog (the info button at the top right) links them.
+`packages/app/test/credits.test.ts` fails when a runtime package or a file in `public/` has no
+entry in `packages/app/src/about/credits.ts`, or a shipped text differs from the installed one.
+
+## Build tooling
 - [Vite](https://vitejs.dev/) — MIT License
 - [Vitest](https://vitest.dev/) — MIT License
 - [Playwright](https://playwright.dev/) — Apache License 2.0

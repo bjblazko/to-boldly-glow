@@ -158,9 +158,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   first; `?tour=off` in the address keeps the camera still.
 - An FPS counter switch in Settings (off by default), shown in the lower left corner.
 - A "Beta version" note, always visible in the top left corner.
+- An info button at the top right (beside search and settings) opens an About dialog: who
+  makes the app, links to the project page, the source code, the imprint and the privacy notice,
+  what data leaves the browser (none), the MIT license and no-warranty note, and "Licenses and
+  thanks" for every library, font, image and data set the app ships, with the license texts now
+  shipped alongside the app (`licenses/`). A test keeps the list complete.
 
 ### Changed
 
+- CREDITS.md: AssemblyScript is Apache-2.0 (not MIT), and its runtime is part of the built app;
+  Rolldown's module runtime is credited too.
 - AgX ("Filmic look") is now the only tonemapping: the Reinhard path and the Settings switch for
   it are gone.
 - "How big are the planets?" is now "Get to know the planets", as each planet's page tells more

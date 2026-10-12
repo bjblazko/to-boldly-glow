@@ -1,3 +1,4 @@
+import { AboutDialog } from '../about/aboutDialog'
 import { BodyRenderer } from '../bodies/bodyRenderer'
 import { createViewpoint } from '../camera/viewpoint'
 import { AtmosphereShells } from '../atmosphereShell/atmosphereShell'
@@ -45,7 +46,7 @@ import { requireElement } from './dom'
 import { showDeviceLost } from './errorMessages'
 import { createExplorer, obstaclesIn, shownSmallBodies, type ShownFrame } from './explorer'
 import { runFrameLoop, type FrameTime } from './frameLoop'
-import { gatherPaletteItems } from './paletteItems'
+import { gatherPaletteItems, type PaletteActions } from './paletteItems'
 import { scheduleStartupTour, startupTourWanted } from './startupTour'
 
 type SceneFeatures = Omit<SceneParts, 'lessons'>
@@ -130,7 +131,12 @@ function createLessons(explorer: ReturnType<typeof createExplorer>, gpu: LessonG
   const learnUi = createLearnUi(session, progress, dock)
   new SettingsPanel(requireElement('#settings-panel'), requireElement('#settings-btn'), requireElement('#settings-close'))
   const ui = new InterfaceVisibility(document.body, { hide: requireElement('#hide-ui-btn'), show: requireElement('#show-ui-btn') })
-  createPalette(learnUi, explorer.select, () => ui.hide())
+  const about = new AboutDialog(requireElement<HTMLDialogElement>('#about-dialog'), {
+    openButton: requireElement('#about-btn'),
+    closeButton: requireElement('#about-close'),
+    credits: requireElement('#about-credits'),
+  })
+  createPalette(learnUi, explorer.select, { hideInterface: () => ui.hide(), showAbout: () => about.open() })
   return session
 }
 
@@ -149,7 +155,7 @@ function createLearnUi(session: LessonSession, progress: LessonProgress, dock: D
   return new LearnUi({ ...buttons, library }, session, progress, () => dock.closeActivePanel())
 }
 
-function createPalette(learnUi: LearnUi, select: (entity: SolarSystemEntity) => void, hideInterface: () => void): CommandPalette {
+function createPalette(learnUi: LearnUi, select: (entity: SolarSystemEntity) => void, app: Pick<PaletteActions, 'hideInterface' | 'showAbout'>): CommandPalette {
   const elements = {
     dialog: requireElement('#command-palette'),
     input: requireElement<HTMLInputElement>('#palette-input'),
@@ -162,7 +168,7 @@ function createPalette(learnUi: LearnUi, select: (entity: SolarSystemEntity) => 
       select(entity)
     },
     openLesson: (lesson: Lesson) => learnUi.openLesson(lesson),
-    hideInterface,
+    ...app,
   }
   return new CommandPalette(elements, () => gatherPaletteItems(actions))
 }
