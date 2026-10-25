@@ -6,11 +6,13 @@ export interface LessonRecord {
   chapter: number
   // Whether they reached the last chapter at some point.
   done: boolean
+  // The order they last had the chapters in (see Lesson.sortings).
+  sorting?: string
 }
 
 const STORAGE_KEY = 'toBoldlyGlow.lessonProgress'
 
-// Remembers each lesson's last chapter, so the library can offer to continue there - in the
+// Remembers each lesson's last chapter (and the order the chapters were in), so the library can offer to continue there - in the
 // browser's local storage when it has one (it may not: private windows, blocked site data).
 export class LessonProgress {
   private readonly records: Record<string, LessonRecord>
@@ -19,9 +21,9 @@ export class LessonProgress {
     this.records = readRecords(storage)
   }
 
-  record(lesson: Lesson, chapterIndex: number): void {
+  record(lesson: Lesson, chapterIndex: number, sorting?: string): void {
     const done = (this.records[lesson.id]?.done ?? false) || chapterIndex === lesson.chapters.length - 1
-    this.records[lesson.id] = { chapter: chapterIndex, done }
+    this.records[lesson.id] = { chapter: chapterIndex, done, ...(sorting && { sorting }) }
     try {
       this.storage?.setItem(STORAGE_KEY, JSON.stringify(this.records))
     } catch {
@@ -34,6 +36,11 @@ export class LessonProgress {
     const record = this.records[lesson.id]
     if (!record || record.done) return 0
     return Math.min(record.chapter, lesson.chapters.length - 1)
+  }
+
+  // The order the chapters were last in, kept even once the lesson is done.
+  sortingOf(lesson: Lesson): string | undefined {
+    return this.records[lesson.id]?.sorting
   }
 
   status(lesson: Lesson): string {

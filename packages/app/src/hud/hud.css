@@ -1531,6 +1531,35 @@ body:has(.hud-library:not([hidden]), .hud-palette:not([hidden])) .hud-camera-hin
   outline-offset: -2px;
 }
 
+/* The Sort list: the same entries as the chapter list, without numbers, each with a hint where its
+   name alone would mislead. Only lessons with orders to pick show the button. */
+.hud-lesson-dock .hud-dock-btn[hidden] {
+  display: none;
+}
+.hud-sort-heading {
+  margin: 0;
+  padding: 14px 20px 4px;
+  color: var(--hud-dim);
+  font-size: 12px;
+  font-weight: 500;
+}
+.hud-sort-item {
+  flex-direction: column;
+  gap: 2px;
+}
+.hud-sort-item::before {
+  content: none;
+}
+.hud-sort-hint {
+  color: var(--hud-dim);
+  font-size: 12px;
+  font-weight: 400;
+}
+.hud-sort-list .hud-sort-item[aria-pressed='true'] {
+  color: #fff;
+  box-shadow: inset 2px 0 0 var(--hud-gold);
+}
+
 /* Zoom in / out / back to the lesson's view: a small upright slab on the scene's right edge, its
    keys flat like the dock's. */
 .hud-view-controls {

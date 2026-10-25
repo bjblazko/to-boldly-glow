@@ -90,8 +90,8 @@ it yourself, or to work on it:
 - **Search everything** — `Ctrl+K` (`Cmd+K` on a Mac) or the search button finds objects, lessons
   and settings in one list.
 - **Learn** — the lesson library shows the lessons by topic, with a search, and remembers where you
-  left each one: **Get to know the planets** (the Sun and planets side by side at true scale, then
-  each planet close up with its facts), **Why does Earth have seasons?** (Earth's tilted axis
+  left each one: **Get to know the planets** (the Sun and planets side by side at true scale, sorted
+  by distance, size, mass, temperature and more, then each planet close up with its facts), **Why does Earth have seasons?** (Earth's tilted axis
   through a year), **Why does the Moon have phases?** (the Moon's orbit from above, then a month of evenings and mornings from the ground —
   crescent with earthshine, quarters and the rising full Moon) and **What happens in a solar
   eclipse?** (the Moon's shadow from space, then the eclipse from the ground — through eclipse

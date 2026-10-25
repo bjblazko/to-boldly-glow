@@ -12,6 +12,9 @@ export interface SceneLayout {
   moons: MoonPose[]
   // The sizes lesson's lineup is about the names: show body labels even when they're switched off.
   alwaysShowBodyLabels?: boolean
+  // A second line under a body's name, by body id (the sizes lesson: the value its planets are
+  // sorted by).
+  bodyLabelNotes?: Record<string, string>
 }
 
 export interface BodyPose {

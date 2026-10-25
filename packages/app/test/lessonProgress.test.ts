@@ -45,4 +45,12 @@ describe('LessonProgress', () => {
     const garbage = { getItem: () => '{not json', setItem: () => {} }
     expect(new LessonProgress(garbage).resumeAt(lesson)).toBe(0)
   })
+
+  it('remembers the order the chapters were in, across visits and after the lesson is done', () => {
+    const storage = memoryStorage()
+    new LessonProgress(storage).record(lesson, last, 'size')
+    const progress = new LessonProgress(storage)
+    expect(progress.sortingOf(lesson)).toBe('size')
+    expect(progress.resumeAt(lesson)).toBe(0)
+  })
 })

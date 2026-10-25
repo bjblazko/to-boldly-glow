@@ -8,12 +8,13 @@ import type { LessonCamera } from './lessonCamera'
 import type { LessonPanel } from './lessonPanel'
 import { LessonPlayer } from './lessonPlayer'
 import type { LessonProgress } from './lessonProgress'
-import type { Chapter, Lesson } from './lessonTypes'
+import type { Chapter, Lesson, LessonSorting } from './lessonTypes'
 import type { LessonViewControls } from './lessonViewControls'
 import { OrbitOverlay } from './seasons/orbitOverlay'
 import type { SeasonsLabels } from './seasons/seasonsLabels'
 import { isSeasonsKind, SeasonsScene } from './seasons/seasonsScene'
 import { StagedOverlay } from './seasons/stagedOverlay'
+import { LineupArrangement } from './sizes/lineupArrangement'
 import { PlanetTurntable } from './sizes/planetTurntable'
 import { sizesLayout } from './sizes/sizesLineup'
 import type { StagedLessonScene } from './stagedLessonScene'
@@ -42,6 +43,20 @@ export interface LessonOverlayFrame {
   sunBrightness: number
 }
 
+// The lesson with its chapters in the given order.
+function sortedLesson(lesson: Lesson, sorting: LessonSorting | undefined): Lesson {
+  return sorting ? { ...lesson, chapters: sorting.chapters } : lesson
+}
+
+// The sizes lineup stands in the order of the chapters' planets.
+function lineupOrder(chapters: Chapter[]): string[] {
+  return chapters.flatMap((chapter) => (chapter.focusPlanetId ? [chapter.focusPlanetId] : []))
+}
+
+function prefersReducedMotion(): boolean {
+  return globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
+}
+
 // What a lesson borrowed from the explore view and gives back when it ends.
 interface BorrowedState {
   camera: CameraSnapshot
@@ -54,6 +69,10 @@ export class LessonSession {
   private readonly player = new LessonPlayer()
   private readonly seasons = new SeasonsScene()
   private readonly turntable = new PlanetTurntable()
+  private readonly lineup = new LineupArrangement()
+  // The lesson as opened, and the order its chapters are in now (see Lesson.sortings).
+  private lesson: Lesson | null = null
+  private sorting: LessonSorting | undefined
   private readonly stagedOverlay: StagedOverlay
   private readonly orbitOverlay: OrbitOverlay
   private borrowed: BorrowedState | null = null
@@ -69,6 +88,7 @@ export class LessonSession {
     parts.panel.previousButton.addEventListener('click', () => this.goToChapter(() => this.player.previousChapter()))
     parts.panel.nextButton.addEventListener('click', () => this.goToChapter(() => this.player.nextChapter()))
     parts.panel.onChapterPicked = (index) => this.goToChapter(() => this.player.goToChapter(index))
+    parts.panel.sortMenu.onPicked = (sortingId) => this.sortBy(sortingId)
   }
 
   get active(): boolean {
@@ -101,7 +121,10 @@ export class LessonSession {
       staged.update(deltaSeconds, this.chapter)
       if (staged.groundShot(this.chapter)) this.frameCamera()
     } else if (isSeasonsKind(kind)) this.seasons.update(deltaSeconds, kind)
-    else if (kind === 'sizes') this.turntable.update(deltaSeconds, this.chapter.focusPlanetId)
+    else if (kind === 'sizes') {
+      this.turntable.update(deltaSeconds, this.chapter.focusPlanetId)
+      this.lineup.update(deltaSeconds)
+    }
   }
 
   // The lesson's scene, or null outside lessons (the explore view's real solar system).
@@ -110,7 +133,8 @@ export class LessonSession {
     const { kind } = this.chapter
     const staged = this.stagedScene
     if (staged) return staged.layout(this.chapter, ephemeris)
-    return isSeasonsKind(kind) ? this.seasons.layout(kind, ephemeris) : sizesLayout(ephemeris, this.turntable)
+    if (isSeasonsKind(kind)) return this.seasons.layout(kind, ephemeris)
+    return sizesLayout(ephemeris, { arrangement: this.lineup, turntable: this.turntable, planetNotes: this.sorting?.planetNotes })
   }
 
   updateOverlays(layout: SceneLayout, viewpoint: Viewpoint, { nowSeconds, sunBrightness }: LessonOverlayFrame): void {
@@ -155,7 +179,8 @@ export class LessonSession {
   // view from the ground is the observer's own eye and stands still, so camera input is off there.
   private frameCamera(glide = false): void {
     const groundShot = this.stagedScene?.groundShot(this.chapter)
-    this.parts.lessonCamera.frame(this.chapter.kind, groundShot, { focusPlanetId: this.chapter.focusPlanetId, glide })
+    const { kind, focusPlanetId } = this.chapter
+    this.parts.lessonCamera.frame(kind, groundShot, { focusPlanetId, lineupOrder: this.lineup.order, glide })
     const fixed = Boolean(groundShot)
     if (fixed === this.viewFixed) return
     this.viewFixed = fixed
@@ -163,11 +188,15 @@ export class LessonSession {
     this.parts.viewControls.setFixed(fixed)
   }
 
-  // Opens a lesson at the given chapter; a lesson already running ends first.
-  start(lesson: Lesson, chapterIndex = 0): void {
+  // Opens a lesson at the given chapter, its chapters in the given order (see Lesson.sortings); a
+  // lesson already running ends first.
+  start(lesson: Lesson, chapterIndex = 0, sortingId?: string): void {
     const { camera, display, modeController, panel } = this.parts
     if (this.active) this.end()
-    this.player.load(lesson, chapterIndex)
+    this.lesson = lesson
+    this.sorting = lesson.sortings?.find((sorting) => sorting.id === sortingId) ?? lesson.sortings?.[0]
+    this.player.load(sortedLesson(lesson, this.sorting), chapterIndex)
+    this.arrangeLineup()
     this.borrowed = { camera: camera.takeOverForLesson(), display: display.clearForLesson() }
     modeController.enter(lesson.id)
     this.seasons.start(this.chapter.seasonPhaseDegrees)
@@ -192,8 +221,28 @@ export class LessonSession {
   }
 
   private showChapter(): void {
-    this.parts.panel.show(this.player)
-    this.parts.progress.record(this.player.currentLesson, this.player.currentChapterIndex)
+    this.parts.panel.show(this.player, this.sorting?.id)
+    this.parts.progress.record(this.player.currentLesson, this.player.currentChapterIndex, this.sorting?.id)
+  }
+
+  private arrangeLineup(options?: { animate: boolean; focusPlanetId?: string }): void {
+    const order = lineupOrder(this.player.currentLesson.chapters)
+    if (order.length > 0) this.lineup.arrange(order, options)
+  }
+
+  // Puts the chapters - and the lineup's planets - in another order, staying on the chapter shown;
+  // the camera follows a planet in focus to its new place.
+  private sortBy(sortingId: string): void {
+    const sorting = this.lesson?.sortings?.find((entry) => entry.id === sortingId)
+    if (!this.lesson || !sorting || sorting === this.sorting) return
+    const chapterId = this.chapter.id
+    this.sorting = sorting
+    this.player.load(sortedLesson(this.lesson, sorting), sorting.chapters.findIndex((chapter) => chapter.id === chapterId))
+    const animate = !prefersReducedMotion()
+    const { focusPlanetId } = this.chapter
+    this.arrangeLineup({ animate, focusPlanetId })
+    if (focusPlanetId) this.frameCamera(animate)
+    this.showChapter()
   }
 
   // A new chapter of the same kind turns Earth's axis (or moves the Moon) smoothly with the camera

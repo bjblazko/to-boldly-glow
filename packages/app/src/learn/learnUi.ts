@@ -45,7 +45,7 @@ export class LearnUi {
 
   openLesson(lesson: Lesson): void {
     this.library.close()
-    this.session.start(lesson, this.progress.resumeAt(lesson))
+    this.session.start(lesson, this.progress.resumeAt(lesson), this.progress.sortingOf(lesson))
     this.refresh()
   }
 

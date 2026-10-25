@@ -1,6 +1,8 @@
 import { makePanelDraggable } from '../hud/draggablePanel'
 import type { LessonPlayer } from './lessonPlayer'
+import { LessonSortMenu } from './lessonSortMenu'
 import type { ChapterFact } from './lessonTypes'
+import { MenuPopover } from './menuPopover'
 
 type Find = <T extends HTMLElement>(selector: string) => T
 
@@ -36,9 +38,12 @@ function findPanelElements(find: Find): PanelElements {
 
 // The lesson's text card (chapter title, text, the chapter's facts as pictograms, and the lesson's
 // note on what is and isn't to scale, foldable down to its title) and the lesson dock's chapter
-// controls: back, next, and the chapter counter that opens a list of every chapter to jump to.
+// controls: back, next, the chapter counter that opens a list of every chapter to jump to, and the
+// Sort menu of the orders the chapters can be in.
 export class LessonPanel {
   private readonly el: PanelElements
+  private readonly chapterMenu: MenuPopover
+  readonly sortMenu: LessonSortMenu
   readonly previousButton: HTMLButtonElement
   readonly nextButton: HTMLButtonElement
   // Set by whoever runs the lesson: a chapter picked from the list.
@@ -50,16 +55,19 @@ export class LessonPanel {
     this.nextButton = find('#lesson-next-chapter')
     makePanelDraggable(this.el.panel, find('#lesson-panel-grip'))
     this.el.foldButton.addEventListener('click', () => this.setFolded(!this.el.body.hidden))
-    this.el.chapterButton.addEventListener('click', () => this.setMenuOpen(Boolean(this.el.chapterMenu.hidden)))
-    this.closeMenuOnOutsideActions()
+    this.chapterMenu = new MenuPopover(this.el.chapterMenu, this.el.chapterButton)
+    this.sortMenu = new LessonSortMenu({ button: find('#lesson-sort-btn'), menu: find('#lesson-sort-menu'), list: find('#lesson-sort-list') })
   }
 
   set visible(visible: boolean) {
     this.el.panel.hidden = !visible
-    if (!visible) this.setMenuOpen(false)
+    if (visible) return
+    this.chapterMenu.setOpen(false)
+    this.sortMenu.visible = false
   }
 
-  show(player: LessonPlayer): void {
+  // `sortingId`: the order the lesson's chapters are in (see Lesson.sortings).
+  show(player: LessonPlayer, sortingId?: string): void {
     const { currentChapter: chapter, currentLesson: lesson, currentChapterIndex: index } = player
     this.el.title.textContent = chapter.title
     this.el.count.textContent = `${index + 1} / ${lesson.chapters.length}`
@@ -72,6 +80,7 @@ export class LessonPanel {
     this.el.panel.dataset.chapterId = chapter.id
     this.el.panel.dataset.chapterKind = chapter.kind
     this.renderChapterList(lesson.chapters.map((entry) => entry.title), index)
+    this.sortMenu.show(lesson.sortings, sortingId)
   }
 
   private setFolded(folded: boolean): void {
@@ -79,13 +88,6 @@ export class LessonPanel {
     this.el.panel.classList.toggle('is-folded', folded)
     this.el.foldButton.setAttribute('aria-expanded', String(!folded))
     this.el.foldButton.setAttribute('aria-label', folded ? 'Show the text' : 'Hide the text')
-  }
-
-  private setMenuOpen(open: boolean): void {
-    this.el.chapterMenu.hidden = !open
-    this.el.chapterButton.setAttribute('aria-expanded', String(open))
-    this.el.chapterButton.classList.toggle('is-active', open)
-    if (open) this.el.chapterList.querySelector<HTMLElement>('[aria-current] button')?.focus()
   }
 
   private renderFacts(facts: ChapterFact[]): void {
@@ -99,7 +101,7 @@ export class LessonPanel {
       const button = Object.assign(document.createElement('button'), { type: 'button', className: 'hud-chapter-item', textContent: title })
       button.dataset.chapterIndex = String(index)
       button.addEventListener('click', () => {
-        this.setMenuOpen(false)
+        this.chapterMenu.setOpen(false)
         this.onChapterPicked(index)
       })
       if (index === current) item.setAttribute('aria-current', 'step')
@@ -107,18 +109,6 @@ export class LessonPanel {
       return item
     })
     this.el.chapterList.replaceChildren(...items)
-  }
-
-  // The chapter list closes on Escape and on a press anywhere outside it.
-  private closeMenuOnOutsideActions(): void {
-    window.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && !this.el.chapterMenu.hidden) this.setMenuOpen(false)
-    })
-    window.addEventListener('pointerdown', (event) => {
-      const target = event.target as Node | null
-      if (this.el.chapterMenu.hidden || this.el.chapterMenu.contains(target) || this.el.chapterButton.contains(target)) return
-      this.setMenuOpen(false)
-    })
   }
 }
 

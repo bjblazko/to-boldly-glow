@@ -60,11 +60,11 @@ test('planets in the size lineup are lit on the side facing the Sun', async ({ p
   // reliably: the sky by the Sun glows brighter than their night sides, and Saturn's rings, seen
   // from the side, run on along the row. Each disk's radius is about a third of that way.
   for (const [name, next] of [
-    ['Jupiter', 'Saturn'],
-    ['Saturn', 'Uranus'],
+    ['jupiter', 'saturn'],
+    ['saturn', 'uranus'],
   ]) {
-    const planet = await labelAnchor(page, `#body-labels .body-label:text-is("${name}")`)
-    const way = Math.abs((await labelAnchor(page, `#body-labels .body-label:text-is("${next}")`)).x - planet.x)
+    const planet = await labelAnchor(page, `#body-labels [data-body-id="${name}"]`)
+    const way = Math.abs((await labelAnchor(page, `#body-labels [data-body-id="${next}"]`)).x - planet.x)
     const towardSun = sunOnLeft ? -1 : 1
     const sunSide = meanLuminance(frame, planet.x + towardSun * way * 0.2, planet.y, way * 0.05)
     const farSide = meanLuminance(frame, planet.x - towardSun * way * 0.2, planet.y, way * 0.05)

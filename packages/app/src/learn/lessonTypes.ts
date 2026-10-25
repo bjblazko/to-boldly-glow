@@ -2,9 +2,9 @@
 // chapters show Earth's real position in its orbit (with its axis held in a single fixed
 // direction - see seasons/seasonalPole.ts's ORBIT_FIXED_POLE_DIRECTION), 'staged' chapters show the existing
 // simplified diagram (fixed position, tilting axis - see seasons/seasonalPole.ts's seasonalPoleDirection) - plus
-// unrelated kinds: 'sizes' renders the Sun and all 8 planets as a single static real-scale lineup,
-// largest to smallest (see sizes/sizesLineup.ts; a chapter may close in on one planet, see
-// focusPlanetId), the solar eclipse lesson's three shots (see eclipse/eclipseScene.ts):
+// unrelated kinds: 'sizes' renders the Sun and all 8 planets as a single real-scale lineup, in the
+// order of the lesson's chapters (see sizes/sizesLineup.ts; a chapter may close in on one planet,
+// see focusPlanetId), the solar eclipse lesson's three shots (see eclipse/eclipseScene.ts):
 // 'eclipseOrbit' (Sun, Moon and Earth side by side), 'eclipseShadow' (the Moon's shadow on Earth,
 // close up) and 'eclipseSky' (the eclipse seen from the ground), and the Moon phases lesson's three
 // (see phases/phasesScene.ts): 'phasesOrbit' (the Moon's orbit seen from above), 'phasesShadow'
@@ -108,4 +108,17 @@ export interface Lesson {
   // Shown under every chapter's text: what this lesson's picture exaggerates or leaves out, so a
   // learner knows which parts to read literally (e.g. angles) and which not (e.g. sizes, speeds).
   note?: string
+  // Other orders the chapters can be shown in, picked from the dock's Sort menu (the planets
+  // lesson: by size, by mass, ...). The first is the lesson's own `chapters`.
+  sortings?: LessonSorting[]
+}
+
+export interface LessonSorting {
+  id: string
+  // In the Sort menu, with a hint below it where the name alone would mislead.
+  name: string
+  hint?: string
+  chapters: Chapter[]
+  // Under each planet's name in the lineup: its value in this order, e.g. "778 million km".
+  planetNotes: Record<string, string>
 }

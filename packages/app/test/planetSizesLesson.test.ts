@@ -21,17 +21,17 @@ function lessonCamera(width: number, height: number) {
 }
 
 describe('PLANET_SIZES_LESSON', () => {
-  it('shows the whole lineup, then flies to each planet along it', () => {
+  it('shows the whole lineup, then flies to each planet along it, out from the Sun', () => {
     expect(PLANET_SIZES_LESSON.chapters.map((chapter) => chapter.focusPlanetId ?? null)).toEqual([
       null,
+      'mercury',
+      'venus',
+      'earth',
+      'mars',
       'jupiter',
       'saturn',
       'uranus',
       'neptune',
-      'earth',
-      'venus',
-      'mars',
-      'mercury',
     ])
   })
 
@@ -92,12 +92,18 @@ describe('the camera on a planet chapter', () => {
     }
   })
 
-  it('keeps clear of the Sun, however close a planet sits to it', () => {
+  // Whichever planet stands next to the Sun - Mercury out from the Sun, Jupiter by size, Venus by
+  // temperature - the camera stays outside it. Little Mercury's close-up comes nearest: about 1.08
+  // Sun radii from its middle, with the Sun's edge at the side of the picture.
+  it('keeps clear of the Sun, however close a planet sits to it, in every order', () => {
     const { orbit, camera } = lessonCamera(1280, 800)
-    for (const chapter of planetChapters) {
-      camera.frame('sizes', null, { focusPlanetId: chapter.focusPlanetId })
-      const eye = orbit.getEyePosition()
-      expect(Math.hypot(eye[0], eye[1], eye[2]), chapter.id).toBeGreaterThan(LINEUP_SUN_RADIUS * 1.45)
+    for (const sorting of PLANET_SIZES_LESSON.sortings!) {
+      const lineupOrder = sorting.chapters.flatMap((chapter) => (chapter.focusPlanetId ? [chapter.focusPlanetId] : []))
+      for (const focusPlanetId of lineupOrder) {
+        camera.frame('sizes', null, { focusPlanetId, lineupOrder })
+        const eye = orbit.getEyePosition()
+        expect(Math.hypot(eye[0], eye[1], eye[2]), `${focusPlanetId} by ${sorting.id}`).toBeGreaterThan(LINEUP_SUN_RADIUS * 1.05)
+      }
     }
   })
 

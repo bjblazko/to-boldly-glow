@@ -151,6 +151,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the cloud tops on the giants), distance from the Sun, how long it takes to spin once, and its year.
 - "Get to know the planets": the planet in focus turns slowly on its axis, the way it really
   spins (Venus and Uranus backwards) but every planet equally fast, one turn in 30 seconds.
+- "Get to know the planets" has a Sort button in its dock: the planets line up out from the Sun
+  (the default), by size, mass, rock / gas / ice, speed around the Sun, length of a day (sunrise to
+  sunrise) or of a year, average temperature, density, gravity or axial tilt. They move to their
+  new places in an arc around the planet in focus, which the camera follows; the chapters follow
+  the same order, and each planet's label shows its value. The order is remembered with the
+  lesson's progress.
 - Hide the interface in Explore: the eye button at the top right, H, or "Hide interface" in the
   search leaves only the scene and its labels; one quiet button in the same spot, H, Esc or
   Ctrl/Cmd+K bring it back.
@@ -172,6 +178,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   it are gone.
 - "How big are the planets?" is now "Get to know the planets", as each planet's page tells more
   than its size.
+- "Get to know the planets" lines the planets up out from the Sun by default, no longer largest
+  to smallest.
 - The HUD is organized around two modes, switched at the top of the screen: **Explore** and
   **Learn**. Explore's dock has Find, Camera, Time and View. Find is a searchable tree of every body
   by kind - the Sun, planets with their moons under them, dwarf planets, asteroids, comets - that

@@ -5,7 +5,7 @@ import { PlanetTurntable, TURNTABLE_SECONDS_PER_TURN } from '../src/learn/sizes/
 import { ephemerisAt } from '../src/time/ephemeris'
 
 const ephemeris = ephemerisAt(new Date('2026-01-01T00:00:00Z'))
-const spinOf = (turntable: PlanetTurntable, id: string) => findPlanet(sizesLayout(ephemeris, turntable), id)!.spinRadians
+const spinOf = (turntable: PlanetTurntable, id: string) => findPlanet(sizesLayout(ephemeris, { turntable }), id)!.spinRadians
 const QUARTER_TURN = TURNTABLE_SECONDS_PER_TURN / 4
 
 describe('PlanetTurntable', () => {
@@ -29,8 +29,8 @@ describe('PlanetTurntable', () => {
 
   it('stands still on the lineup, where no planet is in focus', () => {
     const turntable = new PlanetTurntable()
-    const before = sizesLayout(ephemeris, turntable).planets.map((planet) => planet.spinRadians)
+    const before = sizesLayout(ephemeris, { turntable }).planets.map((planet) => planet.spinRadians)
     turntable.update(QUARTER_TURN, undefined)
-    expect(sizesLayout(ephemeris, turntable).planets.map((planet) => planet.spinRadians)).toEqual(before)
+    expect(sizesLayout(ephemeris, { turntable }).planets.map((planet) => planet.spinRadians)).toEqual(before)
   })
 })

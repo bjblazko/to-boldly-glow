@@ -154,7 +154,7 @@ const FOCUS_SUN_CLEARANCE_RADII = 1.5
 const FOCUS_MAX_ZOOM_OUT = 4
 
 // Moving from one sizes chapter to the next flies the camera there, rather than cutting.
-const GLIDE_SECONDS = 1.6
+export const GLIDE_SECONDS = 1.6
 
 // The lesson panel covers the canvas's bottom; its top rises at most to max(16px, 100% - 376px)
 // (see .hud-lesson-panel in hud.css) - keep the two in sync.
@@ -195,8 +195,8 @@ function focusReach(planetId: string): number {
 // Turned toward the Sun (at the origin) by up to FOCUS_SUNWARD_RADIANS, but no further than keeps a
 // camera `distance` from the planet FOCUS_SUN_CLEARANCE_RADII from the Sun's center: with the
 // planet `x` from the Sun, the camera is sqrt(distance² + x² - 2·distance·|x|·sin(turn)) from it.
-function focusAzimuth(planetId: string, distance: number): number {
-  const fromSun = Math.abs(lineupSlot(planetId).x)
+function focusAzimuth(planetId: string, lineupOrder: readonly string[] | undefined, distance: number): number {
+  const fromSun = Math.abs(lineupSlot(planetId, lineupOrder).x)
   const clearance = FOCUS_SUN_CLEARANCE_RADII * LINEUP_SUN_RADIUS
   const sinTurn = (distance * distance + fromSun * fromSun - clearance * clearance) / (2 * distance * fromSun)
   return Math.PI / 2 - Math.min(FOCUS_SUNWARD_RADIANS, Math.asin(Math.min(1, Math.max(0, sinTurn))))
@@ -231,6 +231,8 @@ function blendViews(from: CameraView, to: CameraView, t: number): CameraView {
 export interface FramingOptions {
   // 'sizes' chapters: the planet to close in on (see Chapter.focusPlanetId).
   focusPlanetId?: string
+  // 'sizes' chapters: the order the planets stand in (out from the Sun if not given).
+  lineupOrder?: readonly string[]
   // Fly there from the current view instead of cutting to the shot.
   glide?: boolean
 }
@@ -280,26 +282,26 @@ export class LessonCamera {
   ) {}
 
   // A view from the ground passes its shot; it never backs off, as its eye is the observer.
-  frame(kind: ChapterKind, groundShot?: GroundShot | null, { focusPlanetId, glide = false }: FramingOptions = {}): void {
+  frame(kind: ChapterKind, groundShot?: GroundShot | null, { focusPlanetId, lineupOrder, glide = false }: FramingOptions = {}): void {
     const from = glide ? this.currentView() : null
-    this.applyPreset(groundShot ? groundPreset(groundShot) : this.presetFor(kind, focusPlanetId))
+    this.applyPreset(groundShot ? groundPreset(groundShot) : this.presetFor(kind, focusPlanetId, lineupOrder))
     // Lessons ignore the explore view's scale: the lineup is at true scale (the Sun's radius there is
     // ~0.09 units), so its zoom floor and near plane come from its own framing distance; the seasons,
     // eclipse and phases scenes are drawn at Compact sizes.
     const sceneFloor = kind === 'sizes' ? this.orbit.radius * 0.01 : COMPACT_MIN_ORBIT_RADIUS
     this.lens.setLessonZoomFloor(sceneFloor)
-    this.fitShot(kind, groundShot, focusPlanetId)
+    this.fitShot(kind, groundShot, { focusPlanetId, lineupOrder })
     // The observer's eye on the ground stays put (the lesson doesn't take camera input there).
     if (!groundShot) this.allowLookingAround(sceneFloor)
     this.glide = from ? this.startGlide(from) : null
   }
 
-  private fitShot(kind: ChapterKind, groundShot: GroundShot | null | undefined, focusPlanetId: string | undefined): void {
+  private fitShot(kind: ChapterKind, groundShot: GroundShot | null | undefined, { focusPlanetId, lineupOrder }: FramingOptions): void {
     if (groundShot) this.fitAbovePanel(groundBounds(groundShot), 1)
     else if (kind === 'sizes' && focusPlanetId) {
       this.fitAbovePanel(focusBounds(focusPlanetId), FOCUS_MAX_ZOOM_OUT)
       // How far it may turn toward the Sun depends on how far back the fit put it.
-      this.orbit.azimuth = focusAzimuth(focusPlanetId, this.orbit.radius)
+      this.orbit.azimuth = focusAzimuth(focusPlanetId, lineupOrder, this.orbit.radius)
     } else this.fitAbovePanel(CONTENT_BOUNDS[kind] ?? CONTENT_BOUNDS.staged!, MAX_ZOOM_OUT[kind] ?? FIT_MAX_ZOOM_OUT)
   }
 
@@ -372,16 +374,16 @@ export class LessonCamera {
     this.lens.lensShiftNdc = view.lensShiftNdc
   }
 
-  private presetFor(kind: ChapterKind, focusPlanetId?: string): CameraPreset {
+  private presetFor(kind: ChapterKind, focusPlanetId?: string, lineupOrder?: readonly string[]): CameraPreset {
     if (kind !== 'sizes') return FIXED_PRESETS[kind] ?? STAGED_PRESET
-    return focusPlanetId ? this.focusPreset(focusPlanetId) : this.sizesPreset()
+    return focusPlanetId ? this.focusPreset(focusPlanetId, lineupOrder) : this.sizesPreset()
   }
 
   // Close up on one planet: as near as fits it on the whole screen; fitAbovePanel then backs off to
   // fit it in the band above the panel.
-  private focusPreset(planetId: string): CameraPreset {
+  private focusPreset(planetId: string, lineupOrder?: readonly string[]): CameraPreset {
     return {
-      target: [lineupSlot(planetId).x, 0, 0],
+      target: [lineupSlot(planetId, lineupOrder).x, 0, 0],
       radius: focusReach(planetId) / Math.tan(VERTICAL_FOV_RADIANS / 2),
       azimuth: Math.PI / 2, // turned toward the Sun once fitted (see frame)
       elevation: SIZES_ELEVATION,

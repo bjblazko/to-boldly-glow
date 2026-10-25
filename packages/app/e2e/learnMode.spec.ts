@@ -306,6 +306,29 @@ test('each lesson says what is and is not to scale', async ({ page }) => {
   await expect(page.locator('#lesson-note')).toContainText('Sizes are to scale')
 })
 
+test('the planets lesson lines its planets up out from the Sun, or by what Sort picks', async ({ page }) => {
+  await openApp(page)
+  await openLesson(page, 'planetSizes')
+  const firstPlanet = page.locator('#lesson-chapter-list li:nth-child(2) button')
+  await expect(firstPlanet).toHaveText('Mercury')
+  await expect(page.locator('#body-labels [data-body-id="jupiter"] .body-label-note')).toHaveText('778.6 million km')
+
+  await page.locator('#lesson-next-chapter').click()
+  await page.locator('#lesson-sort-btn').click()
+  await page.locator('#lesson-sort-list [data-sorting-id="size"]').click()
+  await expect(page.locator('#lesson-sort-menu')).toBeHidden()
+  // Still on Mercury, now the smallest and so the last planet.
+  await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-id', 'mercury')
+  await expect(page.locator('#lesson-chapter-count')).toHaveText('9 / 9')
+  await expect(firstPlanet).toHaveText('Jupiter')
+  await expect(page.locator('#body-labels [data-body-id="jupiter"] .body-label-note')).toHaveText('139,822 km')
+
+  // Other lessons have no orders to pick.
+  await exitLesson(page)
+  await openLesson(page, 'seasons')
+  await expect(page.locator('#lesson-sort-btn')).toBeHidden()
+})
+
 test('the seasons lesson keeps working when the explore view is at Realistic scale', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))

@@ -155,6 +155,9 @@
         <path d="M5 12a7 7 0 1 0 2.05-4.95" />
         <path d="M5 4.5V8h3.5" />
       </symbol>
+      <symbol id="icon-sort" viewBox="0 0 24 24">
+        <path d="M4 6.5h16M4 12h11M4 17.5h6" />
+      </symbol>
       <symbol id="icon-prev" viewBox="0 0 24 24">
         <path d="M14.5 6l-6 6 6 6" />
       </symbol>
@@ -501,6 +504,10 @@
         <svg class="icon" aria-hidden="true"><use href="#icon-book"></use></svg>
         <span class="hud-dock-label">Library</span>
       </button>
+      <button id="lesson-sort-btn" class="hud-dock-btn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="lesson-sort-menu" hidden>
+        <svg class="icon" aria-hidden="true"><use href="#icon-sort"></use></svg>
+        <span class="hud-dock-label">Sort</span>
+      </button>
       <button id="lesson-prev-chapter" class="hud-dock-btn" type="button" aria-label="Previous chapter">
         <svg class="icon" aria-hidden="true"><use href="#icon-prev"></use></svg>
         <span class="hud-dock-label">Back</span>
@@ -520,6 +527,10 @@
     </nav>
     <div id="lesson-chapter-menu" class="hud-popover hud-chapter-menu" hidden>
       <ol id="lesson-chapter-list" class="hud-chapter-list"></ol>
+    </div>
+    <div id="lesson-sort-menu" class="hud-popover hud-chapter-menu" hidden>
+      <p class="hud-sort-heading" id="lesson-sort-heading">Line the planets up by</p>
+      <ul id="lesson-sort-list" class="hud-chapter-list hud-sort-list" aria-labelledby="lesson-sort-heading"></ul>
     </div>
 
     <div id="lesson-library" class="hud-library" role="dialog" aria-label="Lessons" hidden>
