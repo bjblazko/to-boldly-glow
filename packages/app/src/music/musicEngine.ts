@@ -84,7 +84,8 @@ export class MusicEngine {
   }
 }
 
-// One track playing: its own mix bus, echo and crackle, and a scheduler writing bar after bar.
+// One track playing: its own mix bus, echo (and crackle, if it has any), and a scheduler writing
+// bar after bar.
 class Performance {
   private readonly bus: GainNode
   private readonly instruments: Instruments
@@ -132,7 +133,7 @@ class Performance {
     tone.connect(tape).connect(this.bus)
     if (this.track.sweep) this.sweep(tone)
     const echo = this.echo(tone)
-    this.loop(new AudioBufferSourceNode(ctx, { buffer: vinylBuffer(ctx, VINYL_SECONDS), loop: true }), new GainNode(ctx, { gain: 0.5 }), this.bus)
+    if (this.track.vinyl) this.loop(new AudioBufferSourceNode(ctx, { buffer: vinylBuffer(ctx, VINYL_SECONDS), loop: true }), new GainNode(ctx, { gain: 0.5 }), this.bus)
     const wobble = new GainNode(ctx, { gain: WOBBLE_CENTS })
     this.loop(new OscillatorNode(ctx, { frequency: WOBBLE_HZ }), wobble)
     return { out: tone, echo, wobble }
@@ -177,8 +178,7 @@ class Performance {
     const seconds = 'steps' in event ? event.steps * this.stepSeconds() : 0
     const play = this.instruments
     if (event.kind === 'keys') play.keys(time, event.notes, seconds, event.velocity)
-    else if (event.kind === 'bass') play.bass(time, event.note, seconds, event.velocity)
-    else if (event.kind === 'lead') play.lead(time, event.note, seconds, event.velocity)
+    else if (event.kind === 'bass' || event.kind === 'sub' || event.kind === 'lead') play[event.kind](time, event.note, seconds, event.velocity)
     else play[event.kind](time, event.velocity)
   }
 

@@ -10,7 +10,7 @@ export type DrumKind = 'kick' | 'snare' | 'hat'
 export type MusicEvent =
   | { kind: DrumKind; step: number; velocity: number }
   | { kind: 'keys'; step: number; steps: number; notes: number[]; velocity: number }
-  | { kind: 'bass' | 'lead'; step: number; steps: number; note: number; velocity: number }
+  | { kind: 'bass' | 'sub' | 'lead'; step: number; steps: number; note: number; velocity: number }
 
 // A track's shape over time: two bars of keys alone, two more with bass and hats, then the full
 // groove (where a track taking over from another starts, so it is heard for itself at once) - which, every sixteen bars, drops its drums for two, and lets the 8-bit lead answer the
@@ -36,6 +36,7 @@ export class Composer {
     const chord = this.track.chords[index % this.track.chords.length]
     const events: MusicEvent[] = this.keys(chord.keys)
     if (section !== 'intro' && section !== 'break') events.push(...this.bass(chord.bass))
+    if (section === 'groove') events.push(...this.sub(chord.bass))
     if (section !== 'intro') events.push(...this.drums(section))
     if (section !== 'intro' && index % 8 >= 4) events.push(...this.lead(chord.keys))
     return events
@@ -61,6 +62,12 @@ export class Composer {
     }))
   }
 
+  // An octave under the bass, kept above an organ's lowest pipes (C1).
+  private sub(root: number): MusicEvent[] {
+    const note = root - 12 >= 24 ? root - 12 : root
+    return (this.track.subSteps ?? []).map((step, i) => ({ kind: 'sub' as const, step, steps: 6, note, velocity: i === 0 ? 1 : 0.8 }))
+  }
+
   private drums(section: Section): MusicEvent[] {
     const { kick, snare, hat } = this.track.drums
     if (section === 'break') return []
@@ -72,7 +79,7 @@ export class Composer {
     const events: MusicEvent[] = []
     for (let step = 0; step < STEPS_PER_BAR; step++) {
       const mark = pattern[step]
-      if (mark === 'x') events.push({ kind, step, velocity: 0.85 + 0.15 * this.random() })
+      if (mark === 'x') events.push({ kind, step, velocity: step === 0 ? 1 : 0.8 + 0.15 * this.random() })
       else if (mark === 'o' && this.random() < GHOST_CHANCE) events.push({ kind, step, velocity: 0.35 + 0.2 * this.random() })
     }
     return events

@@ -39,10 +39,15 @@ export interface MusicTrack {
   cutoff: number
   // The low-pass slowly opening and closing over eight bars.
   sweep?: boolean
+  // An old record's crackle under the music.
+  vinyl?: boolean
+  // A sub-bass an octave under the root, swelling at these sixteenths: weight on the downbeats.
+  subSteps?: number[]
 }
 
 export const MUSIC_TRACKS: Record<MusicTrackId, MusicTrack> = {
-  // Slow and dreamy, in C major: soft pads, a sparse beat, and the lead rarely speaks.
+  // Slow and dreamy, in C major: soft pads, a sparse beat, record crackle, and the lead rarely
+  // speaks.
   drift: {
     id: 'drift',
     name: 'Drift',
@@ -62,9 +67,11 @@ export const MUSIC_TRACKS: Record<MusicTrackId, MusicTrack> = {
     lead: { density: 0.14, arpeggio: false, duty: 0.25 },
     chipHats: false,
     cutoff: 2600,
+    vinyl: true,
   },
-  // Lo-fi house, in F minor: a four-on-the-floor kick, off-beat hats and bass, short electric-piano
-  // stabs, and a filter slowly opening and closing over eight bars.
+  // Lo-fi house, in F minor: a four-on-the-floor kick with a sub-bass on the downbeats, off-beat
+  // hats and bass, short electric-piano stabs, and a filter slowly opening and closing over eight
+  // bars.
   nova: {
     id: 'nova',
     name: 'Nova',
@@ -86,6 +93,7 @@ export const MUSIC_TRACKS: Record<MusicTrackId, MusicTrack> = {
     chipHats: false,
     cutoff: 3600,
     sweep: true,
+    subSteps: [0, 8],
   },
   // The most 8-bit and the quickest: pulse-wave chords, a square bass, noise-channel hats and
   // arpeggios, in E minor.

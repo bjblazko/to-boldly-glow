@@ -122,6 +122,20 @@ export class Instruments {
     this.start(osc, time, seconds + 0.1)
   }
 
+  // A sub-bass: a sine dropping a little into its note for a punch, with a quiet octave above so
+  // small speakers still hint at it.
+  sub(time: number, note: number, seconds: number, velocity: number): void {
+    const amp = this.envelope(time, 0.42 * velocity, 0.008, seconds)
+    amp.connect(this.routing.out)
+    for (const [octave, level] of [[1, 1], [2, 0.22]]) {
+      const osc = new OscillatorNode(this.ctx, { frequency: midiToHz(note) * octave })
+      osc.frequency.setValueAtTime(midiToHz(note + 3) * octave, time)
+      osc.frequency.exponentialRampToValueAtTime(midiToHz(note) * octave, time + 0.06)
+      osc.connect(new GainNode(this.ctx, { gain: level })).connect(amp)
+      this.start(osc, time, seconds + 0.1)
+    }
+  }
+
   // The 8-bit lead: a pulse wave, short and plucked, half of it into the echo.
   lead(time: number, note: number, seconds: number, velocity: number): void {
     const osc = this.ctx.createOscillator()

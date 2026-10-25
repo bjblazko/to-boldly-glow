@@ -54,6 +54,17 @@ describe.each(MUSIC_TRACK_IDS)('the composer, playing %s', (id) => {
   })
 })
 
+it('gives Nova its weight on the downbeats: a sub-bass an octave under the root, and the loudest kick on the one', () => {
+  const composer = new Composer(MUSIC_TRACKS.nova, seeded(3))
+  const groove = composer.bar(4) && composer.bar(4)
+  const subs = groove.filter((event) => event.kind === 'sub')
+  expect(subs.map((event) => event.step)).toEqual([0, 8])
+  expect(subs.every((event) => 'note' in event && event.note === MUSIC_TRACKS.nova.chords[0].bass - 12)).toBe(true)
+  const kicks = groove.filter((event) => event.kind === 'kick')
+  expect(kicks[0]).toMatchObject({ step: 0, velocity: 1 })
+  expect(Math.max(...kicks.slice(1).map((event) => event.velocity))).toBeLessThan(1)
+})
+
 it('tunes A above middle C to 440 Hz', () => {
   expect(midiToHz(69)).toBe(440)
   expect(midiToHz(81)).toBe(880)

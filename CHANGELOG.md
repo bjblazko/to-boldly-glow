@@ -188,7 +188,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   German sounds German. The clips ship as Opus (WebM) and MP3, and each browser loads the one it
   plays. A test fails while a text has no up-to-date clip.
 - Background music, off until chosen in Settings: three lo-fi tracks with 8-bit touches - Drift
-  (slow pads), Nova (lo-fi house) and Pixel (chiptune) - played live by a small
+  (slow pads, record crackle), Nova (lo-fi house with a sub-bass on the downbeats) and Pixel
+  (chiptune) - played live by a small
   synthesizer in the browser (Web Audio; no recordings), varied bar by bar, with a volume slider.
   It plays anywhere in the app, and steps back while the narrator speaks.
 - Settings are in tabs: General (language), Video (graphics) and Audio (narration and music).
