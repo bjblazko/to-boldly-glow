@@ -1,6 +1,8 @@
 // The interface's texts: index.html's (by data-i18n path) and the HUD's.
 export const ui = {
   beta: 'Beta version',
+  // Under the beta note while the scale is Compact.
+  scaleNote: 'Compact scale: sizes and distances are not true to scale. Change it under View.',
   welcome: {
     title: 'Welcome aboard',
     text: 'A guided flight through the Solar System: from the Sun out to Neptune, and home to Earth, with a narrator telling you what makes each world special.',

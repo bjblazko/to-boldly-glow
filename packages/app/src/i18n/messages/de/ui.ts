@@ -2,6 +2,8 @@ import type { Messages } from '../en'
 
 export const ui: Messages['ui'] = {
   beta: 'Beta-Version',
+  // Under the beta note while the scale is Compact.
+  scaleNote: 'Kompakter Maßstab: Größen und Abstände sind nicht maßstabsgetreu. Umstellen unter „Ansicht“.',
   welcome: {
     title: 'Willkommen an Bord',
     text: 'Ein geführter Flug durchs Sonnensystem: von der Sonne hinaus bis zum Neptun und zurück zur Erde – und eine Stimme erzählt dir, was jede dieser Welten besonders macht.',

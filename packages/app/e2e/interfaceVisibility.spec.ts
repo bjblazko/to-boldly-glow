@@ -81,7 +81,7 @@ test('in Learn mode there is no hide button, and H does nothing', async ({ page 
 test('the beta note stays in the top left corner, also with the interface hidden', async ({ page }) => {
   await openApp(page)
   const note = page.locator('.hud-beta-note')
-  await expect(note).toHaveText('Beta version')
+  await expect(note.locator('[data-i18n="ui.beta"]')).toHaveText('Beta version')
   await page.keyboard.press('h')
   await expect(note).toBeVisible()
   const box = await note.boundingBox()

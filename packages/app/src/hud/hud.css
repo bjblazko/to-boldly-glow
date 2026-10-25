@@ -373,9 +373,11 @@ body[data-ui-hidden] :is(.hud-modes, .hud-top-actions, .hud-dock, .hud-sheet, .h
   background: rgba(8, 10, 22, 0.6);
 }
 
-/* Always there, in every mode and with the interface hidden: the app is a beta. Quiet, and out of
-   the way of every control (no pointer events). */
+/* Always there, in every mode and with the interface hidden: the app is a beta - and, while the
+   scale is Compact, that what it shows is not to scale. Quiet, and out of the way of every control
+   (no pointer events). */
 .hud-beta-note {
+  max-width: min(300px, calc(100vw - 32px));
   position: fixed;
   left: 16px;
   top: 16px;
@@ -389,6 +391,15 @@ body[data-ui-hidden] :is(.hud-modes, .hud-top-actions, .hud-dock, .hud-sheet, .h
   color: rgba(236, 240, 255, 0.78);
   background: rgba(8, 10, 22, 0.6);
   pointer-events: none;
+}
+.hud-scale-note {
+  display: none;
+  margin-top: 2px;
+  color: var(--hud-dim);
+}
+/* Follows the scale switch's choice at once, not the end of the scene's eased transition. */
+body:has(#scale-mode-compact-btn[aria-pressed='true']) .hud-scale-note {
+  display: block;
 }
 
 /* About: a modal slab like the lesson library, its text scrolling inside. */
@@ -1925,6 +1936,7 @@ body:has(.hud-library:not([hidden]), .hud-palette:not([hidden])) .hud-camera-hin
   .hud-beta-note {
     left: 12px;
     top: 92px;
+    max-width: calc(100vw - 220px);
   }
   .hud-settings,
   .hud-palette,
