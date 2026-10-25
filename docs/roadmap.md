@@ -79,6 +79,25 @@ orbital elements (e.g. from the Minor Planet Center, checking license/reuse term
 **Data needed**: JPL Horizons ephemerides or orbital elements; needs a licensing check pass before
 committing to a specific source, per the project's data-provenance discipline (§5 of the MVP spec).
 
+## Live module: probes and missions
+**What**: An opt-in "Live" module that, only with the user's consent, fetches current positions and
+telemetry-style data of spacecraft (e.g. Voyager 1/2, New Horizons, Juno, JAXA's MMX with the
+IDEFIX rover) and shows them in the scene, alongside each mission's statement/goals and its
+history: launch, flybys, milestones, past trajectory and, for ended missions, the final state.
+**Approach**: Builds on the "Probes and comets" entry (ephemerides rather than SGP4) and shares the
+fetching/caching approach of the "ISS and notable satellites" entry. Nothing goes over the network
+until the user agrees in a clear consent dialog (what is fetched, from whom, that their IP address
+reaches that server); the choice is remembered and can be withdrawn. Without consent, or offline,
+the module falls back to a bundled snapshot and says how old it is. Historic trajectories and
+mission texts can be bundled; only the "now" part needs to be live. Likely needs a small proxy or
+pre-fetched data on our own server if the sources don't allow cross-origin browser requests -
+which changes what the consent and privacy notice must say.
+**Data needed**: JPL Horizons ephemerides (or ESA/JAXA equivalents for their missions), NASA's Deep
+Space Network "DSN Now" status for live link data, mission descriptions and milestone dates
+(NASA/JPL texts are generally public domain; ESA/JAXA texts and images are not - check each). Needs
+a `huepattl-legal-check` pass before any network call ships: source terms of use, GDPR/privacy
+notice for the third-party requests, and attribution.
+
 ## Speed-of-light / travel-time calculator
 **What**: A standalone tool: pick two points (e.g. Earth–Moon, Earth–Mars, Earth–nearest star) and
 a speed (walking, car, plane, light-speed, or a custom value), see how long the trip would take.
