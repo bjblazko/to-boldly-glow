@@ -1,7 +1,7 @@
-// The settings popover behind the top-right sliders button: how the picture is rendered (bloom,
-// lens flares) and the frame-rate readout - set once, unlike the View panel's layers, which change
-// what the scene shows. Opens and closes from its button; closes on its close button, Escape, or a
-// press anywhere outside it.
+// The settings popover behind the top-right sliders button, in tabs: the language; how the picture
+// is rendered (bloom, lens flares) and the frame-rate readout; the narrator and the music - set
+// once, unlike the View panel's layers, which change what the scene shows. Opens and closes from
+// its button; closes on its close button, Escape, or a press anywhere outside it.
 export class SettingsPanel {
   constructor(
     private readonly panel: HTMLElement,
@@ -27,4 +27,29 @@ export class SettingsPanel {
     this.button.setAttribute('aria-expanded', String(open))
     this.button.classList.toggle('is-active', open)
   }
+}
+
+// Settings' tabs (General, Video, Audio): each shows its own panel; the arrow keys move between
+// them, as in any tab row.
+export function bindSettingsTabs(tabList: HTMLElement): void {
+  const tabs = [...tabList.querySelectorAll<HTMLButtonElement>('[role="tab"]')]
+  const select = (chosen: HTMLButtonElement) => {
+    for (const tab of tabs) {
+      const selected = tab === chosen
+      tab.setAttribute('aria-selected', String(selected))
+      tab.tabIndex = selected ? 0 : -1
+      document.getElementById(tab.getAttribute('aria-controls')!)!.hidden = !selected
+    }
+  }
+  tabs.forEach((tab, index) => {
+    tab.addEventListener('click', () => select(tab))
+    tab.addEventListener('keydown', (event) => {
+      const step = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0
+      if (!step) return
+      const next = tabs[(index + step + tabs.length) % tabs.length]
+      select(next)
+      next.focus()
+    })
+  })
+  select(tabs.find((tab) => tab.getAttribute('aria-selected') === 'true') ?? tabs[0])
 }

@@ -179,16 +179,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Orion, to pick), and Start flies from the Sun out to Neptune and home to Earth while the narrator
   tells the most striking facts of each world - on the way there and while circling it - with
   subtitles. The flight takes as long as the narration and waits for it at each stop. Settings
-  keep the narrator and a subtitle switch; a button mutes the narrator. Opens with "Space: the
+  keep the narrator, and switches for its voice and for the subtitles (off at first: plain text on
+  a dark, see-through band). Opens with "Space: the
   final frontier" ("Der Weltraum - unendliche Weiten"). Left alone for 10 seconds, the card steps
   aside for the silent endless tour.
 - The narration is synthetic speech, made on our own machine when the narration texts change, by
   Qwen3-TTS (Apache-2.0; `packages/data-pipeline/narration/`), each voice designed per language so
   German sounds German. The clips ship as Opus (WebM) and MP3, and each browser loads the one it
   plays. A test fails while a text has no up-to-date clip.
+- Background music, off until chosen in Settings: three lo-fi tracks with 8-bit touches - Drift
+  (slow pads), Nova (lo-fi house) and Pixel (chiptune) - played live by a small
+  synthesizer in the browser (Web Audio; no recordings), varied bar by bar, with a volume slider.
+  It plays anywhere in the app, and steps back while the narrator speaks.
+- Settings are in tabs: General (language), Video (graphics) and Audio (narration and music).
 
 ### Changed
 
+- Explore starts with the orbit paths and labels off; "Explore on my own" on the welcome card turns
+  them on.
 - The tour leaves a planet calmly: it circles on until it heads for the next stop, slips out of
   the loop along the circle, and its gaze lets go of the planet over ten seconds - the gaze now
   turns at a third of the old top rate there, and the ship hardly banks. A loop takes 14 instead

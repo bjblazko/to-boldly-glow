@@ -2001,7 +2001,8 @@ body:has(.hud-welcome:not([hidden])) .hud-camera-hint {
   margin: 0;
 }
 
-/* The narrator's subtitles over the dock, like a film's; with the interface hidden they stay. */
+/* The narrator's subtitles over the dock, like a film's: plain text on a dark, see-through band
+   that hugs each line. With the interface hidden they stay. */
 .hud-narration {
   position: fixed;
   left: 50%;
@@ -2009,10 +2010,7 @@ body:has(.hud-welcome:not([hidden])) .hud-camera-hint {
   transform: translateX(-50%);
   z-index: 3;
   width: min(760px, calc(100vw - 32px));
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 10px;
+  text-align: center;
   font-family: var(--hud-font);
   pointer-events: none;
 }
@@ -2020,33 +2018,20 @@ body:has(.hud-welcome:not([hidden])) .hud-camera-hint {
   display: none;
 }
 .hud-narration-text {
+  display: inline;
   margin: 0;
-  padding: 8px 14px;
+  padding: 3px 10px;
   font-size: 17px;
   font-weight: 500;
-  line-height: 1.4;
-  text-align: center;
-  color: var(--hud-text);
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
-  background: rgba(6, 8, 18, 0.62);
-  backdrop-filter: blur(12px);
-  box-shadow: var(--hud-glass-edge), 2px 2px 0 rgba(123, 92, 255, 0.6);
+  line-height: 1.75;
+  color: #f4f5fa;
+  background: rgba(0, 0, 0, 0.55);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 .hud-narration-text.is-empty,
 .hud-narration-text[hidden] {
-  visibility: hidden;
-}
-.hud-narration .hud-icon-btn {
-  pointer-events: auto;
-  background: rgba(10, 12, 26, 0.6);
-  backdrop-filter: blur(12px);
-}
-.hud-narration .icon-sound-off,
-.hud-narration [aria-pressed='true'] .icon-sound-on {
   display: none;
-}
-.hud-narration [aria-pressed='true'] .icon-sound-off {
-  display: block;
 }
 body[data-ui-hidden] .hud-narration {
   bottom: 24px;
@@ -2058,4 +2043,56 @@ body[data-ui-hidden] .hud-narration {
   .hud-narration-text {
     font-size: 15px;
   }
+}
+
+/* Settings' tabs: quiet labels, the open one lit and underlined in gold. */
+.hud-tabs {
+  display: flex;
+  gap: 4px;
+  margin: 2px 0 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.hud-tab {
+  appearance: none;
+  flex: 1;
+  border: none;
+  border-radius: 0;
+  padding: 10px 0 9px;
+  background: transparent;
+  color: var(--hud-dim);
+  font-family: var(--hud-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: inset 0 -2px 0 transparent;
+  transition:
+    color 0.12s ease,
+    box-shadow 0.12s ease;
+}
+.hud-tab:hover {
+  color: var(--hud-text);
+}
+.hud-tab[aria-selected='true'] {
+  color: var(--hud-text);
+  box-shadow: inset 0 -2px 0 var(--hud-gold);
+}
+.hud-tab:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -2px;
+}
+.hud-tab-panel[hidden] {
+  display: none;
+}
+.hud-volume {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--hud-dim);
+}
+.hud-volume .hud-range {
+  flex: 1;
 }

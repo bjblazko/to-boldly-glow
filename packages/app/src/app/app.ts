@@ -12,7 +12,7 @@ import { CommandPalette } from '../hud/commandPalette'
 import { DockUI } from '../hud/dockUI'
 import { FpsMeter } from '../hud/fpsMeter'
 import { InterfaceVisibility } from '../hud/interfaceVisibility'
-import { SettingsPanel } from '../hud/settingsPanel'
+import { bindSettingsTabs, SettingsPanel } from '../hud/settingsPanel'
 import { bindLanguageSwitch } from '../hud/languageSwitch'
 import { bindVoiceSwitch } from '../narration/narratorVoice'
 import { LearnModeController } from '../learn/learnModeController'
@@ -52,6 +52,8 @@ import { gatherPaletteItems, type PaletteActions } from './paletteItems'
 import { startupTourWanted } from './startupTour'
 import { showWelcomeCard } from './welcomeCard'
 import { loadNarrationManifest } from '../narration/narrationManifest'
+import { MusicEngine } from '../music/musicEngine'
+import { bindMusicSettings } from '../music/musicSettings'
 
 type SceneFeatures = Omit<SceneParts, 'lessons'>
 
@@ -64,8 +66,10 @@ export async function startApp(canvas: HTMLCanvasElement): Promise<void> {
   onDeviceLost(gpu.device, showDeviceLost)
   const [{ targets, linePipeline, features, groundSky }, narrationManifest] = await Promise.all([createRendering(gpu, canvas), loadNarrationManifest()])
   const display = new DisplaySettings(canvas, (selector) => requireElement<HTMLInputElement>(selector))
-  const explorer = createExplorer(canvas, display, features.orbitPaths, narrationManifest)
+  const music = new MusicEngine()
+  const explorer = createExplorer(canvas, display, features.orbitPaths, { narrationManifest, music })
   const lessons = createLessons(explorer, { device: gpu.device, linePipeline }, groundSky)
+  bindMusicSettings(requireElement('#music-switch'), requireElement<HTMLInputElement>('#music-volume'), music)
   const renderer = new SceneRenderer(gpu.device, targets, { ...features, lessons }, { display, linePipeline })
   watchCanvasSize(canvas, () => {
     targets.resize()
@@ -134,6 +138,7 @@ function createLessons(explorer: ReturnType<typeof createExplorer>, gpu: LessonG
   )
   const learnUi = createLearnUi(session, progress, dock)
   new SettingsPanel(requireElement('#settings-panel'), requireElement('#settings-btn'), requireElement('#settings-close'))
+  bindSettingsTabs(requireElement('#settings-tabs'))
   bindLanguageSwitch(requireElement('#language-switch'))
   bindVoiceSwitch(requireElement('#settings-voice'))
   const ui = new InterfaceVisibility(document.body, { hide: requireElement('#hide-ui-btn'), show: requireElement('#show-ui-btn') })
@@ -224,6 +229,10 @@ function markRendered(app: Explorer): void {
   showWelcomeCard(elements, {
     startNarratedTour: () => app.startNarratedTour(),
     startIdleTour: () => app.startTour(),
+    exploreOnOwn: () => {
+      app.display.orbitPaths.set(true)
+      app.display.bodyLabels.set(true)
+    },
     idleTourAllowed: () => document.body.dataset.appMode !== 'learn' && !app.canvas.dataset.followingId,
   }, window)
 }

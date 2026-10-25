@@ -1,30 +1,26 @@
-import { msg } from '../i18n/i18n'
 import type { AudioClipPlayer } from './audioClipPlayer'
 import type { NarrationView } from './narrator'
 
 const SUBTITLES_KEY = 'toBoldlyGlow.subtitles'
+const SOUND_KEY = 'toBoldlyGlow.narrationSound'
 
 export interface NarrationBarElements {
   bar: HTMLElement
   subtitle: HTMLElement
-  mute: HTMLButtonElement
   subtitlesToggle: HTMLInputElement
+  soundToggle: HTMLInputElement
 }
 
-// Under the scene while the narrated tour runs: the narrator's subtitles (switchable in Settings,
-// remembered in the browser) and a button to mute the narrator.
+// Under the scene while the narrated tour runs: the narrator's subtitles. Settings switch them on
+// (they start off) and the narrator's sound off; both are remembered in the browser.
 export class NarrationBar implements NarrationView {
   constructor(
     private readonly elements: NarrationBarElements,
-    private readonly player: AudioClipPlayer,
+    player: AudioClipPlayer,
   ) {
-    elements.subtitlesToggle.checked = readSubtitlesSetting()
-    elements.subtitlesToggle.addEventListener('change', () => {
-      writeSubtitlesSetting(elements.subtitlesToggle.checked)
-      elements.subtitle.hidden = !elements.subtitlesToggle.checked
-    })
-    elements.subtitle.hidden = !elements.subtitlesToggle.checked
-    elements.mute.addEventListener('click', () => this.setMuted(!player.muted))
+    const { subtitle, subtitlesToggle, soundToggle } = elements
+    bindSwitch(subtitlesToggle, SUBTITLES_KEY, false, (on) => (subtitle.hidden = !on))
+    bindSwitch(soundToggle, SOUND_KEY, true, (on) => (player.muted = !on))
   }
 
   setActive(active: boolean): void {
@@ -37,25 +33,30 @@ export class NarrationBar implements NarrationView {
     if (subtitle.textContent !== (text ?? '')) subtitle.textContent = text ?? ''
     subtitle.classList.toggle('is-empty', !text)
   }
-
-  private setMuted(muted: boolean): void {
-    this.player.muted = muted
-    this.elements.mute.setAttribute('aria-pressed', String(muted))
-    this.elements.mute.setAttribute('aria-label', muted ? msg.ui.narration.unmute : msg.ui.narration.mute)
-  }
 }
 
-function readSubtitlesSetting(): boolean {
+// A checkbox whose state is remembered under `key`, applied now and on every change.
+function bindSwitch(toggle: HTMLInputElement, key: string, fallback: boolean, apply: (on: boolean) => void): void {
+  toggle.checked = readSetting(key, fallback)
+  apply(toggle.checked)
+  toggle.addEventListener('change', () => {
+    writeSetting(key, toggle.checked)
+    apply(toggle.checked)
+  })
+}
+
+function readSetting(key: string, fallback: boolean): boolean {
   try {
-    return localStorage.getItem(SUBTITLES_KEY) !== 'off'
+    const stored = localStorage.getItem(key)
+    return stored === null ? fallback : stored === 'on'
   } catch {
-    return true
+    return fallback
   }
 }
 
-function writeSubtitlesSetting(on: boolean): void {
+function writeSetting(key: string, on: boolean): void {
   try {
-    localStorage.setItem(SUBTITLES_KEY, on ? 'on' : 'off')
+    localStorage.setItem(key, on ? 'on' : 'off')
   } catch {
     // Blocked storage: the setting holds for this page only.
   }

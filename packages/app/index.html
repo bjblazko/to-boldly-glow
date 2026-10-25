@@ -101,11 +101,7 @@
       </button>
     </div>
     <div id="narration-bar" class="hud-narration" role="region" aria-label="Narrated tour" data-i18n-attr="aria-label:ui.narration.title" hidden>
-      <p id="narration-subtitle" class="hud-narration-text" aria-live="polite"></p>
-      <button id="narration-mute" class="hud-icon-btn" type="button" aria-pressed="false" aria-label="Mute the narrator" data-i18n-attr="aria-label:ui.narration.mute">
-        <svg class="icon icon-sound-on" aria-hidden="true"><use href="#icon-sound"></use></svg>
-        <svg class="icon icon-sound-off" aria-hidden="true"><use href="#icon-sound-off"></use></svg>
-      </button>
+      <p id="narration-subtitle" class="hud-narration-text" aria-live="polite" hidden></p>
     </div>
     <div id="fps-display" class="hud-fps" aria-hidden="true" hidden>— fps</div>
     <div id="camera-hint" class="hud-camera-hint" role="status" hidden></div>
@@ -206,14 +202,6 @@
       <symbol id="icon-chevron-down" viewBox="0 0 24 24">
         <path d="M6 9.5l6 6 6-6" />
       </symbol>
-      <symbol id="icon-sound" viewBox="0 0 24 24">
-        <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4v-5Z" />
-        <path d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.8 7.8 0 0 1 0 11" />
-      </symbol>
-      <symbol id="icon-sound-off" viewBox="0 0 24 24">
-        <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4v-5Z" />
-        <path d="M16 9.5l5 5M21 9.5l-5 5" />
-      </symbol>
       <!-- Pictograms for a planet's facts in the lesson panel (see lessonTypes.ts's FactIcon). -->
       <symbol id="icon-diameter" viewBox="0 0 24 24">
         <circle cx="12" cy="12" r="8.25" />
@@ -300,43 +288,67 @@
           <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
         </button>
       </div>
-      <h3 class="hud-group-title" id="language-title" data-i18n="ui.settings.language">Language</h3>
-      <div id="language-switch" class="hud-segmented" role="group" aria-labelledby="language-title"></div>
-      <h3 class="hud-group-title" data-i18n="ui.narration.title">Narrated tour</h3>
-      <div id="settings-voice" class="hud-segmented" role="group" aria-label="Narrator" data-i18n-attr="aria-label:ui.narration.voice"></div>
-      <div class="hud-toggle-grid">
-        <label class="hud-toggle-chip">
-          <input id="subtitles-toggle" type="checkbox" role="switch" checked />
-          <span class="hud-toggle-visual">
-            <span class="hud-toggle-label" data-i18n="ui.narration.subtitles">Subtitles</span>
-            <span class="hud-switch" aria-hidden="true"></span>
-          </span>
-        </label>
+      <div id="settings-tabs" class="hud-tabs" role="tablist" aria-label="Settings" data-i18n-attr="aria-label:ui.settings.title">
+        <button id="settings-tab-general" class="hud-tab" type="button" role="tab" aria-selected="true" aria-controls="settings-general" data-i18n="ui.settings.tabs.general">General</button>
+        <button id="settings-tab-video" class="hud-tab" type="button" role="tab" aria-selected="false" aria-controls="settings-video" data-i18n="ui.settings.tabs.video">Video</button>
+        <button id="settings-tab-audio" class="hud-tab" type="button" role="tab" aria-selected="false" aria-controls="settings-audio" data-i18n="ui.settings.tabs.audio">Audio</button>
       </div>
-      <h3 class="hud-group-title"><span data-i18n="ui.settings.graphics">Graphics</span> <span class="hud-group-hint" data-i18n="ui.settings.graphicsHint">how the picture is rendered</span></h3>
-      <div class="hud-toggle-grid">
-        <label class="hud-toggle-chip">
-          <input id="bloom-toggle" type="checkbox" role="switch" checked />
-          <span class="hud-toggle-visual">
-            <span class="hud-toggle-label" data-i18n="ui.settings.bloom">Bloom</span>
-            <span class="hud-switch" aria-hidden="true"></span>
-          </span>
+      <section id="settings-general" class="hud-tab-panel" role="tabpanel" aria-labelledby="settings-tab-general">
+        <h3 class="hud-group-title" id="language-title" data-i18n="ui.settings.language">Language</h3>
+        <div id="language-switch" class="hud-segmented" role="group" aria-labelledby="language-title"></div>
+      </section>
+      <section id="settings-video" class="hud-tab-panel" role="tabpanel" aria-labelledby="settings-tab-video" hidden>
+        <h3 class="hud-group-title"><span data-i18n="ui.settings.graphics">Graphics</span> <span class="hud-group-hint" data-i18n="ui.settings.graphicsHint">how the picture is rendered</span></h3>
+        <div class="hud-toggle-grid">
+          <label class="hud-toggle-chip">
+            <input id="bloom-toggle" type="checkbox" role="switch" checked />
+            <span class="hud-toggle-visual">
+              <span class="hud-toggle-label" data-i18n="ui.settings.bloom">Bloom</span>
+              <span class="hud-switch" aria-hidden="true"></span>
+            </span>
+          </label>
+          <label class="hud-toggle-chip">
+            <input id="flares-toggle" type="checkbox" role="switch" checked />
+            <span class="hud-toggle-visual">
+              <span class="hud-toggle-label" data-i18n="ui.settings.flares">Lens flares</span>
+              <span class="hud-switch" aria-hidden="true"></span>
+            </span>
+          </label>
+          <label class="hud-toggle-chip" title="Frames per second, in the lower left corner" data-i18n-attr="title:ui.settings.fpsTitle">
+            <input id="fps-toggle" type="checkbox" role="switch" />
+            <span class="hud-toggle-visual">
+              <span class="hud-toggle-label" data-i18n="ui.settings.fps">FPS counter</span>
+              <span class="hud-switch" aria-hidden="true"></span>
+            </span>
+          </label>
+        </div>
+      </section>
+      <section id="settings-audio" class="hud-tab-panel" role="tabpanel" aria-labelledby="settings-tab-audio" hidden>
+        <h3 class="hud-group-title" data-i18n="ui.narration.title">Narrated tour</h3>
+        <div id="settings-voice" class="hud-segmented" role="group" aria-label="Narrator" data-i18n-attr="aria-label:ui.narration.voice"></div>
+        <div class="hud-toggle-grid">
+          <label class="hud-toggle-chip">
+            <input id="narration-sound-toggle" type="checkbox" role="switch" checked />
+            <span class="hud-toggle-visual">
+              <span class="hud-toggle-label" data-i18n="ui.narration.sound">Voice</span>
+              <span class="hud-switch" aria-hidden="true"></span>
+            </span>
+          </label>
+          <label class="hud-toggle-chip">
+            <input id="subtitles-toggle" type="checkbox" role="switch" />
+            <span class="hud-toggle-visual">
+              <span class="hud-toggle-label" data-i18n="ui.narration.subtitles">Subtitles</span>
+              <span class="hud-switch" aria-hidden="true"></span>
+            </span>
+          </label>
+        </div>
+        <h3 class="hud-group-title" id="music-title"><span data-i18n="ui.settings.music">Music</span> <span class="hud-group-hint" data-i18n="ui.settings.musicHint">played live in your browser</span></h3>
+        <div id="music-switch" class="hud-segmented" role="group" aria-labelledby="music-title"></div>
+        <label class="hud-volume">
+          <span class="hud-volume-label" data-i18n="ui.settings.musicVolume">Volume</span>
+          <input id="music-volume" class="hud-range" type="range" min="0" max="100" value="50" />
         </label>
-        <label class="hud-toggle-chip">
-          <input id="flares-toggle" type="checkbox" role="switch" checked />
-          <span class="hud-toggle-visual">
-            <span class="hud-toggle-label" data-i18n="ui.settings.flares">Lens flares</span>
-            <span class="hud-switch" aria-hidden="true"></span>
-          </span>
-        </label>
-        <label class="hud-toggle-chip" title="Frames per second, in the lower left corner" data-i18n-attr="title:ui.settings.fpsTitle">
-          <input id="fps-toggle" type="checkbox" role="switch" />
-          <span class="hud-toggle-visual">
-            <span class="hud-toggle-label" data-i18n="ui.settings.fps">FPS counter</span>
-            <span class="hud-switch" aria-hidden="true"></span>
-          </span>
-        </label>
-      </div>
+      </section>
     </div>
 
     <div id="command-palette" class="hud-palette" role="dialog" aria-label="Search everything" data-i18n-attr="aria-label:ui.top.search" hidden>

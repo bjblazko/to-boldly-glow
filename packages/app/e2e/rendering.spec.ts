@@ -181,6 +181,7 @@ test('a full session renders without GPU errors', async ({ page }) => {
   const errors = await openRenderedApp(page)
 
   await page.locator('#settings-btn').click()
+  await page.locator('#settings-tab-video').click()
   await page.locator('#flares-toggle').check()
   await page.locator('#settings-btn').click()
   await page.locator('.hud-dock-btn[data-panel="view"]:visible').click()

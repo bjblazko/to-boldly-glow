@@ -5,6 +5,7 @@ import { grandTourRoute } from '../camera/tour/grandTour'
 import type { TourRoute } from '../camera/tourController'
 import { NarratedTour } from '../narration/narratedTour'
 import type { NarrationManifest } from '../narration/narrationManifest'
+import type { MusicEngine } from '../music/musicEngine'
 import type { Obstacle } from '../camera/input/flightSpeed'
 import type { Viewpoint } from '../camera/viewpoint'
 import { CameraControls } from '../hud/cameraControls'
@@ -40,7 +41,7 @@ interface SimulationMoment {
 }
 
 // The interactive explorer around the scene: scale switch, clock, camera and its controls, search.
-export function createExplorer(canvas: HTMLCanvasElement, display: DisplaySettings, orbitPaths: OrbitPaths, narrationManifest: NarrationManifest | null) {
+export function createExplorer(canvas: HTMLCanvasElement, display: DisplaySettings, orbitPaths: OrbitPaths, sound: { narrationManifest: NarrationManifest | null; music: MusicEngine }) {
   const scaleMode = new ScaleModeSwitch(canvas, {
     realistic: requireElement('#scale-mode-realistic-btn'),
     compact: requireElement('#scale-mode-compact-btn'),
@@ -62,7 +63,7 @@ export function createExplorer(canvas: HTMLCanvasElement, display: DisplaySettin
   lens.applyZoomFloor(scaleMode.blend)
   const bodyLabels = new BodyLabels(requireElement('#body-labels'))
   const tour = (route?: TourRoute) => startTour(camera, clock, now, route)
-  const narration = new NarratedTour(narrationManifest, requireElement)
+  const narration = new NarratedTour(sound.narrationManifest, requireElement, (audible) => sound.music.duck(audible))
   // The narrator paces the grand tour and hears where it is; started from a click, so it may speak.
   const narratedTour = () => {
     if (camera.isTouring) camera.stopTour()

@@ -10,10 +10,9 @@ export const ui = {
     explore: 'Explore on my own',
   },
   narration: {
-    mute: 'Mute the narrator',
-    unmute: 'Unmute the narrator',
     title: 'Narrated tour',
     subtitles: 'Subtitles',
+    sound: 'Voice',
     voice: 'Narrator',
   },
   modes: {
@@ -34,6 +33,7 @@ export const ui = {
   settings: {
     title: 'Settings',
     close: 'Close settings',
+    tabs: { general: 'General', video: 'Video', audio: 'Audio' },
     language: 'Language',
     graphics: 'Graphics',
     graphicsHint: 'how the picture is rendered',
@@ -41,6 +41,10 @@ export const ui = {
     flares: 'Lens flares',
     fps: 'FPS counter',
     fpsTitle: 'Frames per second, in the lower left corner',
+    music: 'Music',
+    musicHint: 'played live in your browser',
+    musicOff: 'Off',
+    musicVolume: 'Volume',
   },
   palette: {
     placeholder: 'Objects, lessons, settings…',

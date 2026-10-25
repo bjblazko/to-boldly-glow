@@ -73,6 +73,7 @@ test('graphics switches live in Settings; search everything finds objects, lesso
   await openApp(page)
 
   await page.locator('#settings-btn').click()
+  await page.locator('#settings-tab-video').click()
   await expect(page.locator('#settings-panel')).toBeVisible()
   await page.locator('#bloom-toggle').uncheck()
   await expect(page.locator('#scene')).toHaveAttribute('data-bloom', 'false')

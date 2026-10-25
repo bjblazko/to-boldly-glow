@@ -94,6 +94,7 @@ test('the FPS counter is off by default and shows frames per second once switche
   const fps = page.locator('#fps-display')
   await expect(fps).toBeHidden()
   await page.locator('#settings-btn').click()
+  await page.locator('#settings-tab-video').click()
   await page.locator('label:has(#fps-toggle)').click()
   await expect(fps).toBeVisible()
   await expect(fps).toHaveText(/^\d+ fps$/)

@@ -11,10 +11,9 @@ export const ui: Messages['ui'] = {
     explore: 'Selbst erkunden',
   },
   narration: {
-    mute: 'Erzähler stumm schalten',
-    unmute: 'Erzähler wieder einschalten',
     title: 'Erzählte Tour',
     subtitles: 'Untertitel',
+    sound: 'Stimme',
     voice: 'Erzählstimme',
   },
   modes: {
@@ -35,6 +34,7 @@ export const ui: Messages['ui'] = {
   settings: {
     title: 'Einstellungen',
     close: 'Einstellungen schließen',
+    tabs: { general: 'Allgemein', video: 'Video', audio: 'Audio' },
     language: 'Sprache',
     graphics: 'Grafik',
     graphicsHint: 'wie das Bild entsteht',
@@ -42,6 +42,10 @@ export const ui: Messages['ui'] = {
     flares: 'Linsenreflexe',
     fps: 'FPS-Anzeige',
     fpsTitle: 'Bilder pro Sekunde, unten links',
+    music: 'Musik',
+    musicHint: 'live im Browser gespielt',
+    musicOff: 'Aus',
+    musicVolume: 'Lautstärke',
   },
   palette: {
     placeholder: 'Himmelskörper, Lektionen, Einstellungen…',

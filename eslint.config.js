@@ -16,7 +16,7 @@ const CODE_METRICS = {
 }
 
 export default defineConfig([
-  globalIgnores(['**/dist/**', '**/build/**', '**/node_modules/**', '**/test-results/**']),
+  globalIgnores(['**/dist/**', '**/build/**', '**/node_modules/**', '**/test-results/**', '**/.venv/**', 'packages/data-pipeline/narration/work/**']),
   js.configs.recommended,
   tseslint.configs.recommended,
   {

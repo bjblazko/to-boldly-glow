@@ -15,6 +15,8 @@ export interface WelcomeActions {
   startNarratedTour(): void
   // The silent endless loop, when nobody has touched anything for a while.
   startIdleTour(): void
+  // The visitor chose to explore on their own: the orbit paths and labels that help find the way.
+  exploreOnOwn(): void
   // Whether the idle tour may still start (not in a lesson, not following a body).
   idleTourAllowed(): boolean
 }
@@ -39,7 +41,10 @@ export function showWelcomeCard(elements: WelcomeCardElements, actions: WelcomeA
     close()
     actions.startNarratedTour()
   })
-  explore.addEventListener('click', close)
+  explore.addEventListener('click', () => {
+    close()
+    actions.exploreOnOwn()
+  })
   start.focus({ preventScroll: true })
   scheduleStartupTour(
     () => {

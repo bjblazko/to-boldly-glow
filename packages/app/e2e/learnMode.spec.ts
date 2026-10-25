@@ -113,6 +113,7 @@ test('lens flares are force-hidden on learn-mode entry and restored to their pri
   // Turn flares OFF (a user preference; they default to on): learn mode must leave them off on
   // exit, not flip them back on.
   await page.locator('#settings-btn').click()
+  await page.locator('#settings-tab-video').click()
   await page.locator('#flares-toggle').uncheck()
   await page.locator('#settings-btn').click()
   await openLesson(page, 'seasons')
@@ -126,6 +127,7 @@ test('lens flares are force-hidden on learn-mode entry and restored to their pri
   // Now turn flares ON: entering learn mode must force them off, and exiting must restore ON - not
   // leave them off, which would silently mutate the user's own explore-mode preference.
   await page.locator('#settings-btn').click()
+  await page.locator('#settings-tab-video').click()
   await page.locator('#flares-toggle').check()
   await expect(page.locator('#scene')).toHaveAttribute('data-flares', 'true')
   await page.locator('#settings-btn').click()

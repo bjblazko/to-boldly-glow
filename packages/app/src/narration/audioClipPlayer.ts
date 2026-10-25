@@ -15,7 +15,8 @@ export class AudioClipPlayer implements ClipPlayer {
   private ended: (() => void) | null = null
   private watchdog: ReturnType<typeof setTimeout> | undefined
 
-  constructor() {
+  // `speaking` hears when the narrator is audible, so the music can step back for it.
+  constructor(private readonly speaking: (audible: boolean) => void = () => {}) {
     this.audio.preload = 'auto'
     this.audio.addEventListener('ended', () => this.finish())
     this.audio.addEventListener('error', () => this.goSilent())
@@ -27,6 +28,7 @@ export class AudioClipPlayer implements ClipPlayer {
 
   set muted(muted: boolean) {
     this.audio.muted = muted
+    if (this.ended && !this.silent) this.speaking(!muted)
   }
 
   play(clip: NarrationClip, onEnded: () => void): void {
@@ -39,6 +41,7 @@ export class AudioClipPlayer implements ClipPlayer {
     if (!clip.url) return this.endSilentlyAfter(clip.seconds)
     this.audio.src = clip.url
     this.audio.play().catch(() => this.goSilent())
+    this.speaking(!this.audio.muted)
   }
 
   elapsed(): number {
@@ -49,12 +52,14 @@ export class AudioClipPlayer implements ClipPlayer {
     this.ended = null
     clearTimeout(this.watchdog)
     this.audio.pause()
+    this.speaking(false)
   }
 
   // Carries on from where the clip was, on the timer.
   private goSilent(): void {
     if (this.silent || !this.ended) return
     this.silent = true
+    this.speaking(false)
     this.endSilentlyAfter(this.clipSeconds)
   }
 

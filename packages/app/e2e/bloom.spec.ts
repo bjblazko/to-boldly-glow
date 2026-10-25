@@ -14,6 +14,7 @@ test('bloom post-processing initializes and can be toggled', async ({ page }) =>
 
   // Display toggles live behind the dock's "Display" sheet — open it before interacting.
   await page.locator('#settings-btn').click()
+  await page.locator('#settings-tab-video').click()
 
   const toggle = page.locator('#bloom-toggle')
   await expect(toggle).toBeChecked()

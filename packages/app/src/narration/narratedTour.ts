@@ -11,20 +11,23 @@ import type { NarrationPart, NarrationStop } from './scripts/en'
 // one audio element (once a click has let it play, it may go on playing) and the subtitle bar.
 // Each clip is in the voice chosen when it starts, so a new choice takes over from the next one.
 export class NarratedTour {
-  private readonly player = new AudioClipPlayer()
+  private readonly player: AudioClipPlayer
   private readonly bar: NarrationBar
   private narrator: Narrator | null = null
 
   constructor(
     private readonly manifest: NarrationManifest | null,
     findElement: <T extends HTMLElement>(selector: string) => T,
+    // Hears when the narrator is audible, so the music can step back for it.
+    speaking: (audible: boolean) => void,
   ) {
+    this.player = new AudioClipPlayer(speaking)
     this.bar = new NarrationBar(
       {
         bar: findElement('#narration-bar'),
         subtitle: findElement('#narration-subtitle'),
-        mute: findElement('#narration-mute'),
         subtitlesToggle: findElement('#subtitles-toggle'),
+        soundToggle: findElement('#narration-sound-toggle'),
       },
       this.player,
     )

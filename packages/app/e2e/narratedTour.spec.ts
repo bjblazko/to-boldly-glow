@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 import { openApp, waitForFirstFrame } from './support/appBoot'
 
-test('the welcome card starts the narrated tour at the Sun, with the narrator and subtitles', async ({ page }) => {
+test('the welcome card starts the narrated tour at the Sun, with the narrator; subtitles start off', async ({ page }) => {
   const clips: string[] = []
   page.on('request', (request) => {
     if (request.url().includes('/narration/')) clips.push(new URL(request.url()).pathname)
@@ -16,13 +16,11 @@ test('the welcome card starts the narrated tour at the Sun, with the narrator an
   await card.locator('#welcome-start').click()
   await expect(card).toBeHidden()
   await expect(page.locator('#camera-tour-toggle .btn-label')).toHaveText('Stop Tour')
-  await expect(page.locator('#narration-bar')).toBeVisible()
+  await expect(page.locator('#narration-bar')).not.toHaveAttribute('hidden')
+  await expect(page.locator('#narration-subtitle')).toBeHidden()
   await expect(page.locator('#narration-subtitle')).toContainText('Welcome aboard')
   // Opus where the browser plays it (Chromium does), MP3 otherwise.
   await expect.poll(() => clips).toContain('/narration/lyra/en/sun-approach.webm')
-
-  await page.locator('#narration-mute').click()
-  await expect(page.locator('#narration-mute')).toHaveAttribute('aria-pressed', 'true')
 
   // Any manual camera input hands control back and silences the narrator.
   await page.locator('#scene').click({ position: { x: 40, y: 300 } })
@@ -51,15 +49,44 @@ test('?tour=off shows no welcome card', async ({ page }) => {
   await expect(page.locator('#welcome-card')).toBeHidden()
 })
 
-test('subtitles can be switched off in Settings, and stay off', async ({ page }) => {
+test('subtitles and the narrator\'s voice are switched in Settings\' Audio tab, and stay so', async ({ page }) => {
   await openApp(page)
   await page.locator('#settings-btn').click()
-  const toggle = page.locator('#subtitles-toggle')
-  await expect(toggle).toBeChecked()
-  await toggle.click({ force: true })
+  await page.locator('#settings-tab-audio').click()
+  await expect(page.locator('#settings-audio')).toBeVisible()
+  await expect(page.locator('#settings-general')).toBeHidden()
+  const subtitles = page.locator('#subtitles-toggle')
+  const voice = page.locator('#narration-sound-toggle')
+  await expect(subtitles).not.toBeChecked()
+  await expect(voice).toBeChecked()
+  await subtitles.click({ force: true })
+  await voice.click({ force: true })
   await page.reload()
   await waitForFirstFrame(page)
-  await expect(page.locator('#subtitles-toggle')).not.toBeChecked()
+  await expect(page.locator('#subtitles-toggle')).toBeChecked()
+  await expect(page.locator('#narration-sound-toggle')).not.toBeChecked()
+})
+
+test('the music is off until a track is chosen, and the choice is remembered', async ({ page }) => {
+  await openApp(page)
+  await page.locator('#settings-btn').click()
+  await page.locator('#settings-tab-audio').click()
+  const tracks = page.locator('#music-switch').getByRole('button')
+  await expect(tracks).toHaveText(['Off', 'Drift', 'Nova', 'Pixel'])
+  await expect(tracks.first()).toHaveAttribute('aria-pressed', 'true')
+  await tracks.nth(2).click()
+  await page.reload()
+  await waitForFirstFrame(page)
+  await expect(page.locator('#music-switch button[data-music="nova"]')).toHaveAttribute('aria-pressed', 'true')
+})
+
+test('Explore on my own turns on the orbit paths and labels', async ({ page }) => {
+  await page.goto('/')
+  await waitForFirstFrame(page)
+  await expect(page.locator('#scene')).toHaveAttribute('data-orbit-paths', 'false')
+  await page.locator('#welcome-explore').click()
+  await expect(page.locator('#scene')).toHaveAttribute('data-orbit-paths', 'true')
+  await expect(page.locator('#scene')).toHaveAttribute('data-labels-visible', 'true')
 })
 
 test('the narrator picked on the welcome card speaks, and Settings shows the same choice', async ({ page }) => {
@@ -73,5 +100,6 @@ test('the narrator picked on the welcome card speaks, and Settings shows the sam
   await page.locator('#welcome-start').click()
   await expect.poll(() => clips).toContain('/narration/orion/en/sun-approach.webm')
   await page.locator('#settings-btn').click()
+  await page.locator('#settings-tab-audio').click()
   await expect(page.locator('#settings-voice').getByRole('button', { name: 'Orion' })).toHaveAttribute('aria-pressed', 'true')
 })
