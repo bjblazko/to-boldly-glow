@@ -1,6 +1,8 @@
 import { CameraDirector } from '../camera/cameraDirector'
 import { CameraLens } from '../camera/cameraLens'
 import { pickTarget, type PickTarget } from '../camera/entityPicking'
+import { grandTourRoute } from '../camera/tour/grandTour'
+import type { TourRoute } from '../camera/tourController'
 import type { Obstacle } from '../camera/input/flightSpeed'
 import type { Viewpoint } from '../camera/viewpoint'
 import { CameraControls } from '../hud/cameraControls'
@@ -46,7 +48,7 @@ export function createExplorer(canvas: HTMLCanvasElement, display: DisplaySettin
   const shown: { frame: ShownFrame | null } = { frame: null }
   const select = (entity: SolarSystemEntity) => selectEntity(entity, camera, display, now())
   const camera = createCamera(canvas, {
-    startTour: () => tour(),
+    startTour: () => tour(grandTourRoute()),
     pick: (x, y) => pickAt({ canvas, frame: shown.frame }, x, y, select),
     following: (entity) => searchUi.setFollowing(entity),
   })
@@ -54,7 +56,7 @@ export function createExplorer(canvas: HTMLCanvasElement, display: DisplaySettin
   const lens = new CameraLens(camera.orbit, canvas)
   lens.applyZoomFloor(scaleMode.blend)
   const bodyLabels = new BodyLabels(requireElement('#body-labels'))
-  const tour = () => startTour(camera, clock, now)
+  const tour = (route?: TourRoute) => startTour(camera, clock, now, route)
   return { canvas, display, scaleMode, camera, lens, clock, timeControls: createTimeControls(clock), bodyLabels, orbitPaths, searchUi, shown, select, startTour: tour }
 }
 
@@ -141,14 +143,14 @@ export function shownSmallBodies(display: DisplaySettings, ephemeris: Ephemeris,
 
 // A paused or real-time clock shows no visible spin or moon motion during a flyby, so the tour
 // speeds it up to 1 hr/s - unless the user already picked a rate of their own.
-function startTour(camera: CameraDirector, clock: SimulationClock, now: () => SimulationMoment): void {
+function startTour(camera: CameraDirector, clock: SimulationClock, now: () => SimulationMoment, route?: TourRoute): void {
   if (camera.isTouring) return
   if (clock.isPaused() || clock.getTimeScale() === 1) {
     clock.play()
     clock.setTimeScale(TIME_SCALE_PRESETS[2].secondsPerSecond)
   }
   const { ephemeris, scaleBlend } = now()
-  camera.startTour(ephemeris, scaleBlend)
+  camera.startTour(ephemeris, scaleBlend, route)
 }
 
 function createEntitySearch(camera: CameraDirector, select: (entity: SolarSystemEntity) => void): EntityFinder {

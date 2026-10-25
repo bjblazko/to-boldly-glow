@@ -58,7 +58,7 @@ test('the tour sets off on its own a moment after the scene first shows', async 
   await waitForFirstFrame(page)
   const tourLabel = page.locator('#camera-tour-toggle .btn-label')
   await expect(tourLabel).toHaveText('Start Tour')
-  await expect(tourLabel).toHaveText('Stop Tour', { timeout: 10_000 })
+  await expect(tourLabel).toHaveText('Stop Tour', { timeout: 15_000 })
 })
 
 test('a click on the scene before the tour sets off keeps the camera still', async ({ page }) => {

@@ -1,5 +1,5 @@
-// How long the first picture stays still before the tour sets off.
-export const STARTUP_TOUR_DELAY_MS = 2000
+// How long the first picture stays still before the idle tour sets off.
+export const STARTUP_TOUR_DELAY_MS = 10_000
 
 const USER_INPUT_EVENTS = ['pointerdown', 'wheel', 'keydown'] as const
 

@@ -40,8 +40,10 @@ export class ShipView {
 
   // yawRate is how fast the ship's heading turns around world up (positive = left, seen from above).
   // The roll shows most while looking along the flight direction, little while looking sideways.
-  update(deltaSeconds: number, desiredGaze: vec3, flight: { heading: vec3; yawRate: number }): void {
-    this.look.turnToward(desiredGaze, deltaSeconds)
+  // maxGazeRate can hold the gaze back below MAX_GAZE_TURN_RATE (as the ship pulls away from a
+  // planet).
+  update(deltaSeconds: number, desiredGaze: vec3, flight: { heading: vec3; yawRate: number }, maxGazeRate = MAX_GAZE_TURN_RATE): void {
+    this.look.turnToward(desiredGaze, deltaSeconds, maxGazeRate)
     const lookingAhead = Math.max(0, vec3.dot(this.gaze, flight.heading))
     const bankTarget = clampBank(flight.yawRate * BANK_SECONDS_PER_RADIAN_OF_TURN) * lookingAhead
     this.bank += (bankTarget - this.bank) * smoothingFactor(BANK_SMOOTHING_RATE, deltaSeconds)

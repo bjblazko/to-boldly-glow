@@ -7,7 +7,7 @@ import type { FlightCommand } from './flyCamera'
 import type { Obstacle } from './input/flightSpeed'
 import { CameraInputController, type CameraMode } from './inputController'
 import { OrbitCamera } from './orbitCamera'
-import { TourController } from './tourController'
+import { TourController, type TourRoute } from './tourController'
 
 // The orbit camera's pose, saved while a lesson borrows the camera.
 export interface CameraSnapshot {
@@ -71,8 +71,9 @@ export class CameraDirector {
     this.events.onModeChange(mode)
   }
 
-  // The tour starts from wherever the active camera is and whatever it is looking at.
-  startTour(ephemeris: Ephemeris, scaleBlend: number): void {
+  // The tour starts from wherever the active camera is and whatever it is looking at - on the given
+  // route, or else the endless nearest-planet loop.
+  startTour(ephemeris: Ephemeris, scaleBlend: number, route?: TourRoute): void {
     if (this.touring) return
     this.touring = true
     this.stopFollowing()
@@ -80,7 +81,7 @@ export class CameraDirector {
     const cameraWorld = mat4.invert(mat4.create(), this.input.getViewMatrix()) ?? mat4.create()
     const eye: [number, number, number] = [cameraWorld[12], cameraWorld[13], cameraWorld[14]]
     const forward: [number, number, number] = [-cameraWorld[8], -cameraWorld[9], -cameraWorld[10]]
-    this.tour.start({ position: eye, forward }, ephemeris, scaleBlend)
+    this.tour.start({ position: eye, forward }, ephemeris, scaleBlend, route)
     this.events.onTourChange(true)
   }
 

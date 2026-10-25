@@ -21,3 +21,9 @@ export function lerpVec3(
 ): [number, number, number] {
   return [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)]
 }
+
+// Eases 0..1 in and out (clamped outside): no jolt at either end.
+export function smoothstep(t: number): number {
+  const x = Math.min(Math.max(t, 0), 1)
+  return x * x * (3 - 2 * x)
+}

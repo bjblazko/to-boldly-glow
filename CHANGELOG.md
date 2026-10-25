@@ -177,6 +177,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The tour leaves a planet calmly: it circles on until it heads for the next stop, slips out of
+  the loop along the circle, and its gaze lets go of the planet over ten seconds - the gaze now
+  turns at a third of the old top rate there, and the ship hardly banks. A loop takes 14 instead
+  of 10 seconds. Leaving a big loop (the Sun's) fast, the ship can still brake for a close stop.
+- The Start Tour button flies a set route - the Sun, then Mercury to Neptune in order, then home
+  to Earth, where it stays circling - instead of the nearest planet next. Left alone, the app
+  starts the old endless nearest-planet loop after 10 seconds (was 2).
 - CREDITS.md: AssemblyScript is Apache-2.0 (not MIT), and its runtime is part of the built app;
   Rolldown's module runtime is credited too.
 - AgX ("Filmic look") is now the only tonemapping: the Reinhard path and the Settings switch for

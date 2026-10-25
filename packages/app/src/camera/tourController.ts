@@ -1,12 +1,13 @@
 import { mat4, vec3 } from 'gl-matrix'
+import { smoothstep } from '../math/easing'
 import type { SolarSystemEntity } from '../solarSystem/entities'
 import { rescaledPosition } from '../solarSystem/sceneScale'
 import type { Ephemeris } from '../time/ephemeris'
 import { InertialDirection } from './tour/inertialDirection'
 import { SPEED_LAG_SECONDS, SPEED_SETTLE_SECONDS, stepToward, Throttle, turnRateAround } from './tour/shipMotion'
-import { ShipView, WORLD_UP } from './tour/shipView'
-import { engineAcceleration, loopRadiusAt, MIN_CRUISE_SPEED, planetPosition, planLeg, type Leg } from './tour/tourLeg'
-import { TourItinerary } from './tour/tourItinerary'
+import { MAX_GAZE_TURN_RATE, ShipView, WORLD_UP } from './tour/shipView'
+import { ACCELERATION_SECONDS, engineAcceleration, loopRadiusAt, MIN_CRUISE_SPEED, planetPosition, planLeg, type Leg, type LegPace } from './tour/tourLeg'
+import { NearestItinerary, type TourItinerary } from './tour/tourItinerary'
 
 export { ACCELERATION_SECONDS } from './tour/tourLeg'
 
@@ -17,9 +18,6 @@ const LATERAL_THRUST_RATIO = 2
 export const MAX_TURN_RATE = 0.9 // radians per second
 const TURN_ACCELERATION = 0.6 // radians per second squared
 
-// The flyby loop takes about LOOP_SECONDS per lap.
-const LOOP_SECONDS = 10
-const LOOP_ANGULAR_SPEED = (2 * Math.PI) / LOOP_SECONDS
 // Braking is planned with this share of the engine's thrust, leaving room for the thrust to build
 // up, and starts early enough for the speed's lag behind the throttle. On the final approach the
 // ship slows in proportion to the distance left - each halving of the distance takes the same
@@ -28,19 +26,39 @@ const LOOP_ANGULAR_SPEED = (2 * Math.PI) / LOOP_SECONDS
 const BRAKING_SHARE = 0.6
 const FINAL_APPROACH_SECONDS = 2.5
 
-// Gives up on a target that takes this long to reach, so the tour can never appear stuck.
+// Gives up on a target that takes this long to reach (or this many times its planned transit), so
+// the tour can never appear stuck.
 const MAX_CRUISE_SECONDS = 60
+const MAX_CRUISE_TRANSITS = 3
 
 // The gaze looks this far ahead along the flight path, and swings over to the planet as the ship
 // closes in - fully locked on from this many loop radii away.
 const LOOK_AHEAD_SECONDS = 3
 const GAZE_LOCK_IN_LOOP_RADII = 6
 
+// Leaving a planet, the ship circles on until it heads within EXIT_ALIGNMENT of the next one (for
+// at most one more lap), so it slips out of its loop along the circle instead of turning around.
+// The gaze lets go of the planet gradually: over DEPARTURE_SECONDS it eases from where it looked
+// when the ship left (the planet) over to where it would look anyway, and the turn rates of ship and
+// gaze build up from these shares of their full rates.
+const EXIT_ALIGNMENT = Math.cos((25 * Math.PI) / 180)
+export const DEPARTURE_SECONDS = 10
+const DEPARTURE_TURN_SHARE = 0.15
+const DEPARTURE_GAZE_SHARE = 0.25
+
 interface Loop {
   startOffset: vec3
   direction: number
   angle: number
   angularSpeed: number
+  // The next stop, once the lap is done and the ship may leave: it leaves when it heads for it.
+  next?: SolarSystemEntity
+}
+
+interface Departure {
+  // Where the gaze looked as the ship left the loop.
+  gaze: vec3
+  seconds: number
 }
 
 interface Moment {
@@ -53,11 +71,32 @@ export interface TourStart {
   forward?: readonly [number, number, number]
 }
 
-// An endless sightseeing flight, flown like a spaceship: it picks the nearest planet not yet seen,
-// accelerates toward it, brakes on arrival, makes one lap around it and heads for the next one -
-// with inertia, elastic thrust, a limited turn rate, banking into turns and a gaze that leads the
-// flight path. It navigates relative to its target planet, matching the planet's own orbital
-// motion, so it reaches even a fast inner planet at Realistic scale.
+// What the narrated tour tells the ship: how long it should take at a body, and when it may leave.
+export interface TourPacing {
+  pace(target: SolarSystemEntity): LegPace
+  // While false, the ship keeps circling the body (the narrator hasn't finished).
+  mayDepart(target: SolarSystemEntity): boolean
+}
+
+export interface TourListener {
+  onLegStart?(target: SolarSystemEntity): void
+  onLoopEnter?(target: SolarSystemEntity): void
+  // The route is over: the ship stays circling its last stop.
+  onFinished?(): void
+}
+
+// Where the tour goes: the endless nearest-planet loop by default, or a set route with its pace.
+export interface TourRoute {
+  itinerary: TourItinerary
+  pacing?: TourPacing
+  listener?: TourListener
+}
+
+// A sightseeing flight, flown like a spaceship: it picks the next body of its route, accelerates
+// toward it, brakes on arrival, makes a lap around it and heads for the next one - with inertia,
+// elastic thrust, a limited turn rate, banking into turns and a gaze that leads the flight path.
+// It navigates relative to its target, matching the target's own orbital motion, so it reaches even
+// a fast inner planet at Realistic scale.
 export class TourController {
   private readonly position = vec3.create()
   private readonly steering = new InertialDirection(vec3.fromValues(0, 0, 1), { maxRate: MAX_TURN_RATE, acceleration: TURN_ACCELERATION }, WORLD_UP)
@@ -65,14 +104,18 @@ export class TourController {
   // The target planet's velocity, as far as the ship has matched it yet.
   private readonly frameVelocity = vec3.create()
   private readonly view = new ShipView()
-  private readonly itinerary: TourItinerary
+  private readonly defaultRoute: TourRoute
+  private route: TourRoute
   private leg: Leg | null = null
   private loop: Loop | null = null
+  private departure: Departure | null = null
+  private finished = false
   private cruiseSeconds = 0
   private previous: Moment | null = null
 
   constructor(planets: SolarSystemEntity[]) {
-    this.itinerary = new TourItinerary(planets)
+    this.defaultRoute = { itinerary: new NearestItinerary(planets) }
+    this.route = this.defaultRoute
   }
 
   private get heading(): vec3 {
@@ -84,15 +127,18 @@ export class TourController {
   }
 
   // Starts at rest where the camera is, looking where it looked.
-  start(from: TourStart, ephemeris: Ephemeris, scaleBlend: number): void {
+  start(from: TourStart, ephemeris: Ephemeris, scaleBlend: number, route: TourRoute = this.defaultRoute): void {
     vec3.set(this.position, ...from.position)
     this.throttle.stop()
     vec3.zero(this.frameVelocity)
     this.previous = { ephemeris, scaleBlend }
-    this.itinerary.restart()
-    this.beginLeg(null, this.previous)
+    this.route = route
+    this.finished = false
+    route.itinerary.restart()
+    this.beginLeg(null, this.nextStop(null, this.previous), this.previous)
+    if (!this.leg) return
     const forward = from.forward ? vec3.fromValues(...from.forward) : null
-    const planet = planetPosition(this.leg!.target, ephemeris, scaleBlend)
+    const planet = planetPosition(this.leg.target, ephemeris, scaleBlend)
     this.steering.reset(forward && vec3.length(forward) > 1e-9 ? vec3.normalize(forward, forward) : this.directionTo(planet))
     this.view.reset(this.heading)
   }
@@ -100,6 +146,7 @@ export class TourController {
   stop(): void {
     this.leg = null
     this.loop = null
+    this.departure = null
   }
 
   getEyePosition(): [number, number, number] {
@@ -126,22 +173,47 @@ export class TourController {
     const planet = planetPosition(this.leg.target, ephemeris, scaleBlend)
     const planetVelocity = this.planetVelocity(this.leg, moment, deltaSeconds)
     const headingBefore = vec3.clone(this.heading)
+    this.advanceDeparture(deltaSeconds)
     if (this.loop) this.flyLoop(this.loop, deltaSeconds, { planet, planetVelocity })
     else this.cruise(this.leg, deltaSeconds, { planet, planetVelocity })
     const yawRate = turnRateAround(headingBefore, this.heading, WORLD_UP, deltaSeconds)
-    this.view.update(deltaSeconds, this.desiredGaze(this.leg, planet), { heading: this.heading, yawRate })
+    const gazeRate = MAX_GAZE_TURN_RATE * this.departureRamp(DEPARTURE_GAZE_SHARE)
+    this.view.update(deltaSeconds, this.desiredGaze(this.leg, planet), { heading: this.heading, yawRate }, gazeRate)
     this.previous = moment
     this.continueItinerary(this.leg, planet, moment)
   }
 
   private continueItinerary(leg: Leg, planet: vec3, moment: Moment): void {
-    if (this.loop && this.loop.angle >= 2 * Math.PI) {
-      this.beginLeg(leg.target, moment)
-    } else if (!this.loop && vec3.distance(this.position, planet) <= leg.loopRadius * 1.02) {
+    if (this.loop) {
+      if (this.readyToLeave(this.loop, leg)) this.leaveLoopTowardNext(this.loop, leg, moment)
+    } else if (vec3.distance(this.position, planet) <= leg.loopRadius * 1.02) {
       this.loop = this.enterLoop(leg, planet)
-    } else if (!this.loop && this.cruiseSeconds >= MAX_CRUISE_SECONDS) {
-      this.beginLeg(leg.target, moment)
+      this.route.listener?.onLoopEnter?.(leg.target)
+    } else if (this.cruiseSeconds >= this.patienceSeconds(leg)) {
+      this.beginLeg(leg.target, this.nextStop(leg.target, moment), moment)
     }
+  }
+
+  private patienceSeconds(leg: Leg): number {
+    return Math.max(MAX_CRUISE_SECONDS, MAX_CRUISE_TRANSITS * this.paceOf(leg.target).transitSeconds)
+  }
+
+  // Picks the next stop once, then circles on until heading for it (or one more lap has gone by).
+  // Without one the route is over, and the ship stays circling.
+  private leaveLoopTowardNext(loop: Loop, leg: Leg, moment: Moment): void {
+    loop.next ??= this.nextStop(leg.target, moment) ?? undefined
+    if (!loop.next) return this.finish()
+    const toNext = this.directionTo(planetPosition(loop.next, moment.ephemeris, moment.scaleBlend))
+    if (vec3.dot(this.heading, toNext) >= EXIT_ALIGNMENT || loop.angle >= 4 * Math.PI) this.beginLeg(leg.target, loop.next, moment)
+  }
+
+  // A lap done, the route not over, and the narrator done with this stop.
+  private readyToLeave(loop: Loop, leg: Leg): boolean {
+    return loop.angle >= 2 * Math.PI && !this.finished && (this.route.pacing?.mayDepart(leg.target) ?? true)
+  }
+
+  private paceOf(target: SolarSystemEntity): LegPace {
+    return this.route.pacing?.pace(target) ?? { transitSeconds: 0, lapSeconds: 0 }
   }
 
   // The planet's own orbital motion, at the current scale (so a scale change in progress doesn't
@@ -178,9 +250,9 @@ export class TourController {
   private steerToward(leg: Leg, direction: vec3, { distance, deltaSeconds }: { distance: number; deltaSeconds: number }): void {
     const acceleration = engineAcceleration(leg)
     const thrustLimitedRate = (LATERAL_THRUST_RATIO * acceleration) / Math.max(this.speed, 1e-9)
-    this.steering.turnToward(direction, deltaSeconds, Math.min(MAX_TURN_RATE, thrustLimitedRate))
+    this.steering.turnToward(direction, deltaSeconds, Math.min(MAX_TURN_RATE, thrustLimitedRate) * this.departureRamp(DEPARTURE_TURN_SHARE))
     const alignment = (1 + vec3.dot(this.heading, direction)) / 2
-    const loopSpeed = leg.loopRadius * LOOP_ANGULAR_SPEED
+    const loopSpeed = leg.loopRadius * leg.loopAngularSpeed
     const brakingDistance = Math.max(distance - this.speed * SPEED_LAG_SECONDS, 0)
     const brakingSpeed = Math.sqrt(loopSpeed * loopSpeed + 2 * BRAKING_SHARE * acceleration * brakingDistance)
     const approachSpeed = loopSpeed + (distance - SPEED_SETTLE_SECONDS * this.speed) / FINAL_APPROACH_SECONDS
@@ -201,19 +273,32 @@ export class TourController {
   }
 
   // The loop's pace changes within the same engine limits as the cruise; the ship moves with the
-  // planet all the while (and with it through a jump in time).
+  // planet all the while (and with it through a jump in time). It keeps circling past one lap
+  // while the route holds it there, and for good at the route's end.
   private flyLoop(loop: Loop, deltaSeconds: number, { planet, planetVelocity }: { planet: vec3; planetVelocity: vec3 }): void {
-    this.matchPlanetMotion(this.leg!, planetVelocity, deltaSeconds)
+    const leg = this.leg!
+    this.matchPlanetMotion(leg, planetVelocity, deltaSeconds)
     const circleRadius = Math.max(Math.hypot(loop.startOffset[0], loop.startOffset[1]), 1e-9)
-    const acceleration = engineAcceleration(this.leg!)
-    loop.angularSpeed = stepToward(loop.angularSpeed, LOOP_ANGULAR_SPEED, (acceleration / circleRadius) * deltaSeconds)
-    loop.angle = Math.min(loop.angle + loop.angularSpeed * deltaSeconds, 2 * Math.PI)
+    const acceleration = engineAcceleration(leg)
+    loop.angularSpeed = stepToward(loop.angularSpeed, leg.loopAngularSpeed, (acceleration / circleRadius) * deltaSeconds)
+    loop.angle += loop.angularSpeed * deltaSeconds
     const rotation = mat4.fromRotation(mat4.create(), loop.direction * loop.angle, WORLD_UP)
     const offset = vec3.transformMat4(vec3.create(), loop.startOffset, rotation)
     vec3.add(this.position, planet, offset)
     const tangent = vec3.scale(vec3.create(), vec3.cross(vec3.create(), WORLD_UP, offset), loop.direction)
     this.steering.follow(vec3.normalize(tangent, tangent), deltaSeconds)
     this.throttle.coast(circleRadius * loop.angularSpeed)
+  }
+
+  private advanceDeparture(deltaSeconds: number): void {
+    if (!this.departure) return
+    this.departure.seconds += deltaSeconds
+    if (this.departure.seconds >= DEPARTURE_SECONDS) this.departure = null
+  }
+
+  // 1 outside a departure; during one, rising smoothly from `share` to 1.
+  private departureRamp(share: number): number {
+    return this.departure ? share + (1 - share) * smoothstep(this.departure.seconds / DEPARTURE_SECONDS) : 1
   }
 
   // The scale switch eases the whole scene from one scale to the other, and the ship moves with
@@ -241,27 +326,44 @@ export class TourController {
   private rescaleLegSpeeds(leg: Leg, distanceBefore: number, distanceAfter: number): void {
     const ratio = distanceBefore > 1e-12 ? distanceAfter / distanceBefore : 1
     leg.cruiseSpeed = Math.max(leg.cruiseSpeed * ratio, MIN_CRUISE_SPEED)
+    leg.acceleration = Math.max(leg.acceleration * ratio, MIN_CRUISE_SPEED / ACCELERATION_SECONDS)
     this.throttle.coast(this.speed * ratio)
   }
 
   // Ahead along the flight path while far away, swinging over to the planet on the way in, and
-  // fixed on it while circling.
+  // fixed on it while circling. Leaving a planet, the gaze lingers on it and lets go gradually.
   private desiredGaze(leg: Leg, planet: vec3): vec3 {
     const aheadDistance = Math.max(this.speed, leg.cruiseSpeed) * LOOK_AHEAD_SECONDS
     const ahead = vec3.scaleAndAdd(vec3.create(), this.position, this.heading, aheadDistance)
     const lockStart = leg.loopRadius * GAZE_LOCK_IN_LOOP_RADII
-    const closeness = Math.min(Math.max((lockStart - vec3.distance(this.position, planet)) / Math.max(lockStart - leg.loopRadius, 1e-9), 0), 1)
-    const planetWeight = this.loop ? 1 : closeness * closeness * (3 - 2 * closeness)
-    const gazePoint = vec3.lerp(vec3.create(), ahead, planet, planetWeight)
-    return this.directionTo(gazePoint)
+    const closeness = (lockStart - vec3.distance(this.position, planet)) / Math.max(lockStart - leg.loopRadius, 1e-9)
+    const planetWeight = this.loop ? 1 : smoothstep(closeness)
+    const gaze = this.directionTo(vec3.lerp(vec3.create(), ahead, planet, planetWeight))
+    if (!this.departure) return gaze
+    // Not the departed planet's live position: it falls behind as the ship pulls away, which would
+    // swing the gaze backward first and all the farther forward after.
+    return vec3.normalize(gaze, vec3.slerp(gaze, this.departure.gaze, gaze, smoothstep(this.departure.seconds / DEPARTURE_SECONDS)))
   }
 
-  private beginLeg(justVisited: SolarSystemEntity | null, moment: Moment): void {
+  private nextStop(justVisited: SolarSystemEntity | null, moment: Moment): SolarSystemEntity | null {
     const positionOf = (planet: SolarSystemEntity) => planetPosition(planet, moment.ephemeris, moment.scaleBlend)
-    const target = this.itinerary.next(this.position, positionOf, justVisited)
-    this.leg = planLeg(target, this.position, moment)
+    return this.route.itinerary.next(this.position, positionOf, justVisited)
+  }
+
+  // On to the next stop - or, at the route's end, on circling the last one.
+  private beginLeg(justVisited: SolarSystemEntity | null, target: SolarSystemEntity | null, moment: Moment): void {
+    if (!target) return this.finish()
+    // Only a planet the ship circled is one to pull away from (not one it gave up on reaching).
+    this.departure = justVisited && this.loop ? { gaze: vec3.clone(this.view.gaze), seconds: 0 } : null
+    this.leg = planLeg(target, this.position, moment, { pace: this.paceOf(target), startSpeed: this.speed })
     this.loop = null
     this.cruiseSeconds = 0
+    this.route.listener?.onLegStart?.(target)
+  }
+
+  private finish(): void {
+    this.finished = true
+    this.route.listener?.onFinished?.()
   }
 
   private directionTo(point: vec3): vec3 {

@@ -16,7 +16,7 @@ const FRAME = 1 / 60
 
 interface TourInternals {
   speed: number
-  leg: { target: SolarSystemEntity; cruiseSpeed: number; loopRadius: number } | null
+  leg: { target: SolarSystemEntity; cruiseSpeed: number; acceleration: number; loopRadius: number } | null
   loop: object | null
   throttle: { thrust: number }
   view: { look: { angularVelocity: vec3 } }
@@ -128,7 +128,7 @@ describe('TourController', () => {
     let previous = viewAxes(controller)
     const worst = { stepRatio: 0, acceleration: 0, gazeTurnRate: 0, roll: 0, rollRate: 0 }
     for (let i = 0; i < 60 * 300; i++) {
-      const engine = internals(controller).leg!.cruiseSpeed / ACCELERATION_SECONDS
+      const engine = internals(controller).leg!.acceleration
       controller.update(dt, J2000, COMPACT)
       const eye = controller.getEyePosition()
       const { speed } = internals(controller)
@@ -205,7 +205,7 @@ describe('TourController', () => {
     let previousThrust = internals(controller).throttle.thrust
     const worst = { gazeTurnAcceleration: 0, jerk: 0 }
     for (let frame = 0; frame < 60 * 300; frame++) {
-      const engine = internals(controller).leg!.cruiseSpeed / ACCELERATION_SECONDS
+      const engine = internals(controller).leg!.acceleration
       controller.update(FRAME, tourClock(frame * FRAME), COMPACT)
       const { view, throttle, loop } = internals(controller)
       worst.gazeTurnAcceleration = Math.max(worst.gazeTurnAcceleration, vec3.distance(view.look.angularVelocity, previousTurn) / FRAME)
