@@ -137,6 +137,8 @@ function createLessons(explorer: ReturnType<typeof createExplorer>, gpu: LessonG
     gpu,
   )
   const learnUi = createLearnUi(session, progress, dock)
+  // The beta note's word on the Compact scale opens View, where the scale is switched.
+  requireElement('#scale-note').addEventListener('click', () => dock.open('view'))
   new SettingsPanel(requireElement('#settings-panel'), requireElement('#settings-btn'), requireElement('#settings-close'))
   bindSettingsTabs(requireElement('#settings-tabs'))
   bindLanguageSwitch(requireElement('#language-switch'))

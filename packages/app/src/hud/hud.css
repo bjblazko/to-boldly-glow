@@ -374,8 +374,9 @@ body[data-ui-hidden] :is(.hud-modes, .hud-top-actions, .hud-dock, .hud-sheet, .h
 }
 
 /* Always there, in every mode and with the interface hidden: the app is a beta - and, while the
-   scale is Compact, that what it shows is not to scale. Quiet, and out of the way of every control
-   (no pointer events). */
+   scale is Compact, that what it shows is not to scale (a click on that opens View). Quiet, and out
+   of the way of every other control (no pointer events but that one). With the interface hidden,
+   only the beta note stays. */
 .hud-beta-note {
   max-width: min(300px, calc(100vw - 32px));
   position: fixed;
@@ -393,12 +394,29 @@ body[data-ui-hidden] :is(.hud-modes, .hud-top-actions, .hud-dock, .hud-sheet, .h
   pointer-events: none;
 }
 .hud-scale-note {
+  appearance: none;
   display: none;
-  margin-top: 2px;
+  margin: 2px 0 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  text-align: left;
   color: var(--hud-dim);
+  cursor: pointer;
+  pointer-events: auto;
+}
+.hud-scale-note:hover {
+  color: var(--hud-text);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.hud-scale-note:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
 }
 /* Follows the scale switch's choice at once, not the end of the scene's eased transition. */
-body:has(#scale-mode-compact-btn[aria-pressed='true']) .hud-scale-note {
+body:has(#scale-mode-compact-btn[aria-pressed='true']):not([data-ui-hidden]) .hud-scale-note {
   display: block;
 }
 

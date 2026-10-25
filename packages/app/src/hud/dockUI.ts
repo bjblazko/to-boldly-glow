@@ -24,6 +24,10 @@ export class DockUI {
     })
   }
 
+  open(panel: PanelName): void {
+    if (this.activePanel !== panel) this.togglePanel(panel)
+  }
+
   // Closes whichever panel is currently open, if any — used when switching between explore and
   // learn, so a sheet left open doesn't linger behind the other mode's dock.
   closeActivePanel(): void {

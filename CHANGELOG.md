@@ -197,7 +197,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - While the scale is Compact, the beta note adds that sizes and distances are not true to scale,
-  and that View changes it.
+  and a click on it opens View to change it.
 - Explore starts with the orbit paths and labels off; "Explore on my own" on the welcome card turns
   them on.
 - The tour leaves a planet calmly: it circles on until it heads for the next stop, slips out of
