@@ -81,6 +81,32 @@
         <div id="about-credits"></div>
       </div>
     </dialog>
+    <!-- The narrated tour: a welcome card that starts it (with sound, a click being the browser's
+         permission to play it), and the narrator's subtitles with a mute button while it runs. -->
+    <div id="welcome-card" class="hud-welcome" role="dialog" aria-labelledby="welcome-title" hidden>
+      <h2 id="welcome-title" class="hud-welcome-title" data-i18n="ui.welcome.title">Welcome aboard</h2>
+      <p class="hud-welcome-text" data-i18n="ui.welcome.text">A guided flight through the Solar System: from the Sun out to Neptune, and home to Earth, with a narrator telling you what makes each world special.</p>
+      <h3 class="hud-group-title" id="welcome-language-title" data-i18n="ui.welcome.language">Language</h3>
+      <div id="welcome-language" class="hud-segmented" role="group" aria-labelledby="welcome-language-title"></div>
+      <h3 class="hud-group-title" id="welcome-voice-title" data-i18n="ui.narration.voice">Narrator</h3>
+      <div id="welcome-voice" class="hud-segmented" role="group" aria-labelledby="welcome-voice-title"></div>
+      <button id="welcome-start" class="hud-btn hud-btn-primary" type="button">
+        <svg class="icon" aria-hidden="true"><use href="#icon-play"></use></svg>
+        <span data-i18n="ui.welcome.start">Start the tour</span>
+      </button>
+      <p class="hud-welcome-hint" data-i18n="ui.welcome.startHint">With sound · about 8 minutes</p>
+      <button id="welcome-explore" class="hud-btn" type="button">
+        <svg class="icon" aria-hidden="true"><use href="#icon-planet"></use></svg>
+        <span data-i18n="ui.welcome.explore">Explore on my own</span>
+      </button>
+    </div>
+    <div id="narration-bar" class="hud-narration" role="region" aria-label="Narrated tour" data-i18n-attr="aria-label:ui.narration.title" hidden>
+      <p id="narration-subtitle" class="hud-narration-text" aria-live="polite"></p>
+      <button id="narration-mute" class="hud-icon-btn" type="button" aria-pressed="false" aria-label="Mute the narrator" data-i18n-attr="aria-label:ui.narration.mute">
+        <svg class="icon icon-sound-on" aria-hidden="true"><use href="#icon-sound"></use></svg>
+        <svg class="icon icon-sound-off" aria-hidden="true"><use href="#icon-sound-off"></use></svg>
+      </button>
+    </div>
     <div id="fps-display" class="hud-fps" aria-hidden="true" hidden>— fps</div>
     <div id="camera-hint" class="hud-camera-hint" role="status" hidden></div>
     <div id="touch-flight-pad" class="hud-touch-pad" hidden>
@@ -180,6 +206,14 @@
       <symbol id="icon-chevron-down" viewBox="0 0 24 24">
         <path d="M6 9.5l6 6 6-6" />
       </symbol>
+      <symbol id="icon-sound" viewBox="0 0 24 24">
+        <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4v-5Z" />
+        <path d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.8 7.8 0 0 1 0 11" />
+      </symbol>
+      <symbol id="icon-sound-off" viewBox="0 0 24 24">
+        <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4v-5Z" />
+        <path d="M16 9.5l5 5M21 9.5l-5 5" />
+      </symbol>
       <!-- Pictograms for a planet's facts in the lesson panel (see lessonTypes.ts's FactIcon). -->
       <symbol id="icon-diameter" viewBox="0 0 24 24">
         <circle cx="12" cy="12" r="8.25" />
@@ -268,6 +302,17 @@
       </div>
       <h3 class="hud-group-title" id="language-title" data-i18n="ui.settings.language">Language</h3>
       <div id="language-switch" class="hud-segmented" role="group" aria-labelledby="language-title"></div>
+      <h3 class="hud-group-title" data-i18n="ui.narration.title">Narrated tour</h3>
+      <div id="settings-voice" class="hud-segmented" role="group" aria-label="Narrator" data-i18n-attr="aria-label:ui.narration.voice"></div>
+      <div class="hud-toggle-grid">
+        <label class="hud-toggle-chip">
+          <input id="subtitles-toggle" type="checkbox" role="switch" checked />
+          <span class="hud-toggle-visual">
+            <span class="hud-toggle-label" data-i18n="ui.narration.subtitles">Subtitles</span>
+            <span class="hud-switch" aria-hidden="true"></span>
+          </span>
+        </label>
+      </div>
       <h3 class="hud-group-title"><span data-i18n="ui.settings.graphics">Graphics</span> <span class="hud-group-hint" data-i18n="ui.settings.graphicsHint">how the picture is rendered</span></h3>
       <div class="hud-toggle-grid">
         <label class="hud-toggle-chip">

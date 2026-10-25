@@ -62,6 +62,19 @@ totality and an annular eclipse seen from the ground. **Next**: lunar eclipses, 
 eclipse dates - which needs the Moon's real orbit (its elliptical distance and its node, which
 turns once every 18.6 years) rather than today's fixed circular one.
 
+## Narrated tours and more languages
+**What**: The narrated grand tour (the Sun, Mercury to Neptune, home to Earth) is done, in English
+and German, with a synthetic narrator spoken at build time by Qwen3-TTS (see
+`packages/data-pipeline/narration/README.md`). Next:
+- A longer tour of its own with the major moons and other objects (Ceres, Pluto, a comet), each
+  with its own narration.
+- French and Spanish: a message catalog (`packages/app/src/i18n/messages/`), a narration script,
+  their names in `SUPPORTED_LOCALES` and `TTS_LANGUAGES`, and `npm run narrate`. Qwen3-TTS speaks
+  both.
+**Approach**: Reuse the route, pacing and narrator of the grand tour (`camera/tour/grandTour.ts`,
+`narration/narrator.ts`); a moon stop needs a smaller loop than a planet's and a route through the
+moon systems that doesn't zigzag.
+
 ## ISS and notable satellites
 **What**: Real-time-ish position of the ISS and a curated set of notable satellites.
 **Approach**: TLE (Two-Line Element) orbit propagation (SGP4 algorithm) added to `packages/engine`;

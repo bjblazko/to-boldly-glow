@@ -1,7 +1,8 @@
 // What the narrator says on the grand tour, stop by stop: on the way to a stop (`approach`, about
 // 15 seconds - it starts as the ship leaves the stop before) and while circling it (`orbit`, about
-// 30 seconds). Numbers below 10 are written out; larger ones, decimals and percentages are digits. The audio is made from these texts at
-// build time (see packages/data-pipeline/narration/); the subtitles show them as they are.
+// 30 seconds). British English, as the narrators speak it. Numbers below 10 are written out;
+// larger ones, decimals and percentages are digits. The audio is made from these texts at build
+// time (see packages/data-pipeline/narration/); the subtitles show them as they are.
 //
 // Sources: NASA's Planetary Fact Sheets (nssdc.gsfc.nasa.gov/planetary/factsheet) and planet pages
 // (science.nasa.gov), and the mission results named in the text (MESSENGER, Venera, Voyager,
@@ -37,7 +38,7 @@ export const en = {
       'Beneath its clouds of sulfuric acid, Venus is the hottest planet of all: about ' +
       '465 degrees, hot enough to melt lead - hotter even than Mercury. Its thick carbon dioxide ' +
       'air traps the heat, and presses down 90 times harder than Earth’s, as if you were almost a ' +
-      'kilometer under the sea. Venus also spins backwards, and so slowly that its day lasts longer than its year. ' +
+      'kilometre under the sea. Venus also spins backwards, and so slowly that its day lasts longer than its year. ' +
       'The landers that reached its surface survived for two hours at most.',
   },
   earth: {
@@ -47,19 +48,19 @@ export const en = {
     orbit:
       '71 percent of Earth’s surface is covered by liquid water - the only planet with oceans on its surface. ' +
       'It is also the densest planet in the Solar System. Right now, you are racing around the Sun at ' +
-      '30 kilometers per second, more than 100,000 kilometers an hour, without feeling ' +
+      '30 kilometres per second, more than 100,000 kilometres an hour, without feeling ' +
       'a thing. And the air we breathe? If Earth were an apple, its atmosphere would be thinner than ' +
       'the skin.',
   },
   mars: {
     approach:
-      'Now we head out to Mars, the red planet. Its color comes from rust: iron in its dust, ' +
-      'slowly oxidized over billions of years.',
+      'Now we head out to Mars, the red planet. Its colour comes from rust: iron in its dust, ' +
+      'slowly oxidised over billions of years.',
     orbit:
       'Mars is a world of extremes. Olympus Mons, the largest volcano in the Solar System, rises more ' +
-      'than twice as high as Mount Everest. Valles Marineris, a canyon 4,000 kilometers long, ' +
+      'than twice as high as Mount Everest. Valles Marineris, a canyon 4,000 kilometres long, ' +
       'reaches about as far as from Lisbon to Moscow. Its day is only 40 minutes longer than ours - but its ' +
-      'sunsets are blue. Mars has two tiny moons, and the larger one, Phobos, is slowly spiraling ' +
+      'sunsets are blue. Mars has two tiny moons, and the larger one, Phobos, is slowly spiralling ' +
       'inward. In some tens of millions of years, it will break apart.',
   },
   jupiter: {
@@ -76,9 +77,9 @@ export const en = {
   saturn: {
     approach:
       'Now the jewel of the Solar System: Saturn, and its rings. They span almost ' +
-      '300,000 kilometers - and yet they are paper thin.',
+      '300,000 kilometres - and yet they are paper thin.',
     orbit:
-      'In most places Saturn’s rings are only about 10 meters thick. They are made of countless ' +
+      'In most places Saturn’s rings are only about 10 metres thick. They are made of countless ' +
       'pieces of ice, from specks of dust to boulders as big as a house. Saturn itself is so light ' +
       'that, in a bathtub large enough, it would float. At its north pole spins a storm shaped like ' +
       'a perfect hexagon. And its largest moon, Titan, has a thick orange sky, and lakes and rivers - ' +
@@ -91,7 +92,7 @@ export const en = {
     orbit:
       'Uranus rolls around the Sun on its side: its axis is tipped over by 98 degrees. ' +
       'Since one trip around the Sun takes 84 years, each pole has 42 years of ' +
-      'daylight, followed by 42 years of night. Its blue-green color comes from methane gas. ' +
+      'daylight, followed by 42 years of night. Its blue-green colour comes from methane gas. ' +
       'And though Neptune is farther out, Uranus holds the record for the coldest air of any planet: ' +
       'minus 224 degrees.',
   },
@@ -101,7 +102,7 @@ export const en = {
       'Uranus, and then spotted right where the math said it would be.',
     orbit:
       'Sunlight needs more than four hours to reach Neptune. Here, the winds are the fastest in the ' +
-      'Solar System - up to 2,000 kilometers an hour. One orbit takes 165 ' +
+      'Solar System - up to 2,000 kilometres an hour. One orbit takes 165 ' +
       'years: since its discovery in 1846, Neptune has gone around the Sun just once. ' +
       'Its largest moon, Triton, circles it backwards, and has geysers of nitrogen ice. Only one ' +
       'spacecraft has ever been here: Voyager 2, in 1989.',

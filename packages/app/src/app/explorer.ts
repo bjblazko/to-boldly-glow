@@ -3,6 +3,8 @@ import { CameraLens } from '../camera/cameraLens'
 import { pickTarget, type PickTarget } from '../camera/entityPicking'
 import { grandTourRoute } from '../camera/tour/grandTour'
 import type { TourRoute } from '../camera/tourController'
+import { NarratedTour } from '../narration/narratedTour'
+import type { NarrationManifest } from '../narration/narrationManifest'
 import type { Obstacle } from '../camera/input/flightSpeed'
 import type { Viewpoint } from '../camera/viewpoint'
 import { CameraControls } from '../hud/cameraControls'
@@ -38,7 +40,7 @@ interface SimulationMoment {
 }
 
 // The interactive explorer around the scene: scale switch, clock, camera and its controls, search.
-export function createExplorer(canvas: HTMLCanvasElement, display: DisplaySettings, orbitPaths: OrbitPaths) {
+export function createExplorer(canvas: HTMLCanvasElement, display: DisplaySettings, orbitPaths: OrbitPaths, narrationManifest: NarrationManifest | null) {
   const scaleMode = new ScaleModeSwitch(canvas, {
     realistic: requireElement('#scale-mode-realistic-btn'),
     compact: requireElement('#scale-mode-compact-btn'),
@@ -48,7 +50,10 @@ export function createExplorer(canvas: HTMLCanvasElement, display: DisplaySettin
   const shown: { frame: ShownFrame | null } = { frame: null }
   const select = (entity: SolarSystemEntity) => selectEntity(entity, camera, display, now())
   const camera = createCamera(canvas, {
-    startTour: () => tour(grandTourRoute()),
+    startTour: () => narratedTour(),
+    tourChanged: (touring) => {
+      if (!touring) narration.end()
+    },
     pick: (x, y) => pickAt({ canvas, frame: shown.frame }, x, y, select),
     following: (entity) => searchUi.setFollowing(entity),
   })
@@ -57,11 +62,19 @@ export function createExplorer(canvas: HTMLCanvasElement, display: DisplaySettin
   lens.applyZoomFloor(scaleMode.blend)
   const bodyLabels = new BodyLabels(requireElement('#body-labels'))
   const tour = (route?: TourRoute) => startTour(camera, clock, now, route)
-  return { canvas, display, scaleMode, camera, lens, clock, timeControls: createTimeControls(clock), bodyLabels, orbitPaths, searchUi, shown, select, startTour: tour }
+  const narration = new NarratedTour(narrationManifest, requireElement)
+  // The narrator paces the grand tour and hears where it is; started from a click, so it may speak.
+  const narratedTour = () => {
+    if (camera.isTouring) camera.stopTour()
+    const narrator = narration.begin()
+    tour(grandTourRoute({ pacing: narrator, listener: narrator }))
+  }
+  return { canvas, display, scaleMode, camera, lens, clock, timeControls: createTimeControls(clock), bodyLabels, orbitPaths, searchUi, shown, select, startTour: () => tour(), startNarratedTour: narratedTour }
 }
 
 interface CameraWiring {
   startTour(): void
+  tourChanged(touring: boolean): void
   pick(x: number, y: number): void
   following(entity: SolarSystemEntity | null): void
 }
@@ -88,7 +101,10 @@ function createCamera(canvas: HTMLCanvasElement, wiring: CameraWiring): CameraDi
       hint.showMode(mode)
       pad.setVisible(mode === 'fly' && touch)
     },
-    onTourChange: (touring) => controls.showTour(touring),
+    onTourChange: (touring) => {
+      controls.showTour(touring)
+      wiring.tourChanged(touring)
+    },
     onFollowChange: (entity) => {
       if (entity) canvas.dataset.followingId = entity.id
       else delete canvas.dataset.followingId

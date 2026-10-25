@@ -19,6 +19,7 @@ export const credits: Messages['credits'] = {
     astronomia: 'VSOP87-Koeffizienten für die Positionen der Planeten',
     orbitalData: 'Drehachsen der Körper; Bahnen der Kometen, Zwergplaneten und Asteroiden',
     agx: 'Wie helles Licht zu Bildschirmfarben wird',
+    qwenTts: 'Hat die Erzählung der Tour gesprochen, auf unserem eigenen Rechner beim Bauen der App: Die Stimme ist synthetisch',
     toBoldlyGlow: 'Die App, ihr Logo, die gemalte Milchstraße, die Korona der Sonne und die Polarlichter',
   },
   changes: {

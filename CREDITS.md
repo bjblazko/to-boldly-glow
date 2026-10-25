@@ -207,6 +207,17 @@ asteroid and Kuiper belt populations are generated from the general statistics o
 (semi-major axis ranges, the Kirkwood gaps, the 3:2 resonances of the Hildas and plutinos, the
 Trojans' L4/L5 swarms); no individual catalogued object is implied.
 
+## Narration voice
+
+The narrated tour's voice (`packages/app/public/narration/`, Opus and MP3) is synthetic: it was spoken by
+**Qwen3-TTS** (https://github.com/QwenLM/Qwen3-TTS) by the Qwen team, Alibaba Cloud, code and
+model weights Apache-2.0 (`Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign` designed the two narrators, Lyra
+and Orion, from a written description, once per language - they imitate no real person - and
+`Qwen/Qwen3-TTS-12Hz-0.6B-Base` spoke every clip in their voices). It ran locally at build time (`packages/data-pipeline/narration/`); neither the model nor
+its Python dependencies ship with the app - only the audio, encoded with libopus and LAME (via
+FFmpeg). The
+narration texts were written for this project, from NASA's Planetary Fact Sheets and planet pages.
+
 ## Fonts
 
 - [Inter Tight](https://github.com/rsms/inter-tight) — © 2022 The Inter Project Authors, SIL Open

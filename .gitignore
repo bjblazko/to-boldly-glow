@@ -8,3 +8,9 @@ build/
 .superpowers/
 test-results/
 .idea/
+
+# Narration synthesis (packages/data-pipeline/narration): the Python environment and scratch output
+packages/data-pipeline/narration/.venv/
+packages/data-pipeline/narration/work/
+packages/data-pipeline/narration/texts.json
+__pycache__/

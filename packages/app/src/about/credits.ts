@@ -124,6 +124,14 @@ export const CREDIT_GROUPS: CreditGroup[] = [
         home: 'https://ssd.jpl.nasa.gov/',
       },
       {
+        name: 'Qwen3-TTS (Qwen team, Alibaba Cloud)',
+        use: TEXT.uses.qwenTts,
+        license: 'Apache-2.0',
+        home: 'https://github.com/QwenLM/Qwen3-TTS',
+        text: 'https://www.apache.org/licenses/LICENSE-2.0',
+        files: ['narration/'],
+      },
+      {
         name: 'Minimal AgX (Benjamin Wrensch, after Troy Sobotka’s AgX)',
         use: TEXT.uses.agx,
         license: TEXT.licenses.ownMethod,

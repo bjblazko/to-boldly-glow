@@ -1,0 +1,350 @@
+{
+  "encoding": "opus-32k.webm+mp3-64k",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "voices": {
+    "lyra": {
+      "clips": {
+        "de": {
+          "earth-approach": {
+            "hash": "4b2d16a53fc8b84a",
+            "seconds": 8.48
+          },
+          "earth-orbit": {
+            "hash": "369245ab8bfe2701",
+            "seconds": 24.8
+          },
+          "home-approach": {
+            "hash": "49eb02e8ecf78c4a",
+            "seconds": 8.32
+          },
+          "home-orbit": {
+            "hash": "e33751250b21b6ee",
+            "seconds": 21.92
+          },
+          "jupiter-approach": {
+            "hash": "5f65d70065c4a9cb",
+            "seconds": 10.48
+          },
+          "jupiter-orbit": {
+            "hash": "88783968459dbe32",
+            "seconds": 30.24
+          },
+          "mars-approach": {
+            "hash": "363ce1344cbdfd9f",
+            "seconds": 9.76
+          },
+          "mars-orbit": {
+            "hash": "56c2fa76440aeb68",
+            "seconds": 29.36
+          },
+          "mercury-approach": {
+            "hash": "c73e77f2d564381f",
+            "seconds": 9.6
+          },
+          "mercury-orbit": {
+            "hash": "29862c4b0929c30c",
+            "seconds": 29.52
+          },
+          "neptune-approach": {
+            "hash": "1bf6270142bd5057",
+            "seconds": 13.12
+          },
+          "neptune-orbit": {
+            "hash": "5f5638c93480535c",
+            "seconds": 28.64
+          },
+          "saturn-approach": {
+            "hash": "faa9444ec03e82cf",
+            "seconds": 8.96
+          },
+          "saturn-orbit": {
+            "hash": "a0b7fa5fbe76d9a2",
+            "seconds": 27.84
+          },
+          "sun-approach": {
+            "hash": "bbb96a7008c78c80",
+            "seconds": 15.12
+          },
+          "sun-orbit": {
+            "hash": "7625d4c203e31da1",
+            "seconds": 22.48
+          },
+          "uranus-approach": {
+            "hash": "393c5ef44ffe3601",
+            "seconds": 10.08
+          },
+          "uranus-orbit": {
+            "hash": "9bb160843957e53c",
+            "seconds": 24.48
+          },
+          "venus-approach": {
+            "hash": "f055b232f2c26cd7",
+            "seconds": 10.32
+          },
+          "venus-orbit": {
+            "hash": "d056838a9276b5ee",
+            "seconds": 28.88
+          }
+        },
+        "en": {
+          "earth-approach": {
+            "hash": "6b2598d57054fadd",
+            "seconds": 6.64
+          },
+          "earth-orbit": {
+            "hash": "ac530e5700cde150",
+            "seconds": 23.84
+          },
+          "home-approach": {
+            "hash": "a62c91e921300cfa",
+            "seconds": 8.56
+          },
+          "home-orbit": {
+            "hash": "ede9164cb7f50576",
+            "seconds": 20.16
+          },
+          "jupiter-approach": {
+            "hash": "dbd65d929a67832e",
+            "seconds": 9.44
+          },
+          "jupiter-orbit": {
+            "hash": "7338105d7c303731",
+            "seconds": 28.32
+          },
+          "mars-approach": {
+            "hash": "048ad3d129f8109b",
+            "seconds": 9.6
+          },
+          "mars-orbit": {
+            "hash": "d02bad9455723cfa",
+            "seconds": 30.64
+          },
+          "mercury-approach": {
+            "hash": "83e5d0e2215b598c",
+            "seconds": 10.32
+          },
+          "mercury-orbit": {
+            "hash": "8ee3903110c02e4c",
+            "seconds": 26.8
+          },
+          "neptune-approach": {
+            "hash": "ced169f7a11f18ac",
+            "seconds": 10.88
+          },
+          "neptune-orbit": {
+            "hash": "8e4036c7c57d7ce7",
+            "seconds": 30.56
+          },
+          "saturn-approach": {
+            "hash": "70a8dab49708a631",
+            "seconds": 12.24
+          },
+          "saturn-orbit": {
+            "hash": "e7604089bd711a95",
+            "seconds": 24.4
+          },
+          "sun-approach": {
+            "hash": "9a7b6310e934c623",
+            "seconds": 14.24
+          },
+          "sun-orbit": {
+            "hash": "d47d07edd97aa106",
+            "seconds": 22.4
+          },
+          "uranus-approach": {
+            "hash": "00b1a7636613b76f",
+            "seconds": 8.8
+          },
+          "uranus-orbit": {
+            "hash": "b881d972f2f600b7",
+            "seconds": 24.32
+          },
+          "venus-approach": {
+            "hash": "8ec0a9a15b39589b",
+            "seconds": 10.72
+          },
+          "venus-orbit": {
+            "hash": "2e467a75e26b086d",
+            "seconds": 29.6
+          }
+        }
+      },
+      "references": {
+        "de": "3a92c05a2aa35c96",
+        "en": "2af94a5932526dc5"
+      }
+    },
+    "orion": {
+      "clips": {
+        "de": {
+          "earth-approach": {
+            "hash": "b4d1c09d8319f6ac",
+            "seconds": 9.92
+          },
+          "earth-orbit": {
+            "hash": "7ae157e40efb9880",
+            "seconds": 26.08
+          },
+          "home-approach": {
+            "hash": "9ee39e6032b03861",
+            "seconds": 9.2
+          },
+          "home-orbit": {
+            "hash": "a000c6c23acf7a40",
+            "seconds": 24.88
+          },
+          "jupiter-approach": {
+            "hash": "0a70c0be1befcd84",
+            "seconds": 10.4
+          },
+          "jupiter-orbit": {
+            "hash": "1cfb8a6f2ceef50c",
+            "seconds": 30.32
+          },
+          "mars-approach": {
+            "hash": "d9c59812d64df420",
+            "seconds": 10.8
+          },
+          "mars-orbit": {
+            "hash": "82464a7e70b6082c",
+            "seconds": 32.88
+          },
+          "mercury-approach": {
+            "hash": "9ee782d6d920a448",
+            "seconds": 10.72
+          },
+          "mercury-orbit": {
+            "hash": "749ec7cf04b80e00",
+            "seconds": 30.16
+          },
+          "neptune-approach": {
+            "hash": "392bf05c96eaddfb",
+            "seconds": 12.96
+          },
+          "neptune-orbit": {
+            "hash": "bb34549e4138c66f",
+            "seconds": 31.44
+          },
+          "saturn-approach": {
+            "hash": "c5a8eb76faada8af",
+            "seconds": 10.24
+          },
+          "saturn-orbit": {
+            "hash": "891b047a4f49ce2b",
+            "seconds": 28.0
+          },
+          "sun-approach": {
+            "hash": "b811dfebd13cd28d",
+            "seconds": 14.08
+          },
+          "sun-orbit": {
+            "hash": "9a4146a84fa40d53",
+            "seconds": 23.12
+          },
+          "uranus-approach": {
+            "hash": "85986eb59874eb37",
+            "seconds": 10.8
+          },
+          "uranus-orbit": {
+            "hash": "c56712dd5949644a",
+            "seconds": 26.08
+          },
+          "venus-approach": {
+            "hash": "7420ac5f9ce5cc59",
+            "seconds": 11.36
+          },
+          "venus-orbit": {
+            "hash": "30615663286c4563",
+            "seconds": 31.28
+          }
+        },
+        "en": {
+          "earth-approach": {
+            "hash": "150a27358eaeb7a6",
+            "seconds": 6.8
+          },
+          "earth-orbit": {
+            "hash": "5b0928996df1c581",
+            "seconds": 23.28
+          },
+          "home-approach": {
+            "hash": "effbfe38d6303797",
+            "seconds": 9.2
+          },
+          "home-orbit": {
+            "hash": "17184ccfa1302be9",
+            "seconds": 19.12
+          },
+          "jupiter-approach": {
+            "hash": "a2613a40d193bf0d",
+            "seconds": 9.92
+          },
+          "jupiter-orbit": {
+            "hash": "a1bd0cc1669181b2",
+            "seconds": 28.56
+          },
+          "mars-approach": {
+            "hash": "a406436059219992",
+            "seconds": 9.76
+          },
+          "mars-orbit": {
+            "hash": "d0901f5901cb2b55",
+            "seconds": 28.64
+          },
+          "mercury-approach": {
+            "hash": "eed35d2042df8c38",
+            "seconds": 10.16
+          },
+          "mercury-orbit": {
+            "hash": "582e91833cc8ce1f",
+            "seconds": 28.08
+          },
+          "neptune-approach": {
+            "hash": "6a075a75067ccd1c",
+            "seconds": 11.68
+          },
+          "neptune-orbit": {
+            "hash": "c6cd6916d47166e0",
+            "seconds": 29.2
+          },
+          "saturn-approach": {
+            "hash": "263e26c7e0f90d73",
+            "seconds": 9.76
+          },
+          "saturn-orbit": {
+            "hash": "8d10c4a863a786bc",
+            "seconds": 26.48
+          },
+          "sun-approach": {
+            "hash": "ddcfef19c3182429",
+            "seconds": 13.44
+          },
+          "sun-orbit": {
+            "hash": "4189cf5b8902b9b6",
+            "seconds": 23.44
+          },
+          "uranus-approach": {
+            "hash": "23391273d1bb3e6d",
+            "seconds": 9.12
+          },
+          "uranus-orbit": {
+            "hash": "6dfe2681d9b01e53",
+            "seconds": 25.76
+          },
+          "venus-approach": {
+            "hash": "544cec5b4aebc36f",
+            "seconds": 10.56
+          },
+          "venus-orbit": {
+            "hash": "d9f9ef7540d84ed1",
+            "seconds": 29.68
+          }
+        }
+      },
+      "references": {
+        "de": "d63d33151b76aa40",
+        "en": "4fd12a39506b6a3d"
+      }
+    }
+  }
+}

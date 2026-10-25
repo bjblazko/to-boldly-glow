@@ -1,6 +1,21 @@
 // The interface's texts: index.html's (by data-i18n path) and the HUD's.
 export const ui = {
   beta: 'Beta version',
+  welcome: {
+    title: 'Welcome aboard',
+    text: 'A guided flight through the Solar System: from the Sun out to Neptune, and home to Earth, with a narrator telling you what makes each world special.',
+    language: 'Language',
+    start: 'Start the tour',
+    startHint: 'With sound · about 8 minutes',
+    explore: 'Explore on my own',
+  },
+  narration: {
+    mute: 'Mute the narrator',
+    unmute: 'Unmute the narrator',
+    title: 'Narrated tour',
+    subtitles: 'Subtitles',
+    voice: 'Narrator',
+  },
   modes: {
     group: 'Mode',
     explore: 'Explore',

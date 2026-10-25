@@ -2,6 +2,21 @@ import type { Messages } from '../en'
 
 export const ui: Messages['ui'] = {
   beta: 'Beta-Version',
+  welcome: {
+    title: 'Willkommen an Bord',
+    text: 'Ein geführter Flug durchs Sonnensystem: von der Sonne hinaus bis zum Neptun und zurück zur Erde – und eine Stimme erzählt dir, was jede dieser Welten besonders macht.',
+    language: 'Sprache',
+    start: 'Tour starten',
+    startHint: 'Mit Ton · etwa 8 Minuten',
+    explore: 'Selbst erkunden',
+  },
+  narration: {
+    mute: 'Erzähler stumm schalten',
+    unmute: 'Erzähler wieder einschalten',
+    title: 'Erzählte Tour',
+    subtitles: 'Untertitel',
+    voice: 'Erzählstimme',
+  },
   modes: {
     group: 'Modus',
     explore: 'Erkunden',

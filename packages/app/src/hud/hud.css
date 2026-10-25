@@ -55,6 +55,7 @@
 .hud-lesson-panel,
 .hud-phase-inset,
 .hud-camera-hint,
+.hud-welcome,
 .gpu-lost-alert {
   font-family: var(--hud-font);
   color: var(--hud-text);
@@ -72,6 +73,7 @@
 .hud-view-controls,
 .hud-lesson-panel,
 .hud-phase-inset,
+.hud-welcome,
 .gpu-lost-alert {
   --hud-slab-depth: 7px;
   background: var(--hud-glass);
@@ -94,6 +96,7 @@
 .hud-view-controls::before,
 .hud-lesson-panel::before,
 .hud-phase-inset::before,
+.hud-welcome::before,
 .gpu-lost-alert::before {
   content: '';
   position: absolute;
@@ -119,6 +122,7 @@
 .hud-view-controls::after,
 .hud-lesson-panel::after,
 .hud-phase-inset::after,
+.hud-welcome::after,
 .gpu-lost-alert::after {
   content: '';
   position: absolute;
@@ -1939,5 +1943,119 @@ body:has(.hud-library:not([hidden]), .hud-palette:not([hidden])) .hud-camera-hin
   .hud-library,
   .hud-about {
     max-height: calc(100vh - 230px);
+  }
+}
+
+/* -------------------- narrated tour -------------------- */
+/* The first thing a visitor sees: a slab in the middle of the scene, offering the narrated tour. */
+.hud-welcome {
+  --hud-slab-glow: rgba(255, 59, 189, 0.55);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 6;
+  width: min(420px, calc(100vw - 40px));
+  box-sizing: border-box;
+  padding: 22px 22px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.hud-welcome[hidden] {
+  display: none;
+}
+/* The steering hint would only crowd the card; it is for later, once the visitor takes the controls. */
+body:has(.hud-welcome:not([hidden])) .hud-camera-hint {
+  display: none;
+}
+.hud-welcome-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.hud-welcome-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--hud-dim);
+}
+.hud-welcome .hud-group-title {
+  margin: 4px 0 -4px;
+}
+.hud-welcome #welcome-start {
+  margin: 8px 0 0;
+  padding: 15px 16px;
+  font-size: 16px;
+}
+.hud-welcome-hint {
+  margin: -4px 0 4px;
+  font-family: var(--hud-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-align: center;
+  color: var(--hud-dim);
+}
+.hud-welcome #welcome-explore {
+  margin: 0;
+}
+
+/* The narrator's subtitles over the dock, like a film's; with the interface hidden they stay. */
+.hud-narration {
+  position: fixed;
+  left: 50%;
+  bottom: 104px;
+  transform: translateX(-50%);
+  z-index: 3;
+  width: min(760px, calc(100vw - 32px));
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 10px;
+  font-family: var(--hud-font);
+  pointer-events: none;
+}
+.hud-narration[hidden] {
+  display: none;
+}
+.hud-narration-text {
+  margin: 0;
+  padding: 8px 14px;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: center;
+  color: var(--hud-text);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  background: rgba(6, 8, 18, 0.62);
+  backdrop-filter: blur(12px);
+  box-shadow: var(--hud-glass-edge), 2px 2px 0 rgba(123, 92, 255, 0.6);
+}
+.hud-narration-text.is-empty,
+.hud-narration-text[hidden] {
+  visibility: hidden;
+}
+.hud-narration .hud-icon-btn {
+  pointer-events: auto;
+  background: rgba(10, 12, 26, 0.6);
+  backdrop-filter: blur(12px);
+}
+.hud-narration .icon-sound-off,
+.hud-narration [aria-pressed='true'] .icon-sound-on {
+  display: none;
+}
+.hud-narration [aria-pressed='true'] .icon-sound-off {
+  display: block;
+}
+body[data-ui-hidden] .hud-narration {
+  bottom: 24px;
+}
+@media (max-width: 480px) {
+  .hud-narration {
+    bottom: 92px;
+  }
+  .hud-narration-text {
+    font-size: 15px;
   }
 }

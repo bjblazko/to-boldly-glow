@@ -8,7 +8,9 @@
     "derive-bump-maps": "tsx src/deriveGasGiantBumpMaps.ts",
     "paint-sky": "tsx src/paintMilkyWay.ts",
     "test": "vitest run",
-    "extract-city-lights": "tsx src/extractCityLights.ts"
+    "extract-city-lights": "tsx src/extractCityLights.ts",
+    "narrate:export": "tsx src/exportNarrationTexts.ts",
+    "narrate": "npm run narrate:export && narration/.venv/bin/python narration/synthesize.py build"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

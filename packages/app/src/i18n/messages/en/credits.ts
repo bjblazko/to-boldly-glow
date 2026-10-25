@@ -18,6 +18,7 @@ export const credits = {
     astronomia: 'VSOP87 coefficients for the planets’ positions',
     orbitalData: 'Rotation axes of the bodies; orbits of comets, dwarf planets and asteroids',
     agx: 'How bright light turns into screen colors',
+    qwenTts: 'Spoke the tour’s narration, on our own computer when the app is built: the voice is synthetic',
     toBoldlyGlow: 'The app, its logo, the painted Milky Way, the Sun’s corona and the aurora',
   },
   changes: {

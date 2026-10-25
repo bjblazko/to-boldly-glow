@@ -14,6 +14,7 @@ import { FpsMeter } from '../hud/fpsMeter'
 import { InterfaceVisibility } from '../hud/interfaceVisibility'
 import { SettingsPanel } from '../hud/settingsPanel'
 import { bindLanguageSwitch } from '../hud/languageSwitch'
+import { bindVoiceSwitch } from '../narration/narratorVoice'
 import { LearnModeController } from '../learn/learnModeController'
 import { LearnUi } from '../learn/learnUi'
 import { LessonCamera } from '../learn/lessonCamera'
@@ -48,7 +49,9 @@ import { showDeviceLost } from './errorMessages'
 import { createExplorer, obstaclesIn, shownSmallBodies, type ShownFrame } from './explorer'
 import { runFrameLoop, type FrameTime } from './frameLoop'
 import { gatherPaletteItems, type PaletteActions } from './paletteItems'
-import { scheduleStartupTour, startupTourWanted } from './startupTour'
+import { startupTourWanted } from './startupTour'
+import { showWelcomeCard } from './welcomeCard'
+import { loadNarrationManifest } from '../narration/narrationManifest'
 
 type SceneFeatures = Omit<SceneParts, 'lessons'>
 
@@ -59,9 +62,9 @@ export async function startApp(canvas: HTMLCanvasElement): Promise<void> {
   fitCanvasToDisplaySize(canvas)
   const gpu = await initWebGpu(canvas)
   onDeviceLost(gpu.device, showDeviceLost)
-  const { targets, linePipeline, features, groundSky } = await createRendering(gpu, canvas)
+  const [{ targets, linePipeline, features, groundSky }, narrationManifest] = await Promise.all([createRendering(gpu, canvas), loadNarrationManifest()])
   const display = new DisplaySettings(canvas, (selector) => requireElement<HTMLInputElement>(selector))
-  const explorer = createExplorer(canvas, display, features.orbitPaths)
+  const explorer = createExplorer(canvas, display, features.orbitPaths, narrationManifest)
   const lessons = createLessons(explorer, { device: gpu.device, linePipeline }, groundSky)
   const renderer = new SceneRenderer(gpu.device, targets, { ...features, lessons }, { display, linePipeline })
   watchCanvasSize(canvas, () => {
@@ -132,6 +135,7 @@ function createLessons(explorer: ReturnType<typeof createExplorer>, gpu: LessonG
   const learnUi = createLearnUi(session, progress, dock)
   new SettingsPanel(requireElement('#settings-panel'), requireElement('#settings-btn'), requireElement('#settings-close'))
   bindLanguageSwitch(requireElement('#language-switch'))
+  bindVoiceSwitch(requireElement('#settings-voice'))
   const ui = new InterfaceVisibility(document.body, { hide: requireElement('#hide-ui-btn'), show: requireElement('#show-ui-btn') })
   const about = new AboutDialog(requireElement<HTMLDialogElement>('#about-dialog'), {
     openButton: requireElement('#about-btn'),
@@ -211,13 +215,17 @@ function frameShown(app: Explorer, time: FrameTime): void {
 }
 
 // The first frame (everything is loaded by then: startApp awaits it all) is where tests start, and
-// where the tour sets off from.
+// where the welcome card offers the tour.
 function markRendered(app: Explorer): void {
   if (app.canvas.dataset.rendered) return
   app.canvas.dataset.rendered = 'true'
   if (!startupTourWanted(window.location.search)) return
-  const exploring = () => document.body.dataset.appMode !== 'learn' && !app.canvas.dataset.followingId
-  scheduleStartupTour(app.startTour, exploring, window)
+  const elements = { card: requireElement('#welcome-card'), language: requireElement('#welcome-language'), voice: requireElement('#welcome-voice'), start: requireElement<HTMLButtonElement>('#welcome-start'), explore: requireElement<HTMLButtonElement>('#welcome-explore') }
+  showWelcomeCard(elements, {
+    startNarratedTour: () => app.startNarratedTour(),
+    startIdleTour: () => app.startTour(),
+    idleTourAllowed: () => document.body.dataset.appMode !== 'learn' && !app.canvas.dataset.followingId,
+  }, window)
 }
 
 // Labels, and what free flight and picking work from in the next frame.

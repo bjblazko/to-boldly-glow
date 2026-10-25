@@ -175,6 +175,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`packages/app/src/i18n/messages/`) shaped after the English one, so a missing translation fails
   the type check; French and Spanish can follow the same way.
 
+- A narrated tour: a welcome card offers it on load (with the language and the narrator, Lyra or
+  Orion, to pick), and Start flies from the Sun out to Neptune and home to Earth while the narrator
+  tells the most striking facts of each world - on the way there and while circling it - with
+  subtitles. The flight takes as long as the narration and waits for it at each stop. Settings
+  keep the narrator and a subtitle switch; a button mutes the narrator. Opens with "Space: the
+  final frontier" ("Der Weltraum - unendliche Weiten"). Left alone for 10 seconds, the card steps
+  aside for the silent endless tour.
+- The narration is synthetic speech, made on our own machine when the narration texts change, by
+  Qwen3-TTS (Apache-2.0; `packages/data-pipeline/narration/`), each voice designed per language so
+  German sounds German. The clips ship as Opus (WebM) and MP3, and each browser loads the one it
+  plays. A test fails while a text has no up-to-date clip.
+
 ### Changed
 
 - The tour leaves a planet calmly: it circles on until it heads for the next stop, slips out of
