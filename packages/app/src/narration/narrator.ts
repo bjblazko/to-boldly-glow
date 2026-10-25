@@ -27,10 +27,11 @@ export interface NarrationView {
 // A clip is a bit shorter than the time the ship should take for it: it arrives, and leaves, with
 // a moment of quiet.
 const TRANSIT_MARGIN_SECONDS = 3
-const LAP_MARGIN_SECONDS = 2
-// Done with a stop, the narrator turns to the next one after this breath - while the ship still
-// circles on to head for it, rather than in a silence that sounds like the end.
-const NEXT_STOP_PAUSE_MS = 1500
+const LAP_MARGIN_SECONDS = 6
+// Done with a stop, the narrator waits for the ship to set off for the next one. Where that takes
+// long - the Sun's wide loop can take nearly another lap to head for Mercury - it turns to the next
+// stop after this much quiet anyway, rather than in a silence that sounds like the end.
+const NEXT_STOP_PAUSE_MS = 5000
 const SUBTITLE_TICK_MS = 200
 
 interface Queued {

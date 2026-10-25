@@ -39,19 +39,20 @@ describe('the narrator', () => {
 
   it('paces each leg by what there is to say about its stop', () => {
     const { narrator: guide } = narrator()
-    expect(guide.pace()).toEqual({ transitSeconds: 23, lapSeconds: 22 })
+    expect(guide.pace()).toEqual({ transitSeconds: 23, lapSeconds: 26 })
     guide.onLegStart()
-    expect(guide.pace()).toEqual({ transitSeconds: 13, lapSeconds: 12 })
+    expect(guide.pace()).toEqual({ transitSeconds: 13, lapSeconds: 16 })
   })
 
-  it('turns to the next stop a breath after finishing one, while the ship still circles - and only once', () => {
+  it('turns to the next stop after a few seconds of quiet when the ship is slow to set off - and only once', () => {
     const { player, narrator: guide } = narrator()
     guide.onLegStart()
     player.end()
     guide.onLoopEnter()
     player.end()
+    vi.advanceTimersByTime(4900)
     expect(player.played.at(-1)).toBe('sun orbit')
-    vi.advanceTimersByTime(1500)
+    vi.advanceTimersByTime(100)
     expect(player.played.at(-1)).toBe('mercury approach')
     guide.onLegStart()
     expect(player.played.filter((text) => text === 'mercury approach')).toHaveLength(1)
