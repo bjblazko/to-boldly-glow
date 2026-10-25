@@ -28,10 +28,6 @@ export interface NarrationView {
 // a moment of quiet.
 const TRANSIT_MARGIN_SECONDS = 3
 const LAP_MARGIN_SECONDS = 6
-// Done with a stop, the narrator waits for the ship to set off for the next one. Where that takes
-// long - the Sun's wide loop can take nearly another lap to head for Mercury - it turns to the next
-// stop after this much quiet anyway, rather than in a silence that sounds like the end.
-const NEXT_STOP_PAUSE_MS = 5000
 const SUBTITLE_TICK_MS = 200
 
 interface Queued {
@@ -49,7 +45,6 @@ export class Narrator implements TourPacing, TourListener {
   private playing: (Queued & { cues: SubtitleCue[] }) | null = null
   private readonly spoken = new Set<string>()
   private ticker: ReturnType<typeof setInterval> | undefined
-  private nextStopTimer: ReturnType<typeof setTimeout> | undefined
 
   constructor(
     private readonly clipFor: (stop: NarrationStop, part: NarrationPart) => NarrationClip,
@@ -71,10 +66,8 @@ export class Narrator implements TourPacing, TourListener {
     return this.spoken.has(key(this.legsStarted - 1, 'orbit'))
   }
 
-  // The approach may already be spoken (see NEXT_STOP_PAUSE_MS); then it isn't again.
   onLegStart(): void {
     this.legsStarted++
-    clearTimeout(this.nextStopTimer)
     this.enqueue(this.legsStarted - 1, 'approach')
   }
 
@@ -84,7 +77,6 @@ export class Narrator implements TourPacing, TourListener {
 
   // The tour was stopped (or left): silence.
   stop(): void {
-    clearTimeout(this.nextStopTimer)
     this.queue.length = 0
     this.playing = null
     this.player.stop()
@@ -95,8 +87,7 @@ export class Narrator implements TourPacing, TourListener {
 
   private enqueue(leg: number, part: NarrationPart): void {
     const stop = GRAND_TOUR[leg]?.stop
-    const already = (entry: { leg: number; part: NarrationPart } | null) => entry?.leg === leg && entry.part === part
-    if (!stop || this.spoken.has(key(leg, part)) || already(this.playing) || this.queue.some(already)) return
+    if (!stop || this.spoken.has(key(leg, part))) return
     this.queue.push({ leg, part, clip: this.clipFor(stop, part) })
     if (!this.playing) this.playNext()
   }
@@ -115,7 +106,6 @@ export class Narrator implements TourPacing, TourListener {
     this.player.play(next.clip, () => {
       if (this.playing !== playing) return
       this.spoken.add(key(next.leg, next.part))
-      if (next.part === 'orbit') this.nextStopTimer = setTimeout(() => this.enqueue(next.leg + 1, 'approach'), NEXT_STOP_PAUSE_MS)
       this.playNext()
     })
     this.ticker ??= setInterval(() => this.showSubtitle(), SUBTITLE_TICK_MS)

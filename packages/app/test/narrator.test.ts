@@ -44,20 +44,6 @@ describe('the narrator', () => {
     expect(guide.pace()).toEqual({ transitSeconds: 13, lapSeconds: 16 })
   })
 
-  it('turns to the next stop after a few seconds of quiet when the ship is slow to set off - and only once', () => {
-    const { player, narrator: guide } = narrator()
-    guide.onLegStart()
-    player.end()
-    guide.onLoopEnter()
-    player.end()
-    vi.advanceTimersByTime(4900)
-    expect(player.played.at(-1)).toBe('sun orbit')
-    vi.advanceTimersByTime(100)
-    expect(player.played.at(-1)).toBe('mercury approach')
-    guide.onLegStart()
-    expect(player.played.filter((text) => text === 'mercury approach')).toHaveLength(1)
-  })
-
   it('speaks the approach on the way, then the rest while circling - one after the other', () => {
     const { player, narrator: guide } = narrator()
     guide.onLegStart()

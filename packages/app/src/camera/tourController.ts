@@ -36,8 +36,10 @@ const MAX_CRUISE_TRANSITS = 3
 const LOOK_AHEAD_SECONDS = 3
 const GAZE_LOCK_IN_LOOP_RADII = 6
 
-// Leaving a planet, the ship circles on until it heads within EXIT_ALIGNMENT of the next one (for
-// at most one more lap), so it slips out of its loop along the circle instead of turning around.
+// Leaving a planet, the ship circles on until it heads within EXIT_ALIGNMENT of the next one (for at
+// most one more lap), so it slips out of its loop along the circle instead of turning around - as
+// seen from above, since the next stop may lie well above or below the loop's plane (Mercury, from
+// the Sun's). A next stop inside the loop no point of the circle heads for: then it leaves at once.
 // The gaze lets go of the planet gradually: over DEPARTURE_SECONDS it eases from where it looked
 // when the ship left (the planet) over to where it would look anyway, and the turn rates of ship and
 // gaze build up from these shares of their full rates.
@@ -198,13 +200,20 @@ export class TourController {
     return Math.max(MAX_CRUISE_SECONDS, MAX_CRUISE_TRANSITS * this.paceOf(leg.target).transitSeconds)
   }
 
-  // Picks the next stop once, then circles on until heading for it (or one more lap has gone by).
-  // Without one the route is over, and the ship stays circling.
+  // Picks the next stop once, then circles on until heading for it (see EXIT_ALIGNMENT). Without
+  // one the route is over, and the ship stays circling.
   private leaveLoopTowardNext(loop: Loop, leg: Leg, moment: Moment): void {
     loop.next ??= this.nextStop(leg.target, moment) ?? undefined
     if (!loop.next) return this.finish()
-    const toNext = this.directionTo(planetPosition(loop.next, moment.ephemeris, moment.scaleBlend))
-    if (vec3.dot(this.heading, toNext) >= EXIT_ALIGNMENT || loop.angle >= 4 * Math.PI) this.beginLeg(leg.target, loop.next, moment)
+    const next = planetPosition(loop.next, moment.ephemeris, moment.scaleBlend)
+    const heading = levelAlignment(this.heading, vec3.subtract(vec3.create(), next, this.position)) >= EXIT_ALIGNMENT
+    if (heading || loop.angle >= 4 * Math.PI || this.insideLoop(loop, leg, next, moment)) this.beginLeg(leg.target, loop.next, moment)
+  }
+
+  // Whether a point lies within the loop's circle, seen from above.
+  private insideLoop(loop: Loop, leg: Leg, point: vec3, moment: Moment): boolean {
+    const center = planetPosition(leg.target, moment.ephemeris, moment.scaleBlend)
+    return Math.hypot(point[0] - center[0], point[1] - center[1]) < Math.hypot(loop.startOffset[0], loop.startOffset[1])
   }
 
   // A lap done, the route not over, and the narrator done with this stop.
@@ -370,4 +379,11 @@ export class TourController {
     const direction = vec3.subtract(vec3.create(), point, this.position)
     return vec3.length(direction) > 1e-9 ? vec3.normalize(direction, direction) : vec3.clone(this.heading)
   }
+}
+
+// How well a direction heads for a point, seen from above (both flattened onto the ecliptic).
+function levelAlignment(direction: vec3, toPoint: vec3): number {
+  const a = Math.hypot(direction[0], direction[1])
+  const b = Math.hypot(toPoint[0], toPoint[1])
+  return a > 1e-9 && b > 1e-9 ? (direction[0] * toPoint[0] + direction[1] * toPoint[1]) / (a * b) : 1
 }

@@ -79,6 +79,19 @@ describe('a set route', () => {
     expect(internals(controller).loop).not.toBeNull()
   })
 
+  it('leaves the Sun soon after it may - Mercury lies far above or below the Sun’s wide loop, which held the ship for another lap', () => {
+    let mayLeaveAt = Infinity
+    let flown = 0
+    const { controller, events } = routeFlight({ pace: () => ({ transitSeconds: 15, lapSeconds: 30 }), mayDepart: () => flown >= mayLeaveAt })
+    fly(controller, 120, (t) => {
+      flown = t
+      if (events.at(-1) === 'loop sun' && mayLeaveAt === Infinity) mayLeaveAt = t + 30
+      if (events.at(-1) === 'leg mercury' && !events.includes('left')) events.push('left', `after ${Math.round(t - mayLeaveAt)}`)
+    })
+    const after = Number(events.find((event) => event.startsWith('after'))!.split(' ')[1])
+    expect(after).toBeLessThan(12)
+  })
+
   it('takes as long at a stop as the pace asks, and stays until it may leave', () => {
     let mayLeaveSun = false
     const { controller, events } = routeFlight({
