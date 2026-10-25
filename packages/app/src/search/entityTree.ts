@@ -1,5 +1,6 @@
 import type { MoonDefinition } from '../solarSystem/moons'
 import { matchesSearchQuery, type EntityKind, type SolarSystemEntity } from '../solarSystem/entities'
+import { msg } from '../i18n/i18n'
 
 // One row of the object tree: a body, and the moons listed under it.
 export interface EntityTreeNode {
@@ -14,12 +15,13 @@ export interface EntityTreeGroup {
   nodes: EntityTreeNode[]
 }
 
+const GROUP_NAMES = msg.ui.find.groups
 const GROUPS: { id: string; label: string; kind: EntityKind }[] = [
-  { id: 'sun', label: 'Sun', kind: 'sun' },
-  { id: 'planets', label: 'Planets', kind: 'planet' },
-  { id: 'dwarfPlanets', label: 'Dwarf planets', kind: 'dwarfPlanet' },
-  { id: 'asteroids', label: 'Asteroids', kind: 'asteroid' },
-  { id: 'comets', label: 'Comets', kind: 'comet' },
+  { id: 'sun', label: GROUP_NAMES.sun, kind: 'sun' },
+  { id: 'planets', label: GROUP_NAMES.planets, kind: 'planet' },
+  { id: 'dwarfPlanets', label: GROUP_NAMES.dwarfPlanets, kind: 'dwarfPlanet' },
+  { id: 'asteroids', label: GROUP_NAMES.asteroids, kind: 'asteroid' },
+  { id: 'comets', label: GROUP_NAMES.comets, kind: 'comet' },
 ]
 
 // Groups the bodies by kind and hangs each moon under its planet. Moons never form a group of

@@ -1,6 +1,7 @@
 import type { LessonProgress } from './lessonProgress'
 import type { Lesson } from './lessonTypes'
 import type { LessonTopic } from './lessons/lessonCatalog'
+import { msg } from '../i18n/i18n'
 
 export interface LessonLibraryElements {
   dialog: HTMLElement
@@ -43,7 +44,7 @@ export class LessonLibrary {
       .map((topic) => ({ title: topic.title, lessons: topic.lessons.filter((lesson) => matches(lesson, query)) }))
       .filter((topic) => topic.lessons.length > 0)
       .map((topic) => this.renderShelf(topic))
-    if (shelves.length === 0) shelves.push(Object.assign(document.createElement('p'), { className: 'hud-library-empty', textContent: 'No lesson matches' }))
+    if (shelves.length === 0) shelves.push(Object.assign(document.createElement('p'), { className: 'hud-library-empty', textContent: msg.ui.lesson.noMatch }))
     this.elements.topics.replaceChildren(...shelves)
   }
 
@@ -64,7 +65,7 @@ export class LessonLibrary {
     card.className = 'hud-lesson-card'
     card.dataset.lessonId = lesson.id
     const status = this.progress.status(lesson)
-    const meta = [`${lesson.chapters.length} chapters`, status].filter(Boolean).join(' · ')
+    const meta = [msg.ui.lesson.chapterCount(lesson.chapters.length), status].filter(Boolean).join(' · ')
     card.append(
       Object.assign(document.createElement('span'), { className: 'hud-lesson-card-title', textContent: lesson.title }),
       Object.assign(document.createElement('span'), { className: 'hud-lesson-card-meta', textContent: meta }),

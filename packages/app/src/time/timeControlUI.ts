@@ -1,4 +1,5 @@
 import { SimulationClock, shuttleValueToTimeScale, TIME_SCALE_PRESETS } from './simulationClock'
+import { msg } from '../i18n/i18n'
 
 const MAX_SHUTTLE_SECONDS_PER_SECOND = TIME_SCALE_PRESETS[TIME_SCALE_PRESETS.length - 1].secondsPerSecond
 
@@ -72,6 +73,6 @@ export class TimeControlUI {
     const paused = this.clock.isPaused()
     this.elements.playPauseButton.classList.toggle('is-paused', paused)
     const label = this.elements.playPauseButton.querySelector<HTMLElement>('.btn-label')
-    if (label) label.textContent = paused ? 'Play' : 'Pause'
+    if (label) label.textContent = paused ? msg.ui.time.play : msg.ui.time.pause
   }
 }

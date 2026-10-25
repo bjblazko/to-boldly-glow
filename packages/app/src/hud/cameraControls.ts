@@ -1,6 +1,7 @@
 import { isTextEntryTarget } from '../camera/inputController'
 import type { CameraDirector } from '../camera/cameraDirector'
 import type { CameraMode } from '../camera/inputController'
+import { msg } from '../i18n/i18n'
 
 export interface CameraControlElements {
   canvas: HTMLCanvasElement
@@ -37,10 +38,10 @@ export class CameraControls {
   }
 
   showMode(mode: CameraMode): void {
-    if (this.modeLabel) this.modeLabel.textContent = mode === 'orbit' ? 'Switch to Free-fly Camera' : 'Switch to Orbit Camera'
+    if (this.modeLabel) this.modeLabel.textContent = mode === 'orbit' ? msg.ui.camera.toFly : msg.ui.camera.toOrbit
   }
 
   showTour(touring: boolean): void {
-    if (this.tourLabel) this.tourLabel.textContent = touring ? 'Stop Tour' : 'Start Tour'
+    if (this.tourLabel) this.tourLabel.textContent = touring ? msg.ui.camera.stopTour : msg.ui.camera.startTour
   }
 }

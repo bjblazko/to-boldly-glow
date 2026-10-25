@@ -9,28 +9,28 @@
     <div id="scene-wrapper">
       <canvas id="scene"></canvas>
       <div id="body-labels"></div>
-      <div id="location-a-label" class="body-label" hidden>Location A</div>
-      <div id="location-b-label" class="body-label" hidden>Location B</div>
+      <div id="location-a-label" class="body-label" data-i18n="scene.labels.locationA" hidden>Location A</div>
+      <div id="location-b-label" class="body-label" data-i18n="scene.labels.locationB" hidden>Location B</div>
       <div id="axis-tilt-label" class="body-label" hidden></div>
-      <div id="axis-line-label" class="body-label" hidden>Rotation Axis (23.4° tilt)</div>
-      <div id="equator-line-label" class="body-label" hidden>Equator</div>
-      <div id="reference-line-label" class="body-label" hidden>Reference (⊥ to Sun)</div>
-      <div id="toward-sun-label" class="body-label" hidden>Toward the Sun</div>
+      <div id="axis-line-label" class="body-label" data-i18n="scene.labels.rotationAxis" hidden>Rotation Axis (23.4° tilt)</div>
+      <div id="equator-line-label" class="body-label" data-i18n="scene.labels.equator" hidden>Equator</div>
+      <div id="reference-line-label" class="body-label" data-i18n="scene.labels.reference" hidden>Reference (⊥ to Sun)</div>
+      <div id="toward-sun-label" class="body-label" data-i18n="scene.labels.towardSun" hidden>Toward the Sun</div>
       <div id="right-angle-label" class="body-label" hidden>90°</div>
       <div id="eclipse-umbra-label" class="body-label" hidden></div>
       <div id="eclipse-penumbra-label" class="body-label" hidden></div>
-      <div id="eclipse-moon-orbit-label" class="body-label" hidden>Moon's orbit</div>
-      <div id="eclipse-orbit-plane-label" class="body-label" hidden>Plane of Earth's orbit</div>
-      <div id="eclipse-glasses-label" class="body-label" hidden>Seen through eclipse glasses</div>
-      <div id="eclipse-corona-label" class="body-label" hidden>Corona</div>
-      <div id="phases-sunlight-label" class="body-label" hidden>Sunlight</div>
-      <div id="phases-new-label" class="body-label" hidden>New moon</div>
-      <div id="phases-first-quarter-label" class="body-label" hidden>First quarter</div>
-      <div id="phases-full-label" class="body-label" hidden>Full moon</div>
-      <div id="phases-last-quarter-label" class="body-label" hidden>Last quarter</div>
-      <div id="phases-earth-shadow-label" class="body-label" hidden>Earth's shadow</div>
-      <div id="phases-moon-orbit-label" class="body-label" hidden>Moon's orbit</div>
-      <div id="phases-near-side-label" class="body-label" hidden>Near side</div>
+      <div id="eclipse-moon-orbit-label" class="body-label" data-i18n="scene.labels.moonOrbit" hidden>Moon's orbit</div>
+      <div id="eclipse-orbit-plane-label" class="body-label" data-i18n="scene.labels.earthOrbitPlane" hidden>Plane of Earth's orbit</div>
+      <div id="eclipse-glasses-label" class="body-label" data-i18n="scene.labels.eclipseGlasses" hidden>Seen through eclipse glasses</div>
+      <div id="eclipse-corona-label" class="body-label" data-i18n="scene.labels.corona" hidden>Corona</div>
+      <div id="phases-sunlight-label" class="body-label" data-i18n="scene.labels.sunlight" hidden>Sunlight</div>
+      <div id="phases-new-label" class="body-label" data-i18n="scene.phases.newMoon" hidden>New moon</div>
+      <div id="phases-first-quarter-label" class="body-label" data-i18n="scene.phases.firstQuarter" hidden>First quarter</div>
+      <div id="phases-full-label" class="body-label" data-i18n="scene.phases.fullMoon" hidden>Full moon</div>
+      <div id="phases-last-quarter-label" class="body-label" data-i18n="scene.phases.lastQuarter" hidden>Last quarter</div>
+      <div id="phases-earth-shadow-label" class="body-label" data-i18n="scene.labels.earthShadow" hidden>Earth's shadow</div>
+      <div id="phases-moon-orbit-label" class="body-label" data-i18n="scene.labels.moonOrbit" hidden>Moon's orbit</div>
+      <div id="phases-near-side-label" class="body-label" data-i18n="scene.labels.nearSide" hidden>Near side</div>
     </div>
 
     <div id="moon-phase-inset" class="hud-phase-inset" hidden>
@@ -39,58 +39,58 @@
         <path id="moon-phase-lit" class="hud-phase-lit" d="" />
       </svg>
       <div class="hud-phase-caption">
-        <span class="hud-phase-heading">Seen from Earth</span>
+        <span class="hud-phase-heading" data-i18n="scene.phases.seenFromEarth">Seen from Earth</span>
         <span id="moon-phase-name"></span>
         <span id="moon-phase-lit-share" class="hud-phase-share"></span>
       </div>
     </div>
 
-    <div class="hud-beta-note">Beta version</div>
+    <div class="hud-beta-note" data-i18n="ui.beta">Beta version</div>
     <dialog id="about-dialog" class="hud-about" aria-labelledby="about-title">
       <div class="hud-sheet-head">
         <svg class="icon" aria-hidden="true"><use href="#icon-info"></use></svg>
-        <h2 id="about-title" class="hud-sheet-title">About To Boldly Glow</h2>
-        <button id="about-close" class="hud-close" type="button" aria-label="Close">
+        <h2 id="about-title" class="hud-sheet-title" data-i18n="ui.about.title">About To Boldly Glow</h2>
+        <button id="about-close" class="hud-close" type="button" aria-label="Close" data-i18n-attr="aria-label:ui.about.close">
           <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
         </button>
       </div>
       <div class="hud-about-body">
         <p>
-          The solar system, live in your browser: explore it, or learn why there are seasons, Moon phases and eclipses.
-          This is a <strong>beta version</strong>.
+          <span data-i18n="ui.about.intro">The solar system, live in your browser: explore it, or learn why there are seasons, Moon phases and eclipses.</span>
+          <span data-i18n="ui.about.betaBefore">This is a </span><strong data-i18n="ui.about.beta">beta version</strong><span data-i18n="ui.about.betaAfter">.</span>
         </p>
-        <p>Made by Timo Böwing.</p>
+        <p data-i18n="ui.about.madeBy">Made by Timo Böwing.</p>
         <ul class="hud-about-links">
-          <li><a href="https://huepattl.de/products/to-boldly-glow" target="_blank" rel="noopener">Project page</a></li>
-          <li><a href="https://github.com/bjblazko/to-boldly-glow" target="_blank" rel="noopener">Source code on GitHub</a></li>
-          <li><a href="https://huepattl.de/impressum" target="_blank" rel="noopener">Imprint</a></li>
-          <li><a href="https://huepattl.de/privacy" target="_blank" rel="noopener">Privacy</a></li>
+          <li><a href="https://huepattl.de/products/to-boldly-glow" target="_blank" rel="noopener" data-i18n="ui.about.projectPage">Project page</a></li>
+          <li><a href="https://github.com/bjblazko/to-boldly-glow" target="_blank" rel="noopener" data-i18n="ui.about.sourceCode">Source code on GitHub</a></li>
+          <li><a href="https://huepattl.de/impressum" target="_blank" rel="noopener" data-i18n="ui.about.imprint">Imprint</a></li>
+          <li><a href="https://huepattl.de/privacy" target="_blank" rel="noopener" data-i18n="ui.about.privacy">Privacy</a></li>
         </ul>
-        <h3 class="hud-group-title">Your data</h3>
-        <p>
+        <h3 class="hud-group-title" data-i18n="ui.about.yourData">Your data</h3>
+        <p data-i18n="ui.about.yourDataText">
           The app loads only its own files from this site. Nothing you do in it is sent anywhere: no tracking, no update
-          check. Where you left a lesson is remembered in this browser only.
+          check. Where you left a lesson and your language are remembered in this browser only.
         </p>
-        <h3 class="hud-group-title">License</h3>
+        <h3 class="hud-group-title" data-i18n="ui.about.license">License</h3>
         <p>
-          MIT License: free to use, change and share. Provided as is, without any warranty, as far as the law allows.
-          <a href="licenses/to-boldly-glow.txt" target="_blank" rel="noopener">License text</a>
+          <span data-i18n="ui.about.licenseText">MIT License: free to use, change and share. Provided as is, without any warranty, as far as the law allows. </span>
+          <a href="licenses/to-boldly-glow.txt" target="_blank" rel="noopener" data-i18n="ui.about.licenseLink">License text</a>
         </p>
-        <h2 class="hud-about-subtitle">Licenses and thanks</h2>
-        <p>To Boldly Glow builds on the work of others. Thank you.</p>
+        <h2 class="hud-about-subtitle" data-i18n="ui.about.thanks">Licenses and thanks</h2>
+        <p data-i18n="ui.about.thanksText">To Boldly Glow builds on the work of others. Thank you.</p>
         <div id="about-credits"></div>
       </div>
     </dialog>
     <div id="fps-display" class="hud-fps" aria-hidden="true" hidden>— fps</div>
     <div id="camera-hint" class="hud-camera-hint" role="status" hidden></div>
     <div id="touch-flight-pad" class="hud-touch-pad" hidden>
-      <div id="touch-flight-stick" class="hud-touch-stick" aria-label="Fly">
+      <div id="touch-flight-stick" class="hud-touch-stick" aria-label="Fly" data-i18n-attr="aria-label:ui.touch.fly">
         <div id="touch-flight-knob" class="hud-touch-knob"></div>
       </div>
       <div class="hud-touch-buttons">
-        <button id="touch-flight-up" class="hud-touch-btn" type="button" aria-label="Up">▲</button>
-        <button id="touch-flight-boost" class="hud-touch-btn" type="button" aria-label="Boost">⚡</button>
-        <button id="touch-flight-down" class="hud-touch-btn" type="button" aria-label="Down">▼</button>
+        <button id="touch-flight-up" class="hud-touch-btn" type="button" aria-label="Up" data-i18n-attr="aria-label:ui.touch.up">▲</button>
+        <button id="touch-flight-boost" class="hud-touch-btn" type="button" aria-label="Boost" data-i18n-attr="aria-label:ui.touch.boost">⚡</button>
+        <button id="touch-flight-down" class="hud-touch-btn" type="button" aria-label="Down" data-i18n-attr="aria-label:ui.touch.down">▼</button>
       </div>
     </div>
 
@@ -231,74 +231,76 @@
     </svg>
 
     <!-- Top bar: the Explore / Learn mode switch, and search-everything and settings on the right. -->
-    <div class="hud-modes" role="group" aria-label="Mode">
+    <div class="hud-modes" role="group" aria-label="Mode" data-i18n-attr="aria-label:ui.modes.group">
       <button id="explore-mode-btn" class="hud-mode-btn is-active" type="button" aria-pressed="true">
-        <svg class="icon" aria-hidden="true"><use href="#icon-planet"></use></svg><span>Explore</span>
+        <svg class="icon" aria-hidden="true"><use href="#icon-planet"></use></svg><span data-i18n="ui.modes.explore">Explore</span>
       </button>
       <button id="learn-mode-btn" class="hud-mode-btn" type="button" aria-pressed="false">
-        <svg class="icon" aria-hidden="true"><use href="#icon-book"></use></svg><span>Learn</span>
+        <svg class="icon" aria-hidden="true"><use href="#icon-book"></use></svg><span data-i18n="ui.modes.learn">Learn</span>
       </button>
     </div>
     <div class="hud-top-actions">
-      <button id="palette-btn" class="hud-top-btn" type="button" aria-label="Search everything" title="Search everything (Ctrl+K)">
+      <button id="palette-btn" class="hud-top-btn" type="button" aria-label="Search everything" title="Search everything (Ctrl+K)" data-i18n-attr="aria-label:ui.top.search;title:ui.top.searchTitle">
         <svg class="icon" aria-hidden="true"><use href="#icon-search"></use></svg>
       </button>
-      <button id="settings-btn" class="hud-top-btn" type="button" aria-label="Settings" aria-expanded="false" aria-controls="settings-panel">
+      <button id="settings-btn" class="hud-top-btn" type="button" aria-label="Settings" data-i18n-attr="aria-label:ui.top.settings" aria-expanded="false" aria-controls="settings-panel">
         <svg class="icon" aria-hidden="true"><use href="#icon-sliders"></use></svg>
       </button>
-      <button id="about-btn" class="hud-top-btn" type="button" aria-label="About, imprint and licenses" title="About, imprint and licenses" aria-haspopup="dialog" aria-controls="about-dialog">
+      <button id="about-btn" class="hud-top-btn" type="button" aria-label="About, imprint and licenses" title="About, imprint and licenses" data-i18n-attr="aria-label:ui.top.about;title:ui.top.about" aria-haspopup="dialog" aria-controls="about-dialog">
         <svg class="icon" aria-hidden="true"><use href="#icon-info"></use></svg>
       </button>
-      <button id="hide-ui-btn" class="hud-top-btn" type="button" aria-label="Hide interface" title="Hide interface (H)">
+      <button id="hide-ui-btn" class="hud-top-btn" type="button" aria-label="Hide interface" title="Hide interface (H)" data-i18n-attr="aria-label:ui.top.hide;title:ui.top.hideTitle">
         <svg class="icon" aria-hidden="true"><use href="#icon-eye-off"></use></svg>
       </button>
     </div>
     <!-- With the interface hidden, the one control left: in the hide button's spot, it brings everything back. -->
-    <button id="show-ui-btn" class="hud-show-ui" type="button" aria-label="Show interface" title="Show interface (H)" hidden>
+    <button id="show-ui-btn" class="hud-show-ui" type="button" aria-label="Show interface" title="Show interface (H)" data-i18n-attr="aria-label:ui.top.show;title:ui.top.showTitle" hidden>
       <svg class="icon" aria-hidden="true"><use href="#icon-eye"></use></svg>
     </button>
 
     <div id="settings-panel" class="hud-popover hud-settings" hidden>
       <div class="hud-sheet-head">
         <svg class="icon" aria-hidden="true"><use href="#icon-sliders"></use></svg>
-        <h2 class="hud-sheet-title">Settings</h2>
-        <button class="hud-close" type="button" id="settings-close" aria-label="Close settings">
+        <h2 class="hud-sheet-title" data-i18n="ui.settings.title">Settings</h2>
+        <button class="hud-close" type="button" id="settings-close" aria-label="Close settings" data-i18n-attr="aria-label:ui.settings.close">
           <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
         </button>
       </div>
-      <h3 class="hud-group-title">Graphics <span class="hud-group-hint">how the picture is rendered</span></h3>
+      <h3 class="hud-group-title" id="language-title" data-i18n="ui.settings.language">Language</h3>
+      <div id="language-switch" class="hud-segmented" role="group" aria-labelledby="language-title"></div>
+      <h3 class="hud-group-title"><span data-i18n="ui.settings.graphics">Graphics</span> <span class="hud-group-hint" data-i18n="ui.settings.graphicsHint">how the picture is rendered</span></h3>
       <div class="hud-toggle-grid">
         <label class="hud-toggle-chip">
           <input id="bloom-toggle" type="checkbox" role="switch" checked />
           <span class="hud-toggle-visual">
-            <span class="hud-toggle-label">Bloom</span>
+            <span class="hud-toggle-label" data-i18n="ui.settings.bloom">Bloom</span>
             <span class="hud-switch" aria-hidden="true"></span>
           </span>
         </label>
         <label class="hud-toggle-chip">
           <input id="flares-toggle" type="checkbox" role="switch" checked />
           <span class="hud-toggle-visual">
-            <span class="hud-toggle-label">Lens flares</span>
+            <span class="hud-toggle-label" data-i18n="ui.settings.flares">Lens flares</span>
             <span class="hud-switch" aria-hidden="true"></span>
           </span>
         </label>
-        <label class="hud-toggle-chip" title="Frames per second, in the lower left corner">
+        <label class="hud-toggle-chip" title="Frames per second, in the lower left corner" data-i18n-attr="title:ui.settings.fpsTitle">
           <input id="fps-toggle" type="checkbox" role="switch" />
           <span class="hud-toggle-visual">
-            <span class="hud-toggle-label">FPS counter</span>
+            <span class="hud-toggle-label" data-i18n="ui.settings.fps">FPS counter</span>
             <span class="hud-switch" aria-hidden="true"></span>
           </span>
         </label>
       </div>
     </div>
 
-    <div id="command-palette" class="hud-palette" role="dialog" aria-label="Search everything" hidden>
+    <div id="command-palette" class="hud-palette" role="dialog" aria-label="Search everything" data-i18n-attr="aria-label:ui.top.search" hidden>
       <div class="hud-search">
         <svg class="icon" aria-hidden="true"><use href="#icon-search"></use></svg>
-        <input id="palette-input" type="text" placeholder="Objects, lessons, settings…" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="true" aria-controls="palette-results" />
+        <input id="palette-input" type="text" placeholder="Objects, lessons, settings…" data-i18n-attr="placeholder:ui.palette.placeholder" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="true" aria-controls="palette-results" />
         <kbd class="hud-kbd">Esc</kbd>
       </div>
-      <ul id="palette-results" class="hud-palette-results" role="listbox" aria-label="Results"></ul>
+      <ul id="palette-results" class="hud-palette-results" role="listbox" aria-label="Results" data-i18n-attr="aria-label:ui.palette.results"></ul>
     </div>
 
     <div class="hud-sheet" id="hud-sheet">
@@ -306,19 +308,19 @@
         <div class="hud-sheet-panel" data-panel="find">
           <div class="hud-sheet-head">
             <svg class="icon" aria-hidden="true"><use href="#icon-search"></use></svg>
-            <h2 class="hud-sheet-title">Find</h2>
-            <button class="hud-close" type="button" data-sheet-close aria-label="Close find panel">
+            <h2 class="hud-sheet-title" data-i18n="ui.find.title">Find</h2>
+            <button class="hud-close" type="button" data-sheet-close aria-label="Close find panel" data-i18n-attr="aria-label:ui.find.close">
               <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
             </button>
           </div>
           <div class="hud-search">
             <svg class="icon" aria-hidden="true"><use href="#icon-search"></use></svg>
-            <input id="entity-search-input" type="text" placeholder="Search the Sun, planets, moons, comets…" autocomplete="off" spellcheck="false" data-focus-on-open />
+            <input id="entity-search-input" type="text" placeholder="Search the Sun, planets, moons, comets…" data-i18n-attr="placeholder:ui.find.placeholder" autocomplete="off" spellcheck="false" data-focus-on-open />
           </div>
-          <div id="entity-tree" class="hud-tree" aria-label="Objects"></div>
+          <div id="entity-tree" class="hud-tree" aria-label="Objects" data-i18n-attr="aria-label:ui.find.tree"></div>
           <div id="follow-indicator" class="hud-chip" hidden>
             <span id="follow-indicator-label"></span>
-            <button id="follow-stop-button" class="hud-chip-close" type="button" aria-label="Stop following">
+            <button id="follow-stop-button" class="hud-chip-close" type="button" aria-label="Stop following" data-i18n-attr="aria-label:ui.find.stopFollowing">
               <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
             </button>
           </div>
@@ -327,26 +329,26 @@
         <div class="hud-sheet-panel" data-panel="camera">
           <div class="hud-sheet-head">
             <svg class="icon" aria-hidden="true"><use href="#icon-camera"></use></svg>
-            <h2 class="hud-sheet-title">Camera</h2>
-            <button class="hud-close" type="button" data-sheet-close aria-label="Close camera panel">
+            <h2 class="hud-sheet-title" data-i18n="ui.camera.title">Camera</h2>
+            <button class="hud-close" type="button" data-sheet-close aria-label="Close camera panel" data-i18n-attr="aria-label:ui.camera.close">
               <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
             </button>
           </div>
           <button id="camera-mode-toggle" class="hud-btn hud-btn-primary" type="button">
             <svg class="icon" aria-hidden="true"><use href="#icon-camera"></use></svg>
-            <span class="btn-label">Switch to Free-fly Camera</span>
+            <span class="btn-label" data-i18n="ui.camera.toFly">Switch to Free-fly Camera</span>
           </button>
           <button id="camera-tour-toggle" class="hud-btn" type="button">
             <svg class="icon" aria-hidden="true"><use href="#icon-camera"></use></svg>
-            <span class="btn-label">Start Tour</span>
+            <span class="btn-label" data-i18n="ui.camera.startTour">Start Tour</span>
           </button>
         </div>
 
         <div class="hud-sheet-panel" data-panel="time">
           <div class="hud-sheet-head">
             <svg class="icon" aria-hidden="true"><use href="#icon-clock"></use></svg>
-            <h2 class="hud-sheet-title">Time</h2>
-            <button class="hud-close" type="button" data-sheet-close aria-label="Close time panel">
+            <h2 class="hud-sheet-title" data-i18n="ui.time.title">Time</h2>
+            <button class="hud-close" type="button" data-sheet-close aria-label="Close time panel" data-i18n-attr="aria-label:ui.time.close">
               <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
             </button>
           </div>
@@ -354,9 +356,9 @@
             <button id="time-play-pause" class="hud-icon-btn" type="button">
               <svg class="icon icon-pause-glyph" aria-hidden="true"><use href="#icon-pause"></use></svg>
               <svg class="icon icon-play-glyph" aria-hidden="true"><use href="#icon-play"></use></svg>
-              <span class="btn-label">Pause</span>
+              <span class="btn-label" data-i18n="ui.time.pause">Pause</span>
             </button>
-            <button id="time-reverse" class="hud-icon-btn" type="button" aria-label="Reverse direction">
+            <button id="time-reverse" class="hud-icon-btn" type="button" aria-label="Reverse direction" data-i18n-attr="aria-label:ui.time.reverse">
               <svg class="icon" aria-hidden="true"><use href="#icon-reverse"></use></svg>
             </button>
             <select id="time-preset-select" class="hud-select"></select>
@@ -378,14 +380,15 @@
                   max="100"
                   value="0"
                   aria-label="Time rate — negative rewinds, positive fast-forwards, center is stopped"
+                  data-i18n-attr="aria-label:ui.time.shuttle"
                 />
               </div>
               <svg class="icon hud-shuttle-end" aria-hidden="true"><use href="#icon-forward"></use></svg>
             </div>
             <div class="hud-shuttle-labels" aria-hidden="true">
-              <span>Past</span>
-              <span class="hud-shuttle-now">Now</span>
-              <span>Future</span>
+              <span data-i18n="ui.time.past">Past</span>
+              <span class="hud-shuttle-now" data-i18n="ui.time.now">Now</span>
+              <span data-i18n="ui.time.future">Future</span>
             </div>
           </div>
 
@@ -395,83 +398,83 @@
         <div class="hud-sheet-panel" data-panel="view">
           <div class="hud-sheet-head">
             <svg class="icon" aria-hidden="true"><use href="#icon-layers"></use></svg>
-            <h2 class="hud-sheet-title">View</h2>
-            <button class="hud-close" type="button" data-sheet-close aria-label="Close view panel">
+            <h2 class="hud-sheet-title" data-i18n="ui.view.title">View</h2>
+            <button class="hud-close" type="button" data-sheet-close aria-label="Close view panel" data-i18n-attr="aria-label:ui.view.close">
               <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
             </button>
           </div>
-          <div class="hud-segmented" role="group" aria-label="Scale mode">
-            <button id="scale-mode-realistic-btn" class="hud-segmented-btn" type="button" aria-pressed="false">Realistic</button>
-            <button id="scale-mode-compact-btn" class="hud-segmented-btn" type="button" aria-pressed="true">Compact</button>
+          <div class="hud-segmented" role="group" aria-label="Scale mode" data-i18n-attr="aria-label:ui.view.scaleMode">
+            <button id="scale-mode-realistic-btn" class="hud-segmented-btn" type="button" aria-pressed="false" data-i18n="ui.view.realistic">Realistic</button>
+            <button id="scale-mode-compact-btn" class="hud-segmented-btn" type="button" aria-pressed="true" data-i18n="ui.view.compact">Compact</button>
           </div>
-          <h3 class="hud-group-title">Orbits &amp; labels</h3>
+          <h3 class="hud-group-title" data-i18n="ui.view.orbitsAndLabels">Orbits &amp; labels</h3>
           <div class="hud-toggle-grid">
             <label class="hud-toggle-chip">
               <input id="orbit-paths-toggle" type="checkbox" role="switch" checked />
               <span class="hud-toggle-visual">
-                <span class="hud-toggle-label">Planet orbits</span>
+                <span class="hud-toggle-label" data-i18n="ui.view.planetOrbits">Planet orbits</span>
                 <span class="hud-switch" aria-hidden="true"></span>
               </span>
             </label>
             <label class="hud-toggle-chip">
               <input id="small-body-orbits-toggle" type="checkbox" role="switch" />
               <span class="hud-toggle-visual">
-                <span class="hud-toggle-label">Comet &amp; dwarf orbits</span>
+                <span class="hud-toggle-label" data-i18n="ui.view.smallBodyOrbits">Comet &amp; dwarf orbits</span>
                 <span class="hud-switch" aria-hidden="true"></span>
               </span>
             </label>
             <label class="hud-toggle-chip">
               <input id="body-labels-toggle" type="checkbox" role="switch" checked />
               <span class="hud-toggle-visual">
-                <span class="hud-toggle-label">Labels</span>
+                <span class="hud-toggle-label" data-i18n="ui.view.labels">Labels</span>
                 <span class="hud-switch" aria-hidden="true"></span>
               </span>
             </label>
           </div>
-          <h3 class="hud-group-title">Bodies</h3>
+          <h3 class="hud-group-title" data-i18n="ui.view.bodies">Bodies</h3>
           <div class="hud-toggle-grid">
             <label class="hud-toggle-chip">
               <input id="moons-toggle" type="checkbox" role="switch" checked />
               <span class="hud-toggle-visual">
-                <span class="hud-toggle-label">Moons</span>
+                <span class="hud-toggle-label" data-i18n="ui.view.moons">Moons</span>
                 <span class="hud-switch" aria-hidden="true"></span>
               </span>
             </label>
             <label class="hud-toggle-chip">
               <input id="asteroids-toggle" type="checkbox" role="switch" checked />
               <span class="hud-toggle-visual">
-                <span class="hud-toggle-label">Asteroids</span>
+                <span class="hud-toggle-label" data-i18n="ui.view.asteroids">Asteroids</span>
                 <span class="hud-switch" aria-hidden="true"></span>
               </span>
             </label>
             <label class="hud-toggle-chip">
               <input id="comets-toggle" type="checkbox" role="switch" checked />
               <span class="hud-toggle-visual">
-                <span class="hud-toggle-label">Comets</span>
+                <span class="hud-toggle-label" data-i18n="ui.view.comets">Comets</span>
                 <span class="hud-switch" aria-hidden="true"></span>
               </span>
             </label>
             <label class="hud-toggle-chip">
               <input id="clouds-toggle" type="checkbox" role="switch" checked />
               <span class="hud-toggle-visual">
-                <span class="hud-toggle-label">Earth's clouds</span>
+                <span class="hud-toggle-label" data-i18n="ui.view.clouds">Earth's clouds</span>
                 <span class="hud-switch" aria-hidden="true"></span>
               </span>
             </label>
           </div>
-          <h3 class="hud-group-title">Sky</h3>
+          <h3 class="hud-group-title" data-i18n="ui.view.sky">Sky</h3>
           <div class="hud-toggle-grid">
             <label class="hud-toggle-chip">
               <input id="starfield-toggle" type="checkbox" role="switch" checked />
               <span class="hud-toggle-visual">
-                <span class="hud-toggle-label">Stars</span>
+                <span class="hud-toggle-label" data-i18n="ui.view.stars">Stars</span>
                 <span class="hud-switch" aria-hidden="true"></span>
               </span>
             </label>
             <label class="hud-toggle-chip">
               <input id="milky-way-toggle" type="checkbox" role="switch" checked />
               <span class="hud-toggle-visual">
-                <span class="hud-toggle-label">Milky Way</span>
+                <span class="hud-toggle-label" data-i18n="ui.view.milkyWay">Milky Way</span>
                 <span class="hud-switch" aria-hidden="true"></span>
               </span>
             </label>
@@ -480,70 +483,70 @@
       </div>
     </div>
 
-    <nav class="hud-dock hud-explore-dock" aria-label="Explore">
+    <nav class="hud-dock hud-explore-dock" aria-label="Explore" data-i18n-attr="aria-label:ui.dock.explore">
       <button class="hud-dock-btn" data-panel="find" type="button">
         <svg class="icon" aria-hidden="true"><use href="#icon-search"></use></svg>
-        <span class="hud-dock-label">Find</span>
+        <span class="hud-dock-label" data-i18n="ui.dock.find">Find</span>
       </button>
       <button class="hud-dock-btn" data-panel="camera" type="button">
         <svg class="icon" aria-hidden="true"><use href="#icon-camera"></use></svg>
-        <span class="hud-dock-label">Camera</span>
+        <span class="hud-dock-label" data-i18n="ui.dock.camera">Camera</span>
       </button>
       <button class="hud-dock-btn" data-panel="time" type="button">
         <svg class="icon" aria-hidden="true"><use href="#icon-clock"></use></svg>
-        <span class="hud-dock-label">Time</span>
+        <span class="hud-dock-label" data-i18n="ui.dock.time">Time</span>
       </button>
       <button class="hud-dock-btn" data-panel="view" type="button">
         <svg class="icon" aria-hidden="true"><use href="#icon-layers"></use></svg>
-        <span class="hud-dock-label">View</span>
+        <span class="hud-dock-label" data-i18n="ui.dock.view">View</span>
       </button>
     </nav>
 
-    <nav class="hud-dock hud-lesson-dock" aria-label="Lesson">
+    <nav class="hud-dock hud-lesson-dock" aria-label="Lesson" data-i18n-attr="aria-label:ui.dock.lesson">
       <button id="lesson-library-btn" class="hud-dock-btn" type="button">
         <svg class="icon" aria-hidden="true"><use href="#icon-book"></use></svg>
-        <span class="hud-dock-label">Library</span>
+        <span class="hud-dock-label" data-i18n="ui.dock.library">Library</span>
       </button>
       <button id="lesson-sort-btn" class="hud-dock-btn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="lesson-sort-menu" hidden>
         <svg class="icon" aria-hidden="true"><use href="#icon-sort"></use></svg>
-        <span class="hud-dock-label">Sort</span>
+        <span class="hud-dock-label" data-i18n="ui.dock.sort">Sort</span>
       </button>
-      <button id="lesson-prev-chapter" class="hud-dock-btn" type="button" aria-label="Previous chapter">
+      <button id="lesson-prev-chapter" class="hud-dock-btn" type="button" aria-label="Previous chapter" data-i18n-attr="aria-label:ui.dock.previousChapter">
         <svg class="icon" aria-hidden="true"><use href="#icon-prev"></use></svg>
-        <span class="hud-dock-label">Back</span>
+        <span class="hud-dock-label" data-i18n="ui.dock.back">Back</span>
       </button>
       <button id="lesson-chapter-btn" class="hud-dock-btn hud-chapter-btn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="lesson-chapter-menu">
         <span id="lesson-chapter-count" class="hud-chapter-count"></span>
-        <span class="hud-dock-label">Chapters</span>
+        <span class="hud-dock-label" data-i18n="ui.dock.chapters">Chapters</span>
       </button>
-      <button id="lesson-next-chapter" class="hud-dock-btn" type="button" aria-label="Next chapter">
+      <button id="lesson-next-chapter" class="hud-dock-btn" type="button" aria-label="Next chapter" data-i18n-attr="aria-label:ui.dock.nextChapter">
         <svg class="icon" aria-hidden="true"><use href="#icon-next"></use></svg>
-        <span class="hud-dock-label">Next</span>
+        <span class="hud-dock-label" data-i18n="ui.dock.next">Next</span>
       </button>
       <button class="hud-dock-btn" data-panel="view" type="button">
         <svg class="icon" aria-hidden="true"><use href="#icon-layers"></use></svg>
-        <span class="hud-dock-label">View</span>
+        <span class="hud-dock-label" data-i18n="ui.dock.view">View</span>
       </button>
     </nav>
     <div id="lesson-chapter-menu" class="hud-popover hud-chapter-menu" hidden>
       <ol id="lesson-chapter-list" class="hud-chapter-list"></ol>
     </div>
     <div id="lesson-sort-menu" class="hud-popover hud-chapter-menu" hidden>
-      <p class="hud-sort-heading" id="lesson-sort-heading">Line the planets up by</p>
+      <p class="hud-sort-heading" id="lesson-sort-heading" data-i18n="ui.lesson.sortHeading">Line the planets up by</p>
       <ul id="lesson-sort-list" class="hud-chapter-list hud-sort-list" aria-labelledby="lesson-sort-heading"></ul>
     </div>
 
-    <div id="lesson-library" class="hud-library" role="dialog" aria-label="Lessons" hidden>
+    <div id="lesson-library" class="hud-library" role="dialog" aria-label="Lessons" data-i18n-attr="aria-label:ui.lesson.library" hidden>
       <div class="hud-sheet-head">
         <svg class="icon" aria-hidden="true"><use href="#icon-book"></use></svg>
-        <h2 class="hud-sheet-title">Lessons</h2>
-        <button class="hud-close" type="button" id="library-close" aria-label="Close the lesson library">
+        <h2 class="hud-sheet-title" data-i18n="ui.lesson.library">Lessons</h2>
+        <button class="hud-close" type="button" id="library-close" aria-label="Close the lesson library" data-i18n-attr="aria-label:ui.lesson.closeLibrary">
           <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
         </button>
       </div>
       <div class="hud-search">
         <svg class="icon" aria-hidden="true"><use href="#icon-search"></use></svg>
-        <input id="library-search" type="text" placeholder="Search lessons…" autocomplete="off" spellcheck="false" />
+        <input id="library-search" type="text" placeholder="Search lessons…" data-i18n-attr="placeholder:ui.lesson.searchPlaceholder" autocomplete="off" spellcheck="false" />
       </div>
       <div id="library-topics" class="hud-library-topics"></div>
     </div>
@@ -554,7 +557,7 @@
       </div>
       <div class="hud-lesson-panel-head">
         <span id="lesson-chapter-title" class="hud-lesson-title"></span>
-        <button id="lesson-text-toggle" class="hud-close hud-collapse" type="button" aria-expanded="true" aria-controls="lesson-panel-body" aria-label="Hide the text">
+        <button id="lesson-text-toggle" class="hud-close hud-collapse" type="button" aria-expanded="true" aria-controls="lesson-panel-body" aria-label="Hide the text" data-i18n-attr="aria-label:ui.lesson.hideText">
           <svg class="icon" aria-hidden="true"><use href="#icon-chevron-down"></use></svg>
         </button>
       </div>
@@ -565,14 +568,14 @@
       </div>
     </div>
 
-    <div id="lesson-view-controls" class="hud-view-controls" role="group" aria-label="Lesson view">
-      <button id="lesson-zoom-in" class="hud-icon-btn" type="button" aria-label="Zoom in" title="Zoom in - or scroll, or pinch">
+    <div id="lesson-view-controls" class="hud-view-controls" role="group" aria-label="Lesson view" data-i18n-attr="aria-label:ui.lesson.viewControls">
+      <button id="lesson-zoom-in" class="hud-icon-btn" type="button" aria-label="Zoom in" title="Zoom in - or scroll, or pinch" data-i18n-attr="aria-label:ui.lesson.zoomIn;title:ui.lesson.zoomInTitle">
         <svg class="icon" aria-hidden="true"><use href="#icon-plus"></use></svg>
       </button>
-      <button id="lesson-zoom-out" class="hud-icon-btn" type="button" aria-label="Zoom out" title="Zoom out - or scroll, or pinch">
+      <button id="lesson-zoom-out" class="hud-icon-btn" type="button" aria-label="Zoom out" title="Zoom out - or scroll, or pinch" data-i18n-attr="aria-label:ui.lesson.zoomOut;title:ui.lesson.zoomOutTitle">
         <svg class="icon" aria-hidden="true"><use href="#icon-minus"></use></svg>
       </button>
-      <button id="lesson-view-reset" class="hud-icon-btn" type="button" aria-label="Back to the lesson's view" title="Back to the lesson's view - drag the scene to turn it a little">
+      <button id="lesson-view-reset" class="hud-icon-btn" type="button" aria-label="Back to the lesson's view" title="Back to the lesson's view - drag the scene to turn it a little" data-i18n-attr="aria-label:ui.lesson.resetView;title:ui.lesson.resetViewTitle">
         <svg class="icon" aria-hidden="true"><use href="#icon-reset"></use></svg>
       </button>
     </div>

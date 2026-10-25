@@ -1,3 +1,5 @@
+import { msg } from '../i18n/i18n'
+
 export type PaletteGroup = 'Objects' | 'Lessons' | 'Settings'
 
 // One thing the palette can find and do.
@@ -10,6 +12,11 @@ export interface PaletteItem {
 }
 
 const GROUP_ORDER: PaletteGroup[] = ['Objects', 'Lessons', 'Settings']
+const GROUP_NAMES: Record<PaletteGroup, string> = {
+  Objects: msg.ui.palette.groups.objects,
+  Lessons: msg.ui.palette.groups.lessons,
+  Settings: msg.ui.palette.groups.settings,
+}
 // With nothing typed, each group shows only its first few items.
 const UNFILTERED_PER_GROUP = 6
 const FILTERED_PER_GROUP = 12
@@ -131,7 +138,7 @@ export class CommandPalette {
 }
 
 function groupHeading(group: PaletteGroup): HTMLElement {
-  const heading = Object.assign(document.createElement('li'), { className: 'hud-palette-group', textContent: group })
+  const heading = Object.assign(document.createElement('li'), { className: 'hud-palette-group', textContent: GROUP_NAMES[group] })
   heading.setAttribute('role', 'presentation')
   return heading
 }

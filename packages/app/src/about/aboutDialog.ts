@@ -1,4 +1,5 @@
 import { CREDIT_GROUPS, type Credit, type CreditGroup } from './credits'
+import { msg } from '../i18n/i18n'
 
 // The About dialog behind the top right info button: who makes the app, where it lives, what (not)
 // leaves the browser, its license, and the licenses and thanks for everything it ships. A native
@@ -41,10 +42,10 @@ function renderCredit(credit: Credit): HTMLElement {
   const name = Object.assign(document.createElement('span'), { className: 'hud-credit-name', textContent: credit.name })
   const use = Object.assign(document.createElement('span'), { className: 'hud-credit-use', textContent: credit.use })
   item.append(name, use)
-  if (credit.changes) item.append(Object.assign(document.createElement('span'), { className: 'hud-credit-use', textContent: `Changes: ${credit.changes}` }))
+  if (credit.changes) item.append(Object.assign(document.createElement('span'), { className: 'hud-credit-use', textContent: msg.ui.about.changes(credit.changes) }))
   const meta = Object.assign(document.createElement('span'), { className: 'hud-credit-meta' })
-  meta.append(Object.assign(document.createElement('span'), { textContent: credit.license }), link('Website', credit.home))
-  if (credit.text) meta.append(link('License text', credit.text))
+  meta.append(Object.assign(document.createElement('span'), { textContent: credit.license }), link(msg.ui.about.website, credit.home))
+  if (credit.text) meta.append(link(msg.ui.about.licenseLink, credit.text))
   item.append(meta)
   return item
 }

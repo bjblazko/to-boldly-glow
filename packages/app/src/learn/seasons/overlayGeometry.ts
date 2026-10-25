@@ -1,5 +1,6 @@
 import { mat3, mat4, vec3, type ReadonlyVec3 } from 'gl-matrix'
 import type { Vec3 } from '../../math/tuples'
+import { formatFixed, msg } from '../../i18n/i18n'
 
 // Geometry of the seasons lesson's overlay lines. Functions taking `earthWorld` (Earth's world
 // matrix: translation * tilt, no scale) work in Earth-local space, polar axis = local +Z as on every
@@ -207,6 +208,7 @@ export function meridianLongitudeFacing(tilt: mat4, worldDirection: readonly [nu
 export function sunLeanLabel(subsolarLatitudeRadians: number): string {
   const degrees = (Math.abs(subsolarLatitudeRadians) * 180) / Math.PI
   const shown = degrees.toFixed(1)
-  if (shown === '0.0') return '0.0° (tilt points sideways)'
-  return `${shown}° ${subsolarLatitudeRadians > 0 ? 'toward' : 'away from'} the Sun`
+  const labels = msg.scene.labels
+  if (shown === '0.0') return labels.tiltSideways(formatFixed(0, 1))
+  return (subsolarLatitudeRadians > 0 ? labels.tiltTowardSun : labels.tiltAwayFromSun)(formatFixed(degrees, 1))
 }

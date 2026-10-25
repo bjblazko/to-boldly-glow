@@ -3,6 +3,7 @@ import type { LessonPlayer } from './lessonPlayer'
 import { LessonSortMenu } from './lessonSortMenu'
 import type { ChapterFact } from './lessonTypes'
 import { MenuPopover } from './menuPopover'
+import { msg } from '../i18n/i18n'
 
 type Find = <T extends HTMLElement>(selector: string) => T
 
@@ -87,7 +88,7 @@ export class LessonPanel {
     this.el.body.hidden = folded
     this.el.panel.classList.toggle('is-folded', folded)
     this.el.foldButton.setAttribute('aria-expanded', String(!folded))
-    this.el.foldButton.setAttribute('aria-label', folded ? 'Show the text' : 'Hide the text')
+    this.el.foldButton.setAttribute('aria-label', folded ? msg.ui.lesson.showText : msg.ui.lesson.hideText)
   }
 
   private renderFacts(facts: ChapterFact[]): void {

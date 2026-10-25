@@ -3,6 +3,7 @@ import { degreesToRadians, type Vec3 } from '../../math/tuples'
 import { ECLIPTIC_NORTH } from '../../solarSystem/poleOrientation'
 import { MOON_ORBIT_RADIUS, MOON_RADIUS, perpendicularUnit, stagedMoonPosition } from '../eclipse/eclipseGeometry'
 import type { GroundShot } from '../ground/groundShot'
+import { msg } from '../../i18n/i18n'
 
 // The Moon phases lesson stages the same Earth and Moon as the solar eclipse lesson (see
 // eclipse/eclipseGeometry.ts), on the Sun's +X side - but ten times farther from the Sun. The Moon's
@@ -50,21 +51,22 @@ export function wrapDegrees(degrees: number): number {
   return ((degrees % 360) + 360) % 360
 }
 
+const PHASES = msg.scene.phases
 const PHASE_NAMES: [upTo: number, name: string][] = [
-  [8, 'New moon'],
-  [82, 'Waxing crescent'],
-  [98, 'First quarter'],
-  [172, 'Waxing gibbous'],
-  [188, 'Full moon'],
-  [262, 'Waning gibbous'],
-  [278, 'Last quarter'],
-  [352, 'Waning crescent'],
-  [360, 'New moon'],
+  [8, PHASES.newMoon],
+  [82, PHASES.waxingCrescent],
+  [98, PHASES.firstQuarter],
+  [172, PHASES.waxingGibbous],
+  [188, PHASES.fullMoon],
+  [262, PHASES.waningGibbous],
+  [278, PHASES.lastQuarter],
+  [352, PHASES.waningCrescent],
+  [360, PHASES.newMoon],
 ]
 
 export function phaseName(ageDegrees: number): string {
   const age = wrapDegrees(ageDegrees)
-  return PHASE_NAMES.find(([upTo]) => age < upTo)?.[1] ?? 'New moon'
+  return PHASE_NAMES.find(([upTo]) => age < upTo)?.[1] ?? PHASES.newMoon
 }
 
 // The Moon seen from Earth's center (where the ground chapters' camera stands): its angular radius.

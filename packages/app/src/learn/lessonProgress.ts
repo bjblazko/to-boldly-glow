@@ -1,4 +1,5 @@
 import type { Lesson } from './lessonTypes'
+import { msg } from '../i18n/i18n'
 
 // How far a learner got in one lesson.
 export interface LessonRecord {
@@ -45,8 +46,8 @@ export class LessonProgress {
 
   status(lesson: Lesson): string {
     const record = this.records[lesson.id]
-    if (record?.done) return 'Done'
-    if (record && record.chapter > 0) return `Continue at chapter ${Math.min(record.chapter, lesson.chapters.length - 1) + 1}`
+    if (record?.done) return msg.ui.lesson.done
+    if (record && record.chapter > 0) return msg.ui.lesson.continueAt(Math.min(record.chapter, lesson.chapters.length - 1) + 1)
     return ''
   }
 }

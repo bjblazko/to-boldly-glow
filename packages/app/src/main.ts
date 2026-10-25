@@ -7,6 +7,10 @@ import './app/page.css'
 import './hud/hud.css'
 import { startApp } from './app/app'
 import { showStartupError } from './app/errorMessages'
+import { applyStaticTranslations, locale } from './i18n/i18n'
+
+document.documentElement.lang = locale
+applyStaticTranslations(document)
 
 const canvas = document.querySelector<HTMLCanvasElement>('#scene')
 if (!canvas) throw new Error('Canvas element #scene not found.')

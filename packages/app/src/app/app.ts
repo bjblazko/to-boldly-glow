@@ -13,6 +13,7 @@ import { DockUI } from '../hud/dockUI'
 import { FpsMeter } from '../hud/fpsMeter'
 import { InterfaceVisibility } from '../hud/interfaceVisibility'
 import { SettingsPanel } from '../hud/settingsPanel'
+import { bindLanguageSwitch } from '../hud/languageSwitch'
 import { LearnModeController } from '../learn/learnModeController'
 import { LearnUi } from '../learn/learnUi'
 import { LessonCamera } from '../learn/lessonCamera'
@@ -130,6 +131,7 @@ function createLessons(explorer: ReturnType<typeof createExplorer>, gpu: LessonG
   )
   const learnUi = createLearnUi(session, progress, dock)
   new SettingsPanel(requireElement('#settings-panel'), requireElement('#settings-btn'), requireElement('#settings-close'))
+  bindLanguageSwitch(requireElement('#language-switch'))
   const ui = new InterfaceVisibility(document.body, { hide: requireElement('#hide-ui-btn'), show: requireElement('#show-ui-btn') })
   const about = new AboutDialog(requireElement<HTMLDialogElement>('#about-dialog'), {
     openButton: requireElement('#about-btn'),

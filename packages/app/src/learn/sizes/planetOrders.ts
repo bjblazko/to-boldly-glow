@@ -1,3 +1,4 @@
+import { msg } from '../../i18n/i18n'
 import { PLANETS } from '../../solarSystem/bodies'
 import { formatCelsius, formatDistance, formatHours, formatNumber, formatTimesEarth, formatYear, TYPE_NAMES } from './planetFormat'
 import { PLANET_STATS, type PlanetStats, type PlanetType } from './planetStats'
@@ -19,85 +20,85 @@ export interface PlanetOrder {
   note: (stats: PlanetStats, id: string) => string
 }
 
+// The order's name and hint in the Sort menu, from the catalog (an empty hint: none).
+function orderText(id: keyof typeof msg.planets.orders): Pick<PlanetOrder, 'name' | 'hint'> {
+  const { name, hint } = msg.planets.orders[id]
+  return hint ? { name, hint } : { name }
+}
+
 const siderealYearDays = (id: string) => PLANETS.find((planet) => planet.id === id)!.siderealPeriodDays!
 
 // The first is the lesson's own order.
 export const PLANET_ORDERS: PlanetOrder[] = [
   {
     id: 'distance',
-    name: 'Out from the Sun',
+    ...orderText('distance'),
     key: (stats) => stats.averageDistanceKm,
     note: (stats) => formatDistance(stats.averageDistanceKm),
   },
   {
     id: 'size',
-    name: 'Size',
+    ...orderText('size'),
     key: (stats) => stats.diameterKm,
     descending: true,
     note: (stats) => `${formatNumber(stats.diameterKm)} km`,
   },
   {
     id: 'mass',
-    name: 'Mass',
+    ...orderText('mass'),
     key: (stats) => stats.massEarths,
     descending: true,
     note: (stats) => formatTimesEarth(stats.massEarths),
   },
   {
     id: 'type',
-    name: 'Rock, gas or ice',
+    ...orderText('type'),
     key: (stats) => TYPE_RANKS[stats.type],
     note: (stats) => TYPE_NAMES[stats.type],
   },
   {
     id: 'speed',
-    name: 'Speed around the Sun',
-    hint: 'The closer to the Sun, the faster a planet flies.',
+    ...orderText('speed'),
     key: (stats) => stats.orbitalSpeedKmPerS,
     descending: true,
     note: (stats) => `${formatNumber(stats.orbitalSpeedKmPerS, 1)} km/s`,
   },
   {
     id: 'day',
-    name: 'Length of a day',
-    hint: 'From one sunrise to the next - not the same as one spin.',
+    ...orderText('day'),
     key: (stats) => stats.solarDayHours,
     note: (stats) => formatHours(stats.solarDayHours),
   },
   {
     id: 'year',
-    name: 'Length of a year',
+    ...orderText('year'),
     key: (_, id) => siderealYearDays(id),
     note: (_, id) => formatYear(siderealYearDays(id)),
   },
   {
     id: 'temperature',
-    name: 'Temperature',
-    hint: 'On average. On the giants: at the top of their clouds.',
+    ...orderText('temperature'),
     key: (stats) => stats.meanTemperatureC,
     descending: true,
     note: (stats) => formatCelsius(stats.meanTemperatureC),
   },
   {
     id: 'density',
-    name: 'Density',
-    hint: 'Water has 1 g/cm³ - Saturn would float in it.',
+    ...orderText('density'),
     key: (stats) => stats.densityKgPerM3,
     descending: true,
     note: (stats) => `${formatNumber(stats.densityKgPerM3 / 1000, 2)} g/cm³`,
   },
   {
     id: 'gravity',
-    name: 'Gravity',
-    hint: 'How heavy you would feel. On the giants: at the top of their clouds.',
+    ...orderText('gravity'),
     key: (stats) => stats.gravityMPerS2,
     descending: true,
     note: (stats) => formatTimesEarth(stats.gravityMPerS2 / EARTH_GRAVITY_M_PER_S2),
   },
   {
     id: 'tilt',
-    name: 'Axial tilt',
-    hint: 'Over 90°, a planet spins backwards.',
+    ...orderText('tilt'),
     key: (stats) => stats.axialTiltDegrees,
     note: (stats) => `${formatNumber(stats.axialTiltDegrees, 1)}°`,
   },

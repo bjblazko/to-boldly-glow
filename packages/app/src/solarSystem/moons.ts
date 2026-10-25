@@ -1,3 +1,5 @@
+import { bodyName } from '../i18n/i18n'
+
 export interface MoonDefinition {
   id: string
   name: string
@@ -67,7 +69,7 @@ export interface MoonDefinition {
 export const MOONS: MoonDefinition[] = [
   {
     id: 'moon',
-    name: 'Moon',
+    name: bodyName('moon'),
     parentId: 'earth',
     color: [0.75, 0.75, 0.72],
     radiusKm: 1737.4,
@@ -82,7 +84,7 @@ export const MOONS: MoonDefinition[] = [
   },
   {
     id: 'io',
-    name: 'Io',
+    name: bodyName('io'),
     parentId: 'jupiter',
     color: [0.9, 0.8, 0.5],
     radiusKm: 1821.6,
@@ -96,7 +98,7 @@ export const MOONS: MoonDefinition[] = [
   },
   {
     id: 'europa',
-    name: 'Europa',
+    name: bodyName('europa'),
     parentId: 'jupiter',
     color: [0.85, 0.8, 0.75],
     radiusKm: 1560.8,
@@ -111,7 +113,7 @@ export const MOONS: MoonDefinition[] = [
   },
   {
     id: 'ganymede',
-    name: 'Ganymede',
+    name: bodyName('ganymede'),
     parentId: 'jupiter',
     color: [0.7, 0.65, 0.6],
     radiusKm: 2634.1,
@@ -126,7 +128,7 @@ export const MOONS: MoonDefinition[] = [
   },
   {
     id: 'callisto',
-    name: 'Callisto',
+    name: bodyName('callisto'),
     parentId: 'jupiter',
     color: [0.55, 0.5, 0.45],
     radiusKm: 2410.3,
@@ -141,7 +143,7 @@ export const MOONS: MoonDefinition[] = [
   },
   {
     id: 'titan',
-    name: 'Titan',
+    name: bodyName('titan'),
     parentId: 'saturn',
     color: [0.85, 0.7, 0.4],
     radiusKm: 2574.7,
@@ -159,7 +161,7 @@ export const MOONS: MoonDefinition[] = [
   },
   {
     id: 'titania',
-    name: 'Titania',
+    name: bodyName('titania'),
     parentId: 'uranus',
     color: [0.6, 0.6, 0.65],
     radiusKm: 788.4,
@@ -172,7 +174,7 @@ export const MOONS: MoonDefinition[] = [
   },
   {
     id: 'oberon',
-    name: 'Oberon',
+    name: bodyName('oberon'),
     parentId: 'uranus',
     color: [0.55, 0.55, 0.6],
     radiusKm: 761.4,
@@ -185,7 +187,7 @@ export const MOONS: MoonDefinition[] = [
   },
   {
     id: 'triton',
-    name: 'Triton',
+    name: bodyName('triton'),
     parentId: 'neptune',
     color: [0.85, 0.8, 0.78],
     radiusKm: 1353.4,

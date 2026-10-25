@@ -1,15 +1,11 @@
 import type { CameraMode } from '../camera/inputController'
 import { speedFactor } from '../camera/input/flightSpeed'
+import { formatFixed, msg } from '../i18n/i18n'
 
+const TEXT = msg.ui.camera
 const HINTS: Record<CameraMode, { pointer: string; touch: string }> = {
-  orbit: {
-    pointer: 'Drag to orbit · scroll to zoom · WASD/arrows turn · double-click a body to fly there',
-    touch: 'Drag to orbit · pinch to zoom · double-tap a body to fly there',
-  },
-  fly: {
-    pointer: 'WASD/arrows fly · drag to look · R/F up/down · Q/E roll · Shift boost · scroll sets speed',
-    touch: 'Stick to fly · drag to look · ▲▼ up/down · hold ⚡ to boost · pinch sets speed',
-  },
+  orbit: { pointer: TEXT.hints.orbitPointer, touch: TEXT.hints.orbitTouch },
+  fly: { pointer: TEXT.hints.flyPointer, touch: TEXT.hints.flyTouch },
 }
 const HINT_SECONDS = 7
 const SPEED_SECONDS = 1.5
@@ -30,7 +26,7 @@ export class CameraHint {
 
   showSpeedLevel(level: number): void {
     const factor = speedFactor(level)
-    this.show(`Flight speed ×${factor >= 1 ? factor.toFixed(factor < 10 ? 1 : 0) : `1/${(1 / factor).toFixed(1)}`}`, SPEED_SECONDS)
+    this.show(TEXT.flightSpeed(factor >= 1 ? formatFixed(factor, factor < 10 ? 1 : 0) : `1/${formatFixed(1 / factor, 1)}`), SPEED_SECONDS)
   }
 
   hide(): void {

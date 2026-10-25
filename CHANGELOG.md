@@ -169,6 +169,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   what data leaves the browser (none), the MIT license and no-warranty note, and "Licenses and
   thanks" for every library, font, image and data set the app ships, with the license texts now
   shipped alongside the app (`licenses/`). A test keeps the list complete.
+- German: the whole app - controls, body names, lessons, numbers - speaks English or German. It
+  follows the browser's language, a link can ask for one with `?lang=de`, and the Settings panel
+  has a language switch that is remembered in the browser. Texts live in per-language catalogs
+  (`packages/app/src/i18n/messages/`) shaped after the English one, so a missing translation fails
+  the type check; French and Spanish can follow the same way.
 
 ### Changed
 

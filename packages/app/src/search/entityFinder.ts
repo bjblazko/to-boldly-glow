@@ -1,5 +1,6 @@
 import { ALL_ENTITIES, type SolarSystemEntity } from '../solarSystem/entities'
 import { buildEntityTree, filterEntityTree, firstMatch, type EntityTreeGroup, type EntityTreeNode } from './entityTree'
+import { msg } from '../i18n/i18n'
 
 export interface EntityFinderElements {
   input: HTMLInputElement
@@ -43,7 +44,7 @@ export class EntityFinder {
   }
 
   setFollowing(entity: SolarSystemEntity | null): void {
-    if (entity) this.elements.followLabel.textContent = `Following: ${entity.name}`
+    if (entity) this.elements.followLabel.textContent = msg.ui.find.following(entity.name)
     this.elements.followIndicator.hidden = !entity
     this.followingId = entity?.id ?? null
     this.render()
@@ -84,7 +85,7 @@ export class EntityFinder {
     const groups = filterEntityTree(this.groups, this.query)
     const filtering = this.query.trim() !== ''
     const content = groups.map((group) => this.renderGroup(group, filtering))
-    if (content.length === 0) content.push(Object.assign(document.createElement('p'), { className: 'hud-tree-empty', textContent: 'Nothing found' }))
+    if (content.length === 0) content.push(Object.assign(document.createElement('p'), { className: 'hud-tree-empty', textContent: msg.ui.find.nothingFound }))
     this.elements.tree.replaceChildren(...content)
   }
 

@@ -19,6 +19,7 @@ import {
   type Sphere,
 } from './eclipseGeometry'
 import type { EclipseLabels } from './eclipseLabels'
+import { msg } from '../../i18n/i18n'
 
 const ORBIT_SEGMENTS = 96
 const OUTLINE_SEGMENTS = 96
@@ -129,8 +130,8 @@ function farSideOf(orbit: Float32Array): Vec3 {
 
 function placeDiagramLabels(lines: Record<DiagramLineId, Float32Array>, moon: Sphere, { viewpoint, labels }: OverlayFrame): void {
   const place = (label: HTMLElement, point: ArrayLike<number>) => placeLabel(label, projectToCss(viewpoint, point))
-  setText(labels.umbra, 'Umbra')
-  setText(labels.penumbra, 'Penumbra')
+  setText(labels.umbra, msg.scene.labels.umbra)
+  setText(labels.penumbra, msg.scene.labels.penumbra)
   // Halfway from the Moon to the umbra's tip; the penumbra's near the far end of its edge.
   const tip = lines['umbra-upper'].subarray(3, 6)
   place(labels.umbra, [0, 1, 2].map((i) => (moon.position[i] + tip[i]) / 2))
@@ -143,8 +144,8 @@ function placeDiagramLabels(lines: Record<DiagramLineId, Float32Array>, moon: Sp
 // On Earth: the umbra's label on the middle of the shadow, the penumbra's out at its rim.
 function placeShadowLabels(spot: ShadowSpot, earth: Sphere, { viewpoint, labels }: OverlayFrame): void {
   const place = (label: HTMLElement, point: ArrayLike<number>) => placeLabel(label, projectToCss(viewpoint, point))
-  setText(labels.umbra, 'Umbra: total eclipse')
-  setText(labels.penumbra, 'Penumbra: partial eclipse')
+  setText(labels.umbra, msg.scene.labels.umbraOnEarth)
+  setText(labels.penumbra, msg.scene.labels.penumbraOnEarth)
   const normal = vec3.normalize(vec3.create(), vec3.subtract(vec3.create(), spot.center, earth.position as Vec3))
   // Northward along the surface: the shadow's rim there stays on the side of Earth facing the Sun.
   const northward = perpendicularUnit([...ECLIPTIC_NORTH], normal)

@@ -1,4 +1,5 @@
 import { calendarToJulianDay } from '@toboldlyglow/engine'
+import { msg } from '../i18n/i18n'
 
 // Converts a JS Date (UTC) to a Julian Day, preserving sub-hour precision (minutes, seconds,
 // milliseconds) in the fractional day - not just whole hours. At fast time scales the simulated
@@ -26,13 +27,15 @@ export interface TimeScalePreset {
 const AVERAGE_YEAR_SECONDS = 365.2425 * 86400
 const AVERAGE_MONTH_SECONDS = AVERAGE_YEAR_SECONDS / 12
 
+const PRESETS = msg.ui.time.presets
+
 export const TIME_SCALE_PRESETS: TimeScalePreset[] = [
-  { label: 'Real-time', secondsPerSecond: 1 },
-  { label: '1 min/s', secondsPerSecond: 60 },
-  { label: '1 hr/s', secondsPerSecond: 3600 },
-  { label: '1 day/s', secondsPerSecond: 86400 },
-  { label: '1 month/s', secondsPerSecond: AVERAGE_MONTH_SECONDS },
-  { label: '1 year/s', secondsPerSecond: AVERAGE_YEAR_SECONDS },
+  { label: PRESETS.realTime, secondsPerSecond: 1 },
+  { label: PRESETS.minute, secondsPerSecond: 60 },
+  { label: PRESETS.hour, secondsPerSecond: 3600 },
+  { label: PRESETS.day, secondsPerSecond: 86400 },
+  { label: PRESETS.month, secondsPerSecond: AVERAGE_MONTH_SECONDS },
+  { label: PRESETS.year, secondsPerSecond: AVERAGE_YEAR_SECONDS },
 ]
 
 // Maps a shuttle slider value in [-100, 100] to a time scale (simulated seconds per real second),

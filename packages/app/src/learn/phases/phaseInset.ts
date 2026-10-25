@@ -1,4 +1,5 @@
 import { litFraction, phaseName, waxing } from './phasesGeometry'
+import { msg } from '../../i18n/i18n'
 
 // The lit part of a unit disc (SVG path, y down) at this phase angle: the limb on the lit side - the
 // right while waxing, the left while waning, as seen from the northern hemisphere - closed by the
@@ -23,7 +24,7 @@ export class PhaseInset {
     this.card.hidden = false
     this.parts.litShape.setAttribute('d', litShapePath(phaseAngleRadians, waxing(ageDegrees)))
     setText(this.parts.name, phaseName(ageDegrees))
-    setText(this.parts.lit, `${Math.round(litFraction(phaseAngleRadians) * 100)}% lit`)
+    setText(this.parts.lit, msg.scene.phases.lit(Math.round(litFraction(phaseAngleRadians) * 100)))
   }
 
   hide(): void {

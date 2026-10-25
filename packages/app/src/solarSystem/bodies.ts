@@ -1,3 +1,4 @@
+import { bodyName } from '../i18n/i18n'
 import {
   earthHeliocentricB, earthHeliocentricL, earthHeliocentricR,
   jupiterHeliocentricB, jupiterHeliocentricL, jupiterHeliocentricR,
@@ -87,7 +88,7 @@ export const AU_KM = 149_597_870.7
 
 export const SUN: BodyDefinition = {
   id: 'sun',
-  name: 'Sun',
+  name: bodyName('sun'),
   color: [1.0, 0.9, 0.6],
   radiusKm: 696_000,
   compactVisualRadius: 3,
@@ -102,7 +103,7 @@ export const SUN: BodyDefinition = {
 export const PLANETS: BodyDefinition[] = [
   {
     id: 'mercury',
-    name: 'Mercury',
+    name: bodyName('mercury'),
     color: [0.65, 0.65, 0.65],
     radiusKm: 2439.7,
     compactVisualRadius: 0.4,
@@ -120,7 +121,7 @@ export const PLANETS: BodyDefinition[] = [
   },
   {
     id: 'venus',
-    name: 'Venus',
+    name: bodyName('venus'),
     color: [0.9, 0.8, 0.6],
     radiusKm: 6051.8,
     compactVisualRadius: 0.9,
@@ -141,7 +142,7 @@ export const PLANETS: BodyDefinition[] = [
   },
   {
     id: 'earth',
-    name: 'Earth',
+    name: bodyName('earth'),
     color: [0.25, 0.45, 0.75],
     radiusKm: 6371.0,
     compactVisualRadius: 1.0,
@@ -159,7 +160,7 @@ export const PLANETS: BodyDefinition[] = [
   },
   {
     id: 'mars',
-    name: 'Mars',
+    name: bodyName('mars'),
     color: [0.75, 0.35, 0.2],
     radiusKm: 3389.5,
     compactVisualRadius: 0.55,
@@ -172,7 +173,7 @@ export const PLANETS: BodyDefinition[] = [
   },
   {
     id: 'jupiter',
-    name: 'Jupiter',
+    name: bodyName('jupiter'),
     color: [0.8, 0.7, 0.55],
     radiusKm: 69_911,
     compactVisualRadius: 2.2,
@@ -193,7 +194,7 @@ export const PLANETS: BodyDefinition[] = [
   },
   {
     id: 'saturn',
-    name: 'Saturn',
+    name: bodyName('saturn'),
     color: [0.85, 0.75, 0.55],
     radiusKm: 58_232,
     compactVisualRadius: 1.9,
@@ -210,7 +211,7 @@ export const PLANETS: BodyDefinition[] = [
   },
   {
     id: 'uranus',
-    name: 'Uranus',
+    name: bodyName('uranus'),
     color: [0.6, 0.85, 0.9],
     radiusKm: 25_362,
     compactVisualRadius: 1.3,
@@ -229,7 +230,7 @@ export const PLANETS: BodyDefinition[] = [
   },
   {
     id: 'neptune',
-    name: 'Neptune',
+    name: bodyName('neptune'),
     color: [0.25, 0.4, 0.9],
     radiusKm: 24_622,
     compactVisualRadius: 1.25,
