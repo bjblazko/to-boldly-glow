@@ -86,19 +86,19 @@ test('orbit paths still render (via the shared, now dash-capable line pipeline) 
 
   await openApp(page)
 
-  // Orbit paths are on by default; exercise the toggle off/on to force the (now two-vertex-buffer,
+  // Orbit paths are off by default in Explore; exercise the toggle on/off to force the (now two-vertex-buffer,
   // dash-uniform-carrying) line pipeline to rebind and redraw in both states, catching any
   // LINE_UNIFORM_FLOAT_COUNT/vertex-layout mismatch introduced by generalizing the pipeline beyond
   // its original orbit-paths-only shape.
   await page.locator('.hud-dock-btn[data-panel="view"]:visible').click()
   const orbitPathsToggle = page.locator('#orbit-paths-toggle')
 
-  await orbitPathsToggle.uncheck()
-  await expect(page.locator('#scene')).toHaveAttribute('data-orbit-paths', 'false')
-  await page.waitForTimeout(200)
-
   await orbitPathsToggle.check()
   await expect(page.locator('#scene')).toHaveAttribute('data-orbit-paths', 'true')
+  await page.waitForTimeout(200)
+
+  await orbitPathsToggle.uncheck()
+  await expect(page.locator('#scene')).toHaveAttribute('data-orbit-paths', 'false')
   await page.waitForTimeout(200)
 
   expect(errors).toEqual([])

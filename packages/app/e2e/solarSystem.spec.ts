@@ -25,9 +25,10 @@ test('all 8 planets render, and the scale toggle + orbit-path controls affect th
 
   // Orbit-paths lives in the same "Display" sheet.
   const toggle = page.locator('#orbit-paths-toggle')
-  await expect(toggle).toBeChecked()
-  await toggle.uncheck()
+  await expect(toggle).not.toBeChecked()
   await expect(page.locator('#scene')).toHaveAttribute('data-orbit-paths', 'false')
+  await toggle.check()
+  await expect(page.locator('#scene')).toHaveAttribute('data-orbit-paths', 'true')
 
   expect(errors).toEqual([])
 })

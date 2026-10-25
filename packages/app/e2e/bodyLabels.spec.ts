@@ -1,11 +1,15 @@
 import { expect, test } from '@playwright/test'
 import { openApp } from './support/appBoot'
 
-test('body labels show each name and can be toggled off', async ({ page }) => {
+test('body labels start off, show each name when switched on, and can be toggled off again', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
   await openApp(page)
+  // Labels start off in Explore; switch them on first.
+  await page.locator('.hud-dock-btn[data-panel="view"]:visible').click()
+  await page.locator('#body-labels-toggle').check()
+  await page.locator('.hud-dock-btn[data-panel="view"]:visible').click()
 
   const labels = page.locator('#body-labels .body-label')
   await expect(labels).toHaveCount(9) // Sun + 8 planets
