@@ -9,7 +9,8 @@
 export const en = {
   sun: {
     approach:
-      'Welcome aboard. Our journey begins where everything in this system begins: at the Sun. ' +
+      'Space: the final frontier. Welcome aboard. Our journey begins where everything in this system ' +
+      'begins: at the Sun. ' +
       'Sit back - we will visit every planet, in order, from the inside out.',
     orbit:
       'The Sun holds more than 99.8 percent of all the mass in the Solar System. ' +

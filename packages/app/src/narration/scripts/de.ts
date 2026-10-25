@@ -4,7 +4,8 @@ import type { NarrationScript } from './en'
 export const de: NarrationScript = {
   sun: {
     approach:
-      'Willkommen an Bord. Unsere Reise beginnt dort, wo in diesem System alles beginnt: bei der Sonne. ' +
+      'Der Weltraum – unendliche Weiten. Willkommen an Bord. Unsere Reise beginnt dort, wo in diesem ' +
+      'System alles beginnt: bei der Sonne. ' +
       'Lehn dich zurück – wir besuchen jeden Planeten, der Reihe nach, von innen nach außen.',
     orbit:
       'In der Sonne steckt mehr als 99,8 Prozent der gesamten Masse des ' +
