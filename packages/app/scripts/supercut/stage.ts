@@ -62,6 +62,23 @@ export async function zoom(page: Page, notches: number): Promise<void> {
   await wait(1200)
 }
 
+// Holds keys down for `ms`: the app's own camera keys (arrows turn, R/F zoom), which it eases in
+// and out - smoother than any drag.
+export async function hold(page: Page, keys: string[], ms: number): Promise<void> {
+  for (const key of keys) await page.keyboard.down(key)
+  await wait(ms)
+  for (const key of keys) await page.keyboard.up(key)
+}
+
+// Sets the simulated clock's rate by its preset (0 real time, 1 a minute, 2 an hour, 3 a day,
+// 4 a month, 5 a year per second).
+export async function timeRate(page: Page, preset: number): Promise<void> {
+  const time = page.locator('.hud-dock-btn[data-panel="time"]:visible')
+  await time.click()
+  await page.locator('#time-preset-select').selectOption(String(preset))
+  await time.click()
+}
+
 // A caption at the foot of the frame, in the app's own type.
 export async function caption(page: Page, text: string, { portrait, top }: { portrait: boolean; top: boolean }): Promise<void> {
   await page.evaluate(

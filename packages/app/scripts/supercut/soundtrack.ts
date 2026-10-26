@@ -15,7 +15,7 @@ const MUSIC_TRACKS = '/src/music/musicTracks.ts'
 const LINES: [id: string, bar: number][] = [
   ['intro', 0.25],
   ['middle', 8],
-  ['outro', 14],
+  ['outro', 16.1],
 ]
 
 // Nova, played by the app's own synthesizer into an OfflineAudioContext: `bars` bars from the
