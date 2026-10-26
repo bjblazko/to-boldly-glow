@@ -70,10 +70,14 @@ export const SCENES: Scene[] = [
     act: (page, seconds) => glide(page, [90, 20], seconds * 1000 - 400, portrait(page) ? -200 : -500),
   },
   {
-    // From Earth's day side round to its night side, the Sun rising behind it - at true scale.
+    // From Earth's day side round to its night side, the Sun rising behind it - at true scale; in
+    // the narrow portrait frame at Compact scale, where Earth stays in the middle of it.
     caption: 'Light, shadow and glow',
     bars: 3,
-    prepare: (page, base) => sunlit(page, base, 'Earth', { offset: [-560, 70], notches: -1, rate: 2, labels: true, realistic: true }),
+    prepare: (page, base) =>
+      portrait(page)
+        ? sunlit(page, base, 'Earth', { offset: [-560, 70], notches: -3, rate: 2, labels: true })
+        : sunlit(page, base, 'Earth', { offset: [-560, 70], notches: -1, rate: 2, labels: true, realistic: true }),
     act: (page, seconds) => glide(page, [420, 0], seconds * 1000 - 400),
   },
   {
