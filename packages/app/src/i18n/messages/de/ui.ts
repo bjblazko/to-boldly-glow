@@ -204,8 +204,8 @@ export const ui: Messages['ui'] = {
     privacy: 'Datenschutz',
     yourData: 'Deine Daten',
     yourDataText:
-      'Die App lädt nur ihre eigenen Dateien von dieser Seite. Nichts, was du in ihr tust, wird irgendwohin geschickt: kein Tracking, keine Update-Prüfung. ' +
-      'Wo du in einer Lektion aufgehört hast und deine Sprache merkt sich nur dieser Browser.',
+      'Die App lädt nur ihre eigenen Dateien, von dieser Seite oder aus dem Ordner, in den du sie entpackt hast. Nichts, was du in ihr tust, wird irgendwohin geschickt: kein Tracking, keine Update-Prüfung. ' +
+      'Deine Einstellungen (Sprache, Erzählstimme, Untertitel, Musik und Lautstärke) und wo du in jeder Lektion aufgehört hast, merkt sich nur dieser Browser.',
     license: 'Lizenz',
     licenseText: 'MIT-Lizenz: frei zu nutzen, zu ändern und weiterzugeben. Ohne jede Gewährleistung, soweit das Gesetz es erlaubt. ',
     licenseLink: 'Lizenztext',

@@ -203,8 +203,8 @@ export const ui = {
     privacy: 'Privacy',
     yourData: 'Your data',
     yourDataText:
-      'The app loads only its own files from this site. Nothing you do in it is sent anywhere: no tracking, no update check. ' +
-      'Where you left a lesson and your language are remembered in this browser only.',
+      'The app loads only its own files, from this site or the folder you unzipped it to. Nothing you do in it is sent anywhere: no tracking, no update check. ' +
+      'Your settings (language, narrator, subtitles, music and its volume) and where you left each lesson are remembered in this browser only.',
     license: 'License',
     licenseText: 'MIT License: free to use, change and share. Provided as is, without any warranty, as far as the law allows. ',
     licenseLink: 'License text',

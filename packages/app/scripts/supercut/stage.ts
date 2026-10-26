@@ -92,7 +92,8 @@ export async function endCard(page: Page, portrait: boolean): Promise<void> {
     card.innerHTML = `<img src="logo.svg" alt="" style="width:${portrait ? 120 : 110}px;height:auto">
       <div style="font-size:${portrait ? 46 : 54}px;font-weight:700;letter-spacing:-0.01em">To Boldly Glow</div>
       <div style="font-size:${portrait ? 22 : 24}px;color:#b8bccc;max-width:80vw">The Solar System, live in your browser. Free and open source.</div>
-      <div style="font:500 ${portrait ? 20 : 24}px var(--hud-mono);margin-top:6px">huepattl.de/products/to-boldly-glow</div>`
+      <div style="font:500 ${portrait ? 20 : 24}px var(--hud-mono);margin-top:6px">huepattl.de/products/to-boldly-glow</div>
+      <div style="position:absolute;bottom:${portrait ? 48 : 28}px;left:0;right:0;font-size:${portrait ? 13 : 15}px;color:#8a8fa3;padding:0 24px">Textures: Solar System Scope (CC BY 4.0), NASA/JPL/USGS · Narration: synthetic voice (Qwen3-TTS) · Music: made with the app</div>`
     document.body.append(card)
   }, portrait)
   await wait(400)

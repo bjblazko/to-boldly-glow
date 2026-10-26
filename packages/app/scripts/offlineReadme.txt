@@ -12,11 +12,12 @@ current Firefox. If the page says WebGPU is missing, try another browser.
 Your settings (language, voice, lessons you finished) stay in this browser only.
 
 Licenses: the code is MIT-licensed; third-party images, data and fonts keep their own licenses -
-see the About dialog (the (i) button at the top right) and the licenses folder.
+see the About dialog (the (i) button at the top right) and the licenses folder. Provided as is,
+without any warranty, as far as the law allows.
 More: https://huepattl.de/products/to-boldly-glow
 
 ----
 
 Deutsch: Entpacken und index.html öffnen (Doppelklick oder ins Browserfenster ziehen). Läuft ohne
 Webserver und ohne Internet, braucht aber einen Browser mit WebGPU (z. B. aktuelles Chrome oder Edge,
-Safari ab 26, aktuelles Firefox).
+Safari ab 26, aktuelles Firefox). Ohne jede Gewährleistung, soweit das Gesetz es erlaubt.
