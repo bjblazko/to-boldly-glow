@@ -13,8 +13,27 @@ Way, and a real ~9,100-star background in the stars' own colors from the Yale Br
 Catalogue.
 
 **Try it live: [huepattl.de/products/to-boldly-glow](https://huepattl.de/products/to-boldly-glow)**
-(needs a browser with WebGPU, such as a current Chrome, Edge or Safari) - or download it and run
-it from your disk, no web server needed (see [Run it from the download](#run-it-from-the-download)).
+(fastest in Chrome, Edge, Chromium or Helium - see [Which browser?](#which-browser)) - or download
+it and run it from your disk, no web server needed (see [Run it from the download](#run-it-from-the-download)).
+
+## Which browser?
+
+> **Fastest in a Chrome-based browser: Chrome, Edge, Chromium or Helium.** Safari works, but more
+> slowly. Firefox works only on Windows and on Macs with Apple silicon. The app needs WebGPU; a
+> browser without it shows a note instead of the scene.
+
+| | Chrome, Edge, Chromium, Helium | Safari | Firefox |
+| --- | --- | --- | --- |
+| **macOS, Apple silicon** | ✅ **best** (tested: 60 fps) | ✅ 26 or newer, slower (tested: about 20 fps) | ✅ 145 or newer (tested: 155, 60 fps) |
+| **macOS, Intel** | ✅ **best** | ✅ 26 or newer, slower | ❌ no WebGPU |
+| **Windows** | ✅ **best** | — | ✅ 141 or newer |
+| **Linux** | ⚠️ depends on the graphics driver; may need WebGPU switched on in `chrome://flags` | — | ❌ no WebGPU |
+| **Android** | ✅ Chrome, Android 12 or newer | — | ❌ no WebGPU (tested) |
+| **iPhone, iPad** | ✅ iOS/iPadOS 26 or newer (every browser there runs on Safari's engine) | ✅ 26 or newer | ✅ iOS/iPadOS 26 or newer (Safari's engine) |
+
+*Tested* means run on our own devices (October 2026: a MacBook with Apple silicon on macOS 27, and
+an Android phone); the rest follows the browser makers' WebGPU status. In a browser that isn't
+Chrome-based the app says so once, in a small note you can close.
 
 ## Features
 
@@ -110,7 +129,7 @@ The quickest way to try it is the [live version](https://huepattl.de/products/to
 2. Open `index.html` - double-click it, or drag it into a browser window.
 
 That's all: no web server, no internet connection, nothing to install. It needs a browser with
-WebGPU (a current Chrome or Edge, Safari 26 or newer, or a current Firefox).
+WebGPU - see [Which browser?](#which-browser).
 
 To run it from the source instead, or to work on it:
 
@@ -133,7 +152,7 @@ To run it from the source instead, or to work on it:
    npm run dev --workspace=@toboldlyglow/app
    ```
 5. Open the printed local URL (usually `http://localhost:5173`) in a **WebGPU-capable browser** —
-   a current version of Chrome or Edge. There's no WebGL fallback: unsupported browsers will show a
+   see [Which browser?](#which-browser). There's no WebGL fallback: unsupported browsers will show a
    plain "unsupported browser" message instead of the scene.
 
 ### Using the app
