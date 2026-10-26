@@ -8,6 +8,7 @@
     "build": "vite build",
     "build:offline": "node scripts/buildOffline.mjs",
     "supercut": "tsx scripts/supercut/supercut.ts",
+    "screenshots": "tsx scripts/screenshots.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test"

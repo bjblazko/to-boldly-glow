@@ -1,6 +1,6 @@
 # To Boldly Glow
 
-![To Boldly Glow — a WebGPU view of the solar system: the Sun with its lens flare, the inner planets' orbits, Jupiter and its moons, two comets and the real star field in its colors](docs/images/screenshot.png)
+![To Boldly Glow: Earth as a crescent beside the Sun and Venus, its night side lit by cities, the aurora at its poles, and the lens flare of the Sun](docs/images/hero.jpg)
 
 To Boldly Glow is a free, open-source, browser-based planetarium and solar-system visualizer. It
 renders the Sun, all 8 planets, and 9 major moons in 3D using real orbital mechanics (VSOP87
@@ -30,11 +30,17 @@ planets. Run time forwards or backwards, from real time up to a year per second.
 everything close enough to see at a glance. The switch eases between them, and a note says when
 what you see is not to scale.
 
+![The inner Solar System in the Compact view, with the planets' orbits and their names](docs/images/compact.jpg)
+
 ### Light, shadow and glow
 
 Rendered through WebGPU with HDR bloom and lens flares: Earth's night side with its city lights and
 aurora, clouds and a glowing atmosphere, Saturn's rings, the Sun's corona when a planet covers it,
 the Milky Way with its nebulae, and about 9,100 real stars in their own colors.
+
+| | |
+| --- | --- |
+| ![Earth in front of the Sun: its night side with city lights, the aurora, and the Sun's corona around it](docs/images/corona.jpg) | ![Saturn and its rings in full sunlight](docs/images/saturn.jpg) |
 
 ### Fly it, or let it fly you
 
@@ -49,6 +55,11 @@ about eight minutes, with a narrator - Lyra or Orion - telling what makes each w
 optional subtitles. It flies at warp between the planets, at either scale. The welcome card offers
 it at the start.
 
+| | |
+| --- | --- |
+| ![The welcome card: language, narrator, and the start of the tour](docs/images/welcome.jpg) | ![The Tours mode's library with the grand tour](docs/images/tours.jpg) |
+| ![The grand tour approaching the Sun, with the narrator's subtitle](docs/images/grand-tour.jpg) | |
+
 ### Lessons that show, and read themselves out
 
 The **Learn** mode: *Get to know the planets* (side by side at true scale, sorted by size, mass,
@@ -56,11 +67,18 @@ temperature and more), *Why does Earth have seasons?*, *Why does the Moon have p
 happens in a solar eclipse?* - each scene built to show the idea, and every chapter read out by the
 narrator.
 
+| | |
+| --- | --- |
+| ![The planets lesson: the Sun and the planets side by side at true scale](docs/images/lesson-planets.jpg) | ![The Moon phases lesson: the evening crescent seen from the ground](docs/images/lesson-moon.jpg) |
+| ![The solar eclipse lesson: totality, the corona around the dark Moon](docs/images/lesson-eclipse.jpg) | |
+
 ### Music
 
 Three lo-fi tracks, played live by a synthesizer in the page (nothing recorded, nothing
 downloaded): calm **Drift**, the lo-fi house of **Nova** and the 8-bit **Pixel**. The music steps
 back while the narrator speaks.
+
+![Settings, Audio tab: the narrator's voice, subtitles, and the music with its volume](docs/images/settings.jpg)
 
 ### English and German
 
