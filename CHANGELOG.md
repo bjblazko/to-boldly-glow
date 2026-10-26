@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- The tour flies its legs in powers of ten: the planet left behind shrinks steadily instead of
+  vanishing, the long middle of a Realistic leg passes at warp speed, and the ship slows into the
+  next loop just as gradually. The narrator's words for the next stop now start so they end about
+  as the ship arrives, not as it leaves.
+
 - The welcome card has a close button. Set up the view first – open a dock, switch to Realistic – and it
   shrinks to a small "Start the tour" button, so the tour starts in the view you chose.
 

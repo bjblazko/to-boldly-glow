@@ -44,9 +44,11 @@ describe('the narrator', () => {
     expect(guide.pace()).toEqual({ transitSeconds: 13, lapSeconds: 16 })
   })
 
-  it('speaks the approach on the way, then the rest while circling - one after the other', () => {
+  it('speaks the approach when the ship says it is near, then the rest while circling - one after the other', () => {
     const { player, narrator: guide } = narrator()
     guide.onLegStart()
+    expect(player.played).toEqual([])
+    guide.onApproach()
     guide.onLoopEnter()
     expect(player.played).toEqual(['sun approach'])
     player.end()
@@ -56,12 +58,14 @@ describe('the narrator', () => {
   it('holds the ship at a stop until it has finished speaking about it', () => {
     const { player, narrator: guide } = narrator()
     guide.onLegStart()
+    guide.onApproach()
     player.end()
     guide.onLoopEnter()
     expect(guide.mayDepart()).toBe(false)
     player.end()
     expect(guide.mayDepart()).toBe(true)
     guide.onLegStart()
+    guide.onApproach()
     expect(player.played.at(-1)).toBe('mercury approach')
     expect(guide.mayDepart()).toBe(false)
   })
@@ -69,6 +73,7 @@ describe('the narrator', () => {
   it('goes quiet when the tour stops', () => {
     const { player, shown, narrator: guide } = narrator()
     guide.onLegStart()
+    guide.onApproach()
     guide.stop()
     expect(player.playing).toBeNull()
     expect(shown.at(-1)).toBeNull()

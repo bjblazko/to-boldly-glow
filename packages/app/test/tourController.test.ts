@@ -1,6 +1,6 @@
 import { vec3 } from 'gl-matrix'
 import { describe, expect, it } from 'vitest'
-import { ACCELERATION_SECONDS, TourController } from '../src/camera/tourController'
+import { TourController } from '../src/camera/tourController'
 import { THRUST_RESPONSE_SECONDS } from '../src/camera/tour/shipMotion'
 import { MAX_BANK_RADIANS, MAX_GAZE_TURN_ACCELERATION, MAX_GAZE_TURN_RATE } from '../src/camera/tour/shipView'
 import { planetPosition } from '../src/camera/tour/tourLeg'
@@ -155,7 +155,7 @@ describe('TourController', () => {
     controller.update(1, J2000, COMPACT)
     const { speed, leg } = internals(controller)
     expect(speed).toBeGreaterThan(0)
-    expect(speed).toBeLessThanOrEqual((leg!.cruiseSpeed / ACCELERATION_SECONDS) * 1.001)
+    expect(speed).toBeLessThanOrEqual(leg!.acceleration * 1.001)
   })
 
   it('picks up from the given start position and view direction instead of cutting to a new view', () => {
@@ -233,8 +233,8 @@ describe('TourController', () => {
       targets.add(internals(controller).leg!.target.id)
       previousEye = eye
     }
-    // Never faster than the fastest leg's cruise speed (about 10 units/s in Compact) on a frame without a jump.
-    expect(worstStep / FRAME).toBeLessThan(15)
+    // Never faster than the fastest leg's peak speed (about 30 units/s in Compact) on a frame without a jump.
+    expect(worstStep / FRAME).toBeLessThan(40)
     expect(targets.size).toBeGreaterThanOrEqual(6)
   })
 })

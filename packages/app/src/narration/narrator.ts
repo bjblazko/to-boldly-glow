@@ -37,8 +37,8 @@ interface Queued {
 }
 
 // The grand tour's guide: it tells the ship how long to take at each stop (the length of what
-// there is to say), speaks the approach on the way and the rest while circling, and holds the ship
-// at a stop until it has finished.
+// there is to say), speaks the approach as the ship nears it and the rest while circling, and holds
+// the ship at a stop until it has finished.
 export class Narrator implements TourPacing, TourListener {
   private legsStarted = 0
   private readonly queue: Queued[] = []
@@ -68,6 +68,10 @@ export class Narrator implements TourPacing, TourListener {
 
   onLegStart(): void {
     this.legsStarted++
+  }
+
+  // Timed by the ship so the approach ends about as it arrives.
+  onApproach(): void {
     this.enqueue(this.legsStarted - 1, 'approach')
   }
 
