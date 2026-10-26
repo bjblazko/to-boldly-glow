@@ -39,6 +39,11 @@ export default defineConfig([
     },
   },
   {
+    // Build scripts run by Node.
+    files: ['packages/app/scripts/**/*.mjs'],
+    languageOptions: { globals: { process: 'readonly', console: 'readonly' } },
+  },
+  {
     files: ['packages/*/src/**/*.ts', 'packages/engine/assembly/**/*.ts'],
     ignores: ['packages/engine/assembly/data/**'],
     rules: CODE_METRICS,
