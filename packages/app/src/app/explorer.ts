@@ -50,10 +50,13 @@ export function createExplorer(canvas: HTMLCanvasElement, display: DisplaySettin
   const now = (): SimulationMoment => ({ ephemeris: ephemerisAt(clock.getCurrentDate()), scaleBlend: scaleMode.blend })
   const shown: { frame: ShownFrame | null } = { frame: null }
   const select = (entity: SolarSystemEntity) => selectEntity(entity, camera, display, now())
+  // The Camera panel's tour button flies the silent loop; the narrated tours start from Tours.
   const camera = createCamera(canvas, {
-    startTour: () => narratedTour(),
+    startTour: () => tour(),
     tourChanged: (touring) => {
-      if (!touring) narration.end()
+      if (touring) return
+      narration.end()
+      narratedTourChanged.forEach((listener) => listener(false))
     },
     pick: (x, y) => pickAt({ canvas, frame: shown.frame }, x, y, select),
     following: (entity) => searchUi.setFollowing(entity),
@@ -69,8 +72,11 @@ export function createExplorer(canvas: HTMLCanvasElement, display: DisplaySettin
     if (camera.isTouring) camera.stopTour()
     const narrator = narration.begin()
     tour(grandTourRoute({ pacing: narrator, listener: narrator }))
+    narratedTourChanged.forEach((listener) => listener(true))
   }
-  return { canvas, display, scaleMode, camera, lens, clock, timeControls: createTimeControls(clock), bodyLabels, orbitPaths, searchUi, shown, select, startTour: () => tour(), startNarratedTour: narratedTour }
+  // Who hears when a narrated tour sets off (true) and ends (false).
+  const narratedTourChanged: ((flying: boolean) => void)[] = []
+  return { canvas, display, scaleMode, camera, lens, clock, timeControls: createTimeControls(clock), bodyLabels, orbitPaths, searchUi, shown, select, startTour: () => tour(), startNarratedTour: narratedTour, narratedTourChanged }
 }
 
 interface CameraWiring {

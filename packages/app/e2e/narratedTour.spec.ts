@@ -24,7 +24,7 @@ test('the welcome card starts the narrated tour at the Sun, with the narrator; s
 
   // Any manual camera input hands control back and silences the narrator.
   await page.locator('#scene').click({ position: { x: 40, y: 300 } })
-  await expect(page.locator('#camera-tour-toggle .btn-label')).toHaveText('Start Tour')
+  await expect(page.locator('#camera-tour-toggle .btn-label')).toHaveText('Start Flyby')
   await expect(page.locator('#narration-bar')).toBeHidden()
 })
 
@@ -133,4 +133,41 @@ test('the narrator picked on the welcome card speaks, and Settings shows the sam
   await page.locator('#settings-btn').click()
   await page.locator('#settings-tab-audio').click()
   await expect(page.locator('#settings-voice').getByRole('button', { name: 'Orion' })).toHaveAttribute('aria-pressed', 'true')
+})
+
+test('Tours opens the tour library; the grand tour starts from there, and Explore stops it', async ({ page }) => {
+  await openApp(page)
+  const toursButton = page.locator('#tours-mode-btn')
+  await toursButton.click()
+  await expect(page.locator('#tour-library')).toBeVisible()
+  await expect(toursButton).toHaveAttribute('aria-pressed', 'true')
+  await page.locator('#tour-library [data-tour-id="grand"]').click()
+  await expect(page.locator('#tour-library')).toBeHidden()
+  await expect(page.locator('#narration-bar')).not.toHaveAttribute('hidden')
+  await expect(toursButton).toHaveAttribute('aria-pressed', 'true')
+  await page.locator('#explore-mode-btn').click()
+  await expect(page.locator('#narration-bar')).toBeHidden()
+  await expect(page.locator('#explore-mode-btn')).toHaveAttribute('aria-pressed', 'true')
+  await expect(toursButton).toHaveAttribute('aria-pressed', 'false')
+})
+
+test('the Camera panel’s tour button flies the silent loop, without the narrator', async ({ page }) => {
+  await openApp(page)
+  await page.locator('.hud-explore-dock .hud-dock-btn[data-panel="camera"]').click()
+  await page.locator('#camera-tour-toggle').click()
+  await expect(page.locator('#camera-tour-toggle .btn-label')).toHaveText('Stop Tour')
+  await expect(page.locator('#narration-bar')).toBeHidden()
+  await expect(page.locator('#tours-mode-btn')).toHaveAttribute('aria-pressed', 'false')
+})
+
+test('one menu at a time: Tours closes the lesson library, Learn closes the tour library', async ({ page }) => {
+  await openApp(page)
+  await page.locator('#learn-mode-btn').click()
+  await expect(page.locator('#lesson-library')).toBeVisible()
+  await page.locator('#tours-mode-btn').click()
+  await expect(page.locator('#tour-library')).toBeVisible()
+  await expect(page.locator('#lesson-library')).toBeHidden()
+  await page.locator('#learn-mode-btn').click()
+  await expect(page.locator('#lesson-library')).toBeVisible()
+  await expect(page.locator('#tour-library')).toBeHidden()
 })

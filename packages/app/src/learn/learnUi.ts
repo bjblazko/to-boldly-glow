@@ -1,3 +1,4 @@
+import type { ModeButtons } from '../hud/modeButtons'
 import { LessonLibrary, type LessonLibraryElements } from './lessonLibrary'
 import type { LessonProgress } from './lessonProgress'
 import type { LessonSession } from './lessonSession'
@@ -12,9 +13,10 @@ export interface LearnUiElements {
   library: LessonLibraryElements
 }
 
-// The Explore / Learn switch and the lesson library. Learn opens the library (over a running lesson
-// too, to switch lessons); picking a lesson starts it where it was left; Explore closes the library
-// and ends the lesson. Learn reads as on while the library is open or a lesson runs.
+// The Learn mode's side of the top switch, and the lesson library. Learn opens the library (over a
+// running lesson too, to switch lessons); picking a lesson starts it where it was left; Explore
+// closes the library and ends the lesson. Learn reads as on while the library is open or a lesson
+// runs.
 export class LearnUi {
   private readonly library: LessonLibrary
 
@@ -22,7 +24,8 @@ export class LearnUi {
     private readonly elements: LearnUiElements,
     private readonly session: LessonSession,
     private readonly progress: LessonProgress,
-    private readonly closeSheet: () => void,
+    // The dock's open panel, closed under the library; the top switch, told when Learn is on.
+    private readonly shell: { closeSheet(): void; modes: ModeButtons },
   ) {
     this.library = new LessonLibrary(elements.library, LESSON_TOPICS, progress, {
       onPick: (lesson) => this.openLesson(lesson),
@@ -49,8 +52,14 @@ export class LearnUi {
     this.refresh()
   }
 
+  // Out of the way of another mode's menu: the library closes, a running lesson stays.
+  hideLibrary(): void {
+    this.library.close()
+    this.refresh()
+  }
+
   private openLibrary(): void {
-    this.closeSheet()
+    this.shell.closeSheet()
     this.library.open()
     this.refresh()
   }
@@ -62,13 +71,6 @@ export class LearnUi {
   }
 
   private refresh(): void {
-    const learning = this.library.isOpen || this.session.active
-    for (const [button, on] of [
-      [this.elements.exploreButton, !learning],
-      [this.elements.learnButton, learning],
-    ] as const) {
-      button.classList.toggle('is-active', on)
-      button.setAttribute('aria-pressed', String(on))
-    }
+    this.shell.modes.setLearning(this.library.isOpen || this.session.active)
   }
 }

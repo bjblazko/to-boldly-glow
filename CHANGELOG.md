@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- A third mode, Tours, beside Explore and Learn: its library holds the narrated grand tour (and
+  room for more). The Camera panel's tour button now flies the silent loop. One menu at a time:
+  opening Tours closes the lesson library, and the other way round.
+
 - The tour flies its legs in powers of ten: the planet left behind shrinks steadily instead of
   vanishing, the long middle of a Realistic leg passes at warp speed, and the ship slows into the
   next loop just as gradually. The narrator's words for the next stop now start so they end about

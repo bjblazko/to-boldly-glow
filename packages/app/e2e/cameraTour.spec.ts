@@ -17,12 +17,12 @@ test('the tour toggle starts and stops from the keyboard', async ({ page }) => {
   // Regression: a window-level "any key stops the tour" listener used to stop it on keydown, and
   // the button's own click (from that same Enter) then started it again - so it never stopped.
   await page.keyboard.press('Enter')
-  await expect(tourLabel).toHaveText('Start Tour')
+  await expect(tourLabel).toHaveText('Start Flyby')
 
   await page.keyboard.press('Space')
   await expect(tourLabel).toHaveText('Stop Tour')
   await page.keyboard.press('Space')
-  await expect(tourLabel).toHaveText('Start Tour')
+  await expect(tourLabel).toHaveText('Start Flyby')
 
   expect(errors).toEqual([])
 })
@@ -48,7 +48,7 @@ test('picking a search result during the tour stops it and flies to the result',
   // ...but choosing a result does, so the fly-to is actually what's on screen.
   await page.locator('#entity-search-input').press('Enter')
   await expect(page.locator('#scene')).toHaveAttribute('data-following-id', 'saturn')
-  await expect(tourLabel).toHaveText('Start Tour')
+  await expect(tourLabel).toHaveText('Start Flyby')
 
   expect(errors).toEqual([])
 })
@@ -57,7 +57,7 @@ test('the tour sets off on its own a moment after the scene first shows', async 
   await page.goto('/')
   await waitForFirstFrame(page)
   const tourLabel = page.locator('#camera-tour-toggle .btn-label')
-  await expect(tourLabel).toHaveText('Start Tour')
+  await expect(tourLabel).toHaveText('Start Flyby')
   await expect(tourLabel).toHaveText('Stop Tour', { timeout: 15_000 })
 })
 
@@ -67,6 +67,6 @@ test('a click on the scene before the tour sets off keeps the camera still', asy
   // Beside the welcome card, which shrinks to its Start pill: the visitor is there to choose.
   await page.locator('#scene').click({ position: { x: 40, y: 300 } })
   await page.waitForTimeout(11_000)
-  await expect(page.locator('#camera-tour-toggle .btn-label')).toHaveText('Start Tour')
+  await expect(page.locator('#camera-tour-toggle .btn-label')).toHaveText('Start Flyby')
   await expect(page.locator('#welcome-pill')).toBeVisible()
 })

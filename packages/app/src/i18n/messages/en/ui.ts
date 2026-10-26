@@ -24,6 +24,16 @@ export const ui = {
     group: 'Mode',
     explore: 'Explore',
     learn: 'Learn',
+    tours: 'Tours',
+  },
+  // The Tours mode's library: the narrated tours.
+  tours: {
+    library: 'Tours',
+    close: 'Close the tours',
+    grand: {
+      title: 'The grand tour',
+      meta: 'Narrated · about 8 minutes · the Sun out to Neptune, and home to Earth',
+    },
   },
   top: {
     search: 'Search everything',
@@ -85,7 +95,7 @@ export const ui = {
     close: 'Close camera panel',
     toFly: 'Switch to Free-fly Camera',
     toOrbit: 'Switch to Orbit Camera',
-    startTour: 'Start Tour',
+    startTour: 'Start Flyby',
     stopTour: 'Stop Tour',
     hints: {
       orbitPointer: 'Drag to orbit · scroll to zoom · WASD/arrows turn · double-click a body to fly there',

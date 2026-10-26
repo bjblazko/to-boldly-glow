@@ -51,6 +51,8 @@ import { runFrameLoop, type FrameTime } from './frameLoop'
 import { gatherPaletteItems, type PaletteActions } from './paletteItems'
 import { startupTourWanted } from './startupTour'
 import { showWelcomeCard } from './welcomeCard'
+import { ModeButtons } from '../hud/modeButtons'
+import { TourUi } from '../tours/tourUi'
 import { loadNarrationManifest } from '../narration/narrationManifest'
 import { MusicEngine } from '../music/musicEngine'
 import { LessonNarration } from '../narration/lessonNarration'
@@ -138,7 +140,9 @@ function createLessons(explorer: ReturnType<typeof createExplorer>, gpu: LessonG
     },
     gpu,
   )
-  const learnUi = createLearnUi(session, progress, dock)
+  const modes = new ModeButtons({ explore: requireElement('#explore-mode-btn'), learn: requireElement('#learn-mode-btn'), tours: requireElement('#tours-mode-btn') })
+  const learnUi = createLearnUi(session, progress, dock, modes)
+  createTours(explorer, { learnUi, dock }, modes)
   createSettings()
   const ui = new InterfaceVisibility(document.body, { hide: requireElement('#hide-ui-btn'), show: requireElement('#show-ui-btn') })
   // The beta note's word on the Compact scale opens View, where the scale is switched - bringing
@@ -147,13 +151,17 @@ function createLessons(explorer: ReturnType<typeof createExplorer>, gpu: LessonG
     ui.show()
     dock.open('view')
   })
-  const about = new AboutDialog(requireElement<HTMLDialogElement>('#about-dialog'), {
+  const about = createAbout()
+  createPalette(learnUi, explorer.select, { hideInterface: () => ui.hide(), showAbout: () => about.open() })
+  return session
+}
+
+function createAbout(): AboutDialog {
+  return new AboutDialog(requireElement<HTMLDialogElement>('#about-dialog'), {
     openButton: requireElement('#about-btn'),
     closeButton: requireElement('#about-close'),
     credits: requireElement('#about-credits'),
   })
-  createPalette(learnUi, explorer.select, { hideInterface: () => ui.hide(), showAbout: () => about.open() })
-  return session
 }
 
 function createSettings(): void {
@@ -163,7 +171,28 @@ function createSettings(): void {
   bindVoiceSwitch(requireElement('#settings-voice'))
 }
 
-function createLearnUi(session: LessonSession, progress: LessonProgress, dock: DockUI): LearnUi {
+// The Tours mode: the narrated tours, from the top switch's Tours button.
+function createTours(explorer: ReturnType<typeof createExplorer>, { learnUi, dock }: { learnUi: LearnUi; dock: DockUI }, modes: ModeButtons): void {
+  const elements = {
+    exploreButton: requireElement<HTMLButtonElement>('#explore-mode-btn'),
+    learnButton: requireElement<HTMLButtonElement>('#learn-mode-btn'),
+    toursButton: requireElement<HTMLButtonElement>('#tours-mode-btn'),
+    library: { dialog: requireElement('#tour-library'), list: requireElement('#tour-library-list'), closeButton: requireElement<HTMLButtonElement>('#tour-library-close') },
+  }
+  const actions = {
+    closeOtherMenus: () => {
+      learnUi.hideLibrary()
+      dock.closeActivePanel()
+    },
+    leaveLesson: () => learnUi.explore(),
+    startTour: () => explorer.startNarratedTour(),
+    stopTour: () => explorer.camera.stopTour(),
+  }
+  const tours = new TourUi(elements, actions, modes)
+  explorer.narratedTourChanged.push((flying) => tours.narratedTourChanged(flying))
+}
+
+function createLearnUi(session: LessonSession, progress: LessonProgress, dock: DockUI, modes: ModeButtons): LearnUi {
   const library = {
     dialog: requireElement('#lesson-library'),
     topics: requireElement('#library-topics'),
@@ -175,7 +204,7 @@ function createLearnUi(session: LessonSession, progress: LessonProgress, dock: D
     learnButton: requireElement<HTMLButtonElement>('#learn-mode-btn'),
     libraryButton: requireElement<HTMLButtonElement>('#lesson-library-btn'),
   }
-  return new LearnUi({ ...buttons, library }, session, progress, () => dock.closeActivePanel())
+  return new LearnUi({ ...buttons, library }, session, progress, { closeSheet: () => dock.closeActivePanel(), modes })
 }
 
 function createPalette(learnUi: LearnUi, select: (entity: SolarSystemEntity) => void, app: Pick<PaletteActions, 'hideInterface' | 'showAbout'>): CommandPalette {

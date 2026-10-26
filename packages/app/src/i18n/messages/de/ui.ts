@@ -25,6 +25,16 @@ export const ui: Messages['ui'] = {
     group: 'Modus',
     explore: 'Erkunden',
     learn: 'Lernen',
+    tours: 'Touren',
+  },
+  // The Tours mode's library: the narrated tours.
+  tours: {
+    library: 'Touren',
+    close: 'Touren schließen',
+    grand: {
+      title: 'Die große Tour',
+      meta: 'Erzählt · etwa 8 Minuten · von der Sonne bis zum Neptun und zurück zur Erde',
+    },
   },
   top: {
     search: 'Alles durchsuchen',
@@ -86,7 +96,7 @@ export const ui: Messages['ui'] = {
     close: 'Kamera schließen',
     toFly: 'Zur Freiflug-Kamera wechseln',
     toOrbit: 'Zur Orbit-Kamera wechseln',
-    startTour: 'Tour starten',
+    startTour: 'Rundflug starten',
     stopTour: 'Tour beenden',
     hints: {
       orbitPointer: 'Ziehen zum Umkreisen · Scrollen zum Zoomen · WASD/Pfeiltasten drehen · Doppelklick auf einen Körper fliegt hin',

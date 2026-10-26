@@ -275,6 +275,9 @@
       <button id="learn-mode-btn" class="hud-mode-btn" type="button" aria-pressed="false">
         <svg class="icon" aria-hidden="true"><use href="#icon-book"></use></svg><span data-i18n="ui.modes.learn">Learn</span>
       </button>
+      <button id="tours-mode-btn" class="hud-mode-btn" type="button" aria-pressed="false">
+        <svg class="icon" aria-hidden="true"><use href="#icon-play"></use></svg><span data-i18n="ui.modes.tours">Tours</span>
+      </button>
     </div>
     <div class="hud-top-actions">
       <button id="palette-btn" class="hud-top-btn" type="button" aria-label="Search everything" title="Search everything (Ctrl+K)" data-i18n-attr="aria-label:ui.top.search;title:ui.top.searchTitle">
@@ -412,7 +415,7 @@
           </button>
           <button id="camera-tour-toggle" class="hud-btn" type="button">
             <svg class="icon" aria-hidden="true"><use href="#icon-camera"></use></svg>
-            <span class="btn-label" data-i18n="ui.camera.startTour">Start Tour</span>
+            <span class="btn-label" data-i18n="ui.camera.startTour">Start Flyby</span>
           </button>
         </div>
 
@@ -621,6 +624,19 @@
         <input id="library-search" type="text" placeholder="Search lessons…" data-i18n-attr="placeholder:ui.lesson.searchPlaceholder" autocomplete="off" spellcheck="false" />
       </div>
       <div id="library-topics" class="hud-library-topics"></div>
+    </div>
+
+    <div id="tour-library" class="hud-library" role="dialog" aria-labelledby="tour-library-title" hidden>
+      <div class="hud-sheet-head">
+        <svg class="icon" aria-hidden="true"><use href="#icon-play"></use></svg>
+        <h2 id="tour-library-title" class="hud-sheet-title" data-i18n="ui.tours.library">Tours</h2>
+        <button class="hud-close" type="button" id="tour-library-close" aria-label="Close the tours" data-i18n-attr="aria-label:ui.tours.close">
+          <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
+        </button>
+      </div>
+      <div class="hud-library-topics">
+        <div id="tour-library-list" class="hud-library-cards"></div>
+      </div>
     </div>
 
     <div id="lesson-panel" class="hud-lesson-panel" hidden>
