@@ -10,6 +10,9 @@ export const ui = {
     start: 'Start the tour',
     startHint: 'With sound · about 8 minutes',
     explore: 'Explore on my own',
+    // The card shrunk to a small button, once the visitor does something else first.
+    pill: 'Start the tour · 8 min',
+    close: 'Close',
   },
   narration: {
     title: 'Narrated tour',

@@ -1996,11 +1996,13 @@ body:has(.hud-library:not([hidden]), .hud-palette:not([hidden])) .hud-camera-hin
   display: none;
 }
 /* The steering hint would only crowd the card; it is for later, once the visitor takes the controls. */
-body:has(.hud-welcome:not([hidden])) .hud-camera-hint {
+body:has(.hud-welcome:not([hidden])) .hud-camera-hint,
+body:has(.hud-welcome-pill:not([hidden])) .hud-camera-hint {
   display: none;
 }
 .hud-welcome-title {
   margin: 0;
+  padding-right: 40px;
   font-size: 22px;
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -2029,6 +2031,32 @@ body:has(.hud-welcome:not([hidden])) .hud-camera-hint {
 }
 .hud-welcome #welcome-explore {
   margin: 0;
+}
+.hud-welcome-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+}
+/* The card, shrunk out of the way: Start, low in the middle, where the subtitles will be. */
+.hud-welcome-pill {
+  position: fixed;
+  left: 50%;
+  bottom: 104px;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--hud-font);
+}
+.hud-welcome-pill[hidden],
+body[data-app-mode='learn'] .hud-welcome-pill,
+body[data-ui-hidden] .hud-welcome-pill {
+  display: none;
+}
+.hud-welcome-pill #welcome-pill-start {
+  margin: 0;
+  white-space: nowrap;
 }
 
 /* The narrator's subtitles over the dock, like a film's: plain text on a dark, see-through band

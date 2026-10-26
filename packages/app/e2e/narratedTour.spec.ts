@@ -44,6 +44,37 @@ test('left alone, the welcome card steps aside for the silent tour', async ({ pa
   await expect(page.locator('#narration-bar')).toBeHidden()
 })
 
+test('set up the view first: the card shrinks to a Start pill, which starts the tour in that view', async ({ page }) => {
+  await page.goto('/')
+  await waitForFirstFrame(page)
+  await page.locator('.hud-explore-dock .hud-dock-btn[data-panel="view"]').click()
+  await expect(page.locator('#welcome-card')).toBeHidden()
+  await page.locator('#scale-mode-realistic-btn').click()
+  await page.locator('#welcome-pill-start').click()
+  await expect(page.locator('#welcome-pill')).toBeHidden()
+  await expect(page.locator('#camera-tour-toggle .btn-label')).toHaveText('Stop Tour')
+  await expect(page.locator('#scale-mode-realistic-btn')).toHaveAttribute('aria-pressed', 'true')
+})
+
+test('the card and its pill close with their close buttons, and with Escape', async ({ page }) => {
+  await page.goto('/')
+  await waitForFirstFrame(page)
+  await page.locator('#welcome-close').click()
+  await expect(page.locator('#welcome-card')).toBeHidden()
+  await expect(page.locator('#welcome-pill')).toBeHidden()
+
+  await page.reload()
+  await waitForFirstFrame(page)
+  await page.locator('#scene').click({ position: { x: 40, y: 300 } })
+  await page.locator('#welcome-pill-close').click()
+  await expect(page.locator('#welcome-pill')).toBeHidden()
+
+  await page.reload()
+  await waitForFirstFrame(page)
+  await page.keyboard.press('Escape')
+  await expect(page.locator('#welcome-card')).toBeHidden()
+})
+
 test('?tour=off shows no welcome card', async ({ page }) => {
   await openApp(page)
   await expect(page.locator('#welcome-card')).toBeHidden()

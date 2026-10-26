@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- The welcome card has a close button. Set up the view first – open a dock, switch to Realistic – and it
+  shrinks to a small "Start the tour" button, so the tour starts in the view you chose.
+
 - Initial design specification for the MVP (see `docs/superpowers/specs/2026-07-17-to-boldly-glow-mvp-design.md`).
 - Roadmap document naming deferred features (see `docs/roadmap.md`).
 - Render all 8 planets (Mercury through Neptune), not just Earth, orbiting the Sun.

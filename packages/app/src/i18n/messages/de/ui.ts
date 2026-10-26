@@ -11,6 +11,9 @@ export const ui: Messages['ui'] = {
     start: 'Tour starten',
     startHint: 'Mit Ton · etwa 8 Minuten',
     explore: 'Selbst erkunden',
+    // The card shrunk to a small button, once the visitor does something else first.
+    pill: 'Tour starten · 8 Min.',
+    close: 'Schließen',
   },
   narration: {
     title: 'Erzählte Tour',

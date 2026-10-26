@@ -229,7 +229,18 @@ function markRendered(app: Explorer): void {
   if (app.canvas.dataset.rendered) return
   app.canvas.dataset.rendered = 'true'
   if (!startupTourWanted(window.location.search)) return
-  const elements = { card: requireElement('#welcome-card'), language: requireElement('#welcome-language'), voice: requireElement('#welcome-voice'), start: requireElement<HTMLButtonElement>('#welcome-start'), explore: requireElement<HTMLButtonElement>('#welcome-explore') }
+  const elements = {
+    card: requireElement('#welcome-card'),
+    close: requireElement<HTMLButtonElement>('#welcome-close'),
+    language: requireElement('#welcome-language'),
+    voice: requireElement('#welcome-voice'),
+    start: requireElement<HTMLButtonElement>('#welcome-start'),
+    explore: requireElement<HTMLButtonElement>('#welcome-explore'),
+    pill: requireElement('#welcome-pill'),
+    pillStart: requireElement<HTMLButtonElement>('#welcome-pill-start'),
+    pillClose: requireElement<HTMLButtonElement>('#welcome-pill-close'),
+    tourToggle: requireElement('#camera-tour-toggle'),
+  }
   showWelcomeCard(elements, {
     startNarratedTour: () => app.startNarratedTour(),
     startIdleTour: () => app.startTour(),

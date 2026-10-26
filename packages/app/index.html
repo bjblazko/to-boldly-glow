@@ -87,6 +87,9 @@
     <!-- The narrated tour: a welcome card that starts it (with sound, a click being the browser's
          permission to play it), and the narrator's subtitles with a mute button while it runs. -->
     <div id="welcome-card" class="hud-welcome" role="dialog" aria-labelledby="welcome-title" hidden>
+      <button id="welcome-close" class="hud-close hud-welcome-close" type="button" aria-label="Close" data-i18n-attr="aria-label:ui.welcome.close">
+        <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
+      </button>
       <h2 id="welcome-title" class="hud-welcome-title" data-i18n="ui.welcome.title">Welcome aboard</h2>
       <p class="hud-welcome-text" data-i18n="ui.welcome.text">A guided flight through the Solar System: from the Sun out to Neptune, and home to Earth, with a narrator telling you what makes each world special.</p>
       <h3 class="hud-group-title" id="welcome-language-title" data-i18n="ui.welcome.language">Language</h3>
@@ -101,6 +104,15 @@
       <button id="welcome-explore" class="hud-btn" type="button">
         <svg class="icon" aria-hidden="true"><use href="#icon-planet"></use></svg>
         <span data-i18n="ui.welcome.explore">Explore on my own</span>
+      </button>
+    </div>
+    <div id="welcome-pill" class="hud-welcome-pill" hidden>
+      <button id="welcome-pill-start" class="hud-btn hud-btn-primary" type="button">
+        <svg class="icon" aria-hidden="true"><use href="#icon-play"></use></svg>
+        <span data-i18n="ui.welcome.pill">Start the tour · 8 min</span>
+      </button>
+      <button id="welcome-pill-close" class="hud-close" type="button" aria-label="Close" data-i18n-attr="aria-label:ui.welcome.close">
+        <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
       </button>
     </div>
     <div id="narration-bar" class="hud-narration" role="region" aria-label="Narrated tour" data-i18n-attr="aria-label:ui.narration.title" hidden>

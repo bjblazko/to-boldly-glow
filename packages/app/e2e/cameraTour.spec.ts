@@ -64,9 +64,9 @@ test('the tour sets off on its own a moment after the scene first shows', async 
 test('a click on the scene before the tour sets off keeps the camera still', async ({ page }) => {
   await page.goto('/')
   await waitForFirstFrame(page)
-  // Beside the welcome card, which stays: the visitor is there to choose.
+  // Beside the welcome card, which shrinks to its Start pill: the visitor is there to choose.
   await page.locator('#scene').click({ position: { x: 40, y: 300 } })
   await page.waitForTimeout(11_000)
   await expect(page.locator('#camera-tour-toggle .btn-label')).toHaveText('Start Tour')
-  await expect(page.locator('#welcome-card')).toBeVisible()
+  await expect(page.locator('#welcome-pill')).toBeVisible()
 })
