@@ -7,8 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-26
+
+The first numbered release: the Solar System to explore at true or compact scale, lessons on
+seasons, Moon phases, eclipses and planet sizes, a narrated grand tour in English and German,
+background music, and a download that runs from the disk without a web server.
+
 ### Added
 
+- Version numbers (Semantic Versioning); the About dialog shows the app's.
+- A download that runs from the disk: unzip, open index.html - no web server needed
+  (`npm run build:offline` in packages/app).
 - A third mode, Tours, beside Explore and Learn: its library holds the narrated grand tour (and
   room for more). The Camera panel's tour button now flies the silent loop. One menu at a time:
   opening Tours closes the lesson library, and the other way round.
@@ -434,3 +443,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Resolved 11 open Dependabot alerts by upgrading vite (5.4 → ^6.4.3) and vitest (2.1 → ^3.2.6)
   across all workspace packages, including a critical arbitrary-file-read alert in vitest's UI
   server. All dev-only tooling, never shipped to users.
+
+[Unreleased]: https://github.com/bjblazko/to-boldly-glow/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/bjblazko/to-boldly-glow/releases/tag/v0.5.0

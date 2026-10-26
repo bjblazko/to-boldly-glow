@@ -197,6 +197,7 @@ export const ui: Messages['ui'] = {
     beta: 'Beta-Version',
     betaAfter: '.',
     madeBy: 'Gemacht von Timo Böwing.',
+    version: (number: string) => `Version ${number}`,
     projectPage: 'Projektseite',
     sourceCode: 'Quellcode auf GitHub',
     imprint: 'Impressum',

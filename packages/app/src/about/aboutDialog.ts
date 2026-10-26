@@ -1,5 +1,6 @@
 import { CREDIT_GROUPS, type Credit, type CreditGroup } from './credits'
 import { msg } from '../i18n/i18n'
+import { version } from '../../package.json'
 
 // The About dialog behind the top right info button: who makes the app, where it lives, what (not)
 // leaves the browser, its license, and the licenses and thanks for everything it ships. A native
@@ -7,9 +8,10 @@ import { msg } from '../i18n/i18n'
 export class AboutDialog {
   constructor(
     private readonly dialog: HTMLDialogElement,
-    elements: { openButton: HTMLButtonElement; closeButton: HTMLButtonElement; credits: HTMLElement },
+    elements: { openButton: HTMLButtonElement; closeButton: HTMLButtonElement; credits: HTMLElement; version: HTMLElement },
   ) {
     elements.credits.replaceChildren(...CREDIT_GROUPS.map(renderGroup))
+    elements.version.textContent = msg.ui.about.version(version)
     elements.openButton.addEventListener('click', () => this.open())
     elements.closeButton.addEventListener('click', () => dialog.close())
     // A press on the backdrop (outside the dialog's box) closes it too.

@@ -161,6 +161,7 @@ function createAbout(): AboutDialog {
     openButton: requireElement('#about-btn'),
     closeButton: requireElement('#about-close'),
     credits: requireElement('#about-credits'),
+    version: requireElement('#about-version'),
   })
 }
 

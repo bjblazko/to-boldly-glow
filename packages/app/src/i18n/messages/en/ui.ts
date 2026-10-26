@@ -196,6 +196,7 @@ export const ui = {
     beta: 'beta version',
     betaAfter: '.',
     madeBy: 'Made by Timo Böwing.',
+    version: (number: string) => `Version ${number}`,
     projectPage: 'Project page',
     sourceCode: 'Source code on GitHub',
     imprint: 'Imprint',

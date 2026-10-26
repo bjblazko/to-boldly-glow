@@ -38,3 +38,9 @@ test('the palette opens the About dialog', async ({ page }) => {
   await page.locator('#palette-input').press('Enter')
   await expect(page.locator('#about-dialog')).toBeVisible()
 })
+
+test('the About dialog shows the app’s version', async ({ page }) => {
+  await openApp(page)
+  await page.locator('#about-btn').click()
+  await expect(page.locator('#about-version')).toHaveText(/^Version \d+\.\d+\.\d+$/)
+})
