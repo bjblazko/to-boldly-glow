@@ -139,10 +139,7 @@ function createLessons(explorer: ReturnType<typeof createExplorer>, gpu: LessonG
     gpu,
   )
   const learnUi = createLearnUi(session, progress, dock)
-  new SettingsPanel(requireElement('#settings-panel'), requireElement('#settings-btn'), requireElement('#settings-close'))
-  bindSettingsTabs(requireElement('#settings-tabs'))
-  bindLanguageSwitch(requireElement('#language-switch'))
-  bindVoiceSwitch(requireElement('#settings-voice'))
+  createSettings()
   const ui = new InterfaceVisibility(document.body, { hide: requireElement('#hide-ui-btn'), show: requireElement('#show-ui-btn') })
   // The beta note's word on the Compact scale opens View, where the scale is switched - bringing
   // the interface back first if it is hidden.
@@ -157,6 +154,13 @@ function createLessons(explorer: ReturnType<typeof createExplorer>, gpu: LessonG
   })
   createPalette(learnUi, explorer.select, { hideInterface: () => ui.hide(), showAbout: () => about.open() })
   return session
+}
+
+function createSettings(): void {
+  new SettingsPanel(requireElement('#settings-panel'), requireElement('#settings-btn'), requireElement('#settings-close'))
+  bindSettingsTabs(requireElement('#settings-tabs'))
+  bindLanguageSwitch(requireElement('#language-switch'))
+  bindVoiceSwitch(requireElement('#settings-voice'))
 }
 
 function createLearnUi(session: LessonSession, progress: LessonProgress, dock: DockUI): LearnUi {
