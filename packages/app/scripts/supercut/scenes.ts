@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test'
-import { boot, drag, followBody, glide, lessonSceneOnly, sceneOnly, setSwitch, sunBehindTarget, timeRate, wait, zoom } from './stage'
+import { boot, drag, followBody, glide, lessonSceneOnly, realisticScale, sceneOnly, setSwitch, sunBehindTarget, timeRate, wait, zoom } from './stage'
 
 // One shot of the film: set up off camera (`prepare`), then filmed for `bars` bars of the music
 // while `act` runs.
@@ -14,9 +14,15 @@ export interface Scene {
 
 // The followed body with the Sun turned right behind it, the camera then turned `offset` pixels
 // around (0: the body eclipses the Sun) and zoomed by `notches`, the clock at a rate preset if
-// given; with labels and orbits if asked, the interface hidden.
-async function sunlit(page: Page, base: string, body: string, { offset, notches = 0, rate, labels = false }: { offset: [number, number]; notches?: number; rate?: number; labels?: boolean }): Promise<void> {
+// given; with labels and orbits if asked, at true scale if asked, the interface hidden.
+async function sunlit(
+  page: Page,
+  base: string,
+  body: string,
+  { offset, notches = 0, rate, labels = false, realistic = false }: { offset: [number, number]; notches?: number; rate?: number; labels?: boolean; realistic?: boolean },
+): Promise<void> {
   await boot(page, base)
+  if (realistic) await realisticScale(page)
   await setSwitch(page, '#body-labels-toggle', true)
   if (labels) await setSwitch(page, '#orbit-paths-toggle', true)
   await followBody(page, body)
@@ -49,26 +55,26 @@ const press = (page: Page, selector: string) => page.evaluate((selector) => docu
 
 export const SCENES: Scene[] = [
   {
-    // The planets running round the Sun, a month a second, the camera drifting in towards it.
+    // The planets running round the Sun, a day a second, the camera drifting in towards it.
     caption: 'The Solar System, live in your browser',
-    bars: 3,
+    bars: 2,
     prepare: async (page, base) => {
       await boot(page, base)
       await setSwitch(page, '#orbit-paths-toggle', true)
       await setSwitch(page, '#body-labels-toggle', true)
       await zoom(page, 6)
       await drag(page, [0, -90])
-      await timeRate(page, 4)
+      await timeRate(page, 3)
       await sceneOnly(page)
     },
-    act: (page, seconds) => glide(page, [160, 40], seconds * 1000 - 400, portrait(page) ? -300 : -900),
+    act: (page, seconds) => glide(page, [90, 20], seconds * 1000 - 400, portrait(page) ? -200 : -500),
   },
   {
-    // From Earth's day side round to its night side, the Sun rising behind it.
+    // From Earth's day side round to its night side, the Sun rising behind it - at true scale.
     caption: 'Light, shadow and glow',
     bars: 3,
-    prepare: (page, base) => sunlit(page, base, 'Earth', { offset: [-560, 70], notches: -3, rate: 2, labels: true }),
-    act: (page, seconds) => glide(page, [420, 0], seconds * 1000 - 400, portrait(page) ? 0 : -120),
+    prepare: (page, base) => sunlit(page, base, 'Earth', { offset: [-560, 70], notches: -1, rate: 2, labels: true, realistic: true }),
+    act: (page, seconds) => glide(page, [420, 0], seconds * 1000 - 400),
   },
   {
     caption: 'Every world on its real orbit',
@@ -77,14 +83,18 @@ export const SCENES: Scene[] = [
     act: (page, seconds) => glide(page, [-140, -30], seconds * 1000 - 400, portrait(page) ? 0 : -100),
   },
   {
-    // The seasons lesson flying from Earth's orbit in to Earth, its tilted axis and the Sun.
+    // The seasons lesson at the June solstice: Earth's tilted axis leaning toward the Sun.
     caption: 'Lessons that show how it works',
     bars: 3,
-    prepare: (page, base) => lesson(page, base, 'seasons'),
-    act: async (page) => {
-      await wait(700)
-      await press(page, '#lesson-next-chapter')
+    prepare: async (page, base) => {
+      await lesson(page, base, 'seasons')
+      for (let i = 0; i < 3; i++) {
+        await press(page, '#lesson-next-chapter')
+        await wait(3000)
+      }
+      await wait(3000)
     },
+    act: (page, seconds) => glide(page, [70, -15], seconds * 1000 - 400, portrait(page) ? 0 : -120),
   },
   {
     // The planets side by side, seen from beside the Sun, lining up anew by size.

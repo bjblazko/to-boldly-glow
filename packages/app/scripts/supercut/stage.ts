@@ -21,6 +21,15 @@ export async function followBody(page: Page, name: string): Promise<void> {
   await wait(3500)
 }
 
+// True sizes and distances: the View panel's Realistic, with time for the scene to ease over.
+export async function realisticScale(page: Page): Promise<void> {
+  const view = page.locator('.hud-dock-btn[data-panel="view"]:visible')
+  await view.click()
+  await page.locator('#scale-mode-realistic-btn').click()
+  await view.click()
+  await wait(3000)
+}
+
 // The scene alone: no interface, no beta note.
 export async function sceneOnly(page: Page): Promise<void> {
   await page.keyboard.press('h')
