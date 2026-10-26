@@ -20,7 +20,7 @@ import { LearnUi } from '../learn/learnUi'
 import { LessonCamera } from '../learn/lessonCamera'
 import { LessonPanel } from '../learn/lessonPanel'
 import { LessonProgress } from '../learn/lessonProgress'
-import { LessonSession, type LessonGpu } from '../learn/lessonSession'
+import { LessonSession, type LessonGpu, type LessonVoice } from '../learn/lessonSession'
 import { LessonViewControls } from '../learn/lessonViewControls'
 import { EclipseLabels } from '../learn/eclipse/eclipseLabels'
 import { EclipseLesson } from '../learn/eclipse/eclipseLesson'
@@ -53,6 +53,7 @@ import { startupTourWanted } from './startupTour'
 import { showWelcomeCard } from './welcomeCard'
 import { loadNarrationManifest } from '../narration/narrationManifest'
 import { MusicEngine } from '../music/musicEngine'
+import { LessonNarration } from '../narration/lessonNarration'
 import { bindMusicSettings } from '../music/musicSettings'
 
 type SceneFeatures = Omit<SceneParts, 'lessons'>
@@ -68,7 +69,7 @@ export async function startApp(canvas: HTMLCanvasElement): Promise<void> {
   const display = new DisplaySettings(canvas, (selector) => requireElement<HTMLInputElement>(selector))
   const music = new MusicEngine()
   const explorer = createExplorer(canvas, display, features.orbitPaths, { narrationManifest, music })
-  const lessons = createLessons(explorer, { device: gpu.device, linePipeline }, groundSky)
+  const lessons = createLessons(explorer, { device: gpu.device, linePipeline }, groundSky, new LessonNarration(narrationManifest, requireElement<HTMLInputElement>('#narration-sound-toggle'), (audible) => music.duck(audible)))
   bindMusicSettings(requireElement('#music-switch'), requireElement<HTMLInputElement>('#music-volume'), music)
   const renderer = new SceneRenderer(gpu.device, targets, { ...features, lessons }, { display, linePipeline })
   watchCanvasSize(canvas, () => {
@@ -113,7 +114,7 @@ async function createSceneFeatures(device: GPUDevice, format: GPUTextureFormat, 
 
 // The lessons, and the HUD around both modes: the docks, the Explore / Learn switch with the lesson
 // library, the settings popover and the search-everything palette.
-function createLessons(explorer: ReturnType<typeof createExplorer>, gpu: LessonGpu, groundSky: GroundSky): LessonSession {
+function createLessons(explorer: ReturnType<typeof createExplorer>, gpu: LessonGpu, groundSky: GroundSky, voice: LessonVoice): LessonSession {
   const { camera, lens, canvas, display, searchUi } = explorer
   const dock = new DockUI(
     document.querySelectorAll<HTMLButtonElement>('.hud-dock-btn[data-panel]'),
@@ -133,6 +134,7 @@ function createLessons(explorer: ReturnType<typeof createExplorer>, gpu: LessonG
       progress,
       labels: new SeasonsLabels(requireElement),
       stagedScenes: [new EclipseLesson(gpu, groundSky, new EclipseLabels(requireElement)), createPhasesLesson(gpu, groundSky)],
+      voice,
     },
     gpu,
   )

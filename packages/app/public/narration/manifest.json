@@ -29,6 +29,94 @@
             "hash": "88783968459dbe32",
             "seconds": 30.24
           },
+          "lesson-moonPhases-always-half-lit": {
+            "hash": "02183f3a5a6b704c",
+            "seconds": 26.56
+          },
+          "lesson-moonPhases-evening-crescent": {
+            "hash": "a4edb4ff8f4b5d90",
+            "seconds": 30.24
+          },
+          "lesson-moonPhases-first-quarter": {
+            "hash": "6ad1402ae7a006ad",
+            "seconds": 21.12
+          },
+          "lesson-moonPhases-full-moon": {
+            "hash": "46a81c053fd7388c",
+            "seconds": 23.84
+          },
+          "lesson-moonPhases-last-quarter": {
+            "hash": "3d067f6d128440d2",
+            "seconds": 21.44
+          },
+          "lesson-moonPhases-not-earths-shadow": {
+            "hash": "9b225c301e9de161",
+            "seconds": 27.44
+          },
+          "lesson-moonPhases-same-face": {
+            "hash": "e26d59793fb9c49e",
+            "seconds": 34.4
+          },
+          "lesson-planetSizes-lineup": {
+            "hash": "e6c4be81266727de",
+            "seconds": 43.2
+          },
+          "lesson-seasons-december-solstice": {
+            "hash": "be9bf7634ec114b3",
+            "seconds": 16.16
+          },
+          "lesson-seasons-intro": {
+            "hash": "3f4568078d8cb0c6",
+            "seconds": 24.48
+          },
+          "lesson-seasons-june-solstice": {
+            "hash": "9183f2f9a1198276",
+            "seconds": 16.72
+          },
+          "lesson-seasons-march-equinox": {
+            "hash": "3de12cea0b721b50",
+            "seconds": 22.16
+          },
+          "lesson-seasons-orbit": {
+            "hash": "a7781412a3deb37f",
+            "seconds": 46.56
+          },
+          "lesson-seasons-september-equinox": {
+            "hash": "9fc7ea7d2699e019",
+            "seconds": 17.68
+          },
+          "lesson-solarEclipse-annular": {
+            "hash": "b7c1036b65d02704",
+            "seconds": 26.48
+          },
+          "lesson-solarEclipse-diamond-ring": {
+            "hash": "11c463f3f118e282",
+            "seconds": 20.56
+          },
+          "lesson-solarEclipse-first-contact": {
+            "hash": "bbc11df2812ddb08",
+            "seconds": 28.96
+          },
+          "lesson-solarEclipse-new-moon": {
+            "hash": "cc6ffddb17563cbd",
+            "seconds": 36.48
+          },
+          "lesson-solarEclipse-partial": {
+            "hash": "a83cf4f6e2e4bdef",
+            "seconds": 29.36
+          },
+          "lesson-solarEclipse-shadow-on-earth": {
+            "hash": "fcdd40c85a77048f",
+            "seconds": 35.76
+          },
+          "lesson-solarEclipse-tilted-orbit": {
+            "hash": "520c83df46d59242",
+            "seconds": 30.48
+          },
+          "lesson-solarEclipse-totality": {
+            "hash": "724e71090af397de",
+            "seconds": 38.0
+          },
           "mars-approach": {
             "hash": "363ce1344cbdfd9f",
             "seconds": 9.76
@@ -52,6 +140,50 @@
           "neptune-orbit": {
             "hash": "5f5638c93480535c",
             "seconds": 28.64
+          },
+          "order-day": {
+            "hash": "78052c6e34532d7d",
+            "seconds": 11.52
+          },
+          "order-density": {
+            "hash": "643e797356c595bf",
+            "seconds": 13.04
+          },
+          "order-distance": {
+            "hash": "c562096ce16d862a",
+            "seconds": 7.52
+          },
+          "order-gravity": {
+            "hash": "5e946af3c4111b37",
+            "seconds": 11.28
+          },
+          "order-mass": {
+            "hash": "31e5200655af7fdb",
+            "seconds": 8.0
+          },
+          "order-size": {
+            "hash": "8824a53a4e3a4be3",
+            "seconds": 9.76
+          },
+          "order-speed": {
+            "hash": "687ca4c513ff9ac7",
+            "seconds": 14.96
+          },
+          "order-temperature": {
+            "hash": "28a2755b06d6a599",
+            "seconds": 11.92
+          },
+          "order-tilt": {
+            "hash": "e06403207e9aadc0",
+            "seconds": 12.96
+          },
+          "order-type": {
+            "hash": "11a2e90d96d965ac",
+            "seconds": 13.36
+          },
+          "order-year": {
+            "hash": "b0abf459cc8ca0cf",
+            "seconds": 8.4
           },
           "saturn-approach": {
             "hash": "faa9444ec03e82cf",
@@ -111,6 +243,94 @@
             "hash": "7338105d7c303731",
             "seconds": 28.32
           },
+          "lesson-moonPhases-always-half-lit": {
+            "hash": "d71540260dc4167d",
+            "seconds": 23.6
+          },
+          "lesson-moonPhases-evening-crescent": {
+            "hash": "b2bf200ccc5892e5",
+            "seconds": 27.44
+          },
+          "lesson-moonPhases-first-quarter": {
+            "hash": "39e7667b5936bc57",
+            "seconds": 21.12
+          },
+          "lesson-moonPhases-full-moon": {
+            "hash": "6a8dd0642bb923b8",
+            "seconds": 22.24
+          },
+          "lesson-moonPhases-last-quarter": {
+            "hash": "bfcc8f1d8b39f920",
+            "seconds": 25.12
+          },
+          "lesson-moonPhases-not-earths-shadow": {
+            "hash": "a14e0d1c3269bbb8",
+            "seconds": 25.6
+          },
+          "lesson-moonPhases-same-face": {
+            "hash": "6aa468f91c040ae0",
+            "seconds": 30.0
+          },
+          "lesson-planetSizes-lineup": {
+            "hash": "f6887e228d3b840f",
+            "seconds": 39.76
+          },
+          "lesson-seasons-december-solstice": {
+            "hash": "d3ddac8d0cead577",
+            "seconds": 16.72
+          },
+          "lesson-seasons-intro": {
+            "hash": "636adc19037972d1",
+            "seconds": 23.36
+          },
+          "lesson-seasons-june-solstice": {
+            "hash": "25fb6feb75c78722",
+            "seconds": 16.96
+          },
+          "lesson-seasons-march-equinox": {
+            "hash": "a92782d9f91bc0fe",
+            "seconds": 20.4
+          },
+          "lesson-seasons-orbit": {
+            "hash": "2be241a7871bd88f",
+            "seconds": 43.76
+          },
+          "lesson-seasons-september-equinox": {
+            "hash": "76e966454916d7a9",
+            "seconds": 18.24
+          },
+          "lesson-solarEclipse-annular": {
+            "hash": "cc4e4c71e2123bce",
+            "seconds": 24.4
+          },
+          "lesson-solarEclipse-diamond-ring": {
+            "hash": "12774bb0c2157190",
+            "seconds": 20.56
+          },
+          "lesson-solarEclipse-first-contact": {
+            "hash": "568471a9afd642c7",
+            "seconds": 25.6
+          },
+          "lesson-solarEclipse-new-moon": {
+            "hash": "a6526e15bedf9862",
+            "seconds": 35.36
+          },
+          "lesson-solarEclipse-partial": {
+            "hash": "3989e736a8be104f",
+            "seconds": 28.0
+          },
+          "lesson-solarEclipse-shadow-on-earth": {
+            "hash": "42edcd36e195b69f",
+            "seconds": 39.12
+          },
+          "lesson-solarEclipse-tilted-orbit": {
+            "hash": "a5a6f78ce00858f4",
+            "seconds": 30.32
+          },
+          "lesson-solarEclipse-totality": {
+            "hash": "accf7e1df843f18c",
+            "seconds": 38.48
+          },
           "mars-approach": {
             "hash": "048ad3d129f8109b",
             "seconds": 9.6
@@ -134,6 +354,50 @@
           "neptune-orbit": {
             "hash": "8e4036c7c57d7ce7",
             "seconds": 30.56
+          },
+          "order-day": {
+            "hash": "e301e56405e205bf",
+            "seconds": 12.08
+          },
+          "order-density": {
+            "hash": "1d4c5eeee18ecc46",
+            "seconds": 13.76
+          },
+          "order-distance": {
+            "hash": "e577ba5eb65d64f0",
+            "seconds": 7.84
+          },
+          "order-gravity": {
+            "hash": "ca06dd62c2f267cf",
+            "seconds": 12.64
+          },
+          "order-mass": {
+            "hash": "d36cf566a674789c",
+            "seconds": 8.64
+          },
+          "order-size": {
+            "hash": "9d7a1c315cf6b509",
+            "seconds": 10.16
+          },
+          "order-speed": {
+            "hash": "2af140a83ad3a2db",
+            "seconds": 12.88
+          },
+          "order-temperature": {
+            "hash": "609eabe495d10e87",
+            "seconds": 13.84
+          },
+          "order-tilt": {
+            "hash": "965ff10dbb31b1c8",
+            "seconds": 16.96
+          },
+          "order-type": {
+            "hash": "337d84e2a0c709d6",
+            "seconds": 13.28
+          },
+          "order-year": {
+            "hash": "e7705827e473cc38",
+            "seconds": 10.48
           },
           "saturn-approach": {
             "hash": "70a8dab49708a631",
@@ -201,6 +465,94 @@
             "hash": "1cfb8a6f2ceef50c",
             "seconds": 30.32
           },
+          "lesson-moonPhases-always-half-lit": {
+            "hash": "f27118cb55407307",
+            "seconds": 27.6
+          },
+          "lesson-moonPhases-evening-crescent": {
+            "hash": "8439b62520a916d4",
+            "seconds": 30.64
+          },
+          "lesson-moonPhases-first-quarter": {
+            "hash": "bd99d2bafdb21107",
+            "seconds": 20.24
+          },
+          "lesson-moonPhases-full-moon": {
+            "hash": "83c70aa08ff293ef",
+            "seconds": 22.16
+          },
+          "lesson-moonPhases-last-quarter": {
+            "hash": "997e3dcf1b2a959b",
+            "seconds": 24.16
+          },
+          "lesson-moonPhases-not-earths-shadow": {
+            "hash": "ab50bd7c6996bd48",
+            "seconds": 28.24
+          },
+          "lesson-moonPhases-same-face": {
+            "hash": "2f4d9f97333d464d",
+            "seconds": 34.96
+          },
+          "lesson-planetSizes-lineup": {
+            "hash": "06bba9e8755b98bf",
+            "seconds": 44.08
+          },
+          "lesson-seasons-december-solstice": {
+            "hash": "c4a5805b1e53705a",
+            "seconds": 17.84
+          },
+          "lesson-seasons-intro": {
+            "hash": "cbe3eab7b412d56a",
+            "seconds": 26.16
+          },
+          "lesson-seasons-june-solstice": {
+            "hash": "13eb06b19e97cbba",
+            "seconds": 17.76
+          },
+          "lesson-seasons-march-equinox": {
+            "hash": "4b6ff9f7fea03002",
+            "seconds": 22.0
+          },
+          "lesson-seasons-orbit": {
+            "hash": "532ca2f3d664d555",
+            "seconds": 49.44
+          },
+          "lesson-seasons-september-equinox": {
+            "hash": "1af8d21356326e03",
+            "seconds": 18.56
+          },
+          "lesson-solarEclipse-annular": {
+            "hash": "a6bbbfaf124bac88",
+            "seconds": 28.88
+          },
+          "lesson-solarEclipse-diamond-ring": {
+            "hash": "5de98f90089556ea",
+            "seconds": 22.48
+          },
+          "lesson-solarEclipse-first-contact": {
+            "hash": "5809c21afab8d167",
+            "seconds": 28.32
+          },
+          "lesson-solarEclipse-new-moon": {
+            "hash": "39a028e5ad532efd",
+            "seconds": 41.6
+          },
+          "lesson-solarEclipse-partial": {
+            "hash": "ec03b55e0a212dde",
+            "seconds": 29.6
+          },
+          "lesson-solarEclipse-shadow-on-earth": {
+            "hash": "b2b0bac1d02a3a07",
+            "seconds": 37.12
+          },
+          "lesson-solarEclipse-tilted-orbit": {
+            "hash": "c32a7decbab0a3cd",
+            "seconds": 32.4
+          },
+          "lesson-solarEclipse-totality": {
+            "hash": "b0b1454947df7fd1",
+            "seconds": 38.4
+          },
           "mars-approach": {
             "hash": "d9c59812d64df420",
             "seconds": 10.8
@@ -224,6 +576,50 @@
           "neptune-orbit": {
             "hash": "bb34549e4138c66f",
             "seconds": 31.44
+          },
+          "order-day": {
+            "hash": "94b27e6740b72517",
+            "seconds": 13.52
+          },
+          "order-density": {
+            "hash": "d5a7115fdb7960f4",
+            "seconds": 13.52
+          },
+          "order-distance": {
+            "hash": "d0ca32abdffef3ef",
+            "seconds": 10.24
+          },
+          "order-gravity": {
+            "hash": "d364b8f6c32104a7",
+            "seconds": 12.8
+          },
+          "order-mass": {
+            "hash": "0fa24ecc14c1cad2",
+            "seconds": 10.56
+          },
+          "order-size": {
+            "hash": "9b014a4b4db9673a",
+            "seconds": 10.64
+          },
+          "order-speed": {
+            "hash": "f99b4322b3d9957d",
+            "seconds": 15.36
+          },
+          "order-temperature": {
+            "hash": "490b255ed221fb64",
+            "seconds": 11.36
+          },
+          "order-tilt": {
+            "hash": "b05e3ef9eb354c1e",
+            "seconds": 14.24
+          },
+          "order-type": {
+            "hash": "091719de32877a60",
+            "seconds": 16.72
+          },
+          "order-year": {
+            "hash": "06b7a27ab469a78a",
+            "seconds": 9.68
           },
           "saturn-approach": {
             "hash": "c5a8eb76faada8af",
@@ -283,6 +679,94 @@
             "hash": "a1bd0cc1669181b2",
             "seconds": 28.56
           },
+          "lesson-moonPhases-always-half-lit": {
+            "hash": "8091e85d5386bf02",
+            "seconds": 22.72
+          },
+          "lesson-moonPhases-evening-crescent": {
+            "hash": "d0258ce224828758",
+            "seconds": 27.84
+          },
+          "lesson-moonPhases-first-quarter": {
+            "hash": "31e5642ee7639553",
+            "seconds": 18.08
+          },
+          "lesson-moonPhases-full-moon": {
+            "hash": "4a98743c30023433",
+            "seconds": 20.88
+          },
+          "lesson-moonPhases-last-quarter": {
+            "hash": "37fb68557bb17aaa",
+            "seconds": 22.8
+          },
+          "lesson-moonPhases-not-earths-shadow": {
+            "hash": "5465e24534ab0cff",
+            "seconds": 25.36
+          },
+          "lesson-moonPhases-same-face": {
+            "hash": "306aaa4718b5504a",
+            "seconds": 33.36
+          },
+          "lesson-planetSizes-lineup": {
+            "hash": "1ec0572cdb369402",
+            "seconds": 36.88
+          },
+          "lesson-seasons-december-solstice": {
+            "hash": "71d897c56108053d",
+            "seconds": 16.96
+          },
+          "lesson-seasons-intro": {
+            "hash": "280bbf3df3037ce0",
+            "seconds": 25.04
+          },
+          "lesson-seasons-june-solstice": {
+            "hash": "0d4a21127293edf9",
+            "seconds": 17.2
+          },
+          "lesson-seasons-march-equinox": {
+            "hash": "47122f6551c4925d",
+            "seconds": 20.96
+          },
+          "lesson-seasons-orbit": {
+            "hash": "2cc1d866e9e2bb2f",
+            "seconds": 47.84
+          },
+          "lesson-seasons-september-equinox": {
+            "hash": "c4880547b5d376bd",
+            "seconds": 16.24
+          },
+          "lesson-solarEclipse-annular": {
+            "hash": "8c1ae783d28c453e",
+            "seconds": 21.68
+          },
+          "lesson-solarEclipse-diamond-ring": {
+            "hash": "0b4ba4ab7758b7af",
+            "seconds": 21.12
+          },
+          "lesson-solarEclipse-first-contact": {
+            "hash": "7a1fa65582c2be1f",
+            "seconds": 25.2
+          },
+          "lesson-solarEclipse-new-moon": {
+            "hash": "ef4679726b02e117",
+            "seconds": 35.6
+          },
+          "lesson-solarEclipse-partial": {
+            "hash": "97e3e2ddc08172cd",
+            "seconds": 26.56
+          },
+          "lesson-solarEclipse-shadow-on-earth": {
+            "hash": "61d44fa81fd8f344",
+            "seconds": 36.0
+          },
+          "lesson-solarEclipse-tilted-orbit": {
+            "hash": "d0d71401467555f0",
+            "seconds": 28.72
+          },
+          "lesson-solarEclipse-totality": {
+            "hash": "cc3e8918b32b21ff",
+            "seconds": 35.92
+          },
           "mars-approach": {
             "hash": "a406436059219992",
             "seconds": 9.76
@@ -306,6 +790,50 @@
           "neptune-orbit": {
             "hash": "c6cd6916d47166e0",
             "seconds": 29.2
+          },
+          "order-day": {
+            "hash": "e7a68365c00cbf95",
+            "seconds": 12.32
+          },
+          "order-density": {
+            "hash": "d6f05a4f7680e23d",
+            "seconds": 11.6
+          },
+          "order-distance": {
+            "hash": "24923154e827eaae",
+            "seconds": 8.48
+          },
+          "order-gravity": {
+            "hash": "897958c2acefa05e",
+            "seconds": 11.84
+          },
+          "order-mass": {
+            "hash": "fef9980262cff8d6",
+            "seconds": 8.88
+          },
+          "order-size": {
+            "hash": "a9c3839c02810a63",
+            "seconds": 9.44
+          },
+          "order-speed": {
+            "hash": "fffbe1c30ef4ca5a",
+            "seconds": 14.0
+          },
+          "order-temperature": {
+            "hash": "70ee57bec9885ec0",
+            "seconds": 13.28
+          },
+          "order-tilt": {
+            "hash": "554059994305966a",
+            "seconds": 14.48
+          },
+          "order-type": {
+            "hash": "b83363eadaa23654",
+            "seconds": 12.24
+          },
+          "order-year": {
+            "hash": "38cd7a231f5fe82f",
+            "seconds": 8.56
           },
           "saturn-approach": {
             "hash": "263e26c7e0f90d73",

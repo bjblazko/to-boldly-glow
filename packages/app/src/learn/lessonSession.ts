@@ -30,6 +30,14 @@ export interface LessonSessionParts {
   labels: SeasonsLabels
   // The lessons that stage their own Sun, Earth and Moon (the solar eclipse, the Moon's phases).
   stagedScenes: StagedLessonScene[]
+  voice: LessonVoice
+}
+
+// Reads the lesson out: each chapter as it is shown, and a new order of the planets.
+export interface LessonVoice {
+  chapter(lessonId: string, chapter: Chapter): void
+  sorted(sortingId: string): void
+  stop(): void
 }
 
 export interface LessonGpu {
@@ -205,11 +213,13 @@ export class LessonSession {
     this.frameCamera()
     panel.visible = true
     this.showChapter()
+    this.parts.voice.chapter(lesson.id, this.chapter)
   }
 
   end(): void {
     const { camera, display, modeController, lessonCamera, panel } = this.parts
     if (!this.active) return
+    this.parts.voice.stop()
     modeController.exit()
     if (this.borrowed) {
       camera.restoreAfterLesson(this.borrowed.camera)
@@ -243,6 +253,7 @@ export class LessonSession {
     this.arrangeLineup({ animate, focusPlanetId })
     if (focusPlanetId) this.frameCamera(animate)
     this.showChapter()
+    this.parts.voice.sorted(sortingId)
   }
 
   // A new chapter of the same kind turns Earth's axis (or moves the Moon) smoothly with the camera
@@ -257,5 +268,6 @@ export class LessonSession {
     if (kindChanged) this.frameCamera()
     else if (this.chapter.focusPlanetId !== previous.focusPlanetId) this.frameCamera(true)
     this.showChapter()
+    if (this.chapter !== previous) this.parts.voice.chapter(this.player.currentLesson.id, this.chapter)
   }
 }

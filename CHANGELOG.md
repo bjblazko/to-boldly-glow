@@ -187,6 +187,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Qwen3-TTS (Apache-2.0; `packages/data-pipeline/narration/`), each voice designed per language so
   German sounds German. The clips ship as Opus (WebM) and MP3, and each browser loads the one it
   plays. A test fails while a text has no up-to-date clip.
+- The narrator reads the lessons out too: each chapter as it comes up (the units spelled out, as
+  a voice says them), each planet in the planets lesson in the tour's words for it, and a new
+  order of the planets when they are sorted. The narrator's voice switch in Settings silences it.
 - Background music, off until chosen in Settings: three lo-fi tracks with 8-bit touches - Drift
   (slow pads, record crackle), Nova (lo-fi house with a sub-bass on the downbeats) and Pixel
   (chiptune) - played live by a small synthesizer in the browser (Web Audio; no recordings),
