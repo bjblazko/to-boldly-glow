@@ -13,7 +13,64 @@ Way, and a real ~9,100-star background in the stars' own colors from the Yale Br
 Catalogue.
 
 **Try it live: [huepattl.de/products/to-boldly-glow](https://huepattl.de/products/to-boldly-glow)**
-(needs a browser with WebGPU, such as a current Chrome, Edge or Safari).
+(needs a browser with WebGPU, such as a current Chrome, Edge or Safari) - or download it and run
+it from your disk, no web server needed (see [Run it from the download](#run-it-from-the-download)).
+
+## Features
+
+### The Solar System, true to the date
+
+The Sun, all eight planets and nine major moons on their real orbits (VSOP87) with their real axial
+tilts, for any date - plus the asteroid and Kuiper belts, comets with their tails, and the dwarf
+planets. Run time forwards or backwards, from real time up to a year per second.
+
+### True scale, or one you can take in
+
+**Realistic** shows the true sizes and distances - mostly empty space, as it is. **Compact** pulls
+everything close enough to see at a glance. The switch eases between them, and a note says when
+what you see is not to scale.
+
+### Light, shadow and glow
+
+Rendered through WebGPU with HDR bloom and lens flares: Earth's night side with its city lights and
+aurora, clouds and a glowing atmosphere, Saturn's rings, the Sun's corona when a planet covers it,
+the Milky Way with its nebulae, and about 9,100 real stars in their own colors.
+
+### Fly it, or let it fly you
+
+Orbit any body, or fly freely like a spaceship - with keys, mouse, or a thumbstick on a touch
+screen. Double-click a planet to fly there and follow it. Left alone, a silent flyby circles one
+planet after another.
+
+### Tours, with a narrator
+
+The **Tours** mode holds the narrated **grand tour**: from the Sun out to Neptune and home to Earth,
+about eight minutes, with a narrator - Lyra or Orion - telling what makes each world special, and
+optional subtitles. It flies at warp between the planets, at either scale. The welcome card offers
+it at the start.
+
+### Lessons that show, and read themselves out
+
+The **Learn** mode: *Get to know the planets* (side by side at true scale, sorted by size, mass,
+temperature and more), *Why does Earth have seasons?*, *Why does the Moon have phases?* and *What
+happens in a solar eclipse?* - each scene built to show the idea, and every chapter read out by the
+narrator.
+
+### Music
+
+Three lo-fi tracks, played live by a synthesizer in the page (nothing recorded, nothing
+downloaded): calm **Drift**, the lo-fi house of **Nova** and the 8-bit **Pixel**. The music steps
+back while the narrator speaks.
+
+### English and German
+
+The whole app, the lessons and the narration, in English and German - asked on the first visit,
+changeable in the settings.
+
+### Private by design
+
+No account, no tracking, no update check: the app loads only its own files, and your settings stay
+in your browser.
 
 - [Roadmap](docs/roadmap.md) — features named for future phases (seasons, moon phases, eclipses,
   satellites/probes, a speed-of-light calculator, gravitational field visualization, and more).
@@ -26,8 +83,18 @@ app's About dialog (the info button at the top right) lists them too, with their
 
 ## For users
 
-The quickest way to try it is the [live version](https://huepattl.de/products/to-boldly-glow). To run
-it yourself, or to work on it:
+The quickest way to try it is the [live version](https://huepattl.de/products/to-boldly-glow).
+
+### Run it from the download
+
+1. Download `to-boldly-glow-<version>.zip` from the
+   [project page](https://huepattl.de/products/to-boldly-glow) and unzip it.
+2. Open `index.html` - double-click it, or drag it into a browser window.
+
+That's all: no web server, no internet connection, nothing to install. It needs a browser with
+WebGPU (a current Chrome or Edge, Safari 26 or newer, or a current Firefox).
+
+To run it from the source instead, or to work on it:
 
 ### Getting it running
 
@@ -53,9 +120,10 @@ it yourself, or to work on it:
 
 ### Using the app
 
-- **Explore and Learn** — the switch at the top of the screen chooses between flying around the
-  solar system and taking a lesson. Each mode has its own dock at the bottom; the buttons at the
-  top right search everything and open the settings.
+- **Explore, Learn and Tours** — the switch at the top of the screen chooses between flying around
+  the solar system, taking a lesson and taking a narrated tour. Explore and Learn have their own dock
+  at the bottom; the buttons at the top right search everything, open the settings and the About
+  dialog.
 - **Find** — the **Find** panel lists every body as a tree, by kind: the Sun, the planets with their
   moons under them, dwarf planets, asteroids and comets. Typing narrows it down (Enter flies to the
   first match); pick a body to fly the camera to it and lock on. A "Following: …" chip appears with
@@ -71,9 +139,11 @@ it yourself, or to work on it:
   ecliptic when you stop rolling. On a touch screen, free flight shows a thumbstick (fly and strafe)
   and buttons to rise, sink and boost; drag anywhere else to look around, pinch to set the speed. A
   short hint at the top of the screen recalls the controls whenever you switch. The same
-  panel has **Start Tour**, an endless autopilot flight past every planet, flown like a spaceship —
-  it accelerates, brakes on arrival, banks into turns and circles each planet once (any camera input
-  hands control back, exactly where the tour was).
+  panel has **Start Flyby**, an endless silent autopilot flight past every planet, flown like a
+  spaceship — it accelerates, brakes on arrival, banks into turns and circles each planet once (any
+  camera input hands control back, exactly where the flight was).
+- **Tours** — the **Tours** button opens the tour library; the **grand tour** flies from the Sun to
+  Neptune and home to Earth with a narrator. Any camera input, or Explore, ends it.
 - **Time** — the **Time** panel has play/pause, a reverse-direction button, and rate presets
   (real-time up to a year per second). The shuttle slider lets you dial in a rate directly: the
   center tick is zero (the clock is stopped), the left half rewinds, the right half fast-forwards
@@ -84,9 +154,11 @@ it yourself, or to work on it:
   toggles planet orbits, comet and dwarf-planet orbits, name labels, the stars (in their real
   colors), the Milky Way (with its nebulae and the nearest galaxies), the asteroid and Kuiper belts,
   comets, Earth's clouds and moons independently.
-- **Settings** — how the picture is rendered: HDR bloom, lens flares and the **Filmic look** (off by
-  default), which renders the picture's colors like film (AgX tonemapping): the Sun burns out to
-  white-hot instead of staying a saturated orange, and the sky goes deep black.
+- **Settings** — in tabs. **General**: the language. **Video**: HDR bloom, lens flares and the
+  **Filmic look** (off by default), which renders the picture's colors like film (AgX tonemapping):
+  the Sun burns out to white-hot instead of staying a saturated orange, and the sky goes deep black.
+  **Audio**: the narrator's voice (Lyra or Orion) and whether it speaks, subtitles, and the music
+  (off, Drift, Nova or Pixel) with its volume.
 - **Search everything** — `Ctrl+K` (`Cmd+K` on a Mac) or the search button finds objects, lessons
   and settings in one list.
 - **Learn** — the lesson library shows the lessons by topic, with a search, and remembers where you
@@ -160,13 +232,15 @@ This is an npm-workspaces monorepo with three packages:
     `camera/tour/`), `learn/` (lessons, with
     `seasons/`, `sizes/`, `eclipse/`, `phases/` and the shared sky and horizon in `ground/`), `hud/`,
     `time/`, `search/`, `solarSystem/` (body data and
-    orbital mechanics).
+    orbital mechanics), `narration/` (the narrator: scripts, clips, subtitles), `tours/` (the Tours
+    mode), `music/` (the live synthesizer and its tracks) and `i18n/` (English and German texts).
   - `gpu/` and `lines/` hold the WebGPU plumbing the features share.
 - **`packages/data-pipeline`** — TypeScript. Offline conversion scripts (e.g. turning the Yale
   Bright Star Catalogue into the binary starfield asset `packages/app` loads at runtime,
   painting the Milky Way panorama, `npm run paint-sky`, and pulling Earth's city lights out of
-  NASA's night image, `npm run extract-city-lights`). Not part
-  of the normal dev loop — only run when source data changes.
+  NASA's night image, `npm run extract-city-lights`), and the narration: the narrator's clips are
+  spoken locally by Qwen3-TTS (`npm run narrate`, Python; see `packages/data-pipeline/narration/`).
+  Not part of the normal dev loop — only run when source data changes.
 
 ### Setup
 
@@ -186,6 +260,7 @@ Run from the repo root:
 | --- | --- |
 | `npm run dev --workspace=@toboldlyglow/app` | Dev server with hot reload |
 | `npm run build` | Builds the engine, then the app, for production |
+| `npm run build:offline --workspace=@toboldlyglow/app` | Builds the download that runs from the disk, and zips it (`packages/app/dist-offline/`) |
 | `npm test` | Unit tests across all three packages (Vitest) |
 | `npm run test:e2e` | Builds the app, then runs the Playwright e2e suite in a real browser |
 | `npm run typecheck` | `tsc --noEmit` for the app, its unit tests and e2e specs |
