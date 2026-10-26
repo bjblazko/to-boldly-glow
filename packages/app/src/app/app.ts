@@ -139,13 +139,17 @@ function createLessons(explorer: ReturnType<typeof createExplorer>, gpu: LessonG
     gpu,
   )
   const learnUi = createLearnUi(session, progress, dock)
-  // The beta note's word on the Compact scale opens View, where the scale is switched.
-  requireElement('#scale-note').addEventListener('click', () => dock.open('view'))
   new SettingsPanel(requireElement('#settings-panel'), requireElement('#settings-btn'), requireElement('#settings-close'))
   bindSettingsTabs(requireElement('#settings-tabs'))
   bindLanguageSwitch(requireElement('#language-switch'))
   bindVoiceSwitch(requireElement('#settings-voice'))
   const ui = new InterfaceVisibility(document.body, { hide: requireElement('#hide-ui-btn'), show: requireElement('#show-ui-btn') })
+  // The beta note's word on the Compact scale opens View, where the scale is switched - bringing
+  // the interface back first if it is hidden.
+  requireElement('#scale-note').addEventListener('click', () => {
+    ui.show()
+    dock.open('view')
+  })
   const about = new AboutDialog(requireElement<HTMLDialogElement>('#about-dialog'), {
     openButton: requireElement('#about-btn'),
     closeButton: requireElement('#about-close'),

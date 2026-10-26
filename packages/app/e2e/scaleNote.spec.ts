@@ -12,3 +12,13 @@ test('the beta note says the Compact scale is not true to scale, and opens View 
   await page.locator('#scale-mode-compact-btn').click()
   await expect(note).toBeVisible()
 })
+
+test('the scale note stays with the interface hidden, and brings it back to open View', async ({ page }) => {
+  await openApp(page)
+  await page.keyboard.press('h')
+  const note = page.locator('.hud-scale-note')
+  await expect(note).toBeVisible()
+  await note.click()
+  await expect(page.locator('body')).not.toHaveAttribute('data-ui-hidden')
+  await expect(page.locator('#scale-mode-realistic-btn')).toBeVisible()
+})
