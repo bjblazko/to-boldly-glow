@@ -184,8 +184,16 @@ export const ui: Messages['ui'] = {
     resetView: 'Zurück zur Ansicht der Lektion',
     resetViewTitle: 'Zurück zur Ansicht der Lektion – zieh an der Szene, um sie etwas zu drehen',
   },
+  // The hint for browsers that are not Chrome-based (see hud/browserHint.ts).
+  browser: {
+    safari: 'Safari zeigt To Boldly Glow, aber langsamer. Am schnellsten läuft es in einem Chrome-basierten Browser: Chrome, Edge, Chromium oder Helium.',
+    firefox: 'Firefox zeigt To Boldly Glow unter Windows und auf Macs mit Apple-Chip, nicht unter Linux und Android. Am besten läuft es in einem Chrome-basierten Browser: Chrome, Edge, Chromium oder Helium.',
+    other: 'To Boldly Glow läuft am besten in einem Chrome-basierten Browser: Chrome, Edge, Chromium oder Helium.',
+    close: 'Browser-Hinweis schließen',
+  },
   errors: {
-    startFailed: (message) => `Die Grafik konnte nicht starten: ${message}`,
+    startFailed: (message) =>
+      `Die Grafik konnte nicht starten: ${message} To Boldly Glow braucht WebGPU: ein aktuelles Chrome, Edge, Chromium oder Helium (am schnellsten), Safari ab 26 oder Firefox unter Windows oder auf einem Mac mit Apple-Chip.`,
     deviceLost: (message) => `Die Grafikkarte hat aufgehört zu arbeiten${message ? ` (${message})` : ''}. `,
     reload: 'Neu laden',
   },
@@ -205,7 +213,7 @@ export const ui: Messages['ui'] = {
     yourData: 'Deine Daten',
     yourDataText:
       'Die App lädt nur ihre eigenen Dateien, von dieser Seite oder aus dem Ordner, in den du sie entpackt hast. Nichts, was du in ihr tust, wird irgendwohin geschickt: kein Tracking, keine Update-Prüfung. ' +
-      'Deine Einstellungen (Sprache, Erzählstimme, Untertitel, Musik und Lautstärke) und wo du in jeder Lektion aufgehört hast, merkt sich nur dieser Browser.',
+      'Deine Einstellungen (Sprache, Erzählstimme, Untertitel, Musik und Lautstärke), ob du den Browser-Hinweis geschlossen hast und wo du in jeder Lektion aufgehört hast, merkt sich nur dieser Browser.',
     license: 'Lizenz',
     licenseText: 'MIT-Lizenz: frei zu nutzen, zu ändern und weiterzugeben. Ohne jede Gewährleistung, soweit das Gesetz es erlaubt. ',
     licenseLink: 'Lizenztext',

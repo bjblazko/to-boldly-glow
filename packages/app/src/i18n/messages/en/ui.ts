@@ -183,8 +183,16 @@ export const ui = {
     resetView: "Back to the lesson's view",
     resetViewTitle: "Back to the lesson's view - drag the scene to turn it a little",
   },
+  // The hint for browsers that are not Chrome-based (see hud/browserHint.ts).
+  browser: {
+    safari: 'Safari runs To Boldly Glow, but more slowly. It runs fastest in a Chrome-based browser: Chrome, Edge, Chromium or Helium.',
+    firefox: 'Firefox runs To Boldly Glow on Windows and on Macs with Apple silicon, not on Linux or Android. It runs best in a Chrome-based browser: Chrome, Edge, Chromium or Helium.',
+    other: 'To Boldly Glow runs best in a Chrome-based browser: Chrome, Edge, Chromium or Helium.',
+    close: 'Close the browser hint',
+  },
   errors: {
-    startFailed: (message: string) => `Failed to start renderer: ${message}`,
+    startFailed: (message: string) =>
+      `Failed to start renderer: ${message} To Boldly Glow needs WebGPU: a current Chrome, Edge, Chromium or Helium (fastest), Safari 26 or newer, or Firefox on Windows or a Mac with Apple silicon.`,
     deviceLost: (message: string) => `The graphics device stopped working${message ? ` (${message})` : ''}. `,
     reload: 'Reload',
   },
@@ -204,7 +212,7 @@ export const ui = {
     yourData: 'Your data',
     yourDataText:
       'The app loads only its own files, from this site or the folder you unzipped it to. Nothing you do in it is sent anywhere: no tracking, no update check. ' +
-      'Your settings (language, narrator, subtitles, music and its volume) and where you left each lesson are remembered in this browser only.',
+      'Your settings (language, narrator, subtitles, music and its volume), whether you closed the browser hint, and where you left each lesson are remembered in this browser only.',
     license: 'License',
     licenseText: 'MIT License: free to use, change and share. Provided as is, without any warranty, as far as the law allows. ',
     licenseLink: 'License text',

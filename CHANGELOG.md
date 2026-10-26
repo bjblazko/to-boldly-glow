@@ -7,8 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- A browser that isn't Chrome-based gets a small hint, closed for good with one click: Safari runs
+  the app more slowly, Firefox only on Windows and Macs with Apple silicon; Chrome, Edge, Chromium
+  and Helium run it fastest. No hint on iPhone and iPad, where every browser is Safari underneath.
+  Without WebGPU the start-up message now says which browsers have it.
+
 ### Fixed
 
+- On phones the steering hint no longer covers the beta note.
 - On windows narrower than about 820px the three mode buttons ran under the top right buttons, and
   up to about 1080px the beta note reached under the mode switch; the top bar now takes a second
   row sooner, the beta note ends short of the switch, and the smallest phones drop the mode icons.

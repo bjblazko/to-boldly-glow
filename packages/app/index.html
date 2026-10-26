@@ -72,8 +72,8 @@
         <h3 class="hud-group-title" data-i18n="ui.about.yourData">Your data</h3>
         <p data-i18n="ui.about.yourDataText">
           The app loads only its own files, from this site or the folder you unzipped it to. Nothing you do in it is sent
-          anywhere: no tracking, no update check. Your settings (language, narrator, subtitles, music and its volume) and
-          where you left each lesson are remembered in this browser only.
+          anywhere: no tracking, no update check. Your settings (language, narrator, subtitles, music and its volume), whether
+          you closed the browser hint, and where you left each lesson are remembered in this browser only.
         </p>
         <h3 class="hud-group-title" data-i18n="ui.about.license">License</h3>
         <p>
@@ -118,6 +118,12 @@
     </div>
     <div id="narration-bar" class="hud-narration" role="region" aria-label="Narrated tour" data-i18n-attr="aria-label:ui.narration.title" hidden>
       <p id="narration-subtitle" class="hud-narration-text" aria-live="polite" hidden></p>
+    </div>
+    <div id="browser-hint" class="hud-browser-hint" role="note" hidden>
+      <p id="browser-hint-text"></p>
+      <button id="browser-hint-close" class="hud-close" type="button" aria-label="Close the browser hint" data-i18n-attr="aria-label:ui.browser.close">
+        <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
+      </button>
     </div>
     <div id="fps-display" class="hud-fps" aria-hidden="true" hidden>— fps</div>
     <div id="camera-hint" class="hud-camera-hint" role="status" hidden></div>
