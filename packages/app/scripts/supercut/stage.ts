@@ -62,6 +62,38 @@ export async function zoom(page: Page, notches: number): Promise<void> {
   await wait(1200)
 }
 
+// A cinematic camera move: drags the orbit camera from the center by (dx, dy) and zooms by `zoom`
+// wheel units (negative: in), both easing in and out over `ms`, then holds still before letting
+// go, so nothing flings on.
+export async function glide(page: Page, [dx, dy]: [number, number], ms: number, zoom = 0): Promise<void> {
+  const { width, height } = page.viewportSize()!
+  const [x, y] = [width / 2, height / 2]
+  const ease = (t: number) => t * t * (3 - 2 * t)
+  await page.mouse.move(x, y)
+  if (dx || dy) await page.mouse.down()
+  const start = Date.now()
+  let [lastEased, done] = [0, false]
+  while (!done) {
+    const t = Math.min((Date.now() - start) / ms, 1)
+    done = t >= 1
+    const eased = ease(t)
+    if (dx || dy) await page.mouse.move(x + dx * eased, y + dy * eased)
+    if (zoom) await page.mouse.wheel(0, zoom * (eased - lastEased))
+    lastEased = eased
+    await wait(16)
+  }
+  await wait(200)
+  if (dx || dy) await page.mouse.up()
+}
+
+// The interface hidden in a lesson too (the app's own hiding is for Explore): only the scene and
+// its labels stay.
+export async function lessonSceneOnly(page: Page): Promise<void> {
+  await page.addStyleTag({
+    content: '.hud-modes, .hud-top-actions, .hud-dock, .hud-lesson-panel, .hud-view-controls, .hud-phase-inset, .hud-camera-hint { display: none !important; }',
+  })
+}
+
 // Holds keys down for `ms`: the app's own camera keys (arrows turn, R/F zoom), which it eases in
 // and out - smoother than any drag.
 export async function hold(page: Page, keys: string[], ms: number): Promise<void> {

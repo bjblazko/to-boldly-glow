@@ -14,8 +14,8 @@ const MUSIC_TRACKS = '/src/music/musicTracks.ts'
 // Where Lyra speaks, in bars from the start (see lines.json).
 const LINES: [id: string, bar: number][] = [
   ['intro', 0.25],
-  ['middle', 8],
-  ['outro', 16.1],
+  ['middle', 9],
+  ['outro', 18.1],
 ]
 
 // Nova, played by the app's own synthesizer into an OfflineAudioContext: `bars` bars from the

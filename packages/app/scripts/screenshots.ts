@@ -38,8 +38,16 @@ const lessonAt = async (page: Page, base: string, id: string, nexts: number) => 
 }
 
 const SHOTS: Record<string, Shot> = {
+  // Earth's best side: its night side with the cities and the aurora, the Sun rising behind it,
+  // Venus and Mercury beside it, with the orbits and the names.
   hero: async (page, base) => {
-    await sunlit(page, base, 'Earth', [120, 0])
+    await boot(page, base)
+    await setSwitch(page, '#body-labels-toggle', true)
+    await setSwitch(page, '#orbit-paths-toggle', true)
+    await followBody(page, 'Earth')
+    await sunBehindTarget(page)
+    await drag(page, [-140, 70])
+    await zoom(page, -3)
     await sceneOnly(page)
   },
   corona: async (page, base) => {

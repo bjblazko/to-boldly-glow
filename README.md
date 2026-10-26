@@ -1,6 +1,6 @@
 # To Boldly Glow
 
-![To Boldly Glow: Earth as a crescent beside the Sun and Venus, its night side lit by cities, the aurora at its poles, and the lens flare of the Sun](docs/images/hero.jpg)
+![To Boldly Glow: Earth's night side with its city lights and aurora, the Sun rising behind it, Venus, Mercury and the Moon beside it, with the planets' orbits and names(docs/images/hero.jpg)
 
 To Boldly Glow is a free, open-source, browser-based planetarium and solar-system visualizer. It
 renders the Sun, all 8 planets, and 9 major moons in 3D using real orbital mechanics (VSOP87
