@@ -85,8 +85,8 @@ export class MusicEngine {
 }
 
 // One track playing: its own mix bus, echo (and crackle, if it has any), and a scheduler writing
-// bar after bar.
-class Performance {
+// bar after bar. An offline render (the supercut's soundtrack) writes the whole song at once.
+export class Performance {
   private readonly bus: GainNode
   private readonly instruments: Instruments
   private readonly composer: Composer
@@ -95,7 +95,7 @@ class Performance {
   private nextBarTime: number
 
   constructor(
-    private readonly ctx: AudioContext,
+    private readonly ctx: BaseAudioContext,
     master: AudioNode,
     private readonly track: MusicTrack,
     // Where in the song to start: past the intro when taking over from another track.
@@ -165,12 +165,22 @@ class Performance {
     this.sources.push(source)
   }
 
-  private schedule(): void {
-    while (this.nextBarTime < this.ctx.currentTime + LOOKAHEAD_SECONDS) {
+  // Writes every bar that starts before `time`, in seconds on the audio clock.
+  scheduleThrough(time: number): void {
+    while (this.nextBarTime < time) {
       for (const event of this.composer.bar(this.bar)) this.sound(event)
       this.bar++
       this.nextBarTime += STEPS_PER_BAR * this.stepSeconds()
     }
+  }
+
+  // Stops writing bars (what is written still plays).
+  halt(): void {
+    clearInterval(this.timer)
+  }
+
+  private schedule(): void {
+    this.scheduleThrough(this.ctx.currentTime + LOOKAHEAD_SECONDS)
   }
 
   private sound(event: MusicEvent): void {

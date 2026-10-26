@@ -5,6 +5,8 @@
     samples  speaks one sample per voice and language into work/samples/, to check them by ear
     build    speaks every text in texts.json in every voice; only the ones whose text, voice
              reference or model changed since the manifest was written
+    speak    speaks the lines of a JSON file ([{"id", "text"}]) in one voice and language into a
+             folder, as loudness-normalized WAV (the supercut's narration: --lines, --out)
 
 --voices and --languages narrow any of them down (e.g. --languages German).
 
@@ -200,6 +202,24 @@ def build(args: argparse.Namespace) -> None:
             print(f"[{number}/{len(todo)}] {voice}/{text['locale']}/{text['id']}: {seconds} s", flush=True)
 
 
+def speak_lines(args: argparse.Namespace) -> None:
+    voice, language = args.voices[0], args.languages[0]
+    code = LANGUAGES[language][0]
+    out = Path(args.out)
+    out.mkdir(parents=True, exist_ok=True)
+    model = load(CLONE_MODEL)
+    prompt = clone_prompt(model, voice, code)
+    for line in json.loads(Path(args.lines).read_text()):
+        audio, rate = speak(model, prompt, line["text"], language)
+        raw = out / f"{line['id']}.raw.wav"
+        sf.write(raw, audio, rate)
+        target = out / f"{line['id']}.wav"
+        command = [FFMPEG, "-loglevel", "error", "-y", "-i", str(raw), "-af", "loudnorm=I=-16:TP=-1.5:LRA=11", "-ar", "48000", "-ac", "1", str(target)]
+        subprocess.run(command, check=True, close_fds=False)
+        raw.unlink()
+        print(f"{target}: {round(len(audio) / rate, 2)} s", flush=True)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     # Each takes one value and may be repeated (--languages German --languages English).
@@ -209,6 +229,10 @@ def main() -> None:
     commands.add_parser("design").set_defaults(run=design)
     commands.add_parser("samples").set_defaults(run=samples)
     commands.add_parser("build").set_defaults(run=build)
+    speak_parser = commands.add_parser("speak")
+    speak_parser.add_argument("--lines", required=True)
+    speak_parser.add_argument("--out", required=True)
+    speak_parser.set_defaults(run=speak_lines)
     args = parser.parse_args()
     args.voices = args.voices or sorted(VOICE_DESIGNS)
     args.languages = args.languages or sorted(LANGUAGES)

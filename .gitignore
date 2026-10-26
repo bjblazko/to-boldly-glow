@@ -15,3 +15,4 @@ packages/data-pipeline/narration/.venv/
 packages/data-pipeline/narration/work/
 packages/data-pipeline/narration/texts.json
 __pycache__/
+packages/app/scripts/supercut/out/
