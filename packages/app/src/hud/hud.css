@@ -1360,6 +1360,12 @@ body:has(#scale-mode-compact-btn[aria-pressed='true']) .hud-scale-note {
     padding: 9px 12px;
   }
 }
+/* The smallest phones: the mode switch keeps its words and drops its icons. */
+@media (max-width: 360px) {
+  .hud-mode-btn .icon {
+    display: none;
+  }
+}
 
 /* -------------------- app mode: learn -------------------- */
 .hud-lesson-panel {
@@ -1945,11 +1951,12 @@ body:has(.hud-library:not([hidden]), .hud-palette:not([hidden])) .hud-camera-hin
   box-shadow: var(--hud-lit), var(--hud-ring), 1px 1px 0 rgba(255, 255, 255, 0.34);
 }
 
-/* Phones: the mode switch and the four top buttons don't fit side by side. The mode switch keeps
-   the first row (with its words), the buttons take the right end of a second row beside the beta
-   note, and everything that hangs below the top bar moves down by that row. Last in the file, so
-   it wins over each element's own placement. */
-@media (max-width: 480px) {
+/* Phones and narrow windows: the mode switch and the four top buttons don't fit side by side (in
+   German, the widest, below about 800px). The mode switch keeps the first row (with its words), the
+   buttons take the right end of a second row beside the beta note, and everything that hangs below
+   the top bar moves down by that row. Last in the file, so it wins over each element's own
+   placement. */
+@media (max-width: 820px) {
   .hud-top-actions {
     top: 80px;
     right: 12px;
@@ -1980,6 +1987,13 @@ body:has(.hud-library:not([hidden]), .hud-palette:not([hidden])) .hud-camera-hin
   .hud-library,
   .hud-about {
     max-height: calc(100vh - 230px);
+  }
+}
+/* A little wider, everything fits in one row - but the beta note, at its full width, would reach
+   under the centered mode switch: it ends short of it instead, wrapping onto more lines. */
+@media (min-width: 821px) and (max-width: 1080px) {
+  .hud-beta-note {
+    max-width: calc(50vw - 215px);
   }
 }
 

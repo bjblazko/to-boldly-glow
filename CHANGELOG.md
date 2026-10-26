@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- On windows narrower than about 820px the three mode buttons ran under the top right buttons, and
+  up to about 1080px the beta note reached under the mode switch; the top bar now takes a second
+  row sooner, the beta note ends short of the switch, and the smallest phones drop the mode icons.
+
 ## [0.5.0] - 2026-10-26
 
 The first numbered release: the Solar System to explore at true or compact scale, lessons on
