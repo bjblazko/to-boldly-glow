@@ -91,6 +91,8 @@ available; check API/bulk-data terms before bundling) rather than SGP4. Comets v
 orbital elements (e.g. from the Minor Planet Center, checking license/reuse terms).
 **Data needed**: JPL Horizons ephemerides or orbital elements; needs a licensing check pass before
 committing to a specific source, per the project's data-provenance discipline (§5 of the MVP spec).
+Candidate sources for 3D models, photos and mission data, with their terms, are in
+[asset-sources.md](asset-sources.md) (incl. the Voyager models and the Golden Record's limits).
 
 ## Live module: probes and missions
 **What**: An opt-in "Live" module that, only with the user's consent, fetches current positions and
@@ -110,6 +112,24 @@ Space Network "DSN Now" status for live link data, mission descriptions and mile
 (NASA/JPL texts are generally public domain; ESA/JAXA texts and images are not - check each). Needs
 a `huepattl-legal-check` pass before any network call ships: source terms of use, GDPR/privacy
 notice for the third-party requests, and attribution.
+
+## Camera and input: look at anything, fly like a space sim
+**What**: One input layer for every camera, three situations sharing the same gestures
+(requested 2026-11-15, after the Voyager lessons):
+- **Inspecting an object** (the Voyager probe, the Golden Record, later a planet up close): the
+  pivot moves to the point double-clicked/double-tapped (raycast against the model's triangles),
+  wheel/pinch zoom toward the pointer, pan (right drag or Shift+drag; two-finger drag on touch;
+  Shift+two-finger scroll on a trackpad), and the reset button. No ±30° limit in object chapters,
+  zoom down to about 30 cm (check depth precision up close).
+- **Exploring space** (today's orbit camera): the same gestures; pivot by raycast against planets,
+  moons and small bodies; logarithmic zoom; double-click fly-to keeps working and sets the pivot.
+- **Free flight like a space sim** (Freespace 2, Elite), not a shooter: arrows/mouse up-down pitch
+  the nose, left-right yaw, Q/E roll; W/S set a throttle that holds (X stops); strafing and
+  vertical thrust only as extras on their own keys. Mouse as a virtual joystick with pointer lock
+  (deflection from the centre = turn rate, crosshair and ring, "invert mouse Y" setting). Touch: a
+  stick for pitch/yaw, a throttle slider, roll buttons. Gamepad via the Gamepad API. F ("Look at
+  this") stops and switches to inspecting the point under the crosshair.
+**Approach**: own design pass; the inspect camera first (it serves the Voyager lessons and tours).
 
 ## Speed-of-light / travel-time calculator
 **What**: A standalone tool: pick two points (e.g. Earth–Moon, Earth–Mars, Earth–nearest star) and
