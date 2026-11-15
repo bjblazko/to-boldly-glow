@@ -8,7 +8,7 @@ const names = (groups: EntityTreeGroup[]) =>
 
 describe('buildEntityTree', () => {
   it('groups the bodies by kind, in the finder order, with no group of moons', () => {
-    expect(tree.map((group) => group.id)).toEqual(['sun', 'planets', 'dwarfPlanets', 'asteroids', 'comets'])
+    expect(tree.map((group) => group.id)).toEqual(['sun', 'planets', 'dwarfPlanets', 'asteroids', 'comets', 'spacecraft'])
     expect(tree.find((group) => group.id === 'planets')?.nodes).toHaveLength(8)
   })
 

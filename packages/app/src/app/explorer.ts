@@ -21,6 +21,7 @@ import type { SceneLayout } from '../scene/sceneLayout'
 import { EntityFinder } from '../search/entityFinder'
 import { heliocentricPosition } from '../smallBodies/keplerOrbit'
 import { SMALL_BODIES } from '../smallBodies/smallBodyCatalog'
+import { SPACECRAFT, spacecraftAuPosition, spacecraftInFlight } from '../spacecraft/spacecraftCatalog'
 import { ALL_ENTITIES, type SolarSystemEntity } from '../solarSystem/entities'
 import { scaledPosition } from '../solarSystem/sceneScale'
 import { ephemerisAt, type Ephemeris } from '../time/ephemeris'
@@ -156,12 +157,16 @@ export function obstaclesIn(layout: SceneLayout): Obstacle[] {
   return [layout.sun, ...layout.planets, ...layout.moons].map((pose) => ({ position: pose.position, radius: pose.radius }))
 }
 
-// Where the comets and minor planets are, if they are shown (for their labels and picking).
+// Where the comets and minor planets are, if they are shown, and the spacecraft on their way (for
+// their labels and picking).
 export function shownSmallBodies(display: DisplaySettings, ephemeris: Ephemeris, scaleBlend: number): { id: string; position: Vec3 }[] {
-  return SMALL_BODIES.filter((body) => (body.kind === 'comet' ? display.comets.on : display.asteroids.on)).map((body) => ({
+  const bodies = SMALL_BODIES.filter((body) => (body.kind === 'comet' ? display.comets.on : display.asteroids.on)).map((body) => ({
     id: body.id,
     position: scaledPosition(heliocentricPosition(body.orbit, ephemeris.daysSinceEpoch), scaleBlend),
   }))
+  const day = ephemeris.daysSinceEpoch
+  const craft = SPACECRAFT.filter((entry) => spacecraftInFlight(entry.id, day)).map((entry) => ({ id: entry.id, position: scaledPosition(spacecraftAuPosition(entry.id, day)!, scaleBlend) }))
+  return [...bodies, ...craft]
 }
 
 // A paused or real-time clock shows no visible spin or moon motion during a flyby, so the tour

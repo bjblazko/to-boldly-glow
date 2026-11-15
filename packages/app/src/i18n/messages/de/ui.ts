@@ -80,16 +80,17 @@ export const ui: Messages['ui'] = {
     comet: 'Komet',
     dwarfPlanet: 'Zwergplanet',
     asteroid: 'Asteroid',
+    spacecraft: 'Raumsonde',
   },
   find: {
     title: 'Suchen',
     close: 'Suche schließen',
-    placeholder: 'Sonne, Planeten, Monde, Kometen suchen…',
+    placeholder: 'Sonne, Planeten, Monde, Kometen, Raumsonden suchen…',
     tree: 'Himmelskörper',
     stopFollowing: 'Nicht mehr folgen',
     following: (name) => `Folgt: ${name}`,
     nothingFound: 'Nichts gefunden',
-    groups: { sun: 'Sonne', planets: 'Planeten', dwarfPlanets: 'Zwergplaneten', asteroids: 'Asteroiden', comets: 'Kometen' },
+    groups: { sun: 'Sonne', planets: 'Planeten', dwarfPlanets: 'Zwergplaneten', asteroids: 'Asteroiden', comets: 'Kometen', spacecraft: 'Raumsonden' },
   },
   camera: {
     title: 'Kamera',
@@ -164,6 +165,8 @@ export const ui: Messages['ui'] = {
     chapters: 'Kapitel',
     nextChapter: 'Nächstes Kapitel',
     next: 'Weiter',
+    play: 'Abspielen',
+    pause: 'Anhalten',
   },
   lesson: {
     sortHeading: 'Planeten aufreihen nach',
@@ -183,6 +186,8 @@ export const ui: Messages['ui'] = {
     zoomOutTitle: 'Verkleinern – oder scrollen, oder mit zwei Fingern',
     resetView: 'Zurück zur Ansicht der Lektion',
     resetViewTitle: 'Zurück zur Ansicht der Lektion – zieh an der Szene, um sie etwas zu drehen',
+    autoplay: 'Lektion abspielen: Kapitel blättern von selbst um',
+    autoplayStop: 'Abspielen beenden: selbst umblättern',
   },
   // The hint for browsers that are not Chrome-based (see hud/browserHint.ts).
   browser: {

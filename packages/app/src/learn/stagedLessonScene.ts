@@ -2,6 +2,7 @@ import type { Viewpoint } from '../camera/viewpoint'
 import type { SceneLayout } from '../scene/sceneLayout'
 import type { Ephemeris } from '../time/ephemeris'
 import type { GroundShot } from './ground/groundShot'
+import type { LessonShot } from './lessonShot'
 import type { Chapter } from './lessonTypes'
 
 export interface StagedOverlayFrame {
@@ -11,7 +12,7 @@ export interface StagedOverlayFrame {
   sunBrightness: number
 }
 
-// A lesson that stages its own Sun, Earth and Moon (the solar eclipse and Moon phases lessons): what
+// A lesson that stages its own scene (the solar eclipse, the Moon's phases, Voyager): what
 // LessonSession asks of it, for the chapters it handles.
 export interface StagedLessonScene {
   handles(kind: Chapter['kind']): boolean
@@ -22,6 +23,8 @@ export interface StagedLessonScene {
   layout(chapter: Chapter, ephemeris: Ephemeris): SceneLayout
   // The view from the ground, for the chapters that show it (it may move as the scene does).
   groundShot(chapter: Chapter): GroundShot | null
+  // The chapter's own camera shot, for scenes that frame each chapter differently.
+  shot?(chapter: Chapter): LessonShot
   updateOverlays(layout: SceneLayout, chapter: Chapter, frame: StagedOverlayFrame): void
   hideOverlays(): void
   drawBehindBodies(pass: GPURenderPassEncoder, chapter: Chapter): void

@@ -16,21 +16,21 @@ test('a lesson reads each chapter out as it is shown', async ({ page }) => {
   const clips = clipRequests(page)
   await openApp(page)
   await openLesson(page, 'seasons')
-  await expect.poll(() => clips).toContain('/narration/lyra/en/lesson-seasons-orbit.webm')
+  await expect.poll(() => clips).toContain('/narration/lyra/en/lessons/seasons/orbit.webm')
   await page.locator('#lesson-next-chapter').click()
-  await expect.poll(() => clips).toContain('/narration/lyra/en/lesson-seasons-intro.webm')
+  await expect.poll(() => clips).toContain('/narration/lyra/en/lessons/seasons/intro.webm')
 })
 
 test('the planets lesson speaks a planet in the tour’s words, and a new order of the planets', async ({ page }) => {
   const clips = clipRequests(page)
   await openApp(page)
   await openLesson(page, 'planetSizes')
-  await expect.poll(() => clips).toContain('/narration/lyra/en/lesson-planetSizes-lineup.webm')
+  await expect.poll(() => clips).toContain('/narration/lyra/en/lessons/planetSizes/lineup.webm')
   await page.locator('#lesson-next-chapter').click()
-  await expect.poll(() => clips).toContain('/narration/lyra/en/mercury-orbit.webm')
+  await expect.poll(() => clips).toContain('/narration/lyra/en/tours/grand/mercury-orbit.webm')
   await page.locator('#lesson-sort-btn').click()
   await page.locator('#lesson-sort-list [data-sorting-id="size"]').click()
-  await expect.poll(() => clips).toContain('/narration/lyra/en/order-size.webm')
+  await expect.poll(() => clips).toContain('/narration/lyra/en/lessons/planetSizes/order-size.webm')
 })
 
 test('with the narrator’s voice off in Settings, lessons stay silent', async ({ page }) => {

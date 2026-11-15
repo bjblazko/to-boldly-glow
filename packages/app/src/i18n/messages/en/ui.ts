@@ -79,16 +79,17 @@ export const ui = {
     comet: 'Comet',
     dwarfPlanet: 'Dwarf planet',
     asteroid: 'Asteroid',
+    spacecraft: 'Spacecraft',
   },
   find: {
     title: 'Find',
     close: 'Close find panel',
-    placeholder: 'Search the Sun, planets, moons, comets…',
+    placeholder: 'Search the Sun, planets, moons, comets, spacecraft…',
     tree: 'Objects',
     stopFollowing: 'Stop following',
     following: (name: string) => `Following: ${name}`,
     nothingFound: 'Nothing found',
-    groups: { sun: 'Sun', planets: 'Planets', dwarfPlanets: 'Dwarf planets', asteroids: 'Asteroids', comets: 'Comets' },
+    groups: { sun: 'Sun', planets: 'Planets', dwarfPlanets: 'Dwarf planets', asteroids: 'Asteroids', comets: 'Comets', spacecraft: 'Spacecraft' },
   },
   camera: {
     title: 'Camera',
@@ -163,6 +164,8 @@ export const ui = {
     chapters: 'Chapters',
     nextChapter: 'Next chapter',
     next: 'Next',
+    play: 'Play',
+    pause: 'Pause',
   },
   lesson: {
     sortHeading: 'Line the planets up by',
@@ -182,6 +185,8 @@ export const ui = {
     zoomOutTitle: 'Zoom out - or scroll, or pinch',
     resetView: "Back to the lesson's view",
     resetViewTitle: "Back to the lesson's view - drag the scene to turn it a little",
+    autoplay: 'Play the lesson: turn the pages by themselves',
+    autoplayStop: 'Stop playing: turn the pages yourself',
   },
   // The hint for browsers that are not Chrome-based (see hud/browserHint.ts).
   browser: {

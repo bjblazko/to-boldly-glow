@@ -5,6 +5,7 @@ import { de } from './scripts/de'
 import { en, type NarrationPart, type NarrationScript, type NarrationStop } from './scripts/en'
 import { ORDER_LINES } from './scripts/orders'
 import { spokenText } from './spokenText'
+import { missionClipId } from '../missions/missionTimeline'
 
 export const NARRATION_SCRIPTS: Record<Locale, NarrationScript> = { en, de }
 
@@ -13,35 +14,48 @@ export const TTS_LANGUAGES: Record<Locale, string> = { en: 'English', de: 'Germa
 
 // The lessons whose chapters the narrator reads out, as the catalog keeps their texts. The planets
 // lesson's planet chapters take the tour's words for each planet instead (see lessonClipId).
-const READ_LESSONS = ['seasons', 'moonPhases', 'solarEclipse'] as const
+const READ_LESSONS = ['seasons', 'moonPhases', 'solarEclipse', 'voyager', 'voyagerDeepDive'] as const
+
+// Lessons whose texts are ready for `npm run narrate` but not spoken yet: until their clips exist the
+// lesson stays silent, and the manifest test lets them be.
+export const UNRECORDED_LESSONS: readonly string[] = []
+
+// The mission tours' stations, likewise (tours/<probe>/<station>).
+const UNRECORDED_MISSIONS: readonly string[] = []
+
+export function isUnrecorded(segmentId: string): boolean {
+  return UNRECORDED_LESSONS.some((lessonId) => segmentId.startsWith(`lessons/${lessonId}/`)) || UNRECORDED_MISSIONS.some((probe) => segmentId.startsWith(`tours/${probe}/`))
+}
 
 export interface NarrationSegment {
   locale: Locale
-  // The clip's file name (narration/<voice>/<locale>/<id>.webm): `${stop}-${part}` for the tour,
-  // `lesson-${lesson}-${chapter}` for a lesson's chapter, `order-${order}` for a planet order.
+  // The clip's path under narration/<voice>/<locale>/ (without .webm/.mp3), filed by what it belongs
+  // to: `tours/grand/${stop}-${part}` for the grand tour, `tours/${probe}/${station}` for a mission
+  // tour, `lessons/${lesson}/${chapter}` for a lesson's chapter, `lessons/planetSizes/order-${order}`
+  // for a planet order.
   id: string
   text: string
   language: string
 }
 
 export function segmentId(stop: NarrationStop, part: NarrationPart): string {
-  return `${stop}-${part}`
+  return `tours/grand/${stop}-${part}`
 }
 
 // The clip for a lesson's chapter: a planet's is the tour's, said while circling it.
 export function lessonClipId(lessonId: string, chapterId: string, focusPlanetId?: string): string {
-  return focusPlanetId ? segmentId(focusPlanetId as NarrationStop, 'orbit') : `lesson-${lessonId}-${chapterId}`
+  return focusPlanetId ? segmentId(focusPlanetId as NarrationStop, 'orbit') : `lessons/${lessonId}/${chapterId}`
 }
 
 export function orderClipId(orderId: string): string {
-  return `order-${orderId}`
+  return `lessons/planetSizes/order-${orderId}`
 }
 
 // Every text the narrator speaks, in every language: the tour, the lessons, the planet orders.
 export function narrationSegments(): NarrationSegment[] {
   return SUPPORTED_LOCALES.flatMap((locale) => {
     const segment = (id: string, text: string): NarrationSegment => ({ locale, id, text, language: TTS_LANGUAGES[locale] })
-    const texts = [...tourTexts(locale), ...lessonTexts(locale), ...orderTexts(locale)]
+    const texts = [...tourTexts(locale), ...lessonTexts(locale), ...orderTexts(locale), ...missionTexts(locale)]
     return texts.map(([id, text]) => segment(id, text))
   })
 }
@@ -60,6 +74,14 @@ function lessonTexts(locale: Locale): [string, string][] {
   )
   chapters.push([lessonClipId('planetSizes', 'lineup'), lessons.planetSizes.lineup])
   return chapters.map(([id, { title, text }]) => [id, spokenText(`${title}${/[.?!]$/.test(title) ? '' : '.'} ${text}`, locale)])
+}
+
+// Each mission station's title, then its text, as its card shows them.
+function missionTexts(locale: Locale): [string, string][] {
+  const { missions } = messagesFor(locale)
+  return (['voyager1', 'voyager2'] as const).flatMap((probe) =>
+    Object.entries(missions[probe].stations).map(([stationId, { title, text }]): [string, string] => [missionClipId(probe, stationId), spokenText(`${title}. ${text}`, locale)]),
+  )
 }
 
 function orderTexts(locale: Locale): [string, string][] {

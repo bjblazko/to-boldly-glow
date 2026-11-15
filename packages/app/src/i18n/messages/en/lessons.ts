@@ -1,9 +1,13 @@
+import { voyagerLesson } from './voyager'
+import { voyagerDeepDive } from './voyagerDeepDive'
+
 // The lessons' words: each lesson's title and note, and its chapters' titles and texts, by chapter id.
 export const lessons = {
   topics: {
     planets: 'Planets & scale',
     earthAndMoon: 'Earth & Moon',
     skyEvents: 'Sky events',
+    missions: 'Missions',
   },
   seasons: {
     title: 'Why does Earth have seasons?',
@@ -230,4 +234,6 @@ export const lessons = {
         'mass, temperature and more. The following pages fly to each planet in turn, with its own numbers.',
     },
   },
+  voyager: voyagerLesson,
+  voyagerDeepDive,
 }

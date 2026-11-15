@@ -4,6 +4,7 @@ import { MOONS } from '../solarSystem/moons'
 import type { SceneLayout } from '../scene/sceneLayout'
 import type { Vec3 } from '../math/tuples'
 import { SMALL_BODIES } from '../smallBodies/smallBodyCatalog'
+import { SPACECRAFT } from '../spacecraft/spacecraftCatalog'
 import { hideLabel, placeLabel } from './screenLabel'
 import './labels.css'
 
@@ -17,6 +18,7 @@ export class BodyLabels {
     for (const body of [SUN, ...PLANETS]) this.addNote(body.id, this.add(body.id, body.name, 'body-label'))
     for (const moon of MOONS) this.add(moon.id, moon.name, 'moon-label')
     for (const body of SMALL_BODIES) this.add(body.id, body.name, 'small-body-label')
+    for (const craft of SPACECRAFT) this.add(craft.id, craft.name, 'small-body-label spacecraft-label')
   }
 
   // Small bodies aren't part of the scene layout (they move on their own orbits); the caller passes

@@ -15,12 +15,12 @@ describe('the lessons read out', () => {
   })
 
   it('reads a planet’s chapter in the tour’s words for it', () => {
-    expect(lessonClipId('planetSizes', 'jupiter', 'jupiter')).toBe('jupiter-orbit')
-    expect(lessonClipId('planetSizes', 'lineup')).toBe('lesson-planetSizes-lineup')
+    expect(lessonClipId('planetSizes', 'jupiter', 'jupiter')).toBe('tours/grand/jupiter-orbit')
+    expect(lessonClipId('planetSizes', 'lineup')).toBe('lessons/planetSizes/lineup')
   })
 
   it('names the planets in their new order', () => {
-    const size = narrationSegments().find((segment) => segment.locale === 'de' && segment.id === 'order-size')!
+    const size = narrationSegments().find((segment) => segment.locale === 'de' && segment.id === 'lessons/planetSizes/order-size')!
     expect(size.text).toBe('Nach Größe, vom größten zum kleinsten: Jupiter, Saturn, Uranus, Neptun, Erde, Venus, Mars und Merkur.')
   })
 })

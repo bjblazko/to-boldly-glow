@@ -1,7 +1,7 @@
 import { locale } from '../i18n/i18n'
 import type { Chapter } from '../learn/lessonTypes'
 import { AudioClipPlayer } from './audioClipPlayer'
-import { clipUrl, type NarrationManifest } from './narrationManifest'
+import { clipUrl, estimatedSeconds, type NarrationManifest } from './narrationManifest'
 import { lessonClipId, orderClipId } from './narrationSegments'
 import { narratorVoice } from './narratorVoice'
 
@@ -26,6 +26,11 @@ export class LessonNarration {
 
   chapter(lessonId: string, chapter: Chapter): void {
     this.say(lessonClipId(lessonId, chapter.id, chapter.focusPlanetId))
+  }
+
+  seconds(lessonId: string, chapter: Chapter): number {
+    const recorded = this.manifest?.voices[narratorVoice()]?.clips[locale]?.[lessonClipId(lessonId, chapter.id, chapter.focusPlanetId)]
+    return recorded?.seconds ?? estimatedSeconds(`${chapter.title} ${chapter.text}`)
   }
 
   sorted(sortingId: string): void {

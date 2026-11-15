@@ -22,6 +22,7 @@ const GROUPS: { id: string; label: string; kind: EntityKind }[] = [
   { id: 'dwarfPlanets', label: GROUP_NAMES.dwarfPlanets, kind: 'dwarfPlanet' },
   { id: 'asteroids', label: GROUP_NAMES.asteroids, kind: 'asteroid' },
   { id: 'comets', label: GROUP_NAMES.comets, kind: 'comet' },
+  { id: 'spacecraft', label: GROUP_NAMES.spacecraft, kind: 'spacecraft' },
 ]
 
 // Groups the bodies by kind and hangs each moon under its planet. Moons never form a group of

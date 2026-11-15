@@ -10,6 +10,11 @@ const SPOKEN: Record<Locale, [RegExp, string][]> = {
     [/(\d)\s*°/g, '$1 degrees'],
     [/(\d)\s*%/g, '$1 percent'],
     [/\bISO (\d+)-(\d)/g, 'I S O $1 part $2'],
+    [/(\d)\s*AU\b/g, '$1 astronomical units'],
+    [/(\d)\s*MeV\b/g, '$1 mega-electronvolts'],
+    [/(\d)\s*m\b/g, '$1 metres'],
+    [/(\d)\s*cm\b/g, '$1 centimetres'],
+    [/(\d)\s*kg\b/g, '$1 kilograms'],
   ],
   de: [
     [/\s*km\/h\b/g, ' Kilometer pro Stunde'],
@@ -17,6 +22,12 @@ const SPOKEN: Record<Locale, [RegExp, string][]> = {
     [/(\d)\s*°/g, '$1 Grad'],
     [/(\d)\s*%/g, '$1 Prozent'],
     [/\bISO (\d+)-(\d)/g, 'I S O $1 Teil $2'],
+    [/(\d)\s*AE\b/g, '$1 Astronomische Einheiten'],
+    [/(\d)\s*MeV\b/g, '$1 Megaelektronenvolt'],
+    [/(\d)-m-/g, '$1-Meter-'],
+    [/(\d)\s*m\b/g, '$1 Meter'],
+    [/(\d)\s*cm\b/g, '$1 Zentimeter'],
+    [/(\d)\s*kg\b/g, '$1 Kilogramm'],
   ],
 }
 

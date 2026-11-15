@@ -5,7 +5,7 @@ import type { Aurora } from '../earthAurora/aurora'
 import type { CloudLayer } from '../earthClouds/cloudLayer'
 import type { DisplaySettings } from '../hud/displaySettings'
 import type { LensFlare } from '../lensFlare/lensFlare'
-import type { LessonSession } from '../learn/lessonSession'
+import type { ScenePlayer } from './scenePlayers'
 import type { OrbitPaths, ShownOrbits } from '../orbitPaths/orbitPaths'
 import type { SaturnRing } from '../saturnRing/saturnRing'
 import type { SkyBackdrop } from '../sky/skyBackdrop'
@@ -33,7 +33,8 @@ export interface SceneParts {
   comets: CometRenderer
   orbitPaths: OrbitPaths
   lensFlare: LensFlare
-  lessons: LessonSession
+  // The lesson or mission tour staging its own scene, if one runs.
+  players: ScenePlayer
 }
 
 export interface SceneFrame {
@@ -69,7 +70,7 @@ export class SceneRenderer {
   private update(frame: SceneFrame): void {
     const { layout, viewpoint, nowSeconds } = frame
     const { display } = this.settings
-    const { bodies, saturnRing, atmosphereShells, clouds, orbitPaths, lensFlare, lessons } = this.parts
+    const { bodies, saturnRing, atmosphereShells, clouds, orbitPaths, lensFlare, players } = this.parts
     this.updateBackdrop(viewpoint)
     const sunBrightness = this.targets.bloomSupported && display.bloom.on ? SUN_BLOOM_BRIGHTNESS : 1
     bodies.update(layout, viewpoint, { sunBrightness, timeSeconds: nowSeconds, daysSinceEpoch: frame.clock.daysSinceEpoch, clouds: display.clouds.on })
@@ -80,7 +81,7 @@ export class SceneRenderer {
     atmosphereShells.update(layout, viewpoint)
     this.parts.aurora.update(layout, viewpoint, nowSeconds)
     if (display.orbitPaths.on || display.smallBodyOrbits.on) orbitPaths.update(viewpoint)
-    lessons.updateOverlays(layout, viewpoint, { nowSeconds, sunBrightness })
+    players.updateOverlays(layout, viewpoint, { nowSeconds, sunBrightness })
     if (display.flares.on) lensFlare.update(layout, viewpoint)
   }
 
@@ -98,9 +99,9 @@ export class SceneRenderer {
 
   private draw(pass: GPURenderPassEncoder, layout: SceneLayout): void {
     const { display, linePipeline } = this.settings
-    const { bodies, saturnRing, atmosphereShells, clouds, orbitPaths, lessons } = this.parts
+    const { bodies, saturnRing, atmosphereShells, clouds, orbitPaths, players } = this.parts
     this.drawBackdrop(pass)
-    lessons.drawBehindBodies(pass)
+    players.drawBehindBodies(pass)
     bodies.draw(pass, layout)
     // Everything after the opaque spheres is depth-tested against them without hiding anything.
     this.parts.corona.draw(pass)
@@ -109,10 +110,10 @@ export class SceneRenderer {
     if (display.clouds.on) clouds.draw(pass, layout)
     atmosphereShells.draw(pass, layout)
     this.parts.aurora.draw(pass, layout)
-    lessons.drawInFrontOfBodies(pass)
+    players.drawInFrontOfBodies(pass)
     pass.setPipeline(linePipeline)
     orbitPaths.draw(pass, this.shownOrbits())
-    lessons.drawOverlays(pass)
+    players.drawOverlays(pass)
   }
 
   // A small body's orbit shows only along with the body itself.

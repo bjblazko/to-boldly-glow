@@ -11,18 +11,12 @@ import { EARTH_POSITION } from './eclipse/eclipseGeometry'
 import { PHASES_EARTH_POSITION } from './phases/phasesGeometry'
 import { directionAtAltitude, lookAltitudeDegrees, type GroundShot } from './ground/groundShot'
 import type { Chapter } from './lessonTypes'
+import type { CameraPreset, ContentBounds, LessonShot } from './lessonShot'
 import { EARTH_STAGED_POSITION } from './seasons/seasonsScene'
 import { LINEUP_PLANETS_EXTENT, LINEUP_SUN_RADIUS, lineupSlot } from './sizes/sizesLineup'
 
 type ChapterKind = Chapter['kind']
 
-interface CameraPreset {
-  target: Vec3
-  radius: number
-  azimuth: number
-  elevation: number
-  upAxis: Vec3
-}
 
 // Staged chapters: a true side profile. With world Y as the screen's up axis - exactly the axis
 // Earth's tilt leans away from - the tilt reads as an honest left/right lean in every chapter, and
@@ -179,11 +173,6 @@ const LOOK_AROUND_RADIANS = Math.PI / 6
 const ZOOM_IN_LIMIT = 0.3
 const ZOOM_OUT_LIMIT = 2
 
-interface ContentBounds {
-  top: number
-  bottom: number
-  halfWidth: number
-}
 
 // How far a lineup planet reaches from its center (for Saturn, its rings), plus the room around it.
 function focusReach(planetId: string): number {
@@ -293,6 +282,17 @@ export class LessonCamera {
     this.fitShot(kind, groundShot, { focusPlanetId, lineupOrder })
     // The observer's eye on the ground stays put (the lesson doesn't take camera input there).
     if (!groundShot) this.allowLookingAround(sceneFloor)
+    this.glide = from ? this.startGlide(from) : null
+  }
+
+  // A staged scene's own shot for a chapter (see LessonShot), or a flight there (glide).
+  frameShot(shot: LessonShot, glide = false): void {
+    const from = glide ? this.currentView() : null
+    this.applyPreset(shot.preset)
+    const sceneFloor = shot.zoomFloor ?? COMPACT_MIN_ORBIT_RADIUS
+    this.lens.setLessonZoomFloor(sceneFloor)
+    this.fitAbovePanel(shot.bounds, shot.maxZoomOut)
+    this.allowLookingAround(sceneFloor)
     this.glide = from ? this.startGlide(from) : null
   }
 

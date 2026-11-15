@@ -6,9 +6,14 @@ export interface TourLibraryElements {
   closeButton: HTMLButtonElement
 }
 
-export type TourId = 'grand'
+export type TourId = 'grand' | 'voyager1' | 'voyager2'
 
-const TOURS: readonly TourId[] = ['grand']
+const TOURS: readonly TourId[] = ['grand', 'voyager1', 'voyager2']
+
+// A tour's card: the grand tour's words, or a mission's.
+function cardText(tour: TourId): { title: string; meta: string } {
+  return tour === 'grand' ? msg.ui.tours.grand : msg.missions[tour]
+}
 
 // The tours on offer, one card each - like the lesson library, for flights the narrator guides.
 export class TourLibrary {
@@ -34,7 +39,7 @@ export class TourLibrary {
   }
 
   private card(tour: TourId): HTMLButtonElement {
-    const { title, meta } = msg.ui.tours[tour]
+    const { title, meta } = cardText(tour)
     const card = document.createElement('button')
     card.type = 'button'
     card.className = 'hud-lesson-card'

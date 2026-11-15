@@ -31,6 +31,8 @@
       <div id="phases-earth-shadow-label" class="body-label" data-i18n="scene.labels.earthShadow" hidden>Earth's shadow</div>
       <div id="phases-moon-orbit-label" class="body-label" data-i18n="scene.labels.moonOrbit" hidden>Moon's orbit</div>
       <div id="phases-near-side-label" class="body-label" data-i18n="scene.labels.nearSide" hidden>Near side</div>
+      <div id="voyager-labels"></div>
+      <div id="mission-labels"></div>
     </div>
 
     <div id="moon-phase-inset" class="hud-phase-inset" hidden>
@@ -44,6 +46,8 @@
         <span id="moon-phase-lit-share" class="hud-phase-share"></span>
       </div>
     </div>
+
+    <div id="voyager-route-clock" class="hud-route-clock" aria-live="off" hidden></div>
 
     <div class="hud-beta-note">
       <span data-i18n="ui.beta">Beta version</span>
@@ -69,6 +73,7 @@
           <li><a href="https://huepattl.de/impressum" target="_blank" rel="noopener" data-i18n="ui.about.imprint">Imprint</a></li>
           <li><a href="https://huepattl.de/privacy" target="_blank" rel="noopener" data-i18n="ui.about.privacy">Privacy</a></li>
         </ul>
+        <div id="about-controls"></div>
         <h3 class="hud-group-title" data-i18n="ui.about.yourData">Your data</h3>
         <p data-i18n="ui.about.yourDataText">
           The app loads only its own files, from this site or the folder you unzipped it to. Nothing you do in it is sent
@@ -266,6 +271,20 @@
         <path d="M12 3.5v17" />
         <path d="M5 8.2a8.5 3.2 0 0 1 14 0" />
         <path d="M16.7 5.6l2.3 2.6-3.3.9" />
+      </symbol>
+      <symbol id="icon-signal" viewBox="0 0 24 24">
+        <path d="M5 9.5a7 7 0 0 0 9.5 9.5L5 9.5Z" />
+        <path d="M9.8 14.2 13 11" />
+        <path d="M15 5.5a4 4 0 0 1 3.5 3.5" />
+        <path d="M15.3 2.5a7 7 0 0 1 6.2 6.2" />
+      </symbol>
+      <symbol id="icon-power" viewBox="0 0 24 24">
+        <path d="M13.5 3 6 13.5h5.5L10.5 21 18 10.5h-5.5L13.5 3Z" />
+      </symbol>
+      <symbol id="icon-external" viewBox="0 0 24 24">
+        <path d="M14 4h6v6" />
+        <path d="M20 4l-9 9" />
+        <path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />
       </symbol>
       <symbol id="icon-orbit" viewBox="0 0 24 24">
         <ellipse cx="12" cy="12" rx="9.25" ry="5.5" />
@@ -605,6 +624,11 @@
         <svg class="icon" aria-hidden="true"><use href="#icon-next"></use></svg>
         <span class="hud-dock-label" data-i18n="ui.dock.next">Next</span>
       </button>
+      <button id="lesson-autoplay" class="hud-dock-btn" type="button" aria-pressed="false" data-state="paused">
+        <svg class="icon icon-pause-glyph" aria-hidden="true"><use href="#icon-pause"></use></svg>
+        <svg class="icon icon-play-glyph" aria-hidden="true"><use href="#icon-play"></use></svg>
+        <span class="hud-dock-label">Play</span>
+      </button>
       <button class="hud-dock-btn" data-panel="view" type="button">
         <svg class="icon" aria-hidden="true"><use href="#icon-layers"></use></svg>
         <span class="hud-dock-label" data-i18n="ui.dock.view">View</span>
@@ -659,9 +683,43 @@
       <div id="lesson-panel-body" class="hud-lesson-panel-body">
         <p id="lesson-chapter-text" class="hud-lesson-text"></p>
         <ul id="lesson-chapter-facts" class="hud-lesson-facts" hidden></ul>
+        <div id="lesson-chapter-media" class="hud-lesson-media" hidden></div>
         <p id="lesson-note" class="hud-lesson-note" hidden></p>
       </div>
     </div>
+
+    <div id="mission-fade" class="hud-mission-fade" aria-hidden="true"></div>
+    <section id="mission-tour" class="hud-mission" hidden>
+      <article id="mission-card" class="hud-mission-card" aria-live="polite">
+        <div class="hud-mission-card-head">
+          <span id="mission-card-date" class="hud-mission-date"></span>
+          <span id="mission-card-flyby" class="hud-mission-flyby" hidden></span>
+        </div>
+        <h2 id="mission-card-title" class="hud-mission-title"></h2>
+        <p id="mission-card-distance" class="hud-mission-distance"></p>
+        <div class="hud-mission-card-body">
+          <p id="mission-card-text" class="hud-lesson-text"></p>
+          <ul id="mission-card-facts" class="hud-lesson-facts" hidden></ul>
+          <div id="mission-card-media" class="hud-lesson-media" hidden></div>
+        </div>
+      </article>
+      <nav class="hud-mission-bar" aria-label="Tour" data-i18n-attr="aria-label:missions.ui.timeline">
+        <button id="mission-prev" class="hud-icon-btn" type="button" aria-label="Previous station" data-i18n-attr="aria-label:missions.ui.previous;title:missions.ui.previous" title="Previous station">
+          <svg class="icon" aria-hidden="true"><use href="#icon-prev"></use></svg>
+        </button>
+        <button id="mission-play" class="hud-icon-btn" type="button" aria-label="Pause" data-state="playing">
+          <svg class="icon icon-pause-glyph" aria-hidden="true"><use href="#icon-pause"></use></svg>
+          <svg class="icon icon-play-glyph" aria-hidden="true"><use href="#icon-play"></use></svg>
+        </button>
+        <button id="mission-next" class="hud-icon-btn" type="button" aria-label="Next station" data-i18n-attr="aria-label:missions.ui.next;title:missions.ui.next" title="Next station">
+          <svg class="icon" aria-hidden="true"><use href="#icon-next"></use></svg>
+        </button>
+        <ol id="mission-timeline" class="hud-mission-timeline"></ol>
+        <button id="mission-close" class="hud-icon-btn" type="button" aria-label="Leave the tour" data-i18n-attr="aria-label:missions.ui.close;title:missions.ui.close" title="Leave the tour">
+          <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
+        </button>
+      </nav>
+    </section>
 
     <div id="lesson-view-controls" class="hud-view-controls" role="group" aria-label="Lesson view" data-i18n-attr="aria-label:ui.lesson.viewControls">
       <button id="lesson-zoom-in" class="hud-icon-btn" type="button" aria-label="Zoom in" title="Zoom in - or scroll, or pinch" data-i18n-attr="aria-label:ui.lesson.zoomIn;title:ui.lesson.zoomInTitle">

@@ -1,3 +1,5 @@
+import type { VoyagerStage } from './voyager/voyagerStage'
+
 // A chapter of a lesson. `kind` distinguishes the halves of the "seasons" lesson - 'orbit'
 // chapters show Earth's real position in its orbit (with its axis held in a single fixed
 // direction - see seasons/seasonalPole.ts's ORBIT_FIXED_POLE_DIRECTION), 'staged' chapters show the existing
@@ -20,7 +22,7 @@
 export interface Chapter {
   id: string
   title: string
-  kind: 'orbit' | 'staged' | 'sizes' | EclipseChapterKind | PhasesChapterKind
+  kind: 'orbit' | 'staged' | 'sizes' | EclipseChapterKind | PhasesChapterKind | VoyagerChapterKind
   seasonPhaseDegrees: number
   text: string
   // The eclipse lesson's chapters: how the Sun, Moon and Earth stand (see EclipseStage).
@@ -32,7 +34,30 @@ export interface Chapter {
   facts?: ChapterFact[]
   // 'sizes' chapters: the planet the camera closes in on; without one it shows the whole lineup.
   focusPlanetId?: string
+  // The Voyager lessons' chapters: what the probe, the record or the route shows (see VoyagerStage).
+  voyager?: VoyagerStage
+  // Shown in the panel under the text: a photo with its credit, or a chart of real data.
+  photo?: ChapterPhoto
+  chart?: ChapterChart
+  // Links to other websites, marked as leaving the app (the app itself loads nothing from them).
+  links?: ChapterLink[]
+  // An interactive demonstration in the panel (the Golden Record's picture stored as sound).
+  demo?: 'pictureSignal'
 }
+
+export interface ChapterLink {
+  label: string
+  url: string
+}
+
+export interface ChapterPhoto {
+  // Under public/, e.g. 'images/voyager/PIA01384.jpg'.
+  src: string
+  caption: string
+  credit: string
+}
+
+export type ChapterChart = 'gravityAssist' | 'heliopauseVoyager1' | 'heliopauseVoyager2'
 
 // One fact in a chapter's grid. `icon` names a symbol in index.html's icon sprite (without its
 // "icon-" prefix).
@@ -53,12 +78,22 @@ export type FactIcon =
   | 'sun-distance'
   | 'rotation'
   | 'orbit'
+  | 'clock'
+  | 'signal'
+  | 'power'
 
 export type EclipseChapterKind = 'eclipseOrbit' | 'eclipseShadow' | 'eclipseSky'
+// The Voyager lessons' three shots (see voyager/voyagerLesson.ts): the spacecraft itself, its
+// Golden Record, and the real solar system along the probes' route.
+export type VoyagerChapterKind = 'voyagerProbe' | 'voyagerRecord' | 'voyagerRoute'
 export type PhasesChapterKind = 'phasesOrbit' | 'phasesShadow' | 'phasesSky'
 
 export function isEclipseKind(kind: Chapter['kind']): kind is EclipseChapterKind {
   return kind === 'eclipseOrbit' || kind === 'eclipseShadow' || kind === 'eclipseSky'
+}
+
+export function isVoyagerKind(kind: Chapter['kind']): kind is VoyagerChapterKind {
+  return kind === 'voyagerProbe' || kind === 'voyagerRecord' || kind === 'voyagerRoute'
 }
 
 export function isPhasesKind(kind: Chapter['kind']): kind is PhasesChapterKind {

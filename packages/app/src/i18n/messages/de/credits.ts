@@ -21,9 +21,17 @@ export const credits: Messages['credits'] = {
     agx: 'Wie helles Licht zu Bildschirmfarben wird',
     qwenTts: 'Hat die Erzählung der Tour gesprochen, auf unserem eigenen Rechner beim Bauen der App: Die Stimme ist synthetisch',
     toBoldlyGlow: 'Die App, ihr Logo, die gemalte Milchstraße, die Korona der Sonne und die Polarlichter',
+    voyagerModel: 'Die Raumsonde Voyager in den Voyager-Lektionen',
+    goldenRecord: 'Hülle und Platte der Goldenen Schallplatte (Fotos)',
+    voyagerPhotos: 'Die Fotos der Voyager-Lektionen und -Touren, aufgenommen von den Sonden (und von den Starts)',
+    horizons: 'Flugbahnen, Geschwindigkeiten und Planeten-Vorbeiflüge der Voyager-Sonden',
+    spdf: 'Die Messwerte der Voyager-Sonden an der Heliopause, 2012 und 2018',
   },
   changes: {
     solarSystemScope: 'Verkleinert und umbenannt; die Reliefkarten der Gasriesen sind aus ihren Farbkarten abgeleitet.',
+    voyagerModel: 'Ins Format der App umgewandelt, in seine Hauptteile zerlegt; ein Aufkleber mit dem NASA-Schriftzug übermalt.',
+    cropped: 'Auf die Platte zugeschnitten und verkleinert.',
+    resized: 'Verkleinert.',
   },
   licenses: {
     publicDomain: 'Gemeinfrei',

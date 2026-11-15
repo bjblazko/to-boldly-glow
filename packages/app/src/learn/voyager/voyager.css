@@ -1,0 +1,72 @@
+/* The Voyager lessons: labels pointing at the probe's parts, the record's engravings and the probes
+   on their route, and the route's date and distances in the top right corner. */
+
+.voyager-label {
+  pointer-events: none;
+}
+/* A hotspot: a small ring on the point, the text beside it. */
+.voyager-label.is-hotspot,
+.voyager-label.is-probe {
+  transform: translate(-7px, -50%);
+  padding-left: 18px;
+}
+.voyager-label.is-hotspot::before,
+.voyager-label.is-probe::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  margin-top: -5px;
+  border-radius: 50%;
+  box-sizing: border-box;
+  border: 2px solid var(--hud-gold, #ffcf4a);
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.9);
+}
+.voyager-label.is-probe::before {
+  background: #fff;
+  border-color: rgba(255, 255, 255, 0.4);
+  width: 6px;
+  height: 6px;
+  margin-top: -3px;
+  left: 2px;
+}
+.voyager-label.is-region {
+  color: rgba(190, 175, 255, 0.85);
+  font-style: italic;
+}
+
+.hud-route-clock {
+  --hud-slab-depth: 5px;
+  --hud-slab-glow: rgba(34, 225, 255, 0.4);
+  position: fixed;
+  top: 78px;
+  right: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 16px;
+  z-index: 1;
+  pointer-events: none;
+  font-family: var(--hud-mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--hud-dim);
+}
+.hud-route-clock span:first-child {
+  font-family: var(--hud-font);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--hud-text);
+}
+.hud-route-clock[hidden] {
+  display: none;
+}
+@media (max-width: 600px) {
+  .hud-route-clock {
+    right: 12px;
+    padding: 6px 12px;
+    font-size: 10px;
+  }
+}

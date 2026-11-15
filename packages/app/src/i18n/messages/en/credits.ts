@@ -20,9 +20,17 @@ export const credits = {
     agx: 'How bright light turns into screen colors',
     qwenTts: 'Spoke the tour’s narration, on our own computer when the app is built: the voice is synthetic',
     toBoldlyGlow: 'The app, its logo, the painted Milky Way, the Sun’s corona and the aurora',
+    voyagerModel: 'The Voyager spacecraft in the Voyager lessons',
+    goldenRecord: 'The Golden Record’s cover and record (photos)',
+    voyagerPhotos: 'The photos in the Voyager lessons and tours, taken by the probes (and of the launches)',
+    horizons: 'The Voyagers’ trajectories, speeds and planet flybys',
+    spdf: 'The Voyagers’ measurements at the heliopause, 2012 and 2018',
   },
   changes: {
     solarSystemScope: 'Resized and renamed; the gas giants’ relief maps are derived from their color maps.',
+    voyagerModel: 'Converted to the app’s format, split into its main parts; a sticker with NASA’s logotype painted over.',
+    cropped: 'Cropped to the record and resized.',
+    resized: 'Resized.',
   },
   licenses: {
     publicDomain: 'Public domain',

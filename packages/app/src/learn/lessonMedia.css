@@ -1,0 +1,228 @@
+/* What a chapter shows under its text: a photo with its credit, charts of real data, and links to
+   other websites - marked as leaving the app. */
+
+.hud-lesson-media {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+.hud-lesson-media[hidden] {
+  display: none;
+}
+
+.hud-lesson-photo {
+  display: grid;
+  grid-template-columns: 112px 1fr;
+  gap: 10px;
+  align-items: start;
+  margin: 0;
+}
+.hud-lesson-photo img {
+  width: 112px;
+  height: 112px;
+  object-fit: cover;
+  border-radius: 4px;
+  box-shadow: var(--hud-well-edge);
+  background: #000;
+}
+.hud-lesson-photo figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: rgba(236, 240, 255, 0.86);
+}
+.hud-lesson-media-credit {
+  font-family: var(--hud-mono);
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  color: var(--hud-dim);
+}
+
+.hud-lesson-chart {
+  --chart-series-1: #3987e5;
+  --chart-series-2: #d95926;
+  --chart-grid: rgba(255, 255, 255, 0.1);
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.chart-heading {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--hud-text);
+}
+.chart {
+  position: relative;
+}
+.chart-title {
+  font-family: var(--hud-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--hud-dim);
+}
+.chart-plot {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  touch-action: pan-y;
+}
+.chart-grid {
+  stroke: var(--chart-grid);
+  stroke-width: 1;
+}
+.chart-tick,
+.chart-marker-label {
+  font-family: var(--hud-mono);
+  font-size: 8px;
+  fill: var(--hud-dim);
+}
+.chart-line {
+  fill: none;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.chart-marker {
+  stroke: rgba(255, 255, 255, 0.35);
+  stroke-width: 1;
+}
+.chart-crosshair {
+  stroke: rgba(255, 255, 255, 0.7);
+  stroke-width: 1;
+}
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 11px;
+  color: rgba(236, 240, 255, 0.86);
+}
+.chart-legend[hidden] {
+  display: none;
+}
+.chart-legend li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.chart-key {
+  width: 12px;
+  height: 2px;
+  border-radius: 1px;
+}
+.chart-tooltip {
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding: 3px 7px;
+  border-radius: 4px;
+  background: rgba(8, 10, 22, 0.88);
+  font-family: var(--hud-mono);
+  font-size: 10px;
+  color: var(--hud-text);
+  pointer-events: none;
+}
+.chart-tooltip[hidden] {
+  display: none;
+}
+
+.hud-lesson-links {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.hud-lesson-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--hud-cyan);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.hud-lesson-links a:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+.hud-lesson-links .icon {
+  width: 14px;
+  height: 14px;
+}
+.hud-lesson-link-note {
+  display: block;
+  margin-top: 2px;
+  padding-left: 20px;
+  font-size: 11px;
+  color: var(--hud-dim);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The Golden Record's picture-in-sound demonstration. */
+.hud-signal-demo {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px 12px;
+  align-items: center;
+}
+.hud-signal-wave {
+  width: 100%;
+  height: 56px;
+  border-radius: 4px;
+  background: var(--hud-well);
+  box-shadow: var(--hud-well-edge);
+}
+.hud-signal-picture {
+  image-rendering: pixelated;
+  border-radius: 4px;
+  box-shadow: var(--hud-well-edge);
+  background: #000;
+}
+.hud-signal-listen {
+  justify-self: start;
+  padding: 5px 10px;
+  border: 0;
+  border-radius: 4px;
+  background: rgba(255, 207, 74, 0.16);
+  box-shadow: var(--hud-ring);
+  color: var(--hud-text);
+  font: 600 12px var(--hud-font);
+  cursor: pointer;
+}
+.hud-signal-listen:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+.hud-signal-demo .hud-lesson-media-credit {
+  grid-column: 1 / -1;
+}
+
+/* The lesson dock's play button: a play glyph while paused, a pause glyph while playing. */
+#lesson-autoplay[data-state='paused'] .icon-pause-glyph,
+#lesson-autoplay[data-state='playing'] .icon-play-glyph {
+  display: none;
+}
+#lesson-autoplay[data-state='paused'] .icon-play-glyph,
+#lesson-autoplay[data-state='playing'] .icon-pause-glyph {
+  display: inline;
+}

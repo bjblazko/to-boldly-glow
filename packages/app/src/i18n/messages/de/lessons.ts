@@ -1,10 +1,13 @@
 import type { Messages } from '../en'
+import { voyagerLesson } from './voyager'
+import { voyagerDeepDive } from './voyagerDeepDive'
 
 export const lessons: Messages['lessons'] = {
   topics: {
     planets: 'Planeten & Größen',
     earthAndMoon: 'Erde & Mond',
     skyEvents: 'Himmelsereignisse',
+    missions: 'Missionen',
   },
   seasons: {
     title: 'Warum hat die Erde Jahreszeiten?',
@@ -233,4 +236,6 @@ export const lessons: Messages['lessons'] = {
         'Die folgenden Seiten fliegen nacheinander zu jedem Planeten, mit seinen eigenen Zahlen.',
     },
   },
+  voyager: voyagerLesson,
+  voyagerDeepDive,
 }

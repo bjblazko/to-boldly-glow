@@ -183,6 +183,52 @@ The aurora (`packages/app/src/earthAurora/`) is procedural, made for this projec
 67° geomagnetic latitude around midnight and 75° around noon, with oxygen's green emission from
 about 95 km up and its red emission around 250 km - typical published values.
 
+## Voyager: model, photos, trajectories and measurements
+
+The Voyager lessons' spacecraft (`packages/app/public/models/voyager/voyager.*`,
+`voyager-color.jpg`, `voyager-grey.jpg`) is NASA's "Voyager Probe (B)" model from
+[NASA 3D Resources](https://github.com/nasa/NASA-3D-Resources) (`3D Models/Voyager Probe (B)/Voyager
+Probe (B).glb`, SHA-256 `bd86ded828dd3f459293aee4ffc3cd0998d8db67439317c8299650a1174c3289`, vendored at
+`packages/data-pipeline/data/voyager/voyager.glb`), NASA material without copyright under the
+[NASA Images and Media Usage Guidelines](https://www.nasa.gov/nasa-brand-center/images-and-media/).
+`packages/data-pipeline/src/convertVoyager.ts` converts it (decoding Draco with gltf-transform and
+draco3dgltf, build-time only), splits it into its main assemblies, and paints over a sticker with
+NASA's "worm" logotype in its texture: NASA's insignia and logotypes are not in the public domain.
+
+The Golden Record's textures (`record-cover.jpg`, `record-label.jpg`) are cropped from NASA/JPL's
+photos "The Sounds of Earth Record Cover" (GPN-2000-001978, SHA-256 `89f8666e...6055cff`) and
+"The Sounds of Earth" (GPN-2000-001976, SHA-256 `d4a2750d...b8344952`), public domain, via Wikimedia
+Commons. The record's 115 images and its music are third-party copyright and are **not** in the app;
+the lesson links to NASA's page instead.
+
+The photos (`packages/app/public/images/voyager/`) are from NASA's Image and Video Library, resized by
+`packages/data-pipeline/src/fetchVoyagerPhotos.ts`: PIA21747 (Voyager 1 launch, NASA/JPL-Caltech/KSC),
+PIA21744 (Voyager 2 launch, NASA/JPL-Caltech), PIA01384 (Jupiter), PIA00379 (Io's eruptions),
+PIA00459 (Europa), PIA01383 and PIA00024 (Saturn), PIA01486 (Saturn's rings), PIA00042 (Miranda),
+PIA01492 (Neptune), PIA02246 (Triton) - all NASA/JPL - and PIA18182 (Uranus) and PIA23645 (Pale
+Blue Dot Revisited), NASA/JPL-Caltech.
+
+The trajectories (`packages/app/public/data/voyager/voyager{1,2}.trajectory.bin`, `speeds.json`) come
+from JPL Horizons (`packages/data-pipeline/src/fetchVoyagerTrajectories.ts`):
+
+```
+Giorgini, JD and JPL Solar System Dynamics Group, NASA/JPL Horizons On-Line Ephemeris System,
+https://ssd.jpl.nasa.gov/horizons/, data retrieved 2026-Nov-15.
+```
+
+The flybys at true scale (`packages/app/public/data/voyager/encounters/`) are Horizons vectors of
+each probe and one moon relative to the planet's centre, every 5 minutes for 36 hours either side of
+closest approach (`packages/data-pipeline/src/fetchVoyagerEncounters.ts`), same source and citation.
+
+The heliopause measurements (`packages/app/public/data/voyager/heliopause-voyager{1,2}.json`) are
+extracted by `packages/data-pipeline/src/extractHeliopauseData.ts` from NASA's Space Physics Data
+Facility merged daily data (https://spdf.gsfc.nasa.gov/pub/data/voyager/voyager1/merged/voyager1_daily.asc,
+SHA-256 `b3804c2795861bc02f635491e6f1d716cf10bee883f1d7243dd75a2094eed106`, and
+https://spdf.gsfc.nasa.gov/pub/data/voyager/voyager2/merged/voyager2_daily.asc, SHA-256
+`2b7963fc16e390cfb74f87d71fd69fd3ce8041c544954a5ded8840d08a186c75`): the Cosmic Ray
+Subsystem's 3.0-4.6 MeV protons and the magnetometer's field strength. With thanks to SPDF and the
+instruments' teams (CRS: E. C. Stone et al.; MAG: N. F. Ness, L. F. Burlaga et al.), as SPDF asks.
+
 ## Tonemapping
 
 The tonemapping (`packages/app/src/bloom/tonemapWgsl.ts`) follows Troy Sobotka's AgX view
@@ -249,6 +295,7 @@ from the exact installed versions; the About dialog (the info button at the top 
 entry in `packages/app/src/about/credits.ts`, or a shipped text differs from the installed one.
 
 ## Build tooling
+- [gltf-transform](https://gltf-transform.dev/) — MIT License, and [draco3dgltf](https://github.com/google/draco) — Apache License 2.0 (decoding NASA's Voyager model in the data pipeline; not shipped)
 - [Vite](https://vitejs.dev/) — MIT License
 - [Vitest](https://vitest.dev/) — MIT License
 - [Playwright](https://playwright.dev/) — Apache License 2.0

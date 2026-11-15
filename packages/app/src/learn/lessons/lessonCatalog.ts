@@ -3,6 +3,8 @@ import { MOON_PHASES_LESSON } from './moonPhases'
 import { PLANET_SIZES_LESSON } from './planetSizes'
 import { SEASONS_LESSON } from './seasons'
 import { SOLAR_ECLIPSE_LESSON } from './solarEclipse'
+import { VOYAGER_LESSON } from './voyager'
+import { VOYAGER_DEEP_DIVE_LESSON } from './voyagerDeepDive'
 import { msg } from '../../i18n/i18n'
 
 // A shelf of the lesson library. A new lesson goes onto the topic it belongs to (or a new topic):
@@ -16,6 +18,7 @@ export const LESSON_TOPICS: LessonTopic[] = [
   { title: msg.lessons.topics.planets, lessons: [PLANET_SIZES_LESSON] },
   { title: msg.lessons.topics.earthAndMoon, lessons: [SEASONS_LESSON, MOON_PHASES_LESSON] },
   { title: msg.lessons.topics.skyEvents, lessons: [SOLAR_ECLIPSE_LESSON] },
+  { title: msg.lessons.topics.missions, lessons: [VOYAGER_LESSON, VOYAGER_DEEP_DIVE_LESSON] },
 ]
 
 // Every lesson, by its id (the library's cards name them by it).

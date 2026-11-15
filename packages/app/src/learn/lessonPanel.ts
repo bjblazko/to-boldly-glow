@@ -2,6 +2,7 @@ import { makePanelDraggable } from '../hud/draggablePanel'
 import type { LessonPlayer } from './lessonPlayer'
 import { LessonSortMenu } from './lessonSortMenu'
 import type { ChapterFact } from './lessonTypes'
+import { LessonMedia } from './lessonMedia'
 import { MenuPopover } from './menuPopover'
 import { msg } from '../i18n/i18n'
 
@@ -45,8 +46,10 @@ export class LessonPanel {
   private readonly el: PanelElements
   private readonly chapterMenu: MenuPopover
   readonly sortMenu: LessonSortMenu
+  private readonly media: LessonMedia
   readonly previousButton: HTMLButtonElement
   readonly nextButton: HTMLButtonElement
+  readonly autoplayButton: HTMLButtonElement
   // Set by whoever runs the lesson: a chapter picked from the list.
   onChapterPicked: (index: number) => void = () => {}
 
@@ -54,9 +57,11 @@ export class LessonPanel {
     this.el = findPanelElements(find)
     this.previousButton = find('#lesson-prev-chapter')
     this.nextButton = find('#lesson-next-chapter')
+    this.autoplayButton = find('#lesson-autoplay')
     makePanelDraggable(this.el.panel, find('#lesson-panel-grip'))
     this.el.foldButton.addEventListener('click', () => this.setFolded(!this.el.body.hidden))
     this.chapterMenu = new MenuPopover(this.el.chapterMenu, this.el.chapterButton)
+    this.media = new LessonMedia(find('#lesson-chapter-media'))
     this.sortMenu = new LessonSortMenu({ button: find('#lesson-sort-btn'), menu: find('#lesson-sort-menu'), list: find('#lesson-sort-list') })
   }
 
@@ -76,6 +81,7 @@ export class LessonPanel {
     this.nextButton.disabled = !player.hasNextChapter
     this.el.text.textContent = chapter.text
     this.renderFacts(chapter.facts ?? [])
+    this.media.show(chapter)
     this.el.note.textContent = lesson.note ?? ''
     this.el.note.hidden = !lesson.note
     this.el.panel.dataset.chapterId = chapter.id
@@ -116,7 +122,7 @@ export class LessonPanel {
 const SVG_NAMESPACE = 'http://www.w3.org/2000/svg'
 
 // A pictogram from index.html's icon sprite, a small label and the value.
-function renderFact(fact: ChapterFact): HTMLLIElement {
+export function renderFact(fact: ChapterFact): HTMLLIElement {
   const icon = document.createElementNS(SVG_NAMESPACE, 'svg')
   icon.setAttribute('class', 'icon')
   icon.setAttribute('aria-hidden', 'true')

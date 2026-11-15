@@ -1,0 +1,151 @@
+/* A mission tour: the station's card on the left, the timeline at the bottom where the explore
+   dock was, and the fade into and out of a flyby over the scene. */
+
+.hud-mission[hidden] {
+  display: none;
+}
+body[data-mission-tour] .hud-explore-dock,
+body[data-mission-tour] .hud-camera-hint,
+body[data-mission-tour] .hud-view-controls {
+  display: none;
+}
+
+.hud-mission-fade {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.hud-mission-card {
+  --hud-slab-glow: rgba(34, 225, 255, 0.4);
+  position: fixed;
+  top: 92px;
+  left: 22px;
+  width: min(380px, calc(100vw - 44px));
+  max-height: calc(100% - 200px);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  z-index: 2;
+  transition: opacity 0.4s ease;
+}
+/* On the way between stations the card steps back. */
+.hud-mission.is-travelling .hud-mission-card {
+  opacity: 0.45;
+}
+.hud-mission-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-family: var(--hud-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hud-gold);
+}
+.hud-mission-flyby {
+  color: var(--hud-cyan);
+}
+.hud-mission-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 650;
+}
+.hud-mission-distance {
+  margin: 0 0 4px;
+  font-family: var(--hud-mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--hud-dim);
+}
+.hud-mission-card-body {
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.hud-mission-bar {
+  --hud-slab-glow: rgba(123, 92, 255, 0.5);
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  width: min(720px, calc(100vw - 40px));
+  z-index: 2;
+}
+#mission-play[data-state='playing'] .icon-play-glyph,
+#mission-play[data-state='paused'] .icon-pause-glyph {
+  display: none;
+}
+#mission-play[data-state='paused'] .icon-play-glyph,
+#mission-play[data-state='playing'] .icon-pause-glyph {
+  display: inline;
+}
+
+/* The stations, evenly spaced (flybys get as much room as decades): a line through dots. */
+.hud-mission-timeline {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  margin: 0 6px;
+  padding: 0;
+  list-style: none;
+  background: linear-gradient(rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.22)) center 11px / 100% 2px no-repeat;
+}
+.hud-mission-stop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 2px;
+  border: 0;
+  background: none;
+  color: var(--hud-dim);
+  font: 500 9.5px var(--hud-mono);
+  cursor: pointer;
+}
+.hud-mission-stop::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  box-sizing: border-box;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  background: #0b0d18;
+}
+.hud-mission-timeline li.is-done .hud-mission-stop::before {
+  background: var(--hud-cyan);
+  border-color: var(--hud-cyan);
+}
+.hud-mission-timeline li[aria-current] .hud-mission-stop {
+  color: var(--hud-text);
+}
+.hud-mission-timeline li[aria-current] .hud-mission-stop::before {
+  border-color: var(--hud-gold);
+  box-shadow: 0 0 8px var(--hud-gold);
+}
+.hud-mission-stop:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (max-width: 600px) {
+  .hud-mission-card {
+    top: auto;
+    bottom: 86px;
+    left: 12px;
+    width: calc(100vw - 24px);
+    max-height: 42vh;
+  }
+  .hud-mission-stop-year {
+    display: none;
+  }
+}

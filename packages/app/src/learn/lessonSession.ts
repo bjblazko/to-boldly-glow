@@ -18,6 +18,8 @@ import { LineupArrangement } from './sizes/lineupArrangement'
 import { PlanetTurntable } from './sizes/planetTurntable'
 import { sizesLayout } from './sizes/sizesLineup'
 import type { StagedLessonScene } from './stagedLessonScene'
+import type { ScenePlayer } from '../scene/scenePlayers'
+import { LessonAutoplay } from './lessonAutoplay'
 
 export interface LessonSessionParts {
   modeController: LearnModeController
@@ -36,6 +38,8 @@ export interface LessonSessionParts {
 // Reads the lesson out: each chapter as it is shown, and a new order of the planets.
 export interface LessonVoice {
   chapter(lessonId: string, chapter: Chapter): void
+  // How long reading the chapter out takes (its clip, or its text's reading time).
+  seconds(lessonId: string, chapter: Chapter): number
   sorted(sortingId: string): void
   stop(): void
 }
@@ -73,7 +77,7 @@ interface BorrowedState {
 
 // Runs a lesson: starting it, moving between its chapters, staging each chapter's scene and framing
 // the camera on it, and handing the camera and display settings back when the lesson ends.
-export class LessonSession {
+export class LessonSession implements ScenePlayer {
   private readonly player = new LessonPlayer()
   private readonly seasons = new SeasonsScene()
   private readonly turntable = new PlanetTurntable()
@@ -86,6 +90,7 @@ export class LessonSession {
   private borrowed: BorrowedState | null = null
   // Whether the current shot stands still for the user (a view from the ground) - see frameCamera.
   private viewFixed: boolean | null = null
+  private readonly autoplay: LessonAutoplay
 
   constructor(
     private readonly parts: LessonSessionParts,
@@ -97,6 +102,7 @@ export class LessonSession {
     parts.panel.nextButton.addEventListener('click', () => this.goToChapter(() => this.player.nextChapter()))
     parts.panel.onChapterPicked = (index) => this.goToChapter(() => this.player.goToChapter(index))
     parts.panel.sortMenu.onPicked = (sortingId) => this.sortBy(sortingId)
+    this.autoplay = new LessonAutoplay(parts.panel.autoplayButton, () => this.turnPageByItself())
   }
 
   get active(): boolean {
@@ -122,6 +128,7 @@ export class LessonSession {
   // A view from the ground may move with its scene, so the camera follows it every frame.
   update(deltaSeconds: number): void {
     if (!this.active) return
+    this.autoplay.update(deltaSeconds)
     this.parts.lessonCamera.update(deltaSeconds)
     const { kind } = this.chapter
     const staged = this.stagedScene
@@ -188,7 +195,9 @@ export class LessonSession {
   private frameCamera(glide = false): void {
     const groundShot = this.stagedScene?.groundShot(this.chapter)
     const { kind, focusPlanetId } = this.chapter
-    this.parts.lessonCamera.frame(kind, groundShot, { focusPlanetId, lineupOrder: this.lineup.order, glide })
+    const shot = groundShot ? undefined : this.stagedScene?.shot?.(this.chapter)
+    if (shot) this.parts.lessonCamera.frameShot(shot, glide)
+    else this.parts.lessonCamera.frame(kind, groundShot, { focusPlanetId, lineupOrder: this.lineup.order, glide })
     const fixed = Boolean(groundShot)
     if (fixed === this.viewFixed) return
     this.viewFixed = fixed
@@ -219,6 +228,7 @@ export class LessonSession {
   end(): void {
     const { camera, display, modeController, lessonCamera, panel } = this.parts
     if (!this.active) return
+    this.autoplay.setPlaying(false)
     this.parts.voice.stop()
     modeController.exit()
     if (this.borrowed) {
@@ -233,6 +243,13 @@ export class LessonSession {
   private showChapter(): void {
     this.parts.panel.show(this.player, this.sorting?.id)
     this.parts.progress.record(this.player.currentLesson, this.player.currentChapterIndex, this.sorting?.id)
+    this.autoplay.chapterShown(this.parts.voice.seconds(this.player.currentLesson.id, this.chapter))
+  }
+
+  // Playing: the next chapter, or - after the last - stop.
+  private turnPageByItself(): void {
+    if (this.player.hasNextChapter) this.goToChapter(() => this.player.nextChapter())
+    else this.autoplay.setPlaying(false)
   }
 
   private arrangeLineup(options?: { animate: boolean; focusPlanetId?: string }): void {
@@ -256,6 +273,13 @@ export class LessonSession {
     this.parts.voice.sorted(sortingId)
   }
 
+  // Within the same kind of shot: the sizes lineup's planet in focus, or a staged scene's own shot.
+  private framingChanged(previous: Chapter): boolean {
+    const scene = this.stagedScene
+    if (this.chapter.focusPlanetId !== previous.focusPlanetId) return true
+    return scene?.shot !== undefined && scene.shot(this.chapter).key !== scene.shot(previous).key
+  }
+
   // A new chapter of the same kind turns Earth's axis (or moves the Moon) smoothly with the camera
   // standing still - or, from the ground, turning with the sky - and in the sizes lineup flies the
   // camera to the chapter's planet; a change of kind re-frames the camera and snaps to the new scene.
@@ -266,7 +290,7 @@ export class LessonSession {
     this.seasons.showSeason(this.chapter.seasonPhaseDegrees, kindChanged)
     this.stagedScene?.showChapter(this.chapter, kindChanged)
     if (kindChanged) this.frameCamera()
-    else if (this.chapter.focusPlanetId !== previous.focusPlanetId) this.frameCamera(true)
+    else if (this.framingChanged(previous)) this.frameCamera(true)
     this.showChapter()
     if (this.chapter !== previous) this.parts.voice.chapter(this.player.currentLesson.id, this.chapter)
   }

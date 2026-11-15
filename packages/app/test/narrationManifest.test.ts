@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import type { NarrationManifest } from '../src/narration/narrationManifest'
-import { narrationSegments } from '../src/narration/narrationSegments'
+import { isUnrecorded, narrationSegments } from '../src/narration/narrationSegments'
 import { NARRATOR_VOICES } from '../src/narration/narratorVoice'
 
 const PUBLIC = join(__dirname, '..', 'public')
@@ -18,6 +18,7 @@ describe('the narration audio', () => {
   it.each(NARRATOR_VOICES)('has an up-to-date clip in %s’s voice for every narration text (else: npm run narrate in packages/data-pipeline)', (voice) => {
     const clips = manifest.voices[voice]
     const stale = narrationSegments()
+      .filter(({ id }) => !isUnrecorded(id))
       .filter(({ locale, id, text }) => clips?.clips[locale]?.[id]?.hash !== clipHash(voice, clips?.references[locale], text) || ['webm', 'mp3'].some((extension) => !existsSync(join(PUBLIC, 'narration', voice, locale, `${id}.${extension}`))))
       .map(({ locale, id }) => `${locale}/${id}`)
     expect(stale).toEqual([])

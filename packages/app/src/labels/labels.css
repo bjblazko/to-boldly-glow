@@ -45,3 +45,21 @@
 #axis-line-label {
   transform: translate(-50%, -14px);
 }
+
+/* Spacecraft on their way (the Voyagers): a small point under the name marks where they are. */
+.spacecraft-label {
+  color: rgba(120, 225, 255, 0.85);
+  font-style: normal;
+}
+.spacecraft-label::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -4px;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: 50%;
+  background: #8fe9ff;
+  box-shadow: 0 0 4px #8fe9ff;
+}

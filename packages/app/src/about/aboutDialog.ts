@@ -1,16 +1,18 @@
 import { CREDIT_GROUPS, type Credit, type CreditGroup } from './credits'
 import { msg } from '../i18n/i18n'
+import { renderControlsHelp } from './controlsHelp'
 import { version } from '../../package.json'
 
-// The About dialog behind the top right info button: who makes the app, where it lives, what (not)
-// leaves the browser, its license, and the licenses and thanks for everything it ships. A native
+// The About dialog behind the top right info button: who makes the app, where it lives, how to steer
+// it, what (not) leaves the browser, its license, and the licenses and thanks for everything it ships. A native
 // modal <dialog>: it keeps the focus inside, Escape closes it, and focus returns to the opener.
 export class AboutDialog {
   constructor(
     private readonly dialog: HTMLDialogElement,
-    elements: { openButton: HTMLButtonElement; closeButton: HTMLButtonElement; credits: HTMLElement; version: HTMLElement },
+    elements: { openButton: HTMLButtonElement; closeButton: HTMLButtonElement; credits: HTMLElement; version: HTMLElement; controls: HTMLElement },
   ) {
     elements.credits.replaceChildren(...CREDIT_GROUPS.map(renderGroup))
+    elements.controls.replaceChildren(renderControlsHelp())
     elements.version.textContent = msg.ui.about.version(version)
     elements.openButton.addEventListener('click', () => this.open())
     elements.closeButton.addEventListener('click', () => dialog.close())

@@ -1,3 +1,4 @@
+import { SPACECRAFT } from '../src/spacecraft/spacecraftCatalog'
 import { describe, expect, it } from 'vitest'
 import {
   ALL_ENTITIES,
@@ -23,8 +24,9 @@ function findEntity(id: string): SolarSystemEntity {
 }
 
 describe('ALL_ENTITIES', () => {
-  it('contains the Sun, all 8 planets, all 9 moons and the named comets and minor planets, and nothing else', () => {
-    expect(ALL_ENTITIES).toHaveLength(1 + PLANETS.length + MOONS.length + SMALL_BODIES.length)
+  it('contains the Sun, all 8 planets, all 9 moons, the named comets and minor planets and the spacecraft, and nothing else', () => {
+    expect(ALL_ENTITIES).toHaveLength(1 + PLANETS.length + MOONS.length + SMALL_BODIES.length + SPACECRAFT.length)
+    expect(ALL_ENTITIES.filter((e) => e.kind === 'spacecraft').map((e) => e.name)).toEqual(['Voyager 1', 'Voyager 2'])
     expect(ALL_ENTITIES.filter((e) => e.kind === 'sun')).toHaveLength(1)
     expect(ALL_ENTITIES.filter((e) => e.kind === 'planet')).toHaveLength(8)
     expect(ALL_ENTITIES.filter((e) => e.kind === 'moon')).toHaveLength(9)

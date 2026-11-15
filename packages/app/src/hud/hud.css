@@ -54,6 +54,9 @@
 .hud-view-controls,
 .hud-lesson-panel,
 .hud-phase-inset,
+.hud-route-clock,
+.hud-mission-card,
+.hud-mission-bar,
 .hud-camera-hint,
 .hud-welcome,
 .hud-browser-hint,
@@ -74,6 +77,9 @@
 .hud-view-controls,
 .hud-lesson-panel,
 .hud-phase-inset,
+.hud-route-clock,
+.hud-mission-card,
+.hud-mission-bar,
 .hud-welcome,
 .hud-browser-hint,
 .gpu-lost-alert {
@@ -98,6 +104,9 @@
 .hud-view-controls::before,
 .hud-lesson-panel::before,
 .hud-phase-inset::before,
+.hud-route-clock::before,
+.hud-mission-card::before,
+.hud-mission-bar::before,
 .hud-welcome::before,
 .hud-browser-hint::before,
 .gpu-lost-alert::before {
@@ -125,6 +134,9 @@
 .hud-view-controls::after,
 .hud-lesson-panel::after,
 .hud-phase-inset::after,
+.hud-route-clock::after,
+.hud-mission-card::after,
+.hud-mission-bar::after,
 .hud-welcome::after,
 .hud-browser-hint::after,
 .gpu-lost-alert::after {
@@ -2019,7 +2031,8 @@ body[data-ui-hidden] .hud-browser-hint {
   .hud-palette,
   .hud-library,
   .hud-about,
-  .hud-phase-inset {
+  .hud-phase-inset,
+  .hud-route-clock {
     top: 146px;
   }
   /* The steering hint stays clear of the beta note, which grows to four lines with the note on the
