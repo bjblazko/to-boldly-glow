@@ -4,7 +4,10 @@
              voices/<voice>-<locale>.wav + .txt
     samples  speaks one sample per voice and language into work/samples/, to check them by ear
     build    speaks every text in texts.json in every voice; only the ones whose text, voice
-             reference or model changed since the manifest was written
+             reference or model changed since the manifest was written. With --masters-only it
+             only speaks (into work/masters/, listed in work/masters/pending.json) - for a machine
+             with a GPU but without the app's encoders (see the huepattl-tts-on-ai-pc skill)
+    encode   encodes the masters listed in work/masters/pending.json into the app and the manifest
     speak    speaks the lines of a JSON file ([{"id", "text"}]) in one voice and language into a
              folder, as loudness-normalized WAV (the supercut's narration: --lines, --out)
 
@@ -90,12 +93,22 @@ SAMPLE_LINES = {
 
 
 def device() -> str:
+    if torch.cuda.is_available():
+        return "cuda"
     return "mps" if torch.backends.mps.is_available() else "cpu"
 
 
+def dtype() -> torch.dtype:
+    """bfloat16 where the hardware has it (Apple silicon, NVIDIA from Ampere on); float32 on older
+    NVIDIA cards such as Pascal, which have no bfloat16 and whose float16 is very slow."""
+    if device() == "cuda" and torch.cuda.get_device_capability()[0] < 8:
+        return torch.float32
+    return torch.bfloat16
+
+
 def load(model_id: str) -> Qwen3TTSModel:
-    print(f"Loading {model_id} on {device()} …", flush=True)
-    return Qwen3TTSModel.from_pretrained(model_id, device_map=device(), dtype=torch.bfloat16, attn_implementation="sdpa")
+    print(f"Loading {model_id} on {device()} ({dtype()}) …", flush=True)
+    return Qwen3TTSModel.from_pretrained(model_id, device_map=device(), dtype=dtype(), attn_implementation="sdpa")
 
 
 def seeded() -> None:
@@ -188,7 +201,13 @@ def build(args: argparse.Namespace) -> None:
         for language in args.languages:
             code = LANGUAGES[language][0]
             entry["references"][code] = reference_hash(voice, code)
-        todo = [t for t in texts if entry["clips"].get(t["locale"], {}).get(t["id"], {}).get("hash") != clip_hash(t["text"], voice, entry["references"][t["locale"]])]
+        # Takes already spoken but not encoded yet (an interrupted --masters-only run) are kept.
+        spoken = {(clip["locale"], clip["id"], clip["hash"]) for clip in (json.loads(PENDING.read_text()) if PENDING.exists() else []) if clip["voice"] == voice}
+        todo = [
+            t for t in texts
+            if entry["clips"].get(t["locale"], {}).get(t["id"], {}).get("hash") != clip_hash(t["text"], voice, entry["references"][t["locale"]])
+            and (t["locale"], t["id"], clip_hash(t["text"], voice, entry["references"][t["locale"]])) not in spoken
+        ]
         print(f"{voice}: {len(todo)} of {len(texts)} clips to speak", flush=True)
         prompts = {}
         for number, text in enumerate(todo, 1):
@@ -196,10 +215,52 @@ def build(args: argparse.Namespace) -> None:
             prompt = prompts.get(text["locale"]) or prompts.setdefault(text["locale"], clone_prompt(model, voice, text["locale"]))
             audio, rate = speak(model, prompt, text["text"], text["language"])
             place = Path(voice) / text["locale"] / text["id"]
+            clip = {"voice": voice, "locale": text["locale"], "id": text["id"], "hash": clip_hash(text["text"], voice, entry["references"][text["locale"]])}
+            if args.masters_only:
+                write_master(audio, rate, place, clip)
+                print(f"[{number}/{len(todo)}] {place}: master", flush=True)
+                continue
             seconds = encode(audio, rate, (WORK / "masters" / place).with_suffix(".wav"), APP_NARRATION / place)
-            entry["clips"].setdefault(text["locale"], {})[text["id"]] = {"hash": clip_hash(text["text"], voice, entry["references"][text["locale"]]), "seconds": seconds}
-            MANIFEST.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
-            print(f"[{number}/{len(todo)}] {voice}/{text['locale']}/{text['id']}: {seconds} s", flush=True)
+            record(manifest, clip, seconds)
+            print(f"[{number}/{len(todo)}] {place}: {seconds} s", flush=True)
+
+
+PENDING = WORK / "masters" / "pending.json"
+
+
+def write_master(audio: np.ndarray, rate: int, place: Path, clip: dict) -> None:
+    """A spoken take, not encoded yet: kept lossless and listed for `encode`."""
+    master = (WORK / "masters" / place).with_suffix(".wav")
+    master.parent.mkdir(parents=True, exist_ok=True)
+    sf.write(master, audio, rate)
+    pending = json.loads(PENDING.read_text()) if PENDING.exists() else []
+    pending = [entry for entry in pending if (entry["voice"], entry["locale"], entry["id"]) != (clip["voice"], clip["locale"], clip["id"])]
+    PENDING.write_text(json.dumps(pending + [clip], indent=2) + "\n")
+
+
+def record(manifest: dict, clip: dict, seconds: float) -> None:
+    entry = manifest["voices"].setdefault(clip["voice"], {"references": {}, "clips": {}})
+    entry["clips"].setdefault(clip["locale"], {})[clip["id"]] = {"hash": clip["hash"], "seconds": seconds}
+    MANIFEST.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
+
+
+def encode_pending(args: argparse.Namespace) -> None:
+    """Encodes the takes another machine spoke (build --masters-only) into the app."""
+    pending = json.loads(PENDING.read_text()) if PENDING.exists() else []
+    manifest = json.loads(MANIFEST.read_text()) if MANIFEST.exists() else {}
+    if manifest.get("model") != CLONE_MODEL or manifest.get("encoding") != ENCODING:
+        manifest = {"model": CLONE_MODEL, "encoding": ENCODING, "voices": {}}
+    for voice in {clip["voice"] for clip in pending}:
+        entry = manifest["voices"].setdefault(voice, {"references": {}, "clips": {}})
+        for language in LANGUAGES.values():
+            entry["references"][language[0]] = reference_hash(voice, language[0])
+    for number, clip in enumerate(pending, 1):
+        place = Path(clip["voice"]) / clip["locale"] / clip["id"]
+        audio, rate = sf.read((WORK / "masters" / place).with_suffix(".wav"))
+        seconds = encode(audio, rate, (WORK / "masters" / place).with_suffix(".wav"), APP_NARRATION / place)
+        record(manifest, clip, seconds)
+        print(f"[{number}/{len(pending)}] {place}: {seconds} s", flush=True)
+    PENDING.unlink(missing_ok=True)
 
 
 def speak_lines(args: argparse.Namespace) -> None:
@@ -228,7 +289,10 @@ def main() -> None:
     commands = parser.add_subparsers(required=True)
     commands.add_parser("design").set_defaults(run=design)
     commands.add_parser("samples").set_defaults(run=samples)
-    commands.add_parser("build").set_defaults(run=build)
+    build_parser = commands.add_parser("build")
+    build_parser.add_argument("--masters-only", action="store_true")
+    build_parser.set_defaults(run=build)
+    commands.add_parser("encode").set_defaults(run=encode_pending)
     speak_parser = commands.add_parser("speak")
     speak_parser.add_argument("--lines", required=True)
     speak_parser.add_argument("--out", required=True)
