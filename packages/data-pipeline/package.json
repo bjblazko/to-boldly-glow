@@ -10,10 +10,18 @@
     "test": "vitest run",
     "extract-city-lights": "tsx src/extractCityLights.ts",
     "narrate:export": "tsx src/exportNarrationTexts.ts",
-    "narrate": "npm run narrate:export && narration/.venv/bin/python narration/synthesize.py build"
+    "narrate": "npm run narrate:export && narration/.venv/bin/python narration/synthesize.py build",
+    "convert-voyager": "tsx src/convertVoyager.ts",
+    "fetch-voyager-trajectories": "tsx src/fetchVoyagerTrajectories.ts",
+    "extract-heliopause": "tsx src/extractHeliopauseData.ts",
+    "fetch-voyager-photos": "tsx src/fetchVoyagerPhotos.ts",
+    "fetch-voyager-encounters": "tsx src/fetchVoyagerEncounters.ts"
   },
   "devDependencies": {
+    "@gltf-transform/core": "^4.5.1",
+    "@gltf-transform/extensions": "^4.5.1",
     "@types/node": "^24.0.0",
+    "draco3dgltf": "^1.5.9",
     "sharp": "^0.35.5",
     "tsx": "^4.23.15",
     "typescript": "~6.0.3",

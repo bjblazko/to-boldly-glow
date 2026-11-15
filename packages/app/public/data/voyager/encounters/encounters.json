@@ -1,0 +1,47 @@
+{
+ "retrieved": "2026-11-15",
+ "encounters": [
+  {
+   "probe": "voyager1",
+   "planet": "jupiter",
+   "moon": "io",
+   "closestApproachJulianDay": 2443938.003472222,
+   "closestApproachKm": 348436
+  },
+  {
+   "probe": "voyager1",
+   "planet": "saturn",
+   "moon": "titan",
+   "closestApproachJulianDay": 2444556.490277778,
+   "closestApproachKm": 184031
+  },
+  {
+   "probe": "voyager2",
+   "planet": "jupiter",
+   "moon": "europa",
+   "closestApproachJulianDay": 2444064.436805556,
+   "closestApproachKm": 721376
+  },
+  {
+   "probe": "voyager2",
+   "planet": "saturn",
+   "moon": "titan",
+   "closestApproachJulianDay": 2444842.641666667,
+   "closestApproachKm": 160695
+  },
+  {
+   "probe": "voyager2",
+   "planet": "uranus",
+   "moon": "titania",
+   "closestApproachJulianDay": 2446455.249305556,
+   "closestApproachKm": 107157
+  },
+  {
+   "probe": "voyager2",
+   "planet": "neptune",
+   "moon": "triton",
+   "closestApproachJulianDay": 2447763.663888889,
+   "closestApproachKm": 29248
+  }
+ ]
+}
