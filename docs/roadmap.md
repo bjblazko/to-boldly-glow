@@ -5,6 +5,19 @@ Each entry here is a named future feature with just enough detail to pick up lat
 re-deriving requirements from scratch. Before implementation, each entry should go through its own
 brainstorming → design-spec → implementation-plan cycle.
 
+## Next: housekeeping (planned 2026-11-17)
+
+Not shipped to users, so not urgent for the live app (`npm audit --omit=dev`: 0 vulnerabilities).
+
+- Dev tools: `npm audit fix` for minimatch and picomatch (ReDoS in file-pattern matching, build and
+  tests only), then lint, typecheck, tests and build.
+- Narration environment (`packages/data-pipeline/narration/requirements.txt`, runs only on the AI PC
+  for Qwen3-TTS): update Pillow (5 critical, many high Dependabot alerts), transformers, accelerate
+  and opentelemetry-api - together with recording Lyra's new middle line for the new supercut, so
+  the TTS can be checked with the new versions right there.
+- The 0.6.0 offline zip predates two small fixes (the follow chip's font, free flight letting go of
+  a followed body); they ship with the next version's zip.
+
 ## Eye candy: richer space visuals
 **What**: Make the scene look more like space photography: livelier stars, better planet surfaces,
 and the objects you'd actually see in the sky.
