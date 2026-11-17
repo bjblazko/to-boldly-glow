@@ -46,6 +46,11 @@ Voyager, a calmer interface with everything in one bar, and a camera you can ste
 - The silent flyby loop (the narrated grand tour covers it) and the Find tree (the search finds
   the same bodies).
 
+### Fixed
+
+- The download carries the Voyager model and mission data, and opened from the disk it no longer
+  tries to fetch narration ahead (which a browser does not allow there).
+
 ## [0.5.0] - 2026-10-26
 
 The first numbered release: the Solar System to explore at true or compact scale, lessons on

@@ -67,7 +67,7 @@ export class AudioClipPlayer implements ClipPlayer {
 
   // Fetches a clip ahead into the browser's cache, so it starts at once when its turn comes.
   prefetch(clip: NarrationClip): void {
-    if (!clip.url || this.audio.muted || this.fetched.has(clip.url)) return
+    if (!clip.url || this.audio.muted || this.fetched.has(clip.url) || !prefetchable(location.href)) return
     this.fetched.add(clip.url)
     fetch(clip.url, { priority: 'low' }).catch(() => this.fetched.delete(clip.url!))
   }
@@ -133,4 +133,10 @@ export class AudioClipPlayer implements ClipPlayer {
     this.stop()
     ended?.()
   }
+}
+
+// Whether clips can be fetched ahead: not in the download opened from the disk, where the browser
+// lets an <audio> element play a file but not fetch() read it.
+export function prefetchable(pageUrl: string): boolean {
+  return new URL(pageUrl).protocol !== 'file:'
 }

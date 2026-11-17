@@ -3,7 +3,7 @@
 // Opened from the disk (file://), a browser runs no module script from a file and fetches no file,
 // and Chrome loads no font from one. So the code and its styles (fonts included) go inline into
 // index.html; everything the app fetches - textures, the star catalog, the narration manifest, the
-// engine's WebAssembly - goes into data/*.js, classic scripts the page loads first, and a small
+// engine's WebAssembly, the Voyager model and its mission data - goes into inline/*.js, classic scripts the page loads first, and a small
 // stand-in for fetch() serves them from there. The narration's audio stays as files: an <audio>
 // element plays them from the disk. The app's own code is the same as online.
 //
@@ -22,7 +22,9 @@ const OUT = path.join(APP, 'dist-offline')
 const DIST = path.join(OUT, NAME)
 
 // What the app fetches, by folder or file (relative to index.html); all else stays a plain file.
-const FETCHED = [/^textures\//, /^sky\//, /^stars\//, /^narration\/manifest\.json$/, /^assets\/.*\.wasm$/]
+const FETCHED = [/^textures\//, /^sky\//, /^stars\//, /^models\//, /^data\//, /^narration\/manifest\.json$/, /^assets\/.*\.wasm$/]
+// Where the inlined files' scripts go (not data/: that is the app's own mission data).
+const INLINE_DIR = 'inline'
 const MIME = { woff2: 'font/woff2', woff: 'font/woff', png: 'image/png', jpg: 'image/jpeg', svg: 'image/svg+xml' }
 
 // Runs before the data scripts: the table they fill, and fetch() answering from it for any URL
@@ -50,9 +52,9 @@ execFileSync('npx', ['vite', 'build', '--mode', 'offline', '--outDir', DIST, '--
 
 const files = listFiles(DIST)
 const fetched = files.filter((file) => FETCHED.some((pattern) => pattern.test(file)))
-mkdirSync(path.join(DIST, 'data'))
+mkdirSync(path.join(DIST, INLINE_DIR))
 const dataScripts = fetched.map((file) => {
-  const script = `data/${file.replaceAll('/', '_')}.js`
+  const script = `${INLINE_DIR}/${file.replaceAll('/', '_')}.js`
   const base64 = readFileSync(path.join(DIST, file)).toString('base64')
   // The code asked for its assets relative to itself in assets/; inline, relative to the page.
   const asked = file.replace(/^assets\//, '')
@@ -60,7 +62,7 @@ const dataScripts = fetched.map((file) => {
   rmSync(path.join(DIST, file))
   return script
 })
-for (const dir of ['textures', 'sky', 'stars']) rmSync(path.join(DIST, dir), { recursive: true, force: true })
+for (const dir of ['textures', 'sky', 'stars', 'models', 'data']) rmSync(path.join(DIST, dir), { recursive: true, force: true })
 
 let html = readFileSync(path.join(DIST, 'index.html'), 'utf8')
 html = html.replace(/<link rel="modulepreload"[^>]*>\n?/g, '')
