@@ -127,6 +127,7 @@ export const ui: Messages['ui'] = {
   camera: {
     orbit: 'Umkreisen',
     fly: 'Freiflug',
+    switchTo: (mode) => `Kamera: zu ${mode} wechseln`,
     flightSpeed: (factor) => `Fluggeschwindigkeit ×${factor}`,
   },
   touch: {

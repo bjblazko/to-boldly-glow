@@ -146,7 +146,7 @@ test('the tour moves the view smoothly and hands over to free-fly without a jump
   await page.keyboard.press('Escape')
   const firstFreeFlyFrame = await captureFrame(page)
   expect(meanAbsoluteDifference(lastTourFrame, firstFreeFlyFrame)).toBeLessThan(NO_JUMP)
-  await expect(page.locator('#camera-fly-btn')).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.locator('#camera-mode-btn')).toHaveAttribute('data-mode', 'fly')
   expect(errors).toEqual([])
 })
 

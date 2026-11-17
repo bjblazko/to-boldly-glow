@@ -552,17 +552,13 @@
           <svg class="icon" aria-hidden="true"><use href="#icon-search"></use></svg>
           <span class="hud-dock-label" data-i18n="ui.bar.search">Search</span>
         </button>
-        <div class="hud-camera-switch" role="group" aria-labelledby="camera-switch-label">
-          <div class="hud-camera-switch-buttons">
-            <button id="camera-orbit-btn" class="hud-camera-mode" type="button" aria-pressed="true">
-              <svg class="icon" aria-hidden="true"><use href="#icon-orbit"></use></svg><span data-i18n="ui.camera.orbit">Orbit</span>
-            </button>
-            <button id="camera-fly-btn" class="hud-camera-mode" type="button" aria-pressed="false">
-              <svg class="icon" aria-hidden="true"><use href="#icon-fly"></use></svg><span data-i18n="ui.camera.fly">Free flight</span>
-            </button>
-          </div>
-          <span id="camera-switch-label" class="hud-dock-label" data-i18n="ui.dock.camera">Camera</span>
-        </div>
+        <!-- The camera: one key showing the mode in use (and two dots: there is another); a click
+             switches between orbiting and free flight. -->
+        <button id="camera-mode-btn" class="hud-dock-btn hud-camera-btn" type="button" data-mode="orbit" title="Switch to Free flight">
+          <svg class="icon" aria-hidden="true"><use href="#icon-orbit"></use></svg>
+          <span class="hud-dock-label" data-i18n="ui.camera.orbit">Orbit</span>
+          <span class="hud-camera-dots" aria-hidden="true"><i></i><i></i></span>
+        </button>
         <button class="hud-dock-btn" data-panel="time" type="button">
           <svg class="icon" aria-hidden="true"><use href="#icon-clock"></use></svg>
           <span class="hud-dock-label" data-i18n="ui.dock.time">Time</span>

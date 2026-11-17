@@ -24,9 +24,9 @@ test("a planet's name finds its moons too, after the planet itself", async ({ pa
 
 test('picking a body while in fly mode forces the camera back to orbit mode', async ({ page }) => {
   await openApp(page)
-  await page.locator('#camera-fly-btn').click()
-  await expect(page.locator('#camera-fly-btn')).toHaveAttribute('aria-pressed', 'true')
+  await page.locator('#camera-mode-btn').click()
+  await expect(page.locator('#camera-mode-btn')).toHaveAttribute('data-mode', 'fly')
   await goTo(page, 'Mars')
-  await expect(page.locator('#camera-orbit-btn')).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.locator('#camera-mode-btn')).toHaveAttribute('data-mode', 'orbit')
   await expect(page.locator('#scene')).toHaveAttribute('data-following-id', 'mars')
 })

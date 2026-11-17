@@ -1992,61 +1992,28 @@ body[data-context='explore'] .hud-leave-btn {
   color: var(--hud-text);
 }
 
-/* The camera switch: the two modes side by side as one segmented key, "Camera" under them. */
-.hud-camera-switch {
+/* The camera key: the mode in use, and under its label two dots - the lit one is that mode - so it
+   is clear there is another a click away. */
+.hud-camera-btn {
+  --hud-dock-accent: var(--hud-cyan);
+}
+.hud-camera-dots {
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 6px 12px;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 1;
-  color: rgba(236, 240, 255, 0.72);
+  gap: 4px;
 }
-.hud-camera-switch-buttons {
-  display: flex;
-  gap: 2px;
-  padding: 3px;
-  background: var(--hud-well);
-  box-shadow: var(--hud-well-edge);
+.hud-camera-dots i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
 }
-.hud-camera-mode {
-  appearance: none;
-  border: none;
-  border-radius: 0;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
-  background: transparent;
-  color: rgba(236, 240, 255, 0.72);
-  font: inherit;
-  font-size: 12.5px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-.hud-camera-mode .icon {
-  width: 16px;
-  height: 16px;
-  color: var(--hud-accent-camera);
-}
-.hud-camera-mode:hover {
-  color: var(--hud-text);
-}
-/* The mode in use: lit flat inside the well, no extruded edge to spill past it. */
-.hud-camera-mode[aria-pressed='true'] {
-  color: #0b0d18;
-  background: linear-gradient(115deg, #fff 0 30%, #eef0f8 30%);
-  box-shadow: inset 0 -2px 0 var(--hud-cyan), 0 0 14px -4px rgba(34, 225, 255, 0.7);
-}
-.hud-camera-mode[aria-pressed='true'] .icon {
-  color: #0b0d18;
-}
-.hud-camera-mode:focus-visible {
-  outline: 2px solid #fff;
-  outline-offset: 2px;
+.hud-camera-btn[data-mode='orbit'] .hud-camera-dots i:first-child,
+.hud-camera-btn[data-mode='fly'] .hud-camera-dots i:last-child {
+  background: var(--hud-cyan);
 }
 
 /* "Following: Jupiter ×", just above the bar. */
@@ -2203,9 +2170,6 @@ body:has(.hud-start:not([hidden])) :is(.hud-camera-hint, .hud-controls) {
   .hud-bar {
     overflow-x: auto;
     scrollbar-width: none;
-  }
-  .hud-camera-mode span {
-    display: none;
   }
   .hud-start-hero {
     grid-template-columns: 1fr;

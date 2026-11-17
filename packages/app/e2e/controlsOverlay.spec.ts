@@ -4,7 +4,7 @@ import { openApp } from './support/appBoot'
 test('switching camera mode shows its controls as keycaps; ? brings them back, Escape puts them away', async ({ page }) => {
   await openApp(page)
   const overlay = page.locator('#controls-overlay')
-  await page.locator('#camera-fly-btn').click()
+  await page.locator('#camera-mode-btn').click()
   await expect(overlay).toBeVisible()
   await expect(overlay.locator('.hud-keycap[data-code="KeyW"]')).toHaveText('W')
   await expect(overlay.locator('.hud-keycap[data-code="ArrowUp"]')).toBeVisible()
@@ -32,7 +32,7 @@ test('switching camera mode shows its controls as keycaps; ? brings them back, E
 
 test('the controls fade by themselves after a few seconds', async ({ page }) => {
   await openApp(page)
-  await page.locator('#camera-fly-btn').click()
+  await page.locator('#camera-mode-btn').click()
   await expect(page.locator('#controls-overlay')).toBeVisible()
   await expect(page.locator('#controls-overlay')).toBeHidden({ timeout: 10_000 })
 })

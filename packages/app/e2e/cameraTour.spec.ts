@@ -13,7 +13,7 @@ test('a key press hands control back from the tour, in free flight', async ({ pa
 
   await page.keyboard.press('KeyW')
   await expect(context(page)).toHaveAttribute('data-context', 'explore')
-  await expect(page.locator('#camera-fly-btn')).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.locator('#camera-mode-btn')).toHaveAttribute('data-mode', 'fly')
   expect(errors).toEqual([])
 })
 

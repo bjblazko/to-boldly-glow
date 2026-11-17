@@ -128,6 +128,7 @@ export const ui = {
   camera: {
     orbit: 'Orbit',
     fly: 'Free flight',
+    switchTo: (mode: string) => `Camera: switch to ${mode}`,
     flightSpeed: (factor: string) => `Flight speed ×${factor}`,
   },
   touch: {

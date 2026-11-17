@@ -1,16 +1,18 @@
 import { isTextEntryTarget } from '../camera/inputController'
 import type { CameraDirector } from '../camera/cameraDirector'
 import type { CameraMode } from '../camera/inputController'
+import { msg } from '../i18n/i18n'
 
 export interface CameraControlElements {
   canvas: HTMLCanvasElement
-  orbitButton: HTMLButtonElement
-  flyButton: HTMLButtonElement
+  // The bar's camera key: it shows the mode in use, and a click switches to the other.
+  modeButton: HTMLButtonElement
 }
 
-// The bar's camera switch (Orbit | Free flight), showing the mode in use - a switch shows that
-// mode's controls - and handing control back from the narrated tour: any manual camera input while
-// it flies stops it.
+const OTHER: Record<CameraMode, CameraMode> = { orbit: 'fly', fly: 'orbit' }
+
+// The bar's camera key (Orbit / Free flight) - a switch shows that mode's controls - and handing
+// control back from the narrated tour: any manual camera input while it flies stops it.
 export class CameraControls {
   constructor(
     private readonly elements: CameraControlElements,
@@ -18,13 +20,12 @@ export class CameraControls {
   ) {}
 
   bind(camera: CameraDirector): void {
-    const { canvas, orbitButton, flyButton } = this.elements
-    const choose = (mode: CameraMode) => {
+    const { canvas, modeButton } = this.elements
+    modeButton.addEventListener('click', () => {
+      const mode = OTHER[camera.mode]
       camera.setMode(mode)
       this.switched(mode)
-    }
-    orbitButton.addEventListener('click', () => choose('orbit'))
-    flyButton.addEventListener('click', () => choose('fly'))
+    })
     canvas.addEventListener('pointerdown', () => camera.stopTour())
     canvas.addEventListener('wheel', () => camera.stopTour())
     window.addEventListener('keydown', (event) => {
@@ -33,8 +34,12 @@ export class CameraControls {
   }
 
   showMode(mode: CameraMode): void {
-    this.elements.orbitButton.setAttribute('aria-pressed', String(mode === 'orbit'))
-    this.elements.flyButton.setAttribute('aria-pressed', String(mode === 'fly'))
+    const button = this.elements.modeButton
+    button.dataset.mode = mode
+    button.querySelector('use')?.setAttribute('href', mode === 'orbit' ? '#icon-orbit' : '#icon-fly')
+    const label = button.querySelector('.hud-dock-label')
+    if (label) label.textContent = msg.ui.camera[mode]
+    button.title = msg.ui.camera.switchTo(msg.ui.camera[OTHER[mode]])
   }
 }
 

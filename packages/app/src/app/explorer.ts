@@ -118,7 +118,7 @@ function createCamera(canvas: HTMLCanvasElement, wiring: CameraWiring): { camera
     boost: requireElement('#touch-flight-boost'),
   })
   // The keys show when the user switches mode, not when a lesson or tour takes the camera over.
-  const controls = new CameraControls({ canvas, orbitButton: requireElement('#camera-orbit-btn'), flyButton: requireElement('#camera-fly-btn') }, (mode) => guide.show(mode))
+  const controls = new CameraControls({ canvas, modeButton: requireElement('#camera-mode-btn') }, (mode) => guide.show(mode))
   const camera = new CameraDirector(canvas, {
     onModeChange: (mode) => {
       controls.showMode(mode)
