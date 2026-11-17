@@ -31,8 +31,9 @@ export interface CameraInputEvents {
 //   on a touch screen, or a right- or Shift-drag move the pivot; a mouse wheel or a pinch zooms
 //   toward the pointer; the arrows turn and W/S zoom from the keyboard - all with a little weight
 //   (see orbitMotion.ts);
-// - free flight: WASD/arrows to fly and strafe, R/F up and down, Q/E roll, Shift boost, drag to
-//   look around, wheel (or pinch) to set the speed - or the on-screen pad on a touch screen.
+// - free flight, as in a spaceship: the arrows steer the nose, W/S thrust forward and back, Q/E
+//   roll, Shift boosts, a drag looks around, the wheel (or a pinch) sets the top speed - or the
+//   on-screen pad on a touch screen.
 export class CameraInputController {
   mode: CameraMode = 'orbit'
 

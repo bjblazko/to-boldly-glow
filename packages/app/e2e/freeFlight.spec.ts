@@ -17,7 +17,7 @@ test('free flight flies with the keyboard and looks around with a drag', async (
   test.setTimeout(120_000)
   const errors = await openRenderedApp(page)
   await switchToFreeFlight(page)
-  await expect(page.locator('#camera-hint')).toContainText('WASD')
+  await expect(page.locator('#camera-hint')).toContainText('W/S thrust')
   const start = await captureFrame(page)
 
   await page.keyboard.down('KeyW')
@@ -49,7 +49,7 @@ test('double-clicking a body flies there and follows it', async ({ page }) => {
 test.describe('on a touch screen', () => {
   test.use({ hasTouch: true })
 
-  test('free flight shows a thumbstick that flies the ship', async ({ page }) => {
+  test('free flight shows a thumbstick that steers the ship', async ({ page }) => {
     test.setTimeout(120_000)
     const errors = await openRenderedApp(page)
     await expect(page.locator('#touch-flight-pad')).toBeHidden()
@@ -57,11 +57,11 @@ test.describe('on a touch screen', () => {
     await expect(page.locator('#touch-flight-pad')).toBeVisible()
     const start = await captureFrame(page)
 
-    // Push the stick forward and hold it.
+    // Push the stick to the side and hold it: the nose turns.
     const stick = (await page.locator('#touch-flight-stick').boundingBox())!
     await page.mouse.move(stick.x + stick.width / 2, stick.y + stick.height / 2)
     await page.mouse.down()
-    await page.mouse.move(stick.x + stick.width / 2, stick.y + 4, { steps: 4 })
+    await page.mouse.move(stick.x + stick.width - 4, stick.y + stick.height / 2, { steps: 4 })
     await renderFrames(page, 6)
     await page.mouse.up()
     await renderFrames(page, 3)

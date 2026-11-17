@@ -103,16 +103,18 @@ export const ui: Messages['ui'] = {
     hints: {
       orbitPointer: 'Ziehen dreht · Zwei Finger, Rechts- oder Shift-Ziehen verschiebt · Scrollen oder Pinch zoomt zum Zeiger · Pfeile drehen, W/S zoomen · Doppelklick auf einen Körper fliegt hin',
       orbitTouch: 'Ziehen dreht · Zwei Finger verschieben und zoomen · Doppeltippen auf einen Körper fliegt hin',
-      flyPointer: 'WASD/Pfeiltasten fliegen · Ziehen schaut umher · R/F hoch/runter · Q/E rollen · Shift Boost · Scrollen ändert das Tempo',
-      flyTouch: 'Stick zum Fliegen · Ziehen schaut umher · ▲▼ hoch/runter · ⚡ halten für Boost · Zwei Finger ändern das Tempo',
+      flyPointer: 'Pfeiltasten lenken die Nase · W/S Schub vor/zurück · Q/E rollen · Shift Boost · Ziehen schaut umher · Scrollen ändert das Höchsttempo',
+      flyTouch: 'Stick lenkt die Nase · ▲▼ Schub · ⟲⟳ rollen · ⚡ halten für Boost · Ziehen schaut umher · Zwei Finger ändern das Höchsttempo',
     },
     flightSpeed: (factor) => `Fluggeschwindigkeit ×${factor}`,
   },
   touch: {
-    fly: 'Fliegen',
-    up: 'Hoch',
+    fly: 'Lenken',
+    forward: 'Schub vor',
+    back: 'Schub zurück',
+    rollLeft: 'Links rollen',
+    rollRight: 'Rechts rollen',
     boost: 'Boost',
-    down: 'Runter',
   },
   time: {
     title: 'Zeit',

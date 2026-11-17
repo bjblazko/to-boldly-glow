@@ -2011,11 +2011,16 @@ body[data-ui-hidden] .hud-browser-hint {
     0 0 30px -6px rgba(34, 225, 255, 0.7);
   pointer-events: none;
 }
+/* Thrust forward and back on the left, roll on the right, boost across the bottom. */
 .hud-touch-buttons {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, 52px);
   gap: 12px;
   pointer-events: auto;
+}
+.hud-touch-btn-wide {
+  grid-column: span 2;
+  width: auto;
 }
 .hud-touch-btn {
   width: 52px;

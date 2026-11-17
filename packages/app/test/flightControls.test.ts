@@ -1,7 +1,7 @@
 import { vec3 } from 'gl-matrix'
 import { describe, expect, it } from 'vitest'
 import { pickTarget } from '../src/camera/entityPicking'
-import { keyboardOrbitTurn } from '../src/camera/input/flightInput'
+import { keyboardFlightCommand, keyboardOrbitTurn } from '../src/camera/input/flightInput'
 import { clampSpeedLevel, cruiseSpeed, keepOutside, speedFactor } from '../src/camera/input/flightSpeed'
 import type { KeyboardState } from '../src/camera/input/keyboardState'
 import { OrbitMotion } from '../src/camera/input/orbitMotion'
@@ -101,5 +101,30 @@ describe('keyboardOrbitTurn', () => {
     expect(keyboardOrbitTurn(held('KeyA')).turn).toEqual([0, 0])
     expect(keyboardOrbitTurn(held('KeyR')).zoom).toBe(0)
     expect(keyboardOrbitTurn(held('KeyF')).zoom).toBe(0)
+  })
+})
+
+describe('keyboardFlightCommand', () => {
+  const held = (...codes: string[]) => {
+    const isDown = (...wanted: string[]) => wanted.some((code) => codes.includes(code))
+    return { isDown, axis: (positive: string[], negative: string[]) => Number(isDown(...positive)) - Number(isDown(...negative)) } as unknown as KeyboardState
+  }
+
+  it('steers the nose with the arrows: up is nose down, left and right turn it', () => {
+    expect(keyboardFlightCommand(held('ArrowUp')).turn).toEqual([0, -1])
+    expect(keyboardFlightCommand(held('ArrowDown')).turn).toEqual([0, 1])
+    expect(keyboardFlightCommand(held('ArrowLeft')).turn).toEqual([-1, 0])
+    expect(keyboardFlightCommand(held('ArrowRight')).turn).toEqual([1, 0])
+    expect(keyboardFlightCommand(held('ArrowRight')).thrust).toBe(0)
+  })
+
+  it('thrusts with W and S, rolls with Q and E, and no longer strafes with A, D, R or F', () => {
+    expect(keyboardFlightCommand(held('KeyW')).thrust).toBe(1)
+    expect(keyboardFlightCommand(held('KeyS')).thrust).toBe(-1)
+    expect(keyboardFlightCommand(held('KeyE')).roll).toBe(1)
+    expect(keyboardFlightCommand(held('KeyQ')).roll).toBe(-1)
+    const idle = keyboardFlightCommand(held('KeyA', 'KeyD', 'KeyR', 'KeyF'))
+    expect(idle.thrust).toBe(0)
+    expect(idle.turn).toEqual([0, 0])
   })
 })

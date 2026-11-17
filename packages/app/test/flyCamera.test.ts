@@ -71,34 +71,54 @@ describe('FlyCamera flight', () => {
     for (let t = 0; t < seconds; t += 1 / 60) camera.fly(command, 1 / 60, speed)
   }
 
-  it('eases into full thrust and coasts to a stop when let go', () => {
+  it('builds up to full speed over about 1.5 s, and comes to rest over about 2 s once let go', () => {
     const camera = level()
-    camera.fly({ ...NO_COMMAND, thrust: [0, 0, 1] }, 1 / 60, 10)
-    expect(camera.speed).toBeGreaterThan(0)
-    expect(camera.speed).toBeLessThan(2)
-    fly(camera, { ...NO_COMMAND, thrust: [0, 0, 1] }, 2)
-    expect(camera.speed).toBeCloseTo(10, 0)
-    expect(camera.velocity[1]).toBeGreaterThan(9.5)
+    fly(camera, { ...NO_COMMAND, thrust: 1 }, 0.5)
+    expect(camera.speed).toBeLessThan(8)
+    fly(camera, { ...NO_COMMAND, thrust: 1 }, 1)
+    expect(camera.speed).toBeGreaterThan(9)
+    expect(camera.velocity[1]).toBeGreaterThan(9)
+    fly(camera, NO_COMMAND, 0.5)
+    expect(camera.speed).toBeGreaterThan(3)
     fly(camera, NO_COMMAND, 2)
-    expect(camera.speed).toBeLessThan(0.1)
+    expect(camera.speed).toBeLessThan(0.5)
   })
 
-  it('strafes right, rises up, and boosts', () => {
+  it('flies backward with S, along the nose only, and boosts', () => {
     const camera = level()
-    fly(camera, { ...NO_COMMAND, thrust: [1, 0, 0] }, 2)
-    expect(camera.velocity[0]).toBeGreaterThan(9.5)
-    fly(camera, { ...NO_COMMAND, thrust: [0, 1, 0], boost: true }, 2)
-    expect(camera.velocity[2]).toBeGreaterThan(50)
+    fly(camera, { ...NO_COMMAND, thrust: -1 }, 3)
+    expect(camera.velocity[1]).toBeLessThan(-9.5)
+    expect(Math.abs(camera.velocity[0]) + Math.abs(camera.velocity[2])).toBeLessThan(0.01)
+    fly(camera, { ...NO_COMMAND, thrust: 1, boost: true }, 3)
+    expect(camera.velocity[1]).toBeGreaterThan(50)
   })
 
-  it('turns right and looks up when asked to', () => {
+  it('turns the nose right and up, easing into the turn', () => {
+    const camera = level()
+    fly(camera, { ...NO_COMMAND, turn: [1, 0] }, 1 / 60)
+    const firstStep = camera.getForward()[0]
+    expect(firstStep).toBeGreaterThan(0)
+    expect(firstStep).toBeLessThan(0.01)
+    fly(camera, { ...NO_COMMAND, turn: [1, 0] }, 1)
+    expect(camera.getForward()[0]).toBeGreaterThan(0.5)
+    const pitched = level()
+    fly(pitched, { ...NO_COMMAND, turn: [0, 1] }, 1)
+    expect(pitched.getForward()[2]).toBeGreaterThan(0.5)
+  })
+
+  it('still looks around with a drag', () => {
     const camera = level()
     camera.look(0.3, 0)
     fly(camera, NO_COMMAND, 0.5)
     expect(camera.getForward()[0]).toBeGreaterThan(0.25)
-    camera.look(0, 0.3)
+  })
+
+  it('holds a roll a moment before levelling again', () => {
+    const camera = level()
+    fly(camera, { ...NO_COMMAND, roll: 1 }, 0.5)
+    const rolled = Math.abs(camera.getRight()[2])
     fly(camera, NO_COMMAND, 0.5)
-    expect(camera.getForward()[2]).toBeGreaterThan(0.25)
+    expect(Math.abs(camera.getRight()[2])).toBeCloseTo(rolled, 3)
   })
 
   it('rolls with Q/E and levels back to the ecliptic once let go', () => {

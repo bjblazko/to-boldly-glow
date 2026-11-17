@@ -103,8 +103,10 @@ function createCamera(canvas: HTMLCanvasElement, wiring: CameraWiring): CameraDi
     pad: requireElement('#touch-flight-pad'),
     stick: requireElement('#touch-flight-stick'),
     knob: requireElement('#touch-flight-knob'),
-    up: requireElement('#touch-flight-up'),
-    down: requireElement('#touch-flight-down'),
+    forward: requireElement('#touch-flight-forward'),
+    back: requireElement('#touch-flight-back'),
+    rollLeft: requireElement('#touch-flight-roll-left'),
+    rollRight: requireElement('#touch-flight-roll-right'),
     boost: requireElement('#touch-flight-boost'),
   })
   const controls = new CameraControls(

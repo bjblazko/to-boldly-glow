@@ -9,18 +9,25 @@ export interface FlyCameraOptions {
 
 // What the pilot asks for this frame (see flightInput.ts for where it comes from).
 export interface FlightCommand {
-  // Thrust along the ship's own axes, each -1..1: right, up, forward.
-  thrust: [number, number, number]
+  // Thrust along the nose, -1..1 (backward..forward). The ship has no side or vertical thrusters.
+  thrust: number
+  // How hard to turn the nose, each -1..1: yaw (positive to the right), pitch (positive up).
+  turn: [number, number]
   // -1..1, positive rolling the view clockwise.
   roll: number
   boost: boolean
 }
 
-export const NO_COMMAND: FlightCommand = { thrust: [0, 0, 0], roll: 0, boost: false }
+export const NO_COMMAND: FlightCommand = { thrust: 0, turn: [0, 0], roll: 0, boost: false }
 
-// The ship eases into the commanded velocity over about this long, and coasts to a stop as
-// gently: weight without sluggishness.
-const VELOCITY_RESPONSE_SECONDS = 0.35
+// The ship has mass: under thrust it reaches its speed in about 1.5 s (three of these), and let go
+// it comes to rest in about 2 s.
+const THRUST_RESPONSE_SECONDS = 0.5
+const COAST_RESPONSE_SECONDS = 0.7
+// The nose turns at up to this rate, easing in and out of a turn over about this long, so a tap is
+// a small correction and holding a key a steady turn.
+const TURN_RADIANS_PER_SECOND = 1.2
+const TURN_RESPONSE_SECONDS = 0.2
 // Mouse and touch look is smoothed just enough to take the jitter out of a drag.
 const LOOK_RESPONSE_SECONDS = 0.05
 const ROLL_RADIANS_PER_SECOND = 1.4
@@ -30,15 +37,20 @@ const BOOST_FACTOR = 6
 // ecliptic's pole, where "level" has no meaning.
 const LEVELING_SECONDS = 2.5
 const LEVELING_LIMIT = 0.97
+// After a roll, the levelling waits this long, so the pilot's roll is not undone at once.
+const LEVELING_PAUSE_SECONDS = 1.5
 
-// First-person free-flight camera, flown like a spaceship in a game: thrust along its own axes
-// with inertia, mouse/touch look, roll. `orientation` is a quaternion (no gimbal lock, so the ship
+// First-person free-flight camera, flown like a spaceship: the nose steered (pitch, yaw, roll),
+// thrust forward or back with inertia, mouse/touch look. `orientation` is a quaternion (no gimbal lock, so the ship
 // can loop freely); looking turns it around the ship's own up and right axes.
 export class FlyCamera {
   position: vec3
   orientation: quat
   velocity = vec3.create()
   private pendingLook: [number, number] = [0, 0]
+  // The nose's turn under way (yaw, pitch; -1..1 of the full rate), easing toward the command.
+  private turnRate: [number, number] = [0, 0]
+  private sinceRoll = Number.POSITIVE_INFINITY
 
   constructor(options: FlyCameraOptions = {}) {
     this.position = vec3.fromValues(...(options.position ?? [0, 25, 60]))
@@ -82,19 +94,18 @@ export class FlyCamera {
   // One frame of flight. cruiseSpeed (scene units per second) is how fast full thrust flies here.
   fly(command: FlightCommand, deltaSeconds: number, cruiseSpeed: number): void {
     this.applyLook(deltaSeconds)
-    if (command.roll !== 0) this.turnRoll(command.roll * ROLL_RADIANS_PER_SECOND * deltaSeconds)
-    else this.level(deltaSeconds)
-    const [right, up, forward] = command.thrust
-    const local = vec3.fromValues(-right, up, forward)
-    const wanted = vec3.transformQuat(vec3.create(), local, this.orientation)
-    vec3.scale(wanted, wanted, cruiseSpeed * (command.boost ? BOOST_FACTOR : 1))
-    vec3.lerp(this.velocity, this.velocity, wanted, 1 - Math.exp(-deltaSeconds / VELOCITY_RESPONSE_SECONDS))
+    this.steer(command.turn, deltaSeconds)
+    this.roll(command.roll, deltaSeconds)
+    const wanted = vec3.scale(vec3.create(), this.getForward(), command.thrust * cruiseSpeed * (command.boost ? BOOST_FACTOR : 1))
+    const response = command.thrust !== 0 ? THRUST_RESPONSE_SECONDS : COAST_RESPONSE_SECONDS
+    vec3.lerp(this.velocity, this.velocity, wanted, 1 - Math.exp(-deltaSeconds / response))
     vec3.scaleAndAdd(this.position, this.position, this.velocity, deltaSeconds)
   }
 
   stop(): void {
     vec3.zero(this.velocity)
     this.pendingLook = [0, 0]
+    this.turnRate = [0, 0]
   }
 
   turnPitch(delta: number): void {
@@ -134,6 +145,24 @@ export class FlyCamera {
     const basis = mat3.fromValues(-right[0], -right[1], -right[2], up[0], up[1], up[2], f[0], f[1], f[2])
     quat.normalize(this.orientation, quat.fromMat3(quat.create(), basis))
     this.stop()
+  }
+
+  private steer(turn: [number, number], deltaSeconds: number): void {
+    const ease = 1 - Math.exp(-deltaSeconds / TURN_RESPONSE_SECONDS)
+    this.turnRate = [this.turnRate[0] + (turn[0] - this.turnRate[0]) * ease, this.turnRate[1] + (turn[1] - this.turnRate[1]) * ease]
+    this.turnYaw(this.turnRate[0] * TURN_RADIANS_PER_SECOND * deltaSeconds)
+    this.turnPitch(this.turnRate[1] * TURN_RADIANS_PER_SECOND * deltaSeconds)
+  }
+
+  // Rolls while asked to; otherwise, after a pause, levels back to the ecliptic.
+  private roll(roll: number, deltaSeconds: number): void {
+    if (roll !== 0) {
+      this.sinceRoll = 0
+      this.turnRoll(roll * ROLL_RADIANS_PER_SECOND * deltaSeconds)
+      return
+    }
+    this.sinceRoll += deltaSeconds
+    if (this.sinceRoll > LEVELING_PAUSE_SECONDS) this.level(deltaSeconds)
   }
 
   private applyLook(deltaSeconds: number): void {

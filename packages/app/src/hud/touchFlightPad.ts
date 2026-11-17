@@ -5,16 +5,34 @@ export interface TouchFlightPadElements {
   pad: HTMLElement
   stick: HTMLElement
   knob: HTMLElement
-  up: HTMLElement
-  down: HTMLElement
+  forward: HTMLElement
+  back: HTMLElement
+  rollLeft: HTMLElement
+  rollRight: HTMLElement
   boost: HTMLElement
 }
 
-// The free-flight controls on a touch screen: a thumbstick for flying and strafing, and held
-// buttons to rise, sink and boost. Looking around is a drag anywhere else (see inputController.ts).
+// What the pad's controls are set to: the stick (x right, y up; -1..1) and the held buttons.
+export interface PadState {
+  stick: [number, number]
+  thrust: number
+  roll: number
+  boost: boolean
+}
+
+// The pad as the keyboard would say it: the stick steers the nose like the arrows (pushed up, the
+// nose goes down, as a stick does).
+export function padCommand({ stick, thrust, roll, boost }: PadState): FlightCommand {
+  return { thrust, turn: [stick[0], -stick[1]], roll, boost }
+}
+
+// The free-flight controls on a touch screen: a thumbstick that steers the nose, and held buttons
+// to thrust forward and back, roll and boost. Looking around is a drag anywhere else (see
+// inputController.ts).
 export class TouchFlightPad {
   private stick: [number, number] = [0, 0]
-  private vertical = 0
+  private thrust = 0
+  private rollInput = 0
   private boost = false
   private stickPointer: number | null = null
 
@@ -23,8 +41,10 @@ export class TouchFlightPad {
     elements.stick.addEventListener('pointermove', this.onStickMove)
     elements.stick.addEventListener('pointerup', this.onStickUp)
     elements.stick.addEventListener('pointercancel', this.onStickUp)
-    this.hold(elements.up, (held) => (this.vertical = held ? 1 : 0))
-    this.hold(elements.down, (held) => (this.vertical = held ? -1 : 0))
+    this.hold(elements.forward, (held) => (this.thrust = held ? 1 : 0))
+    this.hold(elements.back, (held) => (this.thrust = held ? -1 : 0))
+    this.hold(elements.rollLeft, (held) => (this.rollInput = held ? -1 : 0))
+    this.hold(elements.rollRight, (held) => (this.rollInput = held ? 1 : 0))
     this.hold(elements.boost, (held) => (this.boost = held))
   }
 
@@ -40,7 +60,7 @@ export class TouchFlightPad {
 
   command(): FlightCommand {
     if (this.elements.pad.hidden) return NO_COMMAND
-    return { thrust: [this.stick[0], this.vertical, this.stick[1]], roll: 0, boost: this.boost }
+    return padCommand({ stick: this.stick, thrust: this.thrust, roll: this.rollInput, boost: this.boost })
   }
 
   private hold(button: HTMLElement, onChange: (held: boolean) => void): void {
@@ -73,7 +93,8 @@ export class TouchFlightPad {
 
   private reset(): void {
     this.stick = [0, 0]
-    this.vertical = 0
+    this.thrust = 0
+    this.rollInput = 0
     this.boost = false
     this.stickPointer = null
     this.elements.knob.style.transform = ''

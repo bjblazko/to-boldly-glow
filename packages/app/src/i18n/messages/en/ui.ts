@@ -102,16 +102,18 @@ export const ui = {
     hints: {
       orbitPointer: 'Drag to turn · two fingers, right- or Shift-drag to move · scroll or pinch zooms toward the pointer · arrows turn, W/S zoom · double-click a body to fly there',
       orbitTouch: 'Drag to turn · two fingers move and zoom · double-tap a body to fly there',
-      flyPointer: 'WASD/arrows fly · drag to look · R/F up/down · Q/E roll · Shift boost · scroll sets speed',
-      flyTouch: 'Stick to fly · drag to look · ▲▼ up/down · hold ⚡ to boost · pinch sets speed',
+      flyPointer: 'Arrows steer the nose · W/S thrust forward/back · Q/E roll · Shift boost · drag to look · scroll sets top speed',
+      flyTouch: 'Stick steers the nose · ▲▼ thrust · ⟲⟳ roll · hold ⚡ to boost · drag to look · pinch sets top speed',
     },
     flightSpeed: (factor: string) => `Flight speed ×${factor}`,
   },
   touch: {
-    fly: 'Fly',
-    up: 'Up',
+    fly: 'Steer',
+    forward: 'Thrust forward',
+    back: 'Thrust back',
+    rollLeft: 'Roll left',
+    rollRight: 'Roll right',
     boost: 'Boost',
-    down: 'Down',
   },
   time: {
     title: 'Time',
