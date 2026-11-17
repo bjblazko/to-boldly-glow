@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Menü-Klickdummy</title>
+<style>
+:root {
+  --text: #f3f5ff; --dim: rgba(222,228,255,.62);
+  --cyan: #22e1ff; --violet: #7b5cff; --magenta: #ff3bbd; --gold: #ffcf4a;
+  --dichroic: linear-gradient(100deg, #22e1ff, #7b5cff 40%, #ff3bbd 72%, #ffcf4a);
+  --glass: linear-gradient(132deg, rgba(255,255,255,.11) 0 36%, rgba(255,255,255,.035) 36% 100%), rgba(16,18,32,.72);
+  --edge: inset 0 1px 0 rgba(255,255,255,.5), inset 0 0 0 1px rgba(255,255,255,.14);
+  --well: rgba(0,0,0,.34);
+  font-family: 'Inter Tight', -apple-system, 'Segoe UI', Roboto, system-ui, sans-serif;
+  color: var(--text);
+}
+* { box-sizing: border-box; }
+body { margin: 0; height: 100vh; overflow: hidden; background: #000 url(2026-11-17-hud-one-bar-backdrop.png) center/cover no-repeat; }
+button { font: inherit; color: inherit; cursor: pointer; }
+.mono { font-family: 'IBM Plex Mono', ui-monospace, Menlo, monospace; }
+
+/* Dummy controls (not part of the design) */
+.meta { position: fixed; left: 12px; bottom: 12px; z-index: 99; display: flex; flex-direction: column; align-items: flex-start; gap: 14px; align-items: center;
+  padding: 6px 10px; border: 1px dashed rgba(255,255,255,.45); border-radius: 8px; background: rgba(0,0,0,.75); font-size: 12px; }
+.meta b { color: var(--gold); font-weight: 600; }
+.meta button { background: none; border: 1px solid rgba(255,255,255,.25); border-radius: 5px; padding: 3px 8px; font-size: 12px; }
+.meta button.on { background: #fff; color: #000; }
+.note { position: fixed; right: 12px; bottom: 12px; z-index: 99; max-width: 330px; font-size: 12px; line-height: 1.45; color: #ddd;
+  padding: 10px 12px; border: 1px dashed rgba(255,255,255,.45); border-radius: 8px; background: rgba(0,0,0,.78); }
+.note h4 { margin: 0 0 4px; color: var(--gold); font-size: 12px; }
+.note ul { margin: 0; padding-left: 16px; }
+
+/* Glass slab */
+.slab { position: absolute; background: var(--glass); box-shadow: var(--edge), 0 10px 30px rgba(0,0,0,.45); backdrop-filter: blur(14px);
+  border-bottom: 3px solid transparent; border-image: var(--dichroic) 1; border-image-slice: 0 0 1 0; }
+.btn { display: inline-flex; align-items: center; gap: 8px; border: 0; background: rgba(255,255,255,.07); box-shadow: var(--edge); padding: 10px 14px; }
+.btn:hover { background: rgba(255,255,255,.14); }
+.btn.primary { background: linear-gradient(100deg, #ff6ad5, #7b5cff 50%, #22e1ff); font-weight: 600; }
+.ico { width: 18px; text-align: center; display: inline-block; }
+.head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.head h2 { margin: 0; font-size: 18px; flex: 1; }
+.x { border: 0; background: rgba(255,255,255,.08); box-shadow: var(--edge); width: 30px; height: 30px; }
+.group { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); margin: 14px 0 6px; }
+
+/* Bars and items */
+.bar { display: flex; align-items: stretch; padding: 6px; gap: 2px; }
+.bar.vertical { flex-direction: column; }
+.item { border: 0; background: none; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 7px 12px; min-width: 64px; font-size: 12px; color: var(--dim); }
+.item .ico { font-size: 17px; color: var(--text); }
+.item:hover { background: rgba(255,255,255,.07); color: var(--text); }
+.item.on { background: rgba(255,255,255,.13); color: var(--text); box-shadow: inset 0 2px 0 var(--cyan); }
+.sep { width: 1px; margin: 6px 6px; background: rgba(255,255,255,.16); }
+.bar.vertical .sep { width: auto; height: 1px; margin: 6px 6px; }
+.grow { flex: 1; }
+.chapter { display: flex; align-items: center; gap: 8px; padding: 0 10px; font-size: 13px; white-space: nowrap; }
+.chapter .t { font-weight: 600; } .chapter .n { color: var(--dim); font-size: 11px; }
+.timeline { display: flex; gap: 4px; align-items: center; padding: 0 10px; }
+.timeline i { width: 22px; height: 4px; background: rgba(255,255,255,.2); } .timeline i.done { background: var(--cyan); }
+
+/* Panels */
+.panel { width: 360px; padding: 16px; }
+.seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.seg button { border: 0; background: var(--well); box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); padding: 12px 6px; display: flex; flex-direction: column; gap: 4px; align-items: center; font-size: 13px; }
+.seg button small { color: var(--dim); font-size: 11px; line-height: 1.3; text-align: center; }
+.seg button.on { background: rgba(255,255,255,.9); color: #0b0d18; } .seg button.on small { color: #333; }
+.row { display: flex; align-items: center; justify-content: space-between; padding: 7px 0; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,.07); }
+.toggle { width: 34px; height: 18px; border-radius: 9px; background: rgba(255,255,255,.2); position: relative; border: 0; }
+.toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: left .15s; }
+.toggle.on { background: var(--cyan); } .toggle.on::after { left: 18px; }
+.link { background: none; border: 0; color: var(--cyan); padding: 8px 0 0; font-size: 13px; }
+.hint { color: var(--dim); font-size: 12px; margin: 8px 0 0; }
+
+/* Hub */
+.hub { left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(760px, calc(100vw - 32px)); padding: 22px; max-height: calc(100vh - 140px); overflow: auto; }
+.hero { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; align-items: center; padding: 16px; background: rgba(255,255,255,.05); box-shadow: var(--edge); }
+.hero h3 { margin: 0 0 6px; font-size: 20px; } .hero p { margin: 0; color: var(--dim); font-size: 14px; line-height: 1.45; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+.card { text-align: left; border: 0; background: rgba(255,255,255,.06); box-shadow: var(--edge); padding: 12px; min-height: 76px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px; }
+.card:hover { background: rgba(255,255,255,.12); }
+.card b { font-size: 14px; } .card span { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--dim); }
+.mini-seg { display: flex; gap: 4px; margin-top: 8px; } .mini-seg button { border: 0; background: var(--well); padding: 5px 10px; font-size: 12px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); }
+.mini-seg button.on { background: #fff; color: #000; }
+
+/* Lesson / tour text */
+.story { width: 380px; padding: 16px; }
+.story h3 { margin: 0 0 8px; font-size: 17px; } .story p { margin: 0; font-size: 14px; line-height: 1.5; color: #dfe3ff; }
+.chip { padding: 5px 10px; font-size: 11px; color: var(--dim); background: rgba(0,0,0,.45); border: 1px solid rgba(255,255,255,.18); cursor: pointer; }
+
+/* Controls overlay */
+.keys { left: 50%; transform: translateX(-50%); padding: 12px 16px; display: flex; gap: 22px; align-items: flex-end; font-size: 11px; color: var(--dim); transition: opacity .4s; }
+.keys .k { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+kbd { display: inline-block; min-width: 26px; padding: 4px 6px; font: 12px 'IBM Plex Mono', monospace; color: var(--text); background: rgba(255,255,255,.08); box-shadow: var(--edge), 0 2px 0 rgba(0,0,0,.5); text-align: center; }
+.toast { left: 50%; transform: translateX(-50%); padding: 8px 14px; font-size: 13px; }
+.backdrop { position: absolute; inset: 0; }
+.tabs { display: flex; gap: 4px; margin-bottom: 8px; } .tabs button { border: 0; background: none; padding: 6px 10px; color: var(--dim); font-size: 13px; }
+.tabs button.on { color: var(--text); box-shadow: inset 0 -2px 0 var(--cyan); }
+</style>
+</head>
+<body>
+<div class="meta">
+  <span><b>Klickdummy</b>: nur Menü, keine Szene</span>
+  <span>Variante <button data-v="A">A Eine Leiste</button> <button data-v="B">B Seitenleiste</button> <button data-v="C">C Aufgeräumt</button></span>
+  <span>Kontext <button data-c="explore">Erkunden</button> <button data-c="lesson">Lektion</button> <button data-c="tour">Tour</button></span>
+</div>
+<div id="ui"></div>
+<div class="note" id="note"></div>
+
+<script>
+const S = { v: 'A', ctx: 'explore', panel: null, cam: 'orbit', hub: true, keys: false, toast: '', set: 'general', toggles: { orbits: true, labels: true, moons: false, belts: true }, scale: 'compact' }
+let keysTimer, toastTimer
+
+const NOTES = {
+  A: ['<b>Kein Kamera-Panel mehr</b>: Umkreisen/Freiflug direkt in der Leiste umschalten, kein Rundflug. Tastenhilfe: ? oder unter Mehr.', 'Alles in <b>einer Leiste unten</b>. Oben ist der Himmel frei.', '⌂ Start öffnet die Startseite: große Tour, weitere Touren, Lektionen, frei erkunden. Sie ersetzt Willkommenskarte und die Reiter Lernen/Touren.', 'In Lektion/Tour wird dieselbe Leiste zum Player: Kapitel, Play, Zurücksetzen, Verlassen.', '⚙ fasst Einstellungen, Über/Impressum und „Oberfläche ausblenden“ zusammen.'],
+  B: ['Eine <b>Leiste am linken Rand</b>, Panels klappen daneben auf (wie Google Earth).', 'Player für Lektion/Tour unten mittig, Text rechts.', 'Viel Platz für die Szene in der Mitte; auf dem Handy wird die Leiste zur unteren Leiste.'],
+  C: ['<b>Heutiges Layout, nur aufgeräumt</b>: kleinster Umbau.', 'Oben: Erkunden · Lernen · Touren bleiben; rechts nur noch ⚙ (Suche ins Dock, Über und Ausblenden in ⚙).', 'Beta-/Maßstabshinweis wird ein kleiner Chip.', 'Rundflug wandert in die Touren-Liste.'],
+}
+const COMMON = ['Immer nur <b>ein</b> Panel offen; Klick in die Szene oder Esc schließt.', 'Kamera: <b>Modi nebeneinander</b> (A/B: Umkreisen · Freiflug · Autopilot; C: ohne Autopilot, der ist dort eine Tour). Ein Klick wählt, schließt das Panel und zeigt kurz die Tasten.', 'Ansicht-Schalter lassen das Panel offen (man will mehrere setzen).']
+
+const ICON = { home: '⌂', search: '⌕', camera: '◎', time: '◷', view: '◫', settings: '⚙', prev: '‹', next: '›', play: '▶', reset: '⟲', close: '✕', info: 'ⓘ', book: '▤', tour: '▷' }
+
+function item(act, icon, label, on) { return `<button class="item ${on ? 'on' : ''}" data-act="${act}"><span class="ico">${ICON[icon]}</span>${label}</button>` }
+
+function exploreItems() {
+  return item('panel:search', 'search', 'Suchen', S.panel === 'search') + item('panel:camera', 'camera', 'Kamera', S.panel === 'camera') +
+    item('panel:time', 'time', 'Zeit', S.panel === 'time') + item('panel:view', 'view', 'Ansicht', S.panel === 'view')
+}
+function playerItems() {
+  if (S.ctx === 'lesson') return `${item('noop', 'prev', 'Zurück')}<div class="chapter"><span><span class="t">Mondphasen</span><br><span class="n mono">Kapitel 3 / 7</span></span></div>${item('noop', 'next', 'Weiter')}${item('noop', 'play', 'Autoplay', true)}<div class="sep"></div>${item('toast:Ansicht der Lektion wiederhergestellt', 'reset', 'Ansicht')}${item('panel:view', 'view', 'Ebenen', S.panel === 'view')}`
+  return `${item('noop', 'prev', 'Zurück')}${item('noop', 'play', 'Pause', true)}${item('noop', 'next', 'Weiter')}<div class="timeline">${'<i class="done"></i>'.repeat(3)}${'<i></i>'.repeat(5)}</div>${item('panel:view', 'view', 'Ebenen', S.panel === 'view')}`
+}
+const leave = () => S.ctx === 'explore' ? '' : item('leave', 'close', S.ctx === 'lesson' ? 'Verlassen' : 'Beenden')
+
+function cameraPanel() {
+  const mode = (id, label, sub) => `<button class="${S.cam === id ? 'on' : ''}" data-act="cam:${id}"><b>${label}</b><small>${sub}</small></button>`
+  return `<div class="head"><span class="ico">${ICON.camera}</span><h2>Kamera</h2><button class="x" data-act="close">✕</button></div>
+    <div class="seg" style="grid-template-columns:repeat(${S.v === 'C' ? 2 : 3},1fr)">${mode('orbit', 'Umkreisen', 'drehen, schieben, zoomen')}${mode('fly', 'Freiflug', 'fliegen wie ein Raumschiff')}${S.v === 'C' ? '' : mode('auto', 'Autopilot', 'fliegt still von Planet zu Planet')}</div>
+    <button class="link" data-act="keys">? Steuerung zeigen</button>`
+}
+function timePanel() {
+  return `<div class="head"><span class="ico">${ICON.time}</span><h2>Zeit</h2><button class="x" data-act="close">✕</button></div>
+    <div style="display:flex;gap:6px;align-items:center"><button class="btn">⏸</button><button class="btn">⇄</button><input type="range" style="flex:1"><span class="mono" style="font-size:12px">1 Tag/s</span></div>
+    <p class="hint mono">17. Nov 2026 · 14:02</p><button class="link">Jetzt</button>`
+}
+function viewPanel() {
+  const t = (k, label) => `<div class="row">${label}<button class="toggle ${S.toggles[k] ? 'on' : ''}" data-act="tog:${k}"></button></div>`
+  return `<div class="head"><span class="ico">${ICON.view}</span><h2>Ansicht</h2><button class="x" data-act="close">✕</button></div>
+    <div class="mini-seg"><button class="${S.scale === 'real' ? 'on' : ''}" data-act="scale:real">Realistisch</button><button class="${S.scale === 'compact' ? 'on' : ''}" data-act="scale:compact">Kompakt</button></div>
+    ${t('orbits', 'Umlaufbahnen')}${t('labels', 'Beschriftungen')}${t('moons', 'Alle Monde')}${t('belts', 'Asteroidengürtel')}
+    <p class="hint">Schalter lassen das Panel offen.</p>`
+}
+function searchPanel() {
+  return `<div class="head"><span class="ico">${ICON.search}</span><h2>Suchen</h2><button class="x" data-act="close">✕</button></div>
+    <input placeholder="Planet, Mond, Lektion, Tour … (Strg+K)" style="width:100%;padding:10px;background:var(--well);border:1px solid var(--cyan);color:var(--text)">
+    <div class="group">Treffer</div><div class="row">Jupiter <span class="hint mono">Planet</span></div><div class="row">Voyager 1 <span class="hint mono">Tour</span></div><div class="row">Warum hat der Mond Phasen? <span class="hint mono">Lektion</span></div>
+    <p class="hint">Eine Suche für alles: ersetzt die Lupe oben rechts.</p>`
+}
+function settingsPanel() {
+  const tab = (id, l) => `<button class="${S.set === id ? 'on' : ''}" data-act="set:${id}">${l}</button>`
+  const body = {
+    general: `<div class="row">Sprache <span class="mini-seg"><button>English</button><button class="on">Deutsch</button></span></div><div class="row">Erzählstimme <span class="mini-seg"><button class="on">Lyra</button><button>Orion</button></span></div><div class="row">Untertitel <button class="toggle on"></button></div>`,
+    video: `<div class="row">Bildrate anzeigen <button class="toggle"></button></div><div class="row">Bloom <button class="toggle on"></button></div>`,
+    audio: `<div class="row">Stimme <button class="toggle on"></button></div><div class="row">Musik <button class="toggle on"></button></div>`,
+    about: `<p class="hint">To Boldly Glow · Beta 0.6.0<br>Kompakter Maßstab: Größen und Abstände nicht maßstabsgetreu.</p><button class="link">Projektseite</button> · <button class="link">Impressum</button> · <button class="link">Datenschutz</button> · <button class="link">Lizenzen</button>`,
+  }[S.set]
+  return `<div class="head"><span class="ico">${ICON.settings}</span><h2>Einstellungen</h2><button class="x" data-act="close">✕</button></div>
+    <div class="tabs">${tab('general', 'Allgemein')}${tab('video', 'Grafik')}${tab('audio', 'Ton')}${tab('about', 'Über')}</div>${body}
+    <button class="btn" style="width:100%;margin-top:14px;justify-content:center" data-act="keys">Steuerung zeigen <kbd>?</kbd></button><button class="btn" style="width:100%;margin-top:6px;justify-content:center" data-act="toast:Oberfläche ausgeblendet – H holt sie zurück">Oberfläche ausblenden <kbd>H</kbd></button>`
+}
+const PANELS = { camera: cameraPanel, time: timePanel, view: viewPanel, search: searchPanel, settings: settingsPanel }
+
+function hub() {
+  const voice = `<div class="mini-seg"><button>English</button><button class="on">Deutsch</button><span style="width:8px"></span><button class="on">Lyra</button><button>Orion</button></div>`
+  return `<div class="slab hub">
+    <div class="head"><h2 style="font-size:22px">Willkommen an Bord</h2><button class="x" data-act="hubclose">✕</button></div>
+    <div class="hero"><div><h3>Die große Tour</h3><p>Von der Sonne hinaus bis zum Neptun und zurück zur Erde – eine Stimme erzählt, was jede Welt besonders macht.</p>${voice}</div>
+      <div style="display:grid;gap:8px"><button class="btn primary" style="justify-content:center;padding:14px" data-act="go:tour">▶ Tour starten</button><span class="hint mono" style="text-align:center">mit Ton · etwa 8 Minuten</span></div></div>
+    <div class="group">Weitere Touren</div>
+    <div class="cards"><button class="card" data-act="go:tour"><b>Voyager 1</b><span>8 Stationen · 4 min</span></button><button class="card" data-act="go:tour"><b>Voyager 2</b><span>8 Stationen · 5 min</span></button>${S.v === 'C' ? '' : ''}</div>
+    <div class="group">Lektionen</div>
+    <div class="cards"><button class="card" data-act="go:lesson"><b>Lerne die Planeten kennen</b><span>9 Kapitel</span></button><button class="card" data-act="go:lesson"><b>Warum gibt es Jahreszeiten?</b><span>6 Kapitel</span></button><button class="card" data-act="go:lesson"><b>Warum hat der Mond Phasen?</b><span>7 Kapitel · zu 40 % gesehen</span></button><button class="card" data-act="go:lesson"><b>Sonnenfinsternis</b><span>8 Kapitel</span></button><button class="card" data-act="go:lesson"><b>Voyager im Detail</b><span>10 Kapitel</span></button></div>
+    <div style="display:flex;gap:8px;margin-top:16px"><button class="btn" style="flex:1;justify-content:center" data-act="go:explore">◎ Selbst erkunden</button></div>
+  </div>`
+}
+
+function storyCard(style) {
+  if (S.ctx === 'explore') return ''
+  const [title, text] = S.ctx === 'lesson'
+    ? ['Kapitel 3 · Halbmond', 'Eine Woche nach Neumond steht der Mond im rechten Winkel zur Sonne: Von der Erde aus sehen wir genau die Hälfte seiner beleuchteten Seite.']
+    : ['Jupiter · 5. März 1979', 'Voyager 1 rauscht in 350 000 km Entfernung an Jupiter vorbei und entdeckt Vulkane auf Io – die ersten außerhalb der Erde.']
+  return `<div class="slab story" style="${style}"><h3>${title}</h3><p>${text}</p></div>`
+}
+
+function keysOverlay(top) {
+  if (!S.keys) return ''
+  const fly = S.cam === 'fly'
+  const body = S.cam === 'auto' ? `<span>Der Autopilot fliegt selbst · ein Klick, Ziehen oder eine Taste übernimmt das Steuer</span>`
+    : fly ? `<div class="k"><span><kbd>Q</kbd><kbd>W</kbd><kbd>E</kbd><br><kbd style="margin-left:31px">S</kbd></span>rollen · Schub</div><div class="k"><span><kbd>↑</kbd><br><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd></span>Nase lenken</div><div class="k"><kbd>⇧ Shift</kbd>Boost</div><div class="k"><kbd>Ziehen</kbd>umschauen</div>`
+    : `<div class="k"><kbd>Ziehen</kbd>drehen</div><div class="k"><kbd>Zwei Finger</kbd>schieben</div><div class="k"><kbd>Scrollen</kbd>zum Zeiger zoomen</div><div class="k"><kbd>Doppelklick</kbd>hinfliegen</div>`
+  return `<div class="slab keys" style="top:${top}px">${body}</div>`
+}
+const toast = (bottom) => S.toast ? `<div class="slab toast" style="bottom:${bottom}px">${S.toast}</div>` : ''
+
+function panelBox(pos) { return S.panel ? `<div class="slab panel" style="${pos}">${PANELS[S.panel]()}</div>` : '' }
+
+function camSwitch() {
+  const b = (id, l) => `<button class="${S.cam === id ? 'on' : ''}" data-act="cam:${id}" style="padding:8px 12px">${l}</button>`
+  return `<div class="item" style="cursor:default"><span class="mini-seg" style="margin:0">${b('orbit', '◎ Umkreisen')}${b('fly', '✈ Freiflug')}</span>Kamera</div>`
+}
+function variantA() {
+  const main = S.ctx === 'explore' ? item('panel:search', 'search', 'Suchen', S.panel === 'search') + camSwitch() + item('panel:time', 'time', 'Zeit', S.panel === 'time') + item('panel:view', 'view', 'Ansicht', S.panel === 'view') : playerItems()
+  return `${storyCard('left:24px;bottom:110px')}
+    <button class="chip" style="position:absolute;left:16px;top:16px" data-act="panel:settings">Beta · kompakter Maßstab</button>
+    ${keysOverlay(60)}${panelBox('left:50%;bottom:104px;transform:translateX(-50%)')}
+    <nav class="slab bar" style="left:50%;bottom:20px;transform:translateX(-50%)">
+      ${item('hub', 'home', 'Start', S.hub)}<div class="sep"></div>${main}<div class="sep"></div>${item('panel:settings', 'settings', 'Mehr', S.panel === 'settings')}${leave() ? '<div class="sep"></div>' + leave() : ''}
+    </nav>${toast(110)}`
+}
+
+function variantB() {
+  const rail = `<nav class="slab bar vertical" style="left:16px;top:50%;transform:translateY(-50%)">
+    ${item('hub', 'home', 'Start', S.hub)}<div class="sep"></div>${exploreItems()}<div class="sep"></div>${item('panel:settings', 'settings', 'Mehr', S.panel === 'settings')}</nav>`
+  const player = S.ctx === 'explore' ? '' : `<nav class="slab bar" style="left:50%;bottom:20px;transform:translateX(-50%)">${playerItems()}<div class="sep"></div>${leave()}</nav>`
+  return `${rail}${panelBox('left:116px;top:50%;transform:translateY(-50%)')}${storyCard('right:24px;top:50%;transform:translateY(-50%)')}${player}${keysOverlay(24)}${toast(S.ctx === 'explore' ? 24 : 110)}
+    <button class="chip" style="position:absolute;right:16px;top:16px" data-act="panel:settings">Beta · kompakter Maßstab</button>`
+}
+
+function variantC() {
+  const tab = (id, icon, l) => `<button class="item ${(id === 'explore' && S.ctx === 'explore' && !S.hub) || (id !== 'explore' && S.hub && S.hubTab === id) ? 'on' : ''}" style="flex-direction:row;gap:8px;font-size:14px" data-act="${id === 'explore' ? 'go:explore' : 'hubtab:' + id}"><span class="ico">${ICON[icon]}</span>${l}</button>`
+  const top = `<nav class="slab bar" style="left:50%;top:16px;transform:translateX(-50%)">${tab('explore', 'camera', 'Erkunden')}${tab('learn', 'book', 'Lernen')}${tab('tours', 'tour', 'Touren')}</nav>
+    <nav class="slab bar" style="right:16px;top:16px">${item('panel:settings', 'settings', 'Mehr', S.panel === 'settings')}</nav>
+    <button class="chip" style="position:absolute;left:16px;top:16px" data-act="panel:settings">Beta · kompakter Maßstab</button>`
+  const dock = S.ctx === 'explore' ? exploreItems() : `${playerItems()}<div class="sep"></div>${leave()}`
+  return `${top}${storyCard('left:24px;bottom:110px')}${keysOverlay(84)}${panelBox(S.panel === 'settings' ? 'right:16px;top:96px' : 'left:50%;bottom:104px;transform:translateX(-50%)')}
+    <nav class="slab bar" style="left:50%;bottom:20px;transform:translateX(-50%)">${dock}</nav>${toast(110)}`
+}
+
+function hubC() {
+  if (!S.hub) return ''
+  if (S.hubTab === 'tours') return `<div class="slab hub" style="top:140px;transform:translateX(-50%)"><div class="head"><h2>Touren</h2><button class="x" data-act="hubclose">✕</button></div>
+    <div class="cards"><button class="card" data-act="go:tour"><b>Die große Tour</b><span>erzählt · 8 min</span></button><button class="card" data-act="go:tour"><b>Voyager 1</b><span>8 Stationen · 4 min</span></button><button class="card" data-act="go:tour"><b>Voyager 2</b><span>8 Stationen · 5 min</span></button><button class="card" data-act="cam:auto"><b>Rundflug</b><span>ohne Ton · endlos</span></button></div></div>`
+  if (S.hubTab === 'learn') return `<div class="slab hub" style="top:140px;transform:translateX(-50%)"><div class="head"><h2>Lektionen</h2><button class="x" data-act="hubclose">✕</button></div>
+    <div class="cards"><button class="card" data-act="go:lesson"><b>Lerne die Planeten kennen</b><span>9 Kapitel</span></button><button class="card" data-act="go:lesson"><b>Jahreszeiten</b><span>6 Kapitel</span></button><button class="card" data-act="go:lesson"><b>Mondphasen</b><span>7 Kapitel</span></button><button class="card" data-act="go:lesson"><b>Sonnenfinsternis</b><span>8 Kapitel</span></button></div></div>`
+  return hub()
+}
+
+function render() {
+  document.querySelectorAll('[data-v]').forEach((b) => b.classList.toggle('on', b.dataset.v === S.v))
+  document.querySelectorAll('[data-c]').forEach((b) => b.classList.toggle('on', b.dataset.c === S.ctx))
+  const layout = { A: variantA, B: variantB, C: variantC }[S.v]()
+  const overlay = S.v === 'C' ? hubC() : (S.hub ? hub() : '')
+  document.getElementById('ui').innerHTML = `<div class="backdrop" data-act="scene"></div>${layout}${overlay}`
+  document.getElementById('note').innerHTML = `<h4>Variante ${S.v}</h4><ul>${NOTES[S.v].map((l) => `<li>${l}</li>`).join('')}</ul><h4 style="margin-top:8px">In allen Varianten</h4><ul>${COMMON.map((l) => `<li>${l}</li>`).join('')}</ul>`
+}
+
+function flash(text) { S.toast = text; clearTimeout(toastTimer); toastTimer = setTimeout(() => { S.toast = ''; render() }, 2600) }
+function showKeys() { S.keys = true; clearTimeout(keysTimer); keysTimer = setTimeout(() => { S.keys = false; render() }, 5000) }
+
+const ACTIONS = {
+  panel: (p) => { S.hub = false; S.panel = S.panel === p ? null : p },
+  close: () => { S.panel = null },
+  scene: () => { S.panel = null; S.hub = false },
+  hub: () => { S.panel = null; S.hub = !S.hub; S.hubTab = 'all' },
+  hubtab: (t) => { S.panel = null; S.hub = !(S.hub && S.hubTab === t); S.hubTab = t },
+  hubclose: () => { S.hub = false },
+  go: (ctx) => { S.ctx = ctx; S.hub = false; S.panel = null; if (ctx === 'explore') flash('Frei erkunden'); else flash(ctx === 'lesson' ? 'Lektion startet – Autoplay an' : 'Tour startet – mit Stimme') },
+  leave: () => { S.ctx = 'explore'; S.hub = true; S.hubTab = 'all'; S.panel = null },
+  cam: (m) => { S.cam = m; S.panel = null; S.hub = false; showKeys(); flash({ orbit: 'Umkreisen', fly: 'Freiflug', auto: 'Autopilot – fliegt still von Planet zu Planet' }[m]) },
+  keys: () => { S.panel = null; showKeys() },
+  tog: (k) => { S.toggles[k] = !S.toggles[k] },
+  scale: (s) => { S.scale = s },
+  set: (t) => { S.set = t },
+  toast: (t) => { flash(t) },
+  noop: () => {},
+}
+
+document.addEventListener('click', (e) => {
+  const meta = e.target.closest('[data-v],[data-c]')
+  if (meta) { if (meta.dataset.v) S.v = meta.dataset.v; else ACTIONS.go(meta.dataset.c); render(); return }
+  const el = e.target.closest('[data-act]'); if (!el) return
+  const [name, arg] = el.dataset.act.split(/:(.*)/s)
+  ACTIONS[name]?.(arg); render()
+})
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { S.panel = null; S.hub = false; render() } if (e.key === '?') { showKeys(); render() } })
+render()
+</script>
+</body>
+</html>
