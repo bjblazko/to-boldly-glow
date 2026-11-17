@@ -12,7 +12,8 @@ const TURN_RADIANS_PER_SECOND = (2 * Math.PI) / 90
 const START_ANGLE = -0.5
 const STAGE_SECONDS = 2.2
 
-// The Voyager spacecraft on its own, turning slowly: taken apart for the exploded view, one part
+// The Voyager spacecraft on its own, turning slowly (holding still while the user turns the view
+// themselves): taken apart for the exploded view, one part
 // picked out with a glow.
 export class ProbeScene {
   private angle = START_ANGLE
@@ -35,8 +36,8 @@ export class ProbeScene {
     this.stage.moveTo({ explode: stage.explode ?? 0, highlight: stage.highlight ? 1 : 0 }, snap)
   }
 
-  update(deltaSeconds: number): void {
-    this.angle += deltaSeconds * TURN_RADIANS_PER_SECOND
+  update(deltaSeconds: number, turning = true): void {
+    if (turning) this.angle += deltaSeconds * TURN_RADIANS_PER_SECOND
     this.stage.update(deltaSeconds)
   }
 

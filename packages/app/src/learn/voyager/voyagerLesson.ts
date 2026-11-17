@@ -52,10 +52,10 @@ export class VoyagerLesson implements StagedLessonScene {
     if (this.scenes) this.stage(chapter, kindChanged)
   }
 
-  update(deltaSeconds: number, chapter: Chapter): void {
+  update(deltaSeconds: number, chapter: Chapter, viewLeft: boolean): void {
     const scenes = this.scenes
     if (!scenes) return
-    if (chapter.kind === 'voyagerProbe') scenes.probe.update(deltaSeconds)
+    if (chapter.kind === 'voyagerProbe') scenes.probe.update(deltaSeconds, !viewLeft)
     else if (chapter.kind === 'voyagerRecord') scenes.record.update(deltaSeconds)
     else scenes.route.update(deltaSeconds)
   }

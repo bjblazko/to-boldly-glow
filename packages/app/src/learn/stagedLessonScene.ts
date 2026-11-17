@@ -19,7 +19,9 @@ export interface StagedLessonScene {
   start(chapter: Chapter): void
   // Within the same kind of shot the scene eases to the new chapter; a new kind starts from it.
   showChapter(chapter: Chapter, kindChanged: boolean): void
-  update(deltaSeconds: number, chapter: Chapter): void
+  // `viewLeft`: the user has moved the camera away from the chapter's shot (see LessonCamera), so a
+  // turntable holds still until the shot is framed again.
+  update(deltaSeconds: number, chapter: Chapter, viewLeft: boolean): void
   layout(chapter: Chapter, ephemeris: Ephemeris): SceneLayout
   // The view from the ground, for the chapters that show it (it may move as the scene does).
   groundShot(chapter: Chapter): GroundShot | null

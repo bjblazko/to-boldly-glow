@@ -1,17 +1,18 @@
 import { vec3 } from 'gl-matrix'
 import { EasedTween } from '../math/easedTween'
 import { lerp, lerpVec3 } from '../math/easing'
-import { COMPACT_MIN_ORBIT_RADIUS, orbitBasisForUpAxis, type OrbitCamera } from '../camera/orbitCamera'
+import { COMPACT_MIN_ORBIT_RADIUS, type OrbitCamera } from '../camera/orbitCamera'
 import type { CameraLens } from '../camera/cameraLens'
 import { VERTICAL_FOV_RADIANS } from '../camera/viewpoint'
 import { ECLIPTIC_NORTH } from '../solarSystem/poleOrientation'
-import { pointAlong, type Vec3 } from '../math/tuples'
+import type { Vec3 } from '../math/tuples'
 import { RING_OUTER_RADIUS_FACTOR } from '../saturnRing/ringMesh'
 import { EARTH_POSITION } from './eclipse/eclipseGeometry'
 import { PHASES_EARTH_POSITION } from './phases/phasesGeometry'
-import { directionAtAltitude, lookAltitudeDegrees, type GroundShot } from './ground/groundShot'
+import { groundBounds, groundPreset } from './ground/groundFraming'
+import type { GroundShot } from './ground/groundShot'
 import type { Chapter } from './lessonTypes'
-import { lookAroundLimits, panLimitFor } from './lookAround'
+import { lookAroundLimits, panLimitFor, ViewWatch, type ViewState } from './lookAround'
 import type { CameraPreset, ContentBounds, LessonShot } from './lessonShot'
 import { EARTH_STAGED_POSITION } from './seasons/seasonsScene'
 import { LINEUP_PLANETS_EXTENT, LINEUP_SUN_RADIUS, lineupSlot } from './sizes/sizesLineup'
@@ -103,33 +104,6 @@ const FIXED_PRESETS: Partial<Record<ChapterKind, CameraPreset>> = {
   phasesOrbit: PHASES_ORBIT_PRESET,
   phasesShadow: PHASES_SHADOW_PRESET,
 }
-
-// From the ground: standing at the shot's eye and looking toward the middle of what it must show,
-// with the horizon level.
-const GROUND_TARGET_DISTANCE = 10
-
-function groundPreset(shot: GroundShot): CameraPreset {
-  const look = directionAtAltitude(shot, lookAltitudeDegrees(shot))
-  const { right, forward0 } = orbitBasisForUpAxis(shot.zenith)
-  const back = look.map((value) => -value) as Vec3
-  const dot = (a: ArrayLike<number>, b: ArrayLike<number>) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
-  return {
-    target: pointAlong(shot.eye, look, GROUND_TARGET_DISTANCE),
-    radius: GROUND_TARGET_DISTANCE,
-    azimuth: Math.atan2(dot(back, right), dot(back, forward0)),
-    elevation: Math.asin(dot(back, shot.zenith)),
-    upAxis: shot.zenith,
-  }
-}
-
-// From the look direction, up to the shot's top altitude and down to its bottom one.
-function groundBounds(shot: GroundShot): ContentBounds {
-  const look = lookAltitudeDegrees(shot)
-  const across = (degrees: number) => GROUND_TARGET_DISTANCE * Math.tan((degrees * Math.PI) / 180)
-  return { top: across(shot.altitudes.top - look), bottom: -across(look - shot.altitudes.bottom), halfWidth: across(GROUND_HALF_WIDTH_DEGREES) }
-}
-
-const GROUND_HALF_WIDTH_DEGREES = 12
 
 // Sizes lineup: looking across the row (along -Y, from the side of the ecliptic) with X horizontal
 // and ecliptic north up, so the planets show their equators, from just far enough to fit the
@@ -264,6 +238,7 @@ export class LessonCamera {
   private freeMaxRadius: number | null = null
   // Likewise the orbit camera's pan limit.
   private freePanLimit: number | null = null
+  private readonly watch = new ViewWatch()
   private glide: Glide | null = null
 
   constructor(
@@ -284,6 +259,7 @@ export class LessonCamera {
     this.fitShot(kind, groundShot, { focusPlanetId, lineupOrder })
     // The observer's eye on the ground stays put (the lesson doesn't take camera input there).
     if (!groundShot) this.allowLookingAround(sceneFloor, this.boundsFor(kind, groundShot, focusPlanetId))
+    this.watch.framedAt(this.viewState())
     this.glide = from ? this.startGlide(from) : null
   }
 
@@ -295,6 +271,7 @@ export class LessonCamera {
     this.lens.setLessonZoomFloor(sceneFloor)
     this.fitAbovePanel(shot.bounds, shot.maxZoomOut)
     this.allowLookingAround(sceneFloor, shot.bounds, shot.freeLook)
+    this.watch.framedAt(this.viewState())
     this.glide = from ? this.startGlide(from) : null
   }
 
@@ -332,6 +309,16 @@ export class LessonCamera {
     this.lens.setLessonZoomFloor(null)
     this.lens.lensShiftNdc = 0
     this.orbit.radius = Math.max(this.orbit.radius, this.orbit.minRadius)
+  }
+
+  // Whether the user has moved the view since the shot was framed (see ViewWatch).
+  get viewLeft(): boolean {
+    return this.watch.hasLeft(this.viewState(), this.glide !== null)
+  }
+
+  private viewState(): ViewState {
+    const { radius, azimuth, elevation } = this.orbit
+    return { pivot: this.orbit.pivot(), radius, azimuth, elevation }
   }
 
   private allowLookingAround(sceneFloor: number, bounds: ContentBounds, freeLook = false): void {

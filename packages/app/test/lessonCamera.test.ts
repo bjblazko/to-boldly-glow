@@ -55,3 +55,35 @@ describe('LessonCamera looking around', () => {
     expect(vec3.distance(orbit.pivot(), looked)).toBeCloseTo(0, 5)
   })
 })
+
+describe('LessonCamera noticing the user', () => {
+  it('notices when the user moved the view, until a shot is framed again', () => {
+    const { orbit, camera } = lessonCamera()
+    camera.frameShot(probeShot)
+    expect(camera.viewLeft).toBe(false)
+    orbit.azimuth += 0.2
+    expect(camera.viewLeft).toBe(true)
+    orbit.azimuth -= 0.2
+    expect(camera.viewLeft).toBe(true)
+    camera.frameShot(probeShot)
+    expect(camera.viewLeft).toBe(false)
+  })
+
+  it('notices a moved pivot and a zoom as well', () => {
+    const { orbit, camera } = lessonCamera()
+    camera.frameShot(probeShot)
+    orbit.shiftPivot([0.5, 0, 0])
+    expect(camera.viewLeft).toBe(true)
+    camera.frameShot(probeShot)
+    orbit.zoomBy(0.8)
+    expect(camera.viewLeft).toBe(true)
+  })
+
+  it('does not count its own glide between two shots', () => {
+    const { camera } = lessonCamera()
+    camera.frameShot(narrowShot)
+    camera.frameShot(probeShot, true)
+    camera.update(0.1)
+    expect(camera.viewLeft).toBe(false)
+  })
+})

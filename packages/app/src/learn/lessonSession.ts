@@ -137,7 +137,7 @@ export class LessonSession implements ScenePlayer {
     const { kind } = this.chapter
     const staged = this.stagedScene
     if (staged) {
-      staged.update(deltaSeconds, this.chapter)
+      staged.update(deltaSeconds, this.chapter, this.parts.lessonCamera.viewLeft)
       if (staged.groundShot(this.chapter)) this.frameCamera()
     } else if (isSeasonsKind(kind)) this.seasons.update(deltaSeconds, kind)
     else if (kind === 'sizes') {
