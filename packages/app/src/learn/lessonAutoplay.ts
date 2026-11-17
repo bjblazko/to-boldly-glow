@@ -4,9 +4,9 @@ import { msg } from '../i18n/i18n'
 const MIN_CHAPTER_SECONDS = 6
 const PAUSE_AFTER_READING_SECONDS = 1.5
 
-// The lesson dock's play button: off by default (a lesson is turned page by page); on, it turns to
-// the next chapter by itself once the narrator has read the chapter (without sound: once reading
-// it would take) - and stops at the last chapter. Turning a page by hand restarts the wait.
+// The lesson dock's play button: on as each lesson opens, it turns to the next chapter by itself
+// once the narrator has read the chapter (without sound: once reading it would take) - and stops at
+// the last chapter. Turning a page by hand restarts the wait; pressing it turns the pages by hand.
 export class LessonAutoplay {
   private playing = false
   private remainingSeconds = 0

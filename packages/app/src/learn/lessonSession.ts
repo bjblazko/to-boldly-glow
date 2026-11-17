@@ -221,7 +221,13 @@ export class LessonSession implements ScenePlayer {
     this.viewFixed = null
     this.frameCamera()
     panel.visible = true
+    this.playFromHere(lesson)
+  }
+
+  // A lesson plays as it opens: the chapter shown and read, the next ones turned to by themselves.
+  private playFromHere(lesson: Lesson): void {
     this.showChapter()
+    this.autoplay.setPlaying(true)
     this.parts.voice.chapter(lesson.id, this.chapter)
   }
 
