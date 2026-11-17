@@ -155,3 +155,46 @@ describe('OrbitCamera view limits', () => {
     expect(camera.azimuth).toBeCloseTo(-5.5, 10)
   })
 })
+
+describe('OrbitCamera pan', () => {
+  const distance = (a: ArrayLike<number>, b: ArrayLike<number>) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2])
+
+  it('turns around target + panOffset', () => {
+    const camera = new OrbitCamera({ target: [1, 2, 3], radius: 10 })
+    camera.shiftPivot([0, 0, 5])
+    const pivot = camera.pivot()
+    expect([pivot[0], pivot[1], pivot[2]]).toEqual([1, 2, 8])
+    expect(distance(camera.getEyePosition(), pivot)).toBeCloseTo(10, 5)
+  })
+
+  it('keeps the pivot within panLimit, sliding along the limit', () => {
+    const camera = new OrbitCamera()
+    camera.panLimit = 10
+    camera.shiftPivot([8, 0, 0])
+    camera.shiftPivot([8, 6, 0])
+    expect(Math.hypot(...camera.panOffset)).toBeCloseTo(10, 5)
+    expect(camera.panOffset[1]).toBeGreaterThan(0)
+  })
+
+  it('clearPan puts the pivot back on target', () => {
+    const camera = new OrbitCamera({ target: [4, 5, 6] })
+    camera.shiftPivot([1, 1, 1])
+    camera.clearPan()
+    const pivot = camera.pivot()
+    expect([pivot[0], pivot[1], pivot[2]]).toEqual([4, 5, 6])
+  })
+
+  it('screenAxes are orthonormal and match the view', () => {
+    const camera = new OrbitCamera({ target: [1, -2, 0.5], azimuth: 0.7, elevation: 0.3 })
+    camera.shiftPivot([0.5, 0, 0])
+    const { right, up } = camera.screenAxes()
+    const dot = (a: ArrayLike<number>, b: ArrayLike<number>) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+    const eye = camera.getEyePosition()
+    const pivot = camera.pivot()
+    const toPivot = [pivot[0] - eye[0], pivot[1] - eye[1], pivot[2] - eye[2]]
+    expect(dot(right, up)).toBeCloseTo(0, 5)
+    expect(Math.hypot(...right)).toBeCloseTo(1, 5)
+    expect(Math.hypot(...up)).toBeCloseTo(1, 5)
+    expect(dot(right, toPivot)).toBeCloseTo(0, 5)
+  })
+})

@@ -1,4 +1,4 @@
-import { mat4, vec3 } from 'gl-matrix'
+import { mat4, vec3, type ReadonlyVec3 } from 'gl-matrix'
 import { geometricBlend } from '../solarSystem/sceneScale'
 import { ECLIPTIC_NORTH } from '../solarSystem/poleOrientation'
 
@@ -95,11 +95,15 @@ const DEFAULT_ORBIT_CAMERA: Required<OrbitCameraOptions> = {
 
 const MAX_ELEVATION = Math.PI / 2 - 0.01
 
+// How far the pivot may be moved from the target by default: as far as the camera may back off.
+export const DEFAULT_PAN_LIMIT = DEFAULT_ORBIT_CAMERA.maxRadius
+
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max)
 }
 
-// Orbits around `target` at a fixed distance (`radius`), parameterized by azimuth (rotation
+// Orbits around its pivot - `target` (what a follow, a lesson or a tour aims at) plus `panOffset`
+// (where the user moved it, within `panLimit`) - at a fixed distance (`radius`), parameterized by azimuth (rotation
 // around `upAxis`) and elevation (angle above the plane perpendicular to `upAxis`). `upAxis`
 // defaults to ECLIPTIC_NORTH, the scene's real "north" (see poleOrientation.ts) - not world Y,
 // which doesn't correspond to anything astronomical. CameraFollowController re-points upAxis at a
@@ -115,6 +119,9 @@ export class OrbitCamera {
   upAxis: vec3
   // Set while a lesson lets the user look around its scene a little; null leaves the view free.
   viewLimits: OrbitViewLimits | null = null
+  // Where the user moved the pivot to, from the target; kept within panLimit of it.
+  readonly panOffset = vec3.create()
+  panLimit = DEFAULT_PAN_LIMIT
 
   constructor(options: OrbitCameraOptions = {}) {
     const settings = { ...DEFAULT_ORBIT_CAMERA, ...options }
@@ -127,21 +134,43 @@ export class OrbitCamera {
     this.upAxis = vec3.fromValues(...settings.upAxis)
   }
 
+  pivot(): vec3 {
+    return vec3.add(vec3.create(), this.target, this.panOffset)
+  }
+
+  // Moves the pivot; past panLimit it stops at the limit, keeping the move's sideways share.
+  shiftPivot(delta: ReadonlyVec3): void {
+    vec3.add(this.panOffset, this.panOffset, delta)
+    const length = vec3.length(this.panOffset)
+    if (length > this.panLimit) vec3.scale(this.panOffset, this.panOffset, this.panLimit / length)
+  }
+
+  clearPan(): void {
+    vec3.zero(this.panOffset)
+  }
+
+  // The camera's right and up directions in the world: the rows of its view matrix.
+  screenAxes(): { right: vec3; up: vec3 } {
+    const view = this.getViewMatrix()
+    return { right: vec3.fromValues(view[0], view[4], view[8]), up: vec3.fromValues(view[1], view[5], view[9]) }
+  }
+
   getEyePosition(): vec3 {
+    const pivot = this.pivot()
     const cosEl = Math.cos(this.elevation)
     const sinEl = Math.sin(this.elevation)
     const sinAz = Math.sin(this.azimuth)
     const cosAz = Math.cos(this.azimuth)
     const upAxis: [number, number, number] = [this.upAxis[0], this.upAxis[1], this.upAxis[2]]
     const { right, forward0 } = orbitBasisForUpAxis(upAxis)
-    const x = this.target[0] + this.radius * (cosEl * (sinAz * right[0] + cosAz * forward0[0]) + sinEl * upAxis[0])
-    const y = this.target[1] + this.radius * (cosEl * (sinAz * right[1] + cosAz * forward0[1]) + sinEl * upAxis[1])
-    const z = this.target[2] + this.radius * (cosEl * (sinAz * right[2] + cosAz * forward0[2]) + sinEl * upAxis[2])
+    const x = pivot[0] + this.radius * (cosEl * (sinAz * right[0] + cosAz * forward0[0]) + sinEl * upAxis[0])
+    const y = pivot[1] + this.radius * (cosEl * (sinAz * right[1] + cosAz * forward0[1]) + sinEl * upAxis[1])
+    const z = pivot[2] + this.radius * (cosEl * (sinAz * right[2] + cosAz * forward0[2]) + sinEl * upAxis[2])
     return vec3.fromValues(x, y, z)
   }
 
   getViewMatrix(): mat4 {
-    return mat4.lookAt(mat4.create(), this.getEyePosition(), this.target, this.upAxis)
+    return mat4.lookAt(mat4.create(), this.getEyePosition(), this.pivot(), this.upAxis)
   }
 
   applyDrag(deltaX: number, deltaY: number, sensitivity = 0.005): void {
