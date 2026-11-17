@@ -5,19 +5,19 @@ import type { Page } from '@playwright/test'
 
 export const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-// A fresh app: English, no welcome card, no idle tour, the narrator's subtitles on.
+// A fresh app: English, no start page, the narrator's subtitles on.
 export async function boot(page: Page, base: string): Promise<void> {
   await page.goto(`${base}/?tour=off&lang=en`)
   await page.locator('#scene[data-rendered="true"]').waitFor({ timeout: 60_000 })
-  await page.addStyleTag({ content: '.hud-beta-note, .hud-camera-hint { display: none !important; }' })
+  await page.addStyleTag({ content: '.hud-beta-note, .hud-camera-hint, .hud-controls { display: none !important; }' })
   await wait(1500)
 }
 
+// Flies to a body and follows it, through the search.
 export async function followBody(page: Page, name: string): Promise<void> {
-  await page.locator('.hud-dock-btn[data-panel="find"]:visible').click()
-  await page.locator('#entity-search-input').fill(name)
-  await page.locator('#entity-search-input').press('Enter')
-  await page.locator('.hud-dock-btn[data-panel="find"]:visible').click()
+  await page.locator('#search-btn').click()
+  await page.locator('#palette-input').fill(name)
+  await page.locator('#palette-input').press('Enter')
   await wait(3500)
 }
 
@@ -99,11 +99,11 @@ export async function glide(page: Page, [dx, dy]: [number, number], ms: number, 
 // its labels stay.
 export async function lessonSceneOnly(page: Page): Promise<void> {
   await page.addStyleTag({
-    content: '.hud-modes, .hud-top-actions, .hud-dock, .hud-lesson-panel, .hud-view-controls, .hud-phase-inset, .hud-camera-hint { display: none !important; }',
+    content: '.hud-dock, .hud-lesson-panel, .hud-phase-inset, .hud-camera-hint, .hud-controls, .hud-follow-chip { display: none !important; }',
   })
 }
 
-// Holds keys down for `ms`: the app's own camera keys (arrows turn, R/F zoom), which it eases in
+// Holds keys down for `ms`: the app's own camera keys (arrows turn, W/S zoom), which it eases in
 // and out - smoother than any drag.
 export async function hold(page: Page, keys: string[], ms: number): Promise<void> {
   for (const key of keys) await page.keyboard.down(key)

@@ -56,8 +56,10 @@ export class CameraDirector {
   }
 
   // Switching to free-fly starts from the orbit camera's current view, unless syncFlyPose is false:
-  // leaving a lesson returns to free-fly exactly where the fly camera was left.
+  // leaving a lesson returns to free-fly exactly where the fly camera was left. Free flight follows
+  // nothing, so a followed body is let go.
   setMode(mode: CameraMode, { syncFlyPose = true } = {}): void {
+    if (mode === 'fly' && this.follow.followedEntityId) this.stopFollowing()
     if (mode === 'fly' && this.input.mode === 'orbit' && syncFlyPose) {
       const eye = this.orbit.getEyePosition()
       this.fly.setPose(eye, vec3.subtract(vec3.create(), this.orbit.pivot(), eye), this.orbit.upAxis)

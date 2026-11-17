@@ -61,35 +61,46 @@ the Milky Way with its nebulae, and about 9,100 real stars in their own colors.
 | --- | --- |
 | ![Earth in front of the Sun: its night side with city lights, the aurora, and the Sun's corona around it](docs/images/corona.jpg) | ![Saturn and its rings in full sunlight](docs/images/saturn.jpg) |
 
-### Fly it, or let it fly you
+### Fly it yourself
 
-Orbit any body, or fly freely like a spaceship - with keys, mouse, or a thumbstick on a touch
-screen. Double-click a planet to fly there and follow it. Left alone, a silent flyby circles one
-planet after another.
+Everything is in one bar at the bottom: Start, Search, the camera, Time, View and More. Orbit any
+body - drag to turn, two fingers (or the right mouse button) to slide the view, scroll or pinch to
+zoom toward the pointer - or switch the camera to free flight and fly like a spaceship: the arrow
+keys turn the nose, Q/E roll, W/S give thrust that builds up with weight. The keys show as keycaps
+whenever you switch, and with ?. Double-click a planet to fly there and follow it; Ctrl+K searches
+everything.
+
+![Free flight past Saturn, the controls overlay showing its keys, the bar at the bottom](docs/images/free-flight.jpg)
 
 ### Tours, with a narrator
 
-The **Tours** mode holds the narrated **grand tour**: from the Sun out to Neptune and home to Earth,
-about eight minutes, with a narrator - Lyra or Orion - telling what makes each world special, and
-optional subtitles. It flies at warp between the planets, at either scale. The welcome card offers
-it at the start.
+The **start page** (the bar's Start, and by itself on a first visit) holds everything there is to
+start. The narrated **grand tour** flies from the Sun out to Neptune and home to Earth in about
+eight minutes, with a narrator - Lyra or Orion - telling what makes each world special, and
+optional subtitles. It flies at warp between the planets, at either scale. Two **Voyager tours**
+follow Voyager 1 and Voyager 2 along their real paths, station by station: each planet flyby at
+true scale, with NASA's photos, out to the heliopause and to where they are today.
 
 | | |
 | --- | --- |
-| ![The welcome card: language, narrator, and the start of the tour](docs/images/welcome.jpg) | ![The Tours mode's library with the grand tour](docs/images/tours.jpg) |
-| ![The grand tour approaching the Sun, with the narrator's subtitle](docs/images/grand-tour.jpg) | |
+| ![The start page: explore on your own, the grand tour with its language and narrator, the Voyager tours and the lessons](docs/images/start.jpg) | ![The grand tour approaching the Sun, with the narrator's subtitle](docs/images/grand-tour.jpg) |
+| ![The Voyager 2 tour at Neptune: the flyby at true scale, the station's card with Triton, the stations in the bar](docs/images/voyager-tour.jpg) | |
 
 ### Lessons that show, and read themselves out
 
-The **Learn** mode: *Get to know the planets* (side by side at true scale, sorted by size, mass,
-temperature and more), *Why does Earth have seasons?*, *Why does the Moon have phases?* and *What
-happens in a solar eclipse?* - each scene built to show the idea, and every chapter read out by the
-narrator.
+*Get to know the planets* (side by side at true scale, sorted by size, mass, temperature and more),
+*Why does Earth have seasons?*, *Why does the Moon have phases?*, *What happens in a solar
+eclipse?*, *Voyager: the farthest journey* and *Voyager in detail* (the probe taken apart, its
+power and radio, the gravity assists, the Golden Record and how to read its cover) - each scene
+built to show the idea, every chapter read out by the narrator, and the pages turning by
+themselves. Look around each scene: the Voyager probe and its record from all sides.
 
 | | |
 | --- | --- |
-| ![The planets lesson: the Sun and the planets side by side at true scale](docs/images/lesson-planets.jpg) | ![The Moon phases lesson: the evening crescent seen from the ground](docs/images/lesson-moon.jpg) |
-| ![The solar eclipse lesson: totality, the corona around the dark Moon](docs/images/lesson-eclipse.jpg) | |
+| ![The planets lesson: the Sun and the planets side by side at true scale](docs/images/lesson-planets.jpg) | ![The seasons lesson at the June solstice: Earth's axis tilted toward the Sun](docs/images/lesson-seasons.jpg) |
+| ![The Moon phases lesson: the evening crescent seen from the ground](docs/images/lesson-moon.jpg) | ![The solar eclipse lesson: totality, the corona around the dark Moon](docs/images/lesson-eclipse.jpg) |
+| ![The Voyager lesson: the probe with its antenna, booms and Golden Record named](docs/images/lesson-voyager.jpg) | ![The Golden Record, with what is on it](docs/images/lesson-record.jpg) |
+| ![The Voyager lesson at Jupiter, 1979: both probes on their real paths, Voyager 1's photo of the Great Red Spot](docs/images/lesson-jupiter.jpg) | ![Voyager in detail: the probe taken apart, each part named](docs/images/lesson-taken-apart.jpg) |
 
 ### Music
 
@@ -97,7 +108,7 @@ Three lo-fi tracks, played live by a synthesizer in the page (nothing recorded, 
 downloaded): calm **Drift**, the lo-fi house of **Nova** and the 8-bit **Pixel**. The music steps
 back while the narrator speaks.
 
-![Settings, Audio tab: the narrator's voice, subtitles, and the music with its volume](docs/images/settings.jpg)
+![More, Audio tab: the narrator's voice, subtitles, and the music with its volume](docs/images/more.jpg)
 
 ### English and German
 
@@ -157,30 +168,28 @@ To run it from the source instead, or to work on it:
 
 ### Using the app
 
-- **Explore, Learn and Tours** — the switch at the top of the screen chooses between flying around
-  the solar system, taking a lesson and taking a narrated tour. Explore and Learn have their own dock
-  at the bottom; the buttons at the top right search everything, open the settings and the About
-  dialog.
-- **Find** — the **Find** panel lists every body as a tree, by kind: the Sun, the planets with their
-  moons under them, dwarf planets, asteroids and comets. Typing narrows it down (Enter flies to the
-  first match); pick a body to fly the camera to it and lock on. A "Following: …" chip appears with
-  a **×** to stop following and return to free manual control.
-- **Camera** — by default, drag to orbit the current target (it keeps turning a little when you let
-  go), scroll or pinch to zoom; `W`/`A`/`S`/`D` or the arrow keys turn the view and `R`/`F` zoom.
-  Double-click (or double-tap) any planet, moon, comet or dwarf planet to fly there and follow it.
-  Use the **Camera** panel to switch to free flight, flown like a spaceship in a game:
-  `W`/`S` (or `↑`/`↓`) thrust forward/back, `A`/`D` (or `←`/`→`) strafe, `R`/`F` rise/sink, `Q`/`E`
-  roll, `Shift` boosts, drag to look around and scroll to set the speed. The ship eases in and out of
-  motion, slows down near planets and speeds up in open space (so the same keys work at every
-  scale), stops at a planet's surface instead of flying through it, and levels itself with the
-  ecliptic when you stop rolling. On a touch screen, free flight shows a thumbstick (fly and strafe)
-  and buttons to rise, sink and boost; drag anywhere else to look around, pinch to set the speed. A
-  short hint at the top of the screen recalls the controls whenever you switch. The same
-  panel has **Start Flyby**, an endless silent autopilot flight past every planet, flown like a
-  spaceship — it accelerates, brakes on arrival, banks into turns and circles each planet once (any
-  camera input hands control back, exactly where the flight was).
-- **Tours** — the **Tours** button opens the tour library; the **grand tour** flies from the Sun to
-  Neptune and home to Earth with a narrator. Any camera input, or Explore, ends it.
+- **The bar** — every control sits in one bar at the bottom: **Start**, **Search**, the camera,
+  **Time**, **View** and **More**. In a lesson or a tour the same bar becomes its player, with
+  **Leave** or **End tour**. Only one panel is open at a time; a press on the scene or Escape closes
+  it.
+- **Start** — the start page: explore on your own, the narrated **grand tour** (with its language
+  and narrator), the two **Voyager tours** and the lessons with a search. It opens by itself on a
+  first visit; nothing flies before a click, so the narrator is always heard.
+- **Search** — `Ctrl+K` (`Cmd+K` on a Mac) or the bar's Search finds bodies, tours, lessons and
+  settings in one list; a planet's name finds its moons too. Picking a body flies the camera to it
+  and follows it; a "Following: …" chip above the bar lets go of it again.
+- **Camera** — the camera key shows the mode in use and switches between the two. **Orbit**: drag
+  to turn around the target, drag with two fingers (or the right mouse button, or Shift) to slide
+  the view, scroll or pinch to zoom toward the pointer; the arrow keys turn and `W`/`S` zoom.
+  Double-click (or double-tap) a planet, moon, comet or dwarf planet to fly there and follow it.
+  **Free flight** is flown like a spaceship: `W`/`S` thrust forward/back, building up and dying away
+  with weight; the arrow keys steer the nose (`↑` down, `↓` up, `←`/`→` turn); `Q`/`E` roll;
+  `Shift` boosts; drag to look around, scroll to set the top speed. The ship slows near planets and
+  stops at their surface. On a touch screen it shows a thumbstick and buttons. Switching shows the
+  keys as keycaps (press `?` for them any time); a held key lights up.
+- **Tours** — the grand tour flies from the Sun to Neptune and home to Earth with a narrator; the
+  Voyager tours go station by station along the probes' real paths, each planet flyby at true scale,
+  with the stations in the bar to jump between. Any camera input ends the grand tour.
 - **Time** — the **Time** panel has play/pause, a reverse-direction button, and rate presets
   (real-time up to a year per second). The shuttle slider lets you dial in a rate directly: the
   center tick is zero (the clock is stopped), the left half rewinds, the right half fast-forwards
@@ -191,23 +200,26 @@ To run it from the source instead, or to work on it:
   toggles planet orbits, comet and dwarf-planet orbits, name labels, the stars (in their real
   colors), the Milky Way (with its nebulae and the nearest galaxies), the asteroid and Kuiper belts,
   comets, Earth's clouds and moons independently.
-- **Settings** — in tabs. **General**: the language. **Video**: HDR bloom, lens flares and the
+- **More** — the settings, in tabs. **General**: the language. **Video**: HDR bloom, lens flares and the
   **Filmic look** (off by default), which renders the picture's colors like film (AgX tonemapping):
   the Sun burns out to white-hot instead of staying a saturated orange, and the sky goes deep black.
   **Audio**: the narrator's voice (Lyra or Orion) and whether it speaks, subtitles, and the music
-  (off, Drift, Nova or Pixel) with its volume.
-- **Search everything** — `Ctrl+K` (`Cmd+K` on a Mac) or the search button finds objects, lessons
-  and settings in one list.
-- **Learn** — the lesson library shows the lessons by topic, with a search, and remembers where you
-  left each one: **Get to know the planets** (the Sun and planets side by side at true scale, sorted
-  by distance, size, mass, temperature and more, then each planet close up with its facts), **Why does Earth have seasons?** (Earth's tilted axis
-  through a year), **Why does the Moon have phases?** (the Moon's orbit from above, then a month of evenings and mornings from the ground —
-  crescent with earthshine, quarters and the rising full Moon) and **What happens in a solar
-  eclipse?** (the Moon's shadow from space, then the eclipse from the ground — through eclipse
-  glasses, the diamond ring, totality and a ring of fire). In a lesson, its dock steps through the
-  chapters (the chapter counter lists them all to jump to) and the text card folds down to its
-  title. Scenes in space can be zoomed and turned a little — scroll, pinch, drag, or the buttons on
-  the right — with a button back to the lesson's own view.
+  (off, Drift, Nova or Pixel) with its volume. Below them: show the controls, About (imprint,
+  privacy, licenses) and hiding the interface (`H`).
+- **Lessons** — on the start page, by topic, with a search; each remembers where you left it:
+  **Get to know the planets** (the Sun and planets side by side at true scale, sorted by distance,
+  size, mass, temperature and more, then each planet close up with its facts), **Why does Earth
+  have seasons?** (Earth's tilted axis through a year), **Why does the Moon have phases?** (the
+  Moon's orbit from above, then a month of evenings and mornings from the ground — crescent with
+  earthshine, quarters and the rising full Moon), **What happens in a solar eclipse?** (the Moon's
+  shadow from space, then the eclipse from the ground — through eclipse glasses, the diamond ring,
+  totality and a ring of fire), **Voyager: the farthest journey** (the probes, the Golden Record,
+  the flybys with NASA's photos, the Pale Blue Dot and interstellar space) and **Voyager in detail**
+  (the probe taken apart, its power and radio, gravity assists, the heliopause and how to read the
+  record's cover). Lessons play as they open, turning their pages by themselves; the bar steps
+  through the chapters (the chapter counter lists them all to jump to), and the text card folds
+  down to its title. Look around a scene as in Orbit - all the way round the Voyager probe and its
+  record - and **Reset view** returns to the lesson's own.
 - **Things to look for** — fly behind Earth (or the Moon) until it covers the Sun: the exposure
   opens up and the Sun's corona appears in full, with its streamers and the red prominences at the
   limb. Earth's night side shows its city lights, and the aurora glows around both poles — best seen
@@ -235,6 +247,9 @@ texts are in [CREDITS.md](CREDITS.md)):
 | Asteroid and Kuiper belt populations | Generated from the populations' published statistics (no individual catalogued objects) | Original, MIT |
 | Earth's clouds | Procedural, made for this project | Original, MIT |
 | Earth's city lights | NASA Earth Observatory's "Earth at Night" 2012 (Black Marble; Suomi NPP VIIRS data, NOAA NGDC), from NASA WorldWind's npm package; lights extracted by `packages/data-pipeline` | Public domain |
+| The Voyager spacecraft | NASA's "Voyager Probe (B)" model from [NASA 3D Resources](https://github.com/nasa/NASA-3D-Resources), converted by `packages/data-pipeline` (NASA's logotype painted over) | NASA media, no copyright |
+| The Golden Record and the Voyager photos | NASA/JPL and NASA/JPL-Caltech, from NASA's Image and Video Library and Wikimedia Commons (the record's own pictures and music are not in the app) | Public domain |
+| Voyager's paths, flybys and heliopause measurements | JPL Horizons; NASA's Space Physics Data Facility | Published data |
 | Earth's aurora | Procedural; the ovals' place around the IGRF-14 geomagnetic poles and their published geomagnetic latitudes and heights | Original, MIT |
 | The Sun's corona, chromosphere and prominences | Procedural; brightness profile from Baumbach's K-corona fit, heights from solar physics literature | Original, MIT |
 

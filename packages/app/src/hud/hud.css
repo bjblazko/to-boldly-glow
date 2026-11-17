@@ -2018,6 +2018,8 @@ body[data-context='explore'] .hud-leave-btn {
 
 /* "Following: Jupiter ×", just above the bar. */
 .hud-follow-chip {
+  font-family: var(--hud-font);
+  color: var(--hud-text);
   position: fixed;
   left: 50%;
   bottom: 104px;

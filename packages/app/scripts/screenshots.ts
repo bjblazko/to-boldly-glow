@@ -25,16 +25,31 @@ const sunlit = async (page: Page, base: string, body: string, offset: [number, n
   await setSwitch(page, '#body-labels-toggle', false)
 }
 
+// A lesson from the start page, paused (lessons turn their pages by themselves), `nexts` chapters
+// on - each given time for its scene to settle.
 const lessonAt = async (page: Page, base: string, id: string, nexts: number) => {
   await boot(page, base)
-  await page.locator('#learn-mode-btn').click()
+  await page.locator('#start-btn').click()
   await page.locator(`.hud-lesson-card[data-lesson-id="${id}"]`).click()
   await wait(2500)
+  if ((await page.locator('#lesson-autoplay').getAttribute('aria-pressed')) === 'true') await page.locator('#lesson-autoplay').click()
   for (let i = 0; i < nexts; i++) {
     await page.locator('#lesson-next-chapter').click()
     await wait(2500)
   }
-  await wait(1500)
+  await wait(2500)
+}
+
+// A mission tour from the start page, jumped to its station `index`, paused there.
+const missionAt = async (page: Page, base: string, tour: string, index: number) => {
+  await boot(page, base)
+  await page.locator('#start-btn').click()
+  await page.locator(`[data-tour-id="${tour}"]`).click()
+  await wait(4000)
+  await page.locator(`#mission-timeline li[data-index="${index}"] button`).click()
+  await wait(9000)
+  if ((await page.locator('#mission-play').getAttribute('data-state')) === 'playing') await page.locator('#mission-play').click()
+  await wait(800)
 }
 
 const SHOTS: Record<string, Shot> = {
@@ -59,33 +74,48 @@ const SHOTS: Record<string, Shot> = {
     await sunlit(page, base, 'Saturn', [480, -50])
     await sceneOnly(page)
   },
+  // The inner Solar System with the orbits and names - and the bar at the bottom.
   compact: async (page, base) => {
     await boot(page, base)
     await setSwitch(page, '#orbit-paths-toggle', true)
     await setSwitch(page, '#body-labels-toggle', true)
     await zoom(page, 5)
   },
-  welcome: async (page, base) => {
+  // Free flight past Saturn, the controls overlay showing its keys.
+  'free-flight': async (page, base) => {
+    await sunlit(page, base, 'Saturn', [300, -40])
+    await page.locator('#camera-mode-btn').click()
+    await page.addStyleTag({ content: '.hud-controls { display: block !important; }' })
+    await page.keyboard.press('Shift+Slash')
+    // No focus ring on the camera key.
+    await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur())
+    await wait(800)
+  },
+  // What a first visit opens: the start page.
+  start: async (page, base) => {
     await page.goto(`${base}/?lang=en`)
-    await page.locator('#welcome-card:not([hidden])').waitFor({ timeout: 60_000 })
+    await page.locator('#start-page:not([hidden])').waitFor({ timeout: 60_000 })
     await page.addStyleTag({ content: '.hud-beta-note { display: none !important; }' })
     await wait(2500)
   },
-  tours: async (page, base) => {
-    await boot(page, base)
-    await page.locator('#tours-mode-btn').click()
-    await wait(800)
-  },
   'grand-tour': async (page, base) => {
     await boot(page, base)
-    await page.locator('#tours-mode-btn').click()
-    await page.locator('#tour-library [data-tour-id="grand"]').click()
+    await page.locator('#start-btn').click()
+    await page.locator('#start-grand').click()
     await wait(9000)
   },
+  // Voyager 2 at Neptune, its station's card with NASA's photo, the stations in the bar.
+  'voyager-tour': (page, base) => missionAt(page, base, 'voyager2', 4),
   'lesson-planets': (page, base) => lessonAt(page, base, 'planetSizes', 0),
+  'lesson-seasons': (page, base) => lessonAt(page, base, 'seasons', 3),
   'lesson-moon': (page, base) => lessonAt(page, base, 'moonPhases', 3),
   'lesson-eclipse': (page, base) => lessonAt(page, base, 'solarEclipse', 6),
-  settings: async (page, base) => {
+  'lesson-voyager': (page, base) => lessonAt(page, base, 'voyager', 1),
+  'lesson-record': (page, base) => lessonAt(page, base, 'voyager', 2),
+  'lesson-jupiter': (page, base) => lessonAt(page, base, 'voyager', 5),
+  'lesson-taken-apart': (page, base) => lessonAt(page, base, 'voyagerDeepDive', 0),
+  // More, on its Audio tab: the narrator, subtitles and the music.
+  more: async (page, base) => {
     await boot(page, base)
     await followBody(page, 'Jupiter')
     await drag(page, [0, 160])

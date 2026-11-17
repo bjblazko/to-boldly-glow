@@ -30,3 +30,12 @@ test('picking a body while in fly mode forces the camera back to orbit mode', as
   await expect(page.locator('#camera-mode-btn')).toHaveAttribute('data-mode', 'orbit')
   await expect(page.locator('#scene')).toHaveAttribute('data-following-id', 'mars')
 })
+
+test('switching to free flight lets go of the followed body, and says so', async ({ page }) => {
+  await openApp(page)
+  await goTo(page, 'Mars')
+  await expect(page.locator('#follow-indicator')).toBeVisible()
+  await page.locator('#camera-mode-btn').click()
+  await expect(page.locator('#follow-indicator')).toBeHidden()
+  await expect(page.locator('#scene')).not.toHaveAttribute('data-following-id')
+})
