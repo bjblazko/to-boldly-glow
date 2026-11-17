@@ -276,6 +276,17 @@ function frameScene(app: Explorer, ephemeris: Ephemeris): Pick<ShownFrame, 'layo
 function frameShown(app: Explorer, time: FrameTime): void {
   app.fps.frame(time.realDeltaSeconds)
   markRendered(app)
+  showOrbitState(app)
+}
+
+// The orbit camera's distance and pivot on the canvas, for the end-to-end tests to read (written
+// only when they change).
+function showOrbitState({ canvas, camera }: Explorer): void {
+  const { dataset } = canvas
+  const radius = camera.orbit.radius.toPrecision(6)
+  const pivot = Array.from(camera.orbit.pivot(), (value) => value.toPrecision(6)).join(',')
+  if (dataset.orbitRadius !== radius) dataset.orbitRadius = radius
+  if (dataset.pivot !== pivot) dataset.pivot = pivot
 }
 
 // The first frame (everything is loaded by then: startApp awaits it all) is where tests start, and
