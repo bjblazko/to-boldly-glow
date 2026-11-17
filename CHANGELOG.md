@@ -7,6 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-17
+
+Voyager, a calmer interface with everything in one bar, and a camera you can steer like the
+3D apps you know.
+
+### Added
+
+- Voyager: two lessons (the mission, and the probe and its Golden Record up close), two narrated
+  tours along Voyager 1's and Voyager 2's real paths, and both probes where they are today in the
+  explore view.
+- A start page (the bar's Start button, and by itself on a first visit): explore on your own, the
+  narrated grand tour with its language and narrator, the Voyager tours and the lessons.
+- The camera's controls as keycaps and gestures, shown on switching camera mode, on opening the
+  first lesson, and with ? (More › Show the controls); a held key lights up.
+- "Voice loading …" while the narrator's next clip is still on its way; the tour and lessons wait
+  for it instead of running on in silence, and the next clip is fetched ahead.
+
+### Changed
+
+- One bar at the bottom holds every control: Start, Search, Camera, Time, View and More. In a
+  lesson or tour the same bar becomes its player, with Leave or End tour. The welcome card, the
+  Explore/Learn/Tours switch, the top-right buttons, the Camera panel and the lesson zoom buttons
+  are gone; More holds the settings, About and hiding the interface.
+- The orbit camera's pivot moves: drag with two fingers (or the right mouse button, or Shift-drag)
+  to slide the view, and scrolling or pinching zooms toward the pointer. Lessons can be looked at
+  from all around (the Voyager probe and its record) or further than before.
+- Free flight steers like a spaceship: the arrow keys turn the nose, Q/E roll, W/S give thrust
+  that builds up and dies away with weight.
+- One search for everything (Ctrl+K or Search): bodies, tours, lessons and settings; a planet's
+  name finds its moons too.
+- Lessons play as they open, turning their pages by themselves.
+- Nothing flies before a click, so the narrated tour is never silent; Ctrl/Cmd shortcuts no longer
+  stop it.
+
+### Removed
+
+- The silent flyby loop (the narrated grand tour covers it) and the Find tree (the search finds
+  the same bodies).
+
 ## [0.5.0] - 2026-10-26
 
 The first numbered release: the Solar System to explore at true or compact scale, lessons on
@@ -453,5 +492,6 @@ background music, and a download that runs from the disk without a web server.
   across all workspace packages, including a critical arbitrary-file-read alert in vitest's UI
   server. All dev-only tooling, never shipped to users.
 
-[Unreleased]: https://github.com/bjblazko/to-boldly-glow/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/bjblazko/to-boldly-glow/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/bjblazko/to-boldly-glow/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/bjblazko/to-boldly-glow/releases/tag/v0.5.0
