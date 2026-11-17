@@ -77,7 +77,9 @@ After a pan or a zoom, everything turns and zooms around the new pivot.
   Beyond that it stops softly.
 - **Lessons.**
   - Model scenes (the Voyager probe whole and taken apart, the Golden Record) may be turned all
-    the way around, including over the top. The 30° limit goes.
+    the way around, and seen from straight above and below. The 30° limit goes. The camera keeps
+    its "up", so it does not tumble over the top. They may also be zoomed in down to the scene's
+    own zoom floor, not only to 30% of the framing.
   - All other lessons get a looser limit (about 90° instead of 30°). Their staged scenes are made
     for a viewing direction; the builder checks each one.
   - Ground shots stay fixed, as now.
