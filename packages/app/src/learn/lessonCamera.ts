@@ -11,6 +11,7 @@ import { EARTH_POSITION } from './eclipse/eclipseGeometry'
 import { PHASES_EARTH_POSITION } from './phases/phasesGeometry'
 import { directionAtAltitude, lookAltitudeDegrees, type GroundShot } from './ground/groundShot'
 import type { Chapter } from './lessonTypes'
+import { lookAroundLimits, panLimitFor } from './lookAround'
 import type { CameraPreset, ContentBounds, LessonShot } from './lessonShot'
 import { EARTH_STAGED_POSITION } from './seasons/seasonsScene'
 import { LINEUP_PLANETS_EXTENT, LINEUP_SUN_RADIUS, lineupSlot } from './sizes/sizesLineup'
@@ -166,10 +167,9 @@ const FIT_MIN_BAND_BOTTOM = 0.5
 const FIT_MIN_BAND_HEIGHT = 0.4
 const FIT_MAX_ZOOM_OUT = 2
 
-// How far the user may look around a scene from where the chapter frames it: turn the view by up to
-// 30 degrees either way, zoom in to 30% of the framing distance (never past the scene's own zoom
-// floor) and back off to twice it.
-const LOOK_AROUND_RADIANS = Math.PI / 6
+// How far the user may zoom around a scene from where the chapter frames it (see lookAround.ts for
+// turning and moving): in to 30% of the framing distance (never past the scene's own zoom floor;
+// a model, to that floor) and back off to twice it.
 const ZOOM_IN_LIMIT = 0.3
 const ZOOM_OUT_LIMIT = 2
 
@@ -258,10 +258,12 @@ const CONTENT_BOUNDS: Partial<Record<ChapterKind, ContentBounds>> = {
 // once when the kind changes - never every chapter - so the camera stays still while a chapter's
 // scene animates; only the sizes lesson's planets each have a close-up of their own, and the camera
 // flies from one to the next. From there the user may look around a little (see
-// LOOK_AROUND_RADIANS); framing again (a new kind, or the reset button) brings the shot back.
+// lookAround.ts); framing again (a new kind, or the reset button) brings the shot back.
 export class LessonCamera {
   // The orbit camera's own zoom-out limit, put back when the lesson ends.
   private freeMaxRadius: number | null = null
+  // Likewise the orbit camera's pan limit.
+  private freePanLimit: number | null = null
   private glide: Glide | null = null
 
   constructor(
@@ -281,7 +283,7 @@ export class LessonCamera {
     this.lens.setLessonZoomFloor(sceneFloor)
     this.fitShot(kind, groundShot, { focusPlanetId, lineupOrder })
     // The observer's eye on the ground stays put (the lesson doesn't take camera input there).
-    if (!groundShot) this.allowLookingAround(sceneFloor)
+    if (!groundShot) this.allowLookingAround(sceneFloor, this.boundsFor(kind, groundShot, focusPlanetId))
     this.glide = from ? this.startGlide(from) : null
   }
 
@@ -292,7 +294,7 @@ export class LessonCamera {
     const sceneFloor = shot.zoomFloor ?? COMPACT_MIN_ORBIT_RADIUS
     this.lens.setLessonZoomFloor(sceneFloor)
     this.fitAbovePanel(shot.bounds, shot.maxZoomOut)
-    this.allowLookingAround(sceneFloor)
+    this.allowLookingAround(sceneFloor, shot.bounds, shot.freeLook)
     this.glide = from ? this.startGlide(from) : null
   }
 
@@ -325,23 +327,32 @@ export class LessonCamera {
     this.orbit.viewLimits = null
     if (this.freeMaxRadius !== null) this.orbit.maxRadius = this.freeMaxRadius
     this.freeMaxRadius = null
+    if (this.freePanLimit !== null) this.orbit.panLimit = this.freePanLimit
+    this.freePanLimit = null
     this.lens.setLessonZoomFloor(null)
     this.lens.lensShiftNdc = 0
     this.orbit.radius = Math.max(this.orbit.radius, this.orbit.minRadius)
   }
 
-  private allowLookingAround(sceneFloor: number): void {
+  private allowLookingAround(sceneFloor: number, bounds: ContentBounds, freeLook = false): void {
     const { azimuth, elevation, radius } = this.orbit
     this.freeMaxRadius ??= this.orbit.maxRadius
-    this.orbit.viewLimits = {
-      azimuth: [azimuth - LOOK_AROUND_RADIANS, azimuth + LOOK_AROUND_RADIANS],
-      elevation: [elevation - LOOK_AROUND_RADIANS, elevation + LOOK_AROUND_RADIANS],
-    }
+    this.freePanLimit ??= this.orbit.panLimit
+    this.orbit.viewLimits = lookAroundLimits(azimuth, elevation, freeLook)
     this.orbit.maxRadius = radius * ZOOM_OUT_LIMIT
-    this.lens.setLessonZoomFloor(Math.max(sceneFloor, radius * ZOOM_IN_LIMIT))
+    this.orbit.panLimit = panLimitFor(bounds)
+    this.lens.setLessonZoomFloor(freeLook ? sceneFloor : Math.max(sceneFloor, radius * ZOOM_IN_LIMIT))
+  }
+
+  // What the chapter's shot must show, as fitShot fits it.
+  private boundsFor(kind: ChapterKind, groundShot: GroundShot | null | undefined, focusPlanetId?: string): ContentBounds {
+    if (groundShot) return groundBounds(groundShot)
+    if (kind === 'sizes' && focusPlanetId) return focusBounds(focusPlanetId)
+    return CONTENT_BOUNDS[kind] ?? CONTENT_BOUNDS.staged!
   }
 
   private applyPreset(preset: CameraPreset): void {
+    this.orbit.clearPan()
     vec3.set(this.orbit.target, ...preset.target)
     this.orbit.radius = preset.radius
     this.orbit.azimuth = preset.azimuth
@@ -361,12 +372,15 @@ export class LessonCamera {
     return { from, to, progress, zoomFloor }
   }
 
+  // Where the camera looks now: a moved pivot counts as the target.
   private currentView(): CameraView {
-    const { target, radius, azimuth, elevation } = this.orbit
-    return { target: [target[0], target[1], target[2]], radius, azimuth, elevation, lensShiftNdc: this.lens.lensShiftNdc }
+    const { radius, azimuth, elevation } = this.orbit
+    const pivot = this.orbit.pivot()
+    return { target: [pivot[0], pivot[1], pivot[2]], radius, azimuth, elevation, lensShiftNdc: this.lens.lensShiftNdc }
   }
 
   private showView(view: CameraView): void {
+    this.orbit.clearPan()
     vec3.set(this.orbit.target, ...view.target)
     this.orbit.radius = view.radius
     this.orbit.azimuth = view.azimuth

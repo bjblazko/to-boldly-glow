@@ -18,6 +18,7 @@ const PROBE_SHOT: LessonShot = {
   preset: { target: [0, 3.2, 3.8], radius: 24, azimuth: 0.35, elevation: 0.22, upAxis: UP },
   bounds: { top: 7, bottom: -6, halfWidth: 9.5 },
   maxZoomOut: 2.5,
+  freeLook: true,
 }
 
 // Taken apart, the parts spread further.
@@ -30,6 +31,7 @@ const RECORD_SHOT: LessonShot = {
   preset: { target: [0, 0, 0], radius: RECORD_EXTENT * 3, azimuth: -Math.PI / 2, elevation: 0, upAxis: UP },
   bounds: { top: RECORD_EXTENT * 1.1, bottom: -RECORD_EXTENT * 1.1, halfWidth: RECORD_EXTENT * 1.6 },
   maxZoomOut: 2,
+  freeLook: true,
 }
 
 // Seen from above the planets' plane, the Sun in the middle: radius and how much must fit.

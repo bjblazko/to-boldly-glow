@@ -18,7 +18,8 @@ export interface ContentBounds {
 
 // A chapter's own shot, for scenes whose chapters each frame something else (the Voyager route):
 // the preset, what must fit above the panel, how far the camera may back off to fit it, and the
-// closest the user may zoom in (scene units; COMPACT_MIN_ORBIT_RADIUS if not given). Moving between
+// closest the user may zoom in (scene units; COMPACT_MIN_ORBIT_RADIUS if not given), and whether it
+// may be looked at from all around (freeLook). Moving between
 // two chapters with different shots (`key`) flies the camera.
 export interface LessonShot {
   key: string
@@ -26,4 +27,7 @@ export interface LessonShot {
   bounds: ContentBounds
   maxZoomOut: number
   zoomFloor?: number
+  // A model to look at from all around (the Voyager, its record): no limit on turning, and zooming
+  // in as far as the zoom floor allows.
+  freeLook?: boolean
 }
