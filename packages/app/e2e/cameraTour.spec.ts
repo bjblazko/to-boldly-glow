@@ -1,72 +1,59 @@
 import { expect, test } from '@playwright/test'
-import { openApp, waitForFirstFrame } from './support/appBoot'
+import { openApp } from './support/appBoot'
+import { goTo, startGrandTour } from './support/hud'
 
-test('the tour toggle starts and stops from the keyboard', async ({ page }) => {
+const context = (page: import('@playwright/test').Page) => page.locator('body')
+
+test('a key press hands control back from the tour, in free flight', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
-
   await openApp(page)
-  await page.locator('.hud-dock-btn[data-panel="camera"]').click()
+  await startGrandTour(page)
+  await expect(context(page)).toHaveAttribute('data-context', 'tour')
 
-  const tourButton = page.locator('#camera-tour-toggle')
-  const tourLabel = tourButton.locator('.btn-label')
-  await tourButton.focus()
-  await page.keyboard.press('Enter')
-  await expect(tourLabel).toHaveText('Stop Tour')
-
-  // Regression: a window-level "any key stops the tour" listener used to stop it on keydown, and
-  // the button's own click (from that same Enter) then started it again - so it never stopped.
-  await page.keyboard.press('Enter')
-  await expect(tourLabel).toHaveText('Start Flyby')
-
-  await page.keyboard.press('Space')
-  await expect(tourLabel).toHaveText('Stop Tour')
-  await page.keyboard.press('Space')
-  await expect(tourLabel).toHaveText('Start Flyby')
-
+  await page.keyboard.press('KeyW')
+  await expect(context(page)).toHaveAttribute('data-context', 'explore')
+  await expect(page.locator('#camera-fly-btn')).toHaveAttribute('aria-pressed', 'true')
   expect(errors).toEqual([])
+})
+
+test("the bar's End tour stops the tour, and Enter on it does not start anything again", async ({ page }) => {
+  await openApp(page)
+  await startGrandTour(page)
+  await expect(page.locator('#leave-label')).toHaveText('End tour')
+  // Regression: a window-level "any key stops the tour" listener and the button's own click
+  // (from that same Enter) must not fight.
+  await page.locator('#leave-btn').focus()
+  await page.keyboard.press('Enter')
+  await expect(context(page)).toHaveAttribute('data-context', 'explore')
+  await expect(page.locator('#leave-btn')).toBeHidden()
 })
 
 test('picking a search result during the tour stops it and flies to the result', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
-
   await openApp(page)
-  await page.locator('.hud-dock-btn[data-panel="camera"]').click()
+  await startGrandTour(page)
 
-  const tourLabel = page.locator('#camera-tour-toggle .btn-label')
-  await page.locator('#camera-tour-toggle').click()
-  await expect(tourLabel).toHaveText('Stop Tour')
-
-  // Opening Find and typing goes to the search box, not the camera, so it doesn't stop the tour on
-  // its own...
-  await page.locator('.hud-dock-btn[data-panel="find"]').click()
-  await expect(tourLabel).toHaveText('Stop Tour')
-  await page.locator('#entity-search-input').pressSequentially('Saturn')
-  await expect(tourLabel).toHaveText('Stop Tour')
+  // During the tour the bar is its player; Ctrl+K still searches. Typing goes to the search box,
+  // not the camera, so it doesn't stop the tour on its own...
+  await page.keyboard.press('Control+k')
+  await page.locator('#palette-input').pressSequentially('Saturn')
+  await expect(context(page)).toHaveAttribute('data-context', 'tour')
 
   // ...but choosing a result does, so the fly-to is actually what's on screen.
-  await page.locator('#entity-search-input').press('Enter')
+  await page.locator('#palette-input').press('Enter')
   await expect(page.locator('#scene')).toHaveAttribute('data-following-id', 'saturn')
-  await expect(tourLabel).toHaveText('Start Flyby')
-
+  await expect(context(page)).toHaveAttribute('data-context', 'explore')
   expect(errors).toEqual([])
 })
 
-test('the tour sets off on its own a moment after the scene first shows', async ({ page }) => {
-  await page.goto('/')
-  await waitForFirstFrame(page)
-  const tourLabel = page.locator('#camera-tour-toggle .btn-label')
-  await expect(tourLabel).toHaveText('Start Flyby')
-  await expect(tourLabel).toHaveText('Stop Tour', { timeout: 15_000 })
-})
-
-test('a click on the scene before the tour sets off keeps the camera still', async ({ page }) => {
-  await page.goto('/')
-  await waitForFirstFrame(page)
-  // Beside the welcome card, which shrinks to its Start pill: the visitor is there to choose.
-  await page.locator('#scene').click({ position: { x: 40, y: 300 } })
-  await page.waitForTimeout(11_000)
-  await expect(page.locator('#camera-tour-toggle .btn-label')).toHaveText('Start Flyby')
-  await expect(page.locator('#welcome-pill')).toBeVisible()
+test('the follow chip names the followed body and lets go of it', async ({ page }) => {
+  await openApp(page)
+  await goTo(page, 'Mars')
+  await expect(page.locator('#follow-indicator')).toBeVisible()
+  await expect(page.locator('#follow-indicator-label')).toContainText('Mars')
+  await page.locator('#follow-stop-button').click()
+  await expect(page.locator('#follow-indicator')).toBeHidden()
+  await expect(page.locator('#scene')).not.toHaveAttribute('data-following-id')
 })

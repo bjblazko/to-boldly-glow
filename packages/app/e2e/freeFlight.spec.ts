@@ -7,10 +7,8 @@ test.use({ viewport: { width: 480, height: 300 } })
 const STILL_VIEW_CHANGE = 0.1
 
 async function switchToFreeFlight(page: import('@playwright/test').Page): Promise<void> {
-  await page.locator('.hud-dock-btn[data-panel="camera"]').click()
-  await page.locator('#camera-mode-toggle').click()
-  await page.locator('.hud-dock-btn[data-panel="camera"]').click()
-  await expect(page.locator('#camera-mode-toggle .btn-label')).toHaveText('Switch to Orbit Camera')
+  await page.locator('#camera-fly-btn').click()
+  await expect(page.locator('#camera-fly-btn')).toHaveAttribute('aria-pressed', 'true')
 }
 
 test('free flight flies with the keyboard and looks around with a drag', async ({ page }) => {

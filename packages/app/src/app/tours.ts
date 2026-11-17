@@ -1,11 +1,9 @@
-import type { DockUI } from '../hud/dockUI'
-import type { ModeButtons } from '../hud/modeButtons'
 import type { LearnUi } from '../learn/learnUi'
 import type { MissionNarration } from '../missions/missionNarration'
 import { MissionTourSession } from '../missions/missionTourSession'
 import { MissionTourUi } from '../missions/missionTourUi'
 import type { ModelContext } from '../spacecraft/modelRenderer'
-import { TourUi } from '../tours/tourUi'
+import type { TourId } from '../tours/tourLibrary'
 import { VoyagerLabels } from '../learn/voyager/voyagerLabels'
 import { requireElement } from './dom'
 import type { createExplorer } from './explorer'
@@ -34,37 +32,23 @@ export function createMissionTours(explorer: Explorer, gpu: { device: GPUDevice;
   return { session, activeChanged }
 }
 
-// The Tours mode: the narrated grand tour and the mission tours, from the top switch's Tours button.
-// Starting one ends the other; Explore or Learn ends either.
-export function createTours(explorer: Explorer, { learnUi, dock, missions }: { learnUi: LearnUi; dock: DockUI; missions: MissionTours }, modes: ModeButtons): void {
-  const elements = {
-    exploreButton: requireElement<HTMLButtonElement>('#explore-mode-btn'),
-    learnButton: requireElement<HTMLButtonElement>('#learn-mode-btn'),
-    toursButton: requireElement<HTMLButtonElement>('#tours-mode-btn'),
-    library: { dialog: requireElement('#tour-library'), list: requireElement('#tour-library-list'), closeButton: requireElement<HTMLButtonElement>('#tour-library-close') },
+export interface Tours {
+  start: (tour: TourId) => void
+  // Ends whichever tour flies.
+  stopAll: () => void
+}
+
+// The narrated grand tour and the mission tours. Starting one ends the other, and a lesson.
+export function createTours(explorer: Explorer, { learnUi, missions }: { learnUi: LearnUi; missions: MissionTours }): Tours {
+  const stopAll = () => {
+    explorer.camera.stopTour()
+    missions.session.stop()
   }
-  const actions = {
-    closeOtherMenus: () => {
-      learnUi.hideLibrary()
-      dock.closeActivePanel()
-    },
-    leaveLesson: () => learnUi.explore(),
-    startTour: (tour: 'grand' | 'voyager1' | 'voyager2') => {
-      if (tour === 'grand') {
-        missions.session.stop()
-        explorer.startNarratedTour()
-      } else {
-        explorer.camera.stopTour()
-        void missions.session.start(tour)
-      }
-    },
-    stopTour: () => {
-      explorer.camera.stopTour()
-      missions.session.stop()
-    },
+  const start = (tour: TourId) => {
+    learnUi.explore()
+    stopAll()
+    if (tour === 'grand') explorer.startNarratedTour()
+    else void missions.session.start(tour)
   }
-  const tours = new TourUi(elements, actions, modes)
-  explorer.narratedTourChanged.push((flying) => tours.narratedTourChanged(flying))
-  missions.activeChanged.push((active) => tours.narratedTourChanged(active))
-  elements.learnButton.addEventListener('click', () => missions.session.stop())
+  return { start, stopAll }
 }

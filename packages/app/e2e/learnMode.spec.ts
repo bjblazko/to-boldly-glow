@@ -1,38 +1,39 @@
 import { expect, test } from '@playwright/test'
 import { openApp } from './support/appBoot'
-import { openLesson, exitLesson } from './support/hud'
+import { goTo, openLesson, exitLesson } from './support/hud'
 
-test('entering and exiting learn mode toggles app-mode state and swaps the explore dock for the lesson dock', async ({ page }) => {
+test("entering and leaving a lesson toggles app-mode state and swaps the bar's explore group for the lesson's", async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
   await openApp(page)
 
   await expect(page.locator('body')).not.toHaveAttribute('data-app-mode', 'learn')
-  await expect(page.locator('.hud-explore-dock')).toBeVisible()
+  await expect(page.locator('#search-btn')).toBeVisible()
 
   await openLesson(page, 'seasons')
 
   await expect(page.locator('body')).toHaveAttribute('data-app-mode', 'learn')
   await expect(page.locator('body')).toHaveAttribute('data-lesson-id', 'seasons')
-  // The lesson dock (library, chapters, View) takes the explore dock's place - see hud.css's
-  // body[data-app-mode='learn'] rules - and the mode switch shows Learn.
-  await expect(page.locator('.hud-explore-dock')).toBeHidden()
-  await expect(page.locator('.hud-lesson-dock')).toBeVisible()
-  await expect(page.locator('#learn-mode-btn')).toHaveAttribute('aria-pressed', 'true')
-  await expect(page.locator('#lesson-view-controls')).toBeVisible()
+  // The bar shows the lesson's group (chapters, Reset view, View) and Leave instead of exploring's -
+  // see hud.css's body[data-context] rules.
+  await expect(page.locator('body')).toHaveAttribute('data-context', 'lesson')
+  await expect(page.locator('#search-btn')).toBeHidden()
+  await expect(page.locator('#lesson-chapter-btn')).toBeVisible()
+  await expect(page.locator('#lesson-view-reset')).toBeVisible()
+  await expect(page.locator('#leave-label')).toHaveText('Leave')
 
   await exitLesson(page)
 
   await expect(page.locator('body')).not.toHaveAttribute('data-app-mode', 'learn')
-  await expect(page.locator('.hud-explore-dock')).toBeVisible()
-  await expect(page.locator('.hud-lesson-dock')).toBeHidden()
-  await expect(page.locator('#explore-mode-btn')).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.locator('#search-btn')).toBeVisible()
+  await expect(page.locator('#lesson-chapter-btn')).toBeHidden()
+  await expect(page.locator('#leave-btn')).toBeHidden()
 
   expect(errors).toEqual([])
 })
 
-test("the lesson dock's View button opens and closes the View panel while in learn mode", async ({ page }) => {
+test("the bar's View button opens and closes the View panel in a lesson", async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
@@ -41,7 +42,7 @@ test("the lesson dock's View button opens and closes the View panel while in lea
   await openLesson(page, 'seasons')
   await expect(page.locator('body')).toHaveAttribute('data-app-mode', 'learn')
 
-  const displayButton = page.locator('.hud-lesson-dock [data-panel="view"]')
+  const displayButton = page.locator('.hud-bar-group[data-for="lesson"] [data-panel="view"]')
   const displayPanel = page.locator('.hud-sheet-panel[data-panel="view"]')
 
   await displayButton.click()
@@ -164,31 +165,16 @@ test("Earth's clouds are hidden during a lesson and come back afterward", async 
   expect(errors).toEqual([])
 })
 
-test('entity search is explicitly disabled in learn mode, not just unreachable behind the hidden dock', async ({ page }) => {
+test('searching for a body in a lesson leaves the lesson and flies there', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
-
   await openApp(page)
-
   await openLesson(page, 'seasons')
-  await expect(page.locator('body')).toHaveAttribute('data-app-mode', 'learn')
-
-  const searchInput = page.locator('#entity-search-input')
-  await expect(searchInput).toBeDisabled()
-
-  // Simulate a hotkey/focus path reaching the (hidden) search box directly, bypassing the hidden
-  // explore dock entirely - dispatchEvent doesn't require the element to be visible/actionable,
-  // unlike fill()/type(), so this exercises EntityFinder.setEnabled's own guard rather than
-  // relying on the dock's hiddenness to keep the input unreachable.
-  await searchInput.evaluate((el: HTMLInputElement) => {
-    el.value = 'Earth'
-    el.dispatchEvent(new Event('input'))
-    el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }))
-  })
-  // The tree didn't narrow down to the typed name, and nothing flew anywhere.
-  await expect(page.locator('#entity-tree mark')).toHaveCount(0)
-  await expect(page.locator('#follow-indicator')).toBeHidden()
-
+  await page.keyboard.press('Control+k')
+  await page.locator('#palette-input').fill('Mars')
+  await page.locator('#palette-input').press('Enter')
+  await expect(page.locator('body')).toHaveAttribute('data-context', 'explore')
+  await expect(page.locator('#scene')).toHaveAttribute('data-following-id', 'mars')
   expect(errors).toEqual([])
 })
 
@@ -281,9 +267,7 @@ test('opening a lesson while following a body ends the follow, so it cannot drag
 
   await openApp(page)
 
-  await page.locator('.hud-dock-btn[data-panel="find"]').click()
-  await page.locator('#entity-search-input').fill('Mars')
-  await page.locator('#entity-search-input').press('Enter')
+  await goTo(page, 'Mars')
   await expect(page.locator('#scene')).toHaveAttribute('data-following-id', 'mars')
 
   await openLesson(page, 'seasons')

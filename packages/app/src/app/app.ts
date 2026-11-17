@@ -1,4 +1,3 @@
-import { AboutDialog } from '../about/aboutDialog'
 import { BodyRenderer } from '../bodies/bodyRenderer'
 import { createViewpoint } from '../camera/viewpoint'
 import { AtmosphereShells } from '../atmosphereShell/atmosphereShell'
@@ -8,13 +7,8 @@ import { fitCanvasToDisplaySize, watchCanvasSize } from '../gpu/canvasSize'
 import { initWebGpu, onDeviceLost, type GpuContext } from '../gpu/device'
 import { TextureLoader } from '../gpu/textureLoader'
 import { DisplaySettings } from '../hud/displaySettings'
-import { CommandPalette } from '../hud/commandPalette'
 import { DockUI } from '../hud/dockUI'
 import { FpsMeter } from '../hud/fpsMeter'
-import { InterfaceVisibility } from '../hud/interfaceVisibility'
-import { bindSettingsTabs, SettingsPanel } from '../hud/settingsPanel'
-import { bindLanguageSwitch } from '../hud/languageSwitch'
-import { bindVoiceSwitch } from '../narration/narratorVoice'
 import { LearnModeController } from '../learn/learnModeController'
 import { LearnUi } from '../learn/learnUi'
 import { LessonCamera } from '../learn/lessonCamera'
@@ -36,6 +30,8 @@ import { ExploreSpacecraft } from '../spacecraft/exploreSpacecraft'
 import { loadSpacecraftTrajectories } from '../spacecraft/spacecraftCatalog'
 import { MissionNarration } from '../missions/missionNarration'
 import { createMissionTours, createTours, type MissionTours } from './tours'
+import { createHud } from './hudShell'
+import { BarContextView } from '../hud/barContext'
 import { SeasonsLabels } from '../learn/seasons/seasonsLabels'
 import { LensFlare } from '../lensFlare/lensFlare'
 import { createLinePipeline } from '../lines/lineStrip'
@@ -50,16 +46,10 @@ import { CometRenderer } from '../smallBodies/cometRenderer'
 import { Starfield } from '../starfield/starfield'
 import { SunCorona } from '../sunCorona/sunCorona'
 import { ephemerisAt, type Ephemeris } from '../time/ephemeris'
-import type { Lesson } from '../learn/lessonTypes'
-import type { SolarSystemEntity } from '../solarSystem/entities'
 import { requireElement } from './dom'
 import { showDeviceLost } from './errorMessages'
 import { createExplorer, obstaclesIn, shownSmallBodies, type ShownFrame } from './explorer'
 import { runFrameLoop, type FrameTime } from './frameLoop'
-import { gatherPaletteItems, type PaletteActions } from './paletteItems'
-import { startupTourWanted } from './startupTour'
-import { showWelcomeCard } from './welcomeCard'
-import { ModeButtons } from '../hud/modeButtons'
 import type { VoiceSignals } from '../narration/audioClipPlayer'
 import { loadNarrationManifest, type NarrationManifest } from '../narration/narrationManifest'
 import { voiceSignals, VoiceStatus } from '../narration/voiceStatus'
@@ -70,7 +60,7 @@ import { bindMusicSettings } from '../music/musicSettings'
 type SceneFeatures = Omit<SceneParts, 'players'>
 
 // Everything the frame loop drives.
-type Explorer = ReturnType<typeof createExplorer> & { lessons: LessonSession; players: ScenePlayers; renderer: SceneRenderer; fps: FpsMeter }
+type Explorer = ReturnType<typeof createExplorer> & { lessons: LessonSession; players: ScenePlayers; renderer: SceneRenderer; fps: FpsMeter; firstFrame: () => void }
 
 export async function startApp(canvas: HTMLCanvasElement): Promise<void> {
   fitCanvasToDisplaySize(canvas)
@@ -81,7 +71,7 @@ export async function startApp(canvas: HTMLCanvasElement): Promise<void> {
   const music = new MusicEngine()
   const voice = voiceSignals((audible) => music.duck(audible), new VoiceStatus(requireElement('#voice-status')))
   const explorer = createExplorer(canvas, display, features.orbitPaths, { narrationManifest, voice })
-  const { lessons, players } = createPlayers(explorer, { device: gpu.device, linePipeline, models }, groundSky, { narrationManifest, voice })
+  const { lessons, players, firstFrame } = createPlayers(explorer, { device: gpu.device, linePipeline, models }, groundSky, { narrationManifest, voice })
   bindMusicSettings(requireElement('#music-switch'), requireElement<HTMLInputElement>('#music-volume'), music)
   const renderer = new SceneRenderer(gpu.device, targets, { ...features, players }, { display, linePipeline })
   watchCanvasSize(canvas, () => {
@@ -89,7 +79,7 @@ export async function startApp(canvas: HTMLCanvasElement): Promise<void> {
     lessons.reframe()
   })
   const fps = new FpsMeter(requireElement('#fps-display'), () => display.fps.on)
-  const app: Explorer = { ...explorer, lessons, players, renderer, fps }
+  const app: Explorer = { ...explorer, lessons, players, renderer, fps, firstFrame }
   runFrameLoop((time) => renderFrame(app, time))
 }
 
@@ -98,11 +88,11 @@ export async function startApp(canvas: HTMLCanvasElement): Promise<void> {
 function createPlayers(explorer: ReturnType<typeof createExplorer>, gpu: LessonGpu & { models: ModelContext }, groundSky: GroundSky, sound: { narrationManifest: NarrationManifest | null; voice: VoiceSignals }) {
   const soundToggle = requireElement<HTMLInputElement>('#narration-sound-toggle')
   const missions = createMissionTours(explorer, gpu, new MissionNarration(sound.narrationManifest, soundToggle, sound.voice))
-  const lessons = createLessons(explorer, gpu, groundSky, { voice: new LessonNarration(sound.narrationManifest, soundToggle, sound.voice), missions })
+  const { session: lessons, firstFrame } = createLessons(explorer, gpu, groundSky, { voice: new LessonNarration(sound.narrationManifest, soundToggle, sound.voice), missions })
   const exploring = () => !lessons.active && !missions.session.active
   const now = () => ({ daysSinceEpoch: ephemerisAt(explorer.clock.getCurrentDate()).daysSinceEpoch, scaleBlend: explorer.scaleMode.blend })
   const spacecraft = new ExploreSpacecraft(gpu.models, { exploring, now })
-  return { lessons, players: new ScenePlayers([lessons, missions.session, spacecraft]) }
+  return { lessons, firstFrame, players: new ScenePlayers([lessons, missions.session, spacecraft]) }
 }
 
 // The scene's GPU side, its load state mirrored onto the canvas for tests to wait on.
@@ -138,26 +128,25 @@ async function createSceneFeatures(device: GPUDevice, format: GPUTextureFormat, 
   return { sky, starfield, corona, asteroids, comets, bodies, saturnRing, atmosphereShells, clouds, aurora, lensFlare, orbitPaths: OrbitPaths.create(device, linePipeline, 1) }
 }
 
-// The lessons, and the HUD around both modes: the docks, the Explore / Learn switch with the lesson
-// library, the settings popover and the search-everything palette.
-function createLessons(explorer: ReturnType<typeof createExplorer>, gpu: LessonGpu & { models: ModelContext }, groundSky: GroundSky, { voice, missions }: { voice: LessonVoice; missions: MissionTours }): LessonSession {
-  const { camera, lens, canvas, display, searchUi } = explorer
-  const dock = new DockUI(
-    document.querySelectorAll<HTMLButtonElement>('.hud-dock-btn[data-panel]'),
-    requireElement('#hud-sheet'),
-    document.querySelectorAll<HTMLElement>('.hud-sheet-panel'),
-  )
+// The lessons, and the HUD around everything: the bar (its context following lessons and tours),
+// the start page, More and the search-everything palette.
+function createLessons(explorer: ReturnType<typeof createExplorer>, gpu: LessonGpu & { models: ModelContext }, groundSky: GroundSky, { voice, missions }: { voice: LessonVoice; missions: MissionTours }): { session: LessonSession; firstFrame: () => void } {
+  const { camera, lens, canvas, display } = explorer
+  const dock = new DockUI(document.querySelectorAll<HTMLButtonElement>('.hud-dock-btn[data-panel]'), requireElement('#hud-sheet'), document.querySelectorAll<HTMLElement>('.hud-sheet-panel'))
+  const bar = new BarContextView(document.body)
+  explorer.narratedTourChanged.push((flying) => bar.set('tour', flying))
+  missions.activeChanged.push((active) => bar.set('mission', active))
   const cameraInput = { setEnabled: (on: boolean) => camera.setInputEnabled(on), setPickEnabled: (on: boolean) => camera.setPickEnabled(on) }
   const progress = new LessonProgress()
   const session: LessonSession = new LessonSession(
     {
-      modeController: new LearnModeController(document.body, cameraInput, dock, searchUi),
+      modeController: new LearnModeController(document.body, cameraInput, dock, (active) => bar.set('lesson', active)),
       camera,
       lessonCamera: new LessonCamera(camera.orbit, lens, canvas),
       showControls: () => explorer.guide.showOnce('lesson', 'orbit'),
       display,
       panel: new LessonPanel(requireElement),
-      viewControls: new LessonViewControls(requireElement('#lesson-view-controls'), { zoom: (factor) => camera.zoom(factor), reset: () => session.resetView() }),
+      viewControls: new LessonViewControls(requireElement('#lesson-view-reset'), { reset: () => session.resetView() }),
       progress,
       labels: new SeasonsLabels(requireElement),
       stagedScenes: [new EclipseLesson(gpu, groundSky, new EclipseLabels(requireElement)), createPhasesLesson(gpu, groundSky), new VoyagerLesson(gpu, new VoyagerLabels(requireElement('#voyager-labels'), requireElement('#voyager-route-clock')))],
@@ -165,74 +154,10 @@ function createLessons(explorer: ReturnType<typeof createExplorer>, gpu: LessonG
     },
     gpu,
   )
-  const modes = new ModeButtons({ explore: requireElement('#explore-mode-btn'), learn: requireElement('#learn-mode-btn'), tours: requireElement('#tours-mode-btn') })
-  const learnUi = createLearnUi(session, progress, dock, modes)
-  createTours(explorer, { learnUi, dock, missions }, modes)
-  createSettings()
-  const ui = new InterfaceVisibility(document.body, { hide: requireElement('#hide-ui-btn'), show: requireElement('#show-ui-btn') })
-  // The beta note's word on the Compact scale opens View, where the scale is switched - bringing
-  // the interface back first if it is hidden.
-  requireElement('#scale-note').addEventListener('click', () => {
-    ui.show()
-    dock.open('view')
-  })
-  const about = createAbout()
-  createPalette(learnUi, explorer.select, { hideInterface: () => ui.hide(), showAbout: () => about.open(), leaveTour: () => missions.session.stop() })
-  return session
-}
-
-function createAbout(): AboutDialog {
-  return new AboutDialog(requireElement<HTMLDialogElement>('#about-dialog'), {
-    openButton: requireElement('#about-btn'),
-    closeButton: requireElement('#about-close'),
-    credits: requireElement('#about-credits'),
-    version: requireElement('#about-version'),
-    controls: requireElement('#about-controls'),
-  })
-}
-
-function createSettings(): void {
-  new SettingsPanel(requireElement('#settings-panel'), requireElement('#settings-btn'), requireElement('#settings-close'))
-  bindSettingsTabs(requireElement('#settings-tabs'))
-  bindLanguageSwitch(requireElement('#language-switch'))
-  bindVoiceSwitch(requireElement('#settings-voice'))
-}
-
-function createLearnUi(session: LessonSession, progress: LessonProgress, dock: DockUI, modes: ModeButtons): LearnUi {
-  const library = {
-    dialog: requireElement('#lesson-library'),
-    topics: requireElement('#library-topics'),
-    search: requireElement<HTMLInputElement>('#library-search'),
-    closeButton: requireElement<HTMLButtonElement>('#library-close'),
-  }
-  const buttons = {
-    exploreButton: requireElement<HTMLButtonElement>('#explore-mode-btn'),
-    learnButton: requireElement<HTMLButtonElement>('#learn-mode-btn'),
-    libraryButton: requireElement<HTMLButtonElement>('#lesson-library-btn'),
-  }
-  return new LearnUi({ ...buttons, library }, session, progress, { closeSheet: () => dock.closeActivePanel(), modes })
-}
-
-function createPalette(learnUi: LearnUi, select: (entity: SolarSystemEntity) => void, { leaveTour, ...app }: Pick<PaletteActions, 'hideInterface' | 'showAbout'> & { leaveTour: () => void }): CommandPalette {
-  const elements = {
-    dialog: requireElement('#command-palette'),
-    input: requireElement<HTMLInputElement>('#palette-input'),
-    results: requireElement('#palette-results'),
-    openButton: requireElement<HTMLButtonElement>('#palette-btn'),
-  }
-  const actions = {
-    goTo: (entity: SolarSystemEntity) => {
-      leaveTour()
-      learnUi.explore()
-      select(entity)
-    },
-    openLesson: (lesson: Lesson) => {
-      leaveTour()
-      learnUi.openLesson(lesson)
-    },
-    ...app,
-  }
-  return new CommandPalette(elements, () => gatherPaletteItems(actions))
+  const learnUi = new LearnUi(session, progress)
+  const tours = createTours(explorer, { learnUi, missions })
+  const { firstFrame } = createHud(explorer, { learnUi, progress, dock, tours, bar })
+  return { session, firstFrame }
 }
 
 function createPhasesLesson(gpu: LessonGpu, groundSky: GroundSky): PhasesLesson {
@@ -291,30 +216,11 @@ function showOrbitState({ canvas, camera }: Explorer): void {
 }
 
 // The first frame (everything is loaded by then: startApp awaits it all) is where tests start, and
-// where the welcome card offers the tour.
+// where a first visit gets the start page.
 function markRendered(app: Explorer): void {
   if (app.canvas.dataset.rendered) return
   app.canvas.dataset.rendered = 'true'
-  if (!startupTourWanted(window.location.search)) return
-  const elements = {
-    card: requireElement('#welcome-card'),
-    close: requireElement<HTMLButtonElement>('#welcome-close'),
-    language: requireElement('#welcome-language'),
-    voice: requireElement('#welcome-voice'),
-    start: requireElement<HTMLButtonElement>('#welcome-start'),
-    explore: requireElement<HTMLButtonElement>('#welcome-explore'),
-    pill: requireElement('#welcome-pill'),
-    pillStart: requireElement<HTMLButtonElement>('#welcome-pill-start'),
-    pillClose: requireElement<HTMLButtonElement>('#welcome-pill-close'),
-    tourToggle: requireElement('#camera-tour-toggle'),
-  }
-  showWelcomeCard(elements, {
-    startNarratedTour: () => app.startNarratedTour(),
-    exploreOnOwn: () => {
-      app.display.orbitPaths.set(true)
-      app.display.bodyLabels.set(true)
-    },
-  })
+  app.firstFrame()
 }
 
 // Labels, and what free flight and picking work from in the next frame.

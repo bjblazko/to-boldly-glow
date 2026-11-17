@@ -2,28 +2,32 @@ import { expect, test, type Page } from '@playwright/test'
 import { openApp } from './support/appBoot'
 import { openLesson } from './support/hud'
 
-test('the lesson library lists every lesson by topic and remembers where a lesson was left', async ({ page }) => {
+test('the start page lists every lesson by topic and remembers where a lesson was left', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
   await openApp(page)
 
-  await page.locator('#learn-mode-btn').click()
-  await expect(page.locator('#lesson-library')).toBeVisible()
-  await expect(page.locator('.hud-lesson-card')).toHaveCount(4)
+  const lessons = page.locator('#library-topics .hud-lesson-card')
+  await page.locator('#start-btn').click()
+  await expect(page.locator('#start-page')).toBeVisible()
+  const all = await lessons.count()
+  expect(all).toBeGreaterThan(3)
   await page.locator('#library-search').fill('eclipse')
-  await expect(page.locator('.hud-lesson-card')).toHaveCount(1)
-  // Closing the library without a lesson goes back to exploring.
+  await expect(lessons).toHaveCount(1)
+  // Closing the start page without a lesson goes back to exploring.
   await page.keyboard.press('Escape')
-  await expect(page.locator('#lesson-library')).toBeHidden()
-  await expect(page.locator('#explore-mode-btn')).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.locator('#start-page')).toBeHidden()
+  await expect(page.locator('body')).toHaveAttribute('data-context', 'explore')
 
   await openLesson(page, 'moonPhases')
   await page.locator('#lesson-next-chapter').click()
   await page.locator('#lesson-next-chapter').click()
   await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-id', 'same-face')
-  await page.locator('#explore-mode-btn').click()
+  await page.locator('#leave-btn').click()
 
-  await page.locator('#learn-mode-btn').click()
+  await page.locator('#start-btn').click()
+  // The search box starts empty again.
+  await expect(page.locator('#library-search')).toHaveValue('')
   await expect(page.locator('.hud-lesson-card[data-lesson-id="moonPhases"]')).toContainText('Continue at chapter 3')
   await page.locator('.hud-lesson-card[data-lesson-id="moonPhases"]').click()
   await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-id', 'same-face')
@@ -60,8 +64,12 @@ test("a lesson's scene zooms in and goes back to the lesson's own view", async (
   await expect(page.locator('#phases-full-label')).toBeVisible()
   const framed = await labelSpread(page)
 
-  await page.locator('#lesson-zoom-in').click()
-  await page.locator('#lesson-zoom-in').click()
+  // Scrolling over the scene zooms (toward the pointer, here the middle).
+  const box = (await page.locator('#scene').boundingBox())!
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 3)
+  await page.mouse.wheel(0, -400)
+  await page.waitForTimeout(200)
+  await page.mouse.wheel(0, -400)
   await expect.poll(() => labelSpread(page), { timeout: 15_000 }).toBeGreaterThan(framed * 1.4)
 
   await page.locator('#lesson-view-reset').click()
@@ -69,7 +77,7 @@ test("a lesson's scene zooms in and goes back to the lesson's own view", async (
   expect(errors).toEqual([])
 })
 
-test('graphics switches live in Settings; search everything finds objects, lessons and settings', async ({ page }) => {
+test('graphics switches live in More; search everything finds objects, lessons, tours and settings', async ({ page }) => {
   await openApp(page)
 
   await page.locator('#settings-btn').click()
@@ -95,4 +103,10 @@ test('graphics switches live in Settings; search everything finds objects, lesso
   await page.locator('#palette-input').fill('seasons')
   await page.keyboard.press('Enter')
   await expect(page.locator('body')).toHaveAttribute('data-lesson-id', 'seasons')
+
+  // A tour, found by its title: it ends the lesson.
+  await page.keyboard.press('Control+k')
+  await page.locator('#palette-input').fill('all four giant')
+  await page.keyboard.press('Enter')
+  await expect(page.locator('body')).toHaveAttribute('data-context', 'mission')
 })

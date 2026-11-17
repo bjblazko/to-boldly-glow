@@ -49,16 +49,11 @@
 .hud-palette,
 .hud-library,
 .hud-about,
-.hud-modes,
-.hud-top-actions,
-.hud-view-controls,
 .hud-lesson-panel,
 .hud-phase-inset,
 .hud-route-clock,
 .hud-mission-card,
-.hud-mission-bar,
 .hud-camera-hint,
-.hud-welcome,
 .hud-browser-hint,
 .gpu-lost-alert {
   font-family: var(--hud-font);
@@ -72,15 +67,10 @@
 .hud-palette,
 .hud-library,
 .hud-about,
-.hud-modes,
-.hud-top-actions,
-.hud-view-controls,
 .hud-lesson-panel,
 .hud-phase-inset,
 .hud-route-clock,
 .hud-mission-card,
-.hud-mission-bar,
-.hud-welcome,
 .hud-browser-hint,
 .gpu-lost-alert {
   --hud-slab-depth: 7px;
@@ -99,15 +89,10 @@
 .hud-palette::before,
 .hud-library::before,
 .hud-about::before,
-.hud-modes::before,
-.hud-top-actions::before,
-.hud-view-controls::before,
 .hud-lesson-panel::before,
 .hud-phase-inset::before,
 .hud-route-clock::before,
 .hud-mission-card::before,
-.hud-mission-bar::before,
-.hud-welcome::before,
 .hud-browser-hint::before,
 .gpu-lost-alert::before {
   content: '';
@@ -129,15 +114,10 @@
 .hud-palette::after,
 .hud-library::after,
 .hud-about::after,
-.hud-modes::after,
-.hud-top-actions::after,
-.hud-view-controls::after,
 .hud-lesson-panel::after,
 .hud-phase-inset::after,
 .hud-route-clock::after,
 .hud-mission-card::after,
-.hud-mission-bar::after,
-.hud-welcome::after,
 .hud-browser-hint::after,
 .gpu-lost-alert::after {
   content: '';
@@ -208,9 +188,6 @@
   height: 20px;
   color: var(--hud-dock-accent);
 }
-.hud-dock-btn[data-panel='camera'] {
-  --hud-dock-accent: var(--hud-accent-camera);
-}
 .hud-dock-btn[data-panel='time'] {
   --hud-dock-accent: var(--hud-accent-time);
 }
@@ -249,116 +226,13 @@
   box-shadow: 0 0 14px rgba(255, 59, 189, 0.9);
 }
 
-/* -------------------- top bar: mode switch, search everything, settings -------------------- */
-.hud-modes {
-  --hud-slab-depth: 6px;
-  position: fixed;
-  top: 14px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 6px;
-  padding: 6px 9px 9px 6px;
-  z-index: 3;
-}
-.hud-mode-btn {
-  appearance: none;
-  border: none;
-  border-radius: 0;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 9px 18px;
-  background: transparent;
-  color: var(--hud-dim);
-  font: inherit;
-  font-size: 14px;
-  font-weight: 600;
-  transition:
-    background 0.12s ease,
-    color 0.12s ease;
-}
-.hud-mode-btn:hover {
-  color: var(--hud-text);
-}
-/* The current mode: an opaque white key with a gold edge, like the scale switch's choice. */
-.hud-mode-btn.is-active {
-  color: #0b0d18;
-  background: linear-gradient(115deg, #fff 0 30%, #eef0f8 30%);
-  box-shadow:
-    var(--hud-ex-gold),
-    0 0 24px rgba(255, 207, 74, 0.35);
-}
-.hud-mode-btn:focus-visible,
-.hud-top-btn:focus-visible,
-.hud-show-ui:focus-visible {
-  outline: 2px solid #fff;
-  outline-offset: 3px;
-}
-/* Search everything and settings: a small slab of their own, level with the mode switch, holding
-   flat keys like the dock's. */
-.hud-top-actions {
-  --hud-slab-depth: 5px;
-  position: fixed;
-  top: 14px;
-  right: 24px;
-  display: flex;
-  gap: 4px;
-  padding: 6px;
-  z-index: 3;
-}
-.hud-top-btn {
-  position: relative;
-  appearance: none;
-  border: none;
-  border-radius: 0;
-  cursor: pointer;
-  display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
-  color: rgba(236, 240, 255, 0.78);
-  background: transparent;
-  transition:
-    background 0.12s ease,
-    color 0.12s ease;
-}
-.hud-top-btn:hover {
-  color: var(--hud-text);
-  background: rgba(255, 255, 255, 0.07);
-}
-.hud-top-btn:active {
-  background: rgba(255, 255, 255, 0.12);
-}
-/* The open settings: lit like the dock's open panel, with its dichroic bar. */
-.hud-top-btn.is-active {
-  color: #fff;
-  background: linear-gradient(132deg, rgba(255, 255, 255, 0.2) 0 40%, rgba(255, 255, 255, 0.08) 40%);
-  box-shadow:
-    var(--hud-lit),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.22),
-    0 0 30px -6px rgba(255, 59, 189, 0.8);
-}
-.hud-top-btn.is-active::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 3px;
-  background: var(--hud-dichroic);
-  box-shadow: 0 0 14px rgba(255, 59, 189, 0.9);
-}
-
 /* Hidden interface (Explore only): nothing but the scene and its labels, and one quiet key in the
-   hide button's exact spot (the top actions' 14px + 6px padding from the top, 24px + 6px from the
-   right) to bring it all back. visibility, not display, so open panels return as they were and
+   top right corner to bring it all back. visibility, not display, so open panels return as they were and
    nothing hidden keeps the keyboard focus. */
 body[data-app-mode='learn'] #hide-ui-btn {
   display: none;
 }
-body[data-ui-hidden] :is(.hud-modes, .hud-top-actions, .hud-dock, .hud-sheet, .hud-popover, .hud-palette, .hud-camera-hint, .hud-controls, .hud-touch-pad) {
+body[data-ui-hidden] :is(.hud-follow-chip, .hud-library, .hud-dock, .hud-sheet, .hud-popover, .hud-palette, .hud-camera-hint, .hud-controls, .hud-touch-pad) {
   visibility: hidden;
 }
 .hud-show-ui {
@@ -409,28 +283,6 @@ body[data-ui-hidden] :is(.hud-modes, .hud-top-actions, .hud-dock, .hud-sheet, .h
   background: rgba(8, 10, 22, 0.6);
   pointer-events: none;
 }
-.hud-scale-note {
-  appearance: none;
-  display: none;
-  margin: 2px 0 0;
-  padding: 0;
-  border: none;
-  background: none;
-  font: inherit;
-  text-align: left;
-  color: var(--hud-dim);
-  cursor: pointer;
-  pointer-events: auto;
-}
-.hud-scale-note:hover {
-  color: var(--hud-text);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-.hud-scale-note:focus-visible {
-  outline: 2px solid #fff;
-  outline-offset: 2px;
-}
 /* "Voice loading …": the narrator's clip is still on its way, so the quiet is not a fault. */
 .hud-voice-status {
   margin: 2px 0 0;
@@ -461,8 +313,8 @@ body[data-ui-hidden] :is(.hud-modes, .hud-top-actions, .hud-dock, .hud-sheet, .h
   }
 }
 /* Follows the scale switch's choice at once, not the end of the scene's eased transition. */
-body:has(#scale-mode-compact-btn[aria-pressed='true']) .hud-scale-note {
-  display: block;
+body:has(#scale-mode-compact-btn[aria-pressed='true']) .hud-beta-scale {
+  display: inline;
 }
 
 /* About: a modal slab like the lesson library, its text scrolling inside. */
@@ -683,9 +535,6 @@ body:has(#scale-mode-compact-btn[aria-pressed='true']) .hud-scale-note {
     opacity 0.16s ease;
   z-index: 2;
 }
-.hud-sheet:has(.hud-sheet-panel[data-panel='camera'].is-active) {
-  --hud-slab-glow: rgba(34, 225, 255, 0.5);
-}
 .hud-sheet:has(.hud-sheet-panel[data-panel='time'].is-active) {
   --hud-slab-glow: rgba(255, 207, 74, 0.45);
 }
@@ -723,9 +572,6 @@ body:has(#scale-mode-compact-btn[aria-pressed='true']) .hud-scale-note {
 .hud-sheet-head .icon {
   width: 19px;
   height: 19px;
-}
-.hud-sheet-panel[data-panel='camera'] .hud-sheet-head .icon {
-  color: var(--hud-accent-camera);
 }
 .hud-sheet-panel[data-panel='time'] .hud-sheet-head .icon {
   color: var(--hud-accent-time);
@@ -887,109 +733,6 @@ body:has(#scale-mode-compact-btn[aria-pressed='true']) .hud-scale-note {
 }
 
 /* The object tree: groups that fold open, bodies as rows, moons indented under their planet. */
-.hud-tree {
-  margin-top: -4px;
-}
-.hud-tree-group {
-  margin-bottom: 2px;
-}
-.hud-tree-summary {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 10px;
-  list-style: none;
-  cursor: pointer;
-  font-size: 13.5px;
-  font-weight: 600;
-  background: rgba(255, 255, 255, 0.035);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
-}
-.hud-tree-summary::-webkit-details-marker {
-  display: none;
-}
-/* A small chevron that turns down when the group is open. */
-.hud-tree-summary::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  border-right: 1.5px solid var(--hud-dim);
-  border-bottom: 1.5px solid var(--hud-dim);
-  transform: rotate(-45deg);
-  transition: transform 0.12s ease;
-}
-.hud-tree-group[open] > .hud-tree-summary::before {
-  transform: rotate(45deg);
-}
-.hud-tree-summary:hover {
-  background: rgba(255, 255, 255, 0.07);
-}
-.hud-tree-summary:focus-visible {
-  outline: 2px solid #fff;
-  outline-offset: -2px;
-}
-.hud-tree-count {
-  margin-left: auto;
-  font-family: var(--hud-mono);
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--hud-dim);
-}
-.hud-tree-list {
-  list-style: none;
-  margin: 0;
-  padding: 2px 0 4px;
-}
-/* Moons hang under their planet, along a hairline. */
-.hud-tree-list .hud-tree-list {
-  margin-left: 14px;
-  padding: 0 0 2px;
-  box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.14);
-}
-.hud-tree-item {
-  appearance: none;
-  border: none;
-  border-radius: 0;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  padding: 7px 12px;
-  background: transparent;
-  color: var(--hud-text);
-  text-align: left;
-  font: inherit;
-  font-size: 14px;
-  font-weight: 500;
-}
-.hud-tree-list .hud-tree-list .hud-tree-item {
-  color: rgba(236, 240, 255, 0.82);
-  font-size: 13.5px;
-}
-.hud-tree-item:hover {
-  background: linear-gradient(90deg, rgba(34, 225, 255, 0.24), rgba(34, 225, 255, 0.02));
-  box-shadow: inset 2px 0 0 var(--hud-cyan);
-}
-.hud-tree-item:focus-visible {
-  outline: 2px solid #fff;
-  outline-offset: -2px;
-}
-.hud-tree-item mark {
-  background: none;
-  color: var(--hud-cyan);
-  font-weight: 700;
-}
-/* The body the camera follows. */
-.hud-tree-item[aria-current]::after {
-  content: '';
-  width: 7px;
-  height: 7px;
-  margin-left: auto;
-  background: var(--hud-gold);
-  box-shadow: 0 0 10px var(--hud-gold);
-}
-
 .hud-chip {
   display: flex;
   align-items: center;
@@ -1397,21 +1140,7 @@ body:has(#scale-mode-compact-btn[aria-pressed='true']) .hud-scale-note {
   .hud-dock-label {
     display: none;
   }
-  .hud-modes {
-    left: 12px;
-    transform: none;
-  }
-  .hud-mode-btn {
-    padding: 9px 12px;
-  }
 }
-/* The smallest phones: the mode switch keeps its words and drops its icons. */
-@media (max-width: 360px) {
-  .hud-mode-btn .icon {
-    display: none;
-  }
-}
-
 /* -------------------- app mode: learn -------------------- */
 .hud-lesson-panel {
   --hud-slab-glow: rgba(255, 207, 74, 0.45);
@@ -1507,32 +1236,17 @@ body:has(#scale-mode-compact-btn[aria-pressed='true']) .hud-scale-note {
   padding-bottom: 12px;
 }
 
-/* In a lesson the lesson dock takes the explore dock's place, and the scene gets its zoom buttons. */
-.hud-lesson-dock,
-.hud-view-controls {
-  display: none;
-}
-body[data-app-mode='learn'] .hud-explore-dock {
-  display: none;
-}
-body[data-app-mode='learn'] .hud-lesson-dock {
-  display: flex;
-}
-body[data-app-mode='learn'] .hud-view-controls {
-  display: flex;
-}
 /* Lessons frame the camera themselves: the hint on flying and orbiting doesn't apply - nor while
    the library or the palette is open over the scene. */
 body[data-app-mode='learn'] .hud-camera-hint,
 body:has(.hud-library:not([hidden]), .hud-palette:not([hidden])) .hud-camera-hint {
   display: none;
 }
-.hud-lesson-dock .hud-dock-btn:disabled {
+.hud-bar .hud-dock-btn:disabled {
   cursor: default;
   opacity: 0.32;
 }
-.hud-lesson-dock .hud-dock-btn[data-panel] .icon,
-#lesson-library-btn .icon {
+.hud-bar-group[data-for='lesson'] .hud-dock-btn[data-panel] .icon {
   color: var(--hud-dock-accent, #a594ff);
 }
 /* Next: the lesson's main action, with the dichroic face. */
@@ -1620,7 +1334,7 @@ body:has(.hud-library:not([hidden]), .hud-palette:not([hidden])) .hud-camera-hin
 
 /* The Sort list: the same entries as the chapter list, without numbers, each with a hint where its
    name alone would mislead. Only lessons with orders to pick show the button. */
-.hud-lesson-dock .hud-dock-btn[hidden] {
+.hud-bar .hud-dock-btn[hidden] {
   display: none;
 }
 .hud-sort-heading {
@@ -1647,35 +1361,6 @@ body:has(.hud-library:not([hidden]), .hud-palette:not([hidden])) .hud-camera-hin
   box-shadow: inset 2px 0 0 var(--hud-gold);
 }
 
-/* Zoom in / out / back to the lesson's view: a small upright slab on the scene's right edge, its
-   keys flat like the dock's. */
-.hud-view-controls {
-  --hud-slab-depth: 5px;
-  position: fixed;
-  right: 26px;
-  top: 50%;
-  transform: translateY(-50%);
-  flex-direction: column;
-  gap: 4px;
-  padding: 6px;
-  z-index: 1;
-}
-.hud-view-controls .hud-icon-btn {
-  width: 38px;
-  height: 38px;
-  color: rgba(236, 240, 255, 0.78);
-  background: transparent;
-  box-shadow: none;
-}
-.hud-view-controls .hud-icon-btn:hover:not(:disabled) {
-  color: var(--hud-text);
-  background: rgba(255, 255, 255, 0.07);
-}
-.hud-view-controls .hud-icon-btn:active:not(:disabled) {
-  transform: none;
-  background: rgba(255, 255, 255, 0.12);
-  box-shadow: none;
-}
 /* -------------------- lesson library -------------------- */
 .hud-library {
   --hud-slab-glow: rgba(123, 92, 255, 0.6);
@@ -1699,10 +1384,6 @@ body:has(.hud-library:not([hidden]), .hud-palette:not([hidden])) .hud-camera-hin
   min-height: 0;
   overflow-y: auto;
   padding: 4px 18px 20px;
-}
-/* The tour library has no search box above its cards. */
-#tour-library .hud-library-topics {
-  padding-top: 16px;
 }
 .hud-library-cards {
   display: grid;
@@ -1759,7 +1440,6 @@ body:has(.hud-library:not([hidden]), .hud-palette:not([hidden])) .hud-camera-hin
   color: var(--hud-gold);
 }
 .hud-library-empty,
-.hud-tree-empty,
 .hud-palette-empty {
   margin: 8px 0;
   color: var(--hud-dim);
@@ -2170,140 +1850,7 @@ body:has(.hud-library:not([hidden]), .hud-palette:not([hidden])) .hud-controls {
   box-shadow: var(--hud-lit), var(--hud-ring), 1px 1px 0 rgba(255, 255, 255, 0.34);
 }
 
-/* Phones and narrow windows: the mode switch and the four top buttons don't fit side by side (in
-   German, the widest, below about 800px). The mode switch keeps the first row (with its words), the
-   buttons take the right end of a second row beside the beta note, and everything that hangs below
-   the top bar moves down by that row. Last in the file, so it wins over each element's own
-   placement. */
-@media (max-width: 820px) {
-  .hud-top-actions {
-    top: 80px;
-    right: 12px;
-  }
-  .hud-show-ui {
-    top: 86px;
-    right: 18px;
-  }
-  .hud-beta-note {
-    left: 12px;
-    top: 92px;
-    max-width: calc(100vw - 220px);
-  }
-  .hud-settings,
-  .hud-palette,
-  .hud-library,
-  .hud-about,
-  .hud-phase-inset,
-  .hud-route-clock {
-    top: 146px;
-  }
-  /* The steering hint stays clear of the beta note, which grows to four lines with the note on the
-     Compact scale. */
-  .hud-camera-hint {
-    top: 196px;
-  }
-  .hud-settings {
-    right: 12px;
-  }
-  .gpu-lost-alert {
-    top: 152px;
-  }
-  .hud-library,
-  .hud-about {
-    max-height: calc(100vh - 230px);
-  }
-}
-/* A little wider, everything fits in one row - but the beta note, at its full width, would reach
-   under the centered mode switch: it ends short of it instead, wrapping onto more lines. */
-@media (min-width: 821px) and (max-width: 1080px) {
-  .hud-beta-note {
-    max-width: calc(50vw - 215px);
-  }
-}
-
 /* -------------------- narrated tour -------------------- */
-/* The first thing a visitor sees: a slab in the middle of the scene, offering the narrated tour. */
-.hud-welcome {
-  --hud-slab-glow: rgba(255, 59, 189, 0.55);
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 6;
-  width: min(420px, calc(100vw - 40px));
-  box-sizing: border-box;
-  padding: 22px 22px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.hud-welcome[hidden] {
-  display: none;
-}
-/* The steering hint would only crowd the card; it is for later, once the visitor takes the controls. */
-body:has(.hud-welcome:not([hidden])) .hud-camera-hint,
-body:has(.hud-welcome-pill:not([hidden])) .hud-camera-hint {
-  display: none;
-}
-.hud-welcome-title {
-  margin: 0;
-  padding-right: 40px;
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-}
-.hud-welcome-text {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.5;
-  color: var(--hud-dim);
-}
-.hud-welcome .hud-group-title {
-  margin: 4px 0 -4px;
-}
-.hud-welcome #welcome-start {
-  margin: 8px 0 0;
-  padding: 15px 16px;
-  font-size: 16px;
-}
-.hud-welcome-hint {
-  margin: -4px 0 4px;
-  font-family: var(--hud-mono);
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  text-align: center;
-  color: var(--hud-dim);
-}
-.hud-welcome #welcome-explore {
-  margin: 0;
-}
-.hud-welcome-close {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-}
-/* The card, shrunk out of the way: Start, low in the middle, where the subtitles will be. */
-.hud-welcome-pill {
-  position: fixed;
-  left: 50%;
-  bottom: 104px;
-  transform: translateX(-50%);
-  z-index: 3;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--hud-font);
-}
-.hud-welcome-pill[hidden],
-body[data-app-mode='learn'] .hud-welcome-pill,
-body[data-ui-hidden] .hud-welcome-pill {
-  display: none;
-}
-.hud-welcome-pill #welcome-pill-start {
-  margin: 0;
-  white-space: nowrap;
-}
-
 /* The narrator's subtitles over the dock, like a film's: plain text on a dark, see-through band
    that hugs each line. With the interface hidden they stay. */
 .hud-narration {
@@ -2398,4 +1945,273 @@ body[data-ui-hidden] .hud-narration {
 }
 .hud-volume .hud-range {
   flex: 1;
+}
+
+/* -------------------- the one bar -------------------- */
+/* Every control in one slab at the bottom: Start, then the groups for what is going on (only the
+   one for body[data-context] shows), then More - and Leave, in a lesson or a tour. */
+.hud-bar {
+  align-items: stretch;
+  max-width: calc(100vw - 24px);
+  box-sizing: border-box;
+}
+.hud-bar-group {
+  display: none;
+}
+.hud-bar .hud-dock-label,
+.hud-bar .hud-chapter-count {
+  white-space: nowrap;
+}
+body:not([data-context]) .hud-bar-group[data-for='explore'],
+body[data-context='explore'] .hud-bar-group[data-for='explore'],
+body[data-context='lesson'] .hud-bar-group[data-for='lesson'],
+body[data-context='mission'] .hud-bar-group[data-for='mission'],
+body[data-context='tour'] .hud-bar-group[data-for='tour'] {
+  display: contents;
+}
+.hud-bar-sep {
+  flex: none;
+  width: 1px;
+  margin: 8px 4px;
+  background: rgba(255, 255, 255, 0.16);
+}
+body:not([data-context]) .hud-leave-btn,
+body[data-context='explore'] .hud-leave-btn {
+  display: none;
+}
+#start-btn .icon {
+  color: var(--hud-gold);
+}
+#search-btn .icon {
+  color: var(--hud-accent-camera);
+}
+#settings-btn .icon {
+  color: var(--hud-accent-display);
+}
+.hud-leave-btn .icon {
+  color: var(--hud-text);
+}
+
+/* The camera switch: the two modes side by side as one segmented key, "Camera" under them. */
+.hud-camera-switch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  color: rgba(236, 240, 255, 0.72);
+}
+.hud-camera-switch-buttons {
+  display: flex;
+  background: var(--hud-well);
+  box-shadow: var(--hud-well-edge);
+}
+.hud-camera-mode {
+  appearance: none;
+  border: none;
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: transparent;
+  color: rgba(236, 240, 255, 0.72);
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.hud-camera-mode .icon {
+  width: 16px;
+  height: 16px;
+  color: var(--hud-accent-camera);
+}
+.hud-camera-mode:hover {
+  color: var(--hud-text);
+}
+.hud-camera-mode[aria-pressed='true'] {
+  color: #0b0d18;
+  background: linear-gradient(115deg, #fff 0 30%, #eef0f8 30%);
+  box-shadow: var(--hud-ex-cyan);
+}
+.hud-camera-mode[aria-pressed='true'] .icon {
+  color: #0b0d18;
+}
+.hud-camera-mode:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* "Following: Jupiter ×", just above the bar. */
+.hud-follow-chip {
+  position: fixed;
+  left: 50%;
+  bottom: 104px;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+.hud-follow-chip[hidden] {
+  display: none;
+}
+
+/* More: the settings slab, rising above the bar at its right end. */
+.hud-settings {
+  top: auto;
+  bottom: 104px;
+  right: max(16px, calc(50vw - 380px));
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
+}
+.hud-more-actions {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+.hud-more-actions .hud-btn {
+  margin: 0;
+  justify-content: flex-start;
+}
+
+/* The beta chip, top left: quiet, and a way to About. */
+.hud-beta-note {
+  pointer-events: none;
+  padding: 0;
+  border: none;
+  background: none;
+}
+.hud-beta-chip {
+  appearance: none;
+  pointer-events: auto;
+  padding: 4px 8px;
+  border: 1px solid rgba(236, 240, 255, 0.24);
+  border-radius: 2px;
+  font: inherit;
+  font-size: 12px;
+  line-height: 16px;
+  color: rgba(236, 240, 255, 0.78);
+  background: rgba(8, 10, 22, 0.6);
+  cursor: pointer;
+}
+.hud-beta-chip:hover {
+  color: var(--hud-text);
+  background: rgba(8, 10, 22, 0.8);
+}
+.hud-beta-chip:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+.hud-beta-scale {
+  display: none;
+}
+.hud-voice-status {
+  padding: 4px 8px;
+  background: rgba(8, 10, 22, 0.6);
+}
+
+/* -------------------- start page -------------------- */
+/* Everything there is to start, in the middle of the scene: the grand tour on top, then the other
+   tours and the lessons, then exploring on one's own. */
+.hud-start {
+  --hud-slab-glow: rgba(255, 59, 189, 0.55);
+  top: 50%;
+  transform: translate(-50%, calc(-50% - 40px));
+  width: min(780px, calc(100vw - 32px));
+  max-height: calc(100vh - 150px);
+  z-index: 6;
+}
+.hud-start[hidden] {
+  display: none;
+}
+.hud-start .hud-library-topics {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 16px;
+}
+.hud-start-hero {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 18px;
+  align-items: center;
+  padding: 16px 18px;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: var(--hud-lit), var(--hud-ring);
+}
+.hud-start-hero-title {
+  margin: 0 0 6px;
+  font-size: 20px;
+  font-weight: 700;
+}
+.hud-start-text {
+  margin: 0 0 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--hud-dim);
+}
+.hud-start-choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.hud-start-choices .hud-segmented {
+  margin: 0;
+}
+.hud-start-hero-go {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.hud-start-hero-go .hud-btn {
+  margin: 0;
+  padding: 15px 16px;
+  font-size: 16px;
+}
+.hud-start-hint {
+  margin: 0;
+  font-family: var(--hud-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-align: center;
+  color: var(--hud-dim);
+}
+.hud-start-heading {
+  margin: 10px 0 0;
+  padding: 0;
+}
+.hud-start .hud-search {
+  margin: 0;
+}
+.hud-start-explore {
+  margin: 8px 0 0;
+}
+body:has(.hud-start:not([hidden])) :is(.hud-camera-hint, .hud-controls) {
+  display: none;
+}
+
+/* Phones: the bar keeps its icons (labels go, see the 480px rule above) and scrolls sideways if a
+   lesson's controls still don't fit; the start page's hero stacks. */
+@media (max-width: 600px) {
+  .hud-bar {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .hud-camera-mode span {
+    display: none;
+  }
+  .hud-start-hero {
+    grid-template-columns: 1fr;
+  }
+  .hud-start {
+    transform: translate(-50%, calc(-50% - 30px));
+    max-height: calc(100vh - 130px);
+  }
+  .hud-mission-timeline {
+    min-width: 140px;
+  }
 }

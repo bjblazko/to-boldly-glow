@@ -1,9 +1,11 @@
 import { expect, test } from '@playwright/test'
 import { openApp } from './support/appBoot'
 
-test('the info button opens the About dialog with the maker, the links and the licenses', async ({ page, request }) => {
+test('More opens the About dialog with the maker, the links and the licenses', async ({ page, request }) => {
   await openApp(page)
+  await page.locator('#settings-btn').click()
   await page.locator('#about-btn').click()
+  await expect(page.locator('#settings-panel')).toBeHidden()
   const dialog = page.locator('#about-dialog')
   await expect(dialog).toBeVisible()
   await expect(dialog).toContainText('Timo Böwing')
@@ -19,16 +21,23 @@ test('the info button opens the About dialog with the maker, the links and the l
 
   await page.keyboard.press('Escape')
   await expect(dialog).toBeHidden()
-  await expect(page.locator('#about-btn')).toBeFocused()
+})
+
+test('the beta chip opens About, which explains the Compact scale, and focus returns to the chip', async ({ page }) => {
+  await openApp(page)
+  await page.locator('#beta-chip').click()
+  await expect(page.locator('#about-dialog')).toContainText('not true to scale')
+  await page.keyboard.press('Escape')
+  await expect(page.locator('#beta-chip')).toBeFocused()
 })
 
 test('while the About dialog is open, H does not hide the interface', async ({ page }) => {
   await openApp(page)
-  await page.locator('#about-btn').click()
+  await page.locator('#beta-chip').click()
   await page.keyboard.press('h')
   await page.keyboard.press('Escape')
   await expect(page.locator('#about-dialog')).toBeHidden()
-  await expect(page.locator('.hud-explore-dock')).toBeVisible()
+  await expect(page.locator('#hud-bar')).toBeVisible()
 })
 
 test('the palette opens the About dialog', async ({ page }) => {
@@ -41,6 +50,6 @@ test('the palette opens the About dialog', async ({ page }) => {
 
 test('the About dialog shows the app’s version', async ({ page }) => {
   await openApp(page)
-  await page.locator('#about-btn').click()
+  await page.locator('#beta-chip').click()
   await expect(page.locator('#about-version')).toHaveText(/^Version \d+\.\d+\.\d+$/)
 })

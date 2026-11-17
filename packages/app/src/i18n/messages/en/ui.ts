@@ -1,18 +1,29 @@
 // The interface's texts: index.html's (by data-i18n path) and the HUD's.
 export const ui = {
-  beta: 'Beta version',
-  // Under the beta note while the scale is Compact.
-  scaleNote: 'Compact scale: sizes and distances are not true to scale. Change it under View.',
-  welcome: {
+  beta: 'Beta',
+  // After the beta note while the scale is Compact.
+  betaCompact: ' · compact scale',
+  // The start page: everything there is to start (the bar's Start button, and a first visit).
+  start: {
     title: 'Welcome aboard',
-    text: 'A guided flight through the Solar System: from the Sun out to Neptune, and home to Earth, with a narrator telling you what makes each world special.',
-    language: 'Language',
-    start: 'Start the tour',
-    startHint: 'With sound · about 8 minutes',
-    explore: 'Explore on my own',
-    // The card shrunk to a small button, once the visitor does something else first.
-    pill: 'Start the tour · 8 min',
     close: 'Close',
+    grandText: 'From the Sun out to Neptune, and home to Earth, with a narrator telling you what makes each world special.',
+    grandStart: 'Start the tour',
+    grandHint: 'With sound · about 8 minutes',
+    tours: 'More tours',
+    lessons: 'Lessons',
+    explore: 'Explore on my own',
+  },
+  // The one bar at the bottom.
+  bar: {
+    label: 'Controls',
+    start: 'Start',
+    search: 'Search',
+    more: 'More',
+    leave: 'Leave',
+    endTour: 'End tour',
+    resetView: 'Reset view',
+    play: 'Play',
   },
   narration: {
     title: 'Narrated tour',
@@ -21,16 +32,9 @@ export const ui = {
     voice: 'Narrator',
     loading: 'Voice loading …',
   },
-  modes: {
-    group: 'Mode',
-    explore: 'Explore',
-    learn: 'Learn',
-    tours: 'Tours',
-  },
-  // The Tours mode's library: the narrated tours.
+
+  // The tours' words where the start page and search name them.
   tours: {
-    library: 'Tours',
-    close: 'Close the tours',
     grand: {
       title: 'The grand tour',
       meta: 'Narrated · about 8 minutes · the Sun out to Neptune, and home to Earth',
@@ -39,16 +43,14 @@ export const ui = {
   top: {
     search: 'Search everything',
     searchTitle: 'Search everything (Ctrl+K)',
-    settings: 'Settings',
     about: 'About, imprint and licenses',
     hide: 'Hide interface',
-    hideTitle: 'Hide interface (H)',
     show: 'Show interface',
     showTitle: 'Show interface (H)',
   },
   settings: {
-    title: 'Settings',
-    close: 'Close settings',
+    title: 'More',
+    close: 'Close',
     tabs: { general: 'General', video: 'Video', audio: 'Audio' },
     language: 'Language',
     graphics: 'Graphics',
@@ -63,9 +65,9 @@ export const ui = {
     musicVolume: 'Volume',
   },
   palette: {
-    placeholder: 'Objects, lessons, settings…',
+    placeholder: 'Objects, tours, lessons, settings…',
     results: 'Results',
-    groups: { objects: 'Objects', lessons: 'Lessons', settings: 'Settings' },
+    groups: { objects: 'Objects', tours: 'Tours', lessons: 'Lessons', settings: 'Settings' },
     on: 'On',
     off: 'Off',
     current: 'Current',
@@ -83,14 +85,8 @@ export const ui = {
     spacecraft: 'Spacecraft',
   },
   find: {
-    title: 'Find',
-    close: 'Close find panel',
-    placeholder: 'Search the Sun, planets, moons, comets, spacecraft…',
-    tree: 'Objects',
     stopFollowing: 'Stop following',
     following: (name: string) => `Following: ${name}`,
-    nothingFound: 'Nothing found',
-    groups: { sun: 'Sun', planets: 'Planets', dwarfPlanets: 'Dwarf planets', asteroids: 'Asteroids', comets: 'Comets', spacecraft: 'Spacecraft' },
   },
   // The controls overlay: the keys and gestures of the camera mode in use, as keycaps.
   controls: {
@@ -130,12 +126,8 @@ export const ui = {
     },
   },
   camera: {
-    title: 'Camera',
-    close: 'Close camera panel',
-    toFly: 'Switch to Free-fly Camera',
-    toOrbit: 'Switch to Orbit Camera',
-    startTour: 'Start Flyby',
-    stopTour: 'Stop Tour',
+    orbit: 'Orbit',
+    fly: 'Free flight',
     flightSpeed: (factor: string) => `Flight speed ×${factor}`,
   },
   touch: {
@@ -185,13 +177,9 @@ export const ui = {
     milkyWay: 'Milky Way',
   },
   dock: {
-    explore: 'Explore',
-    find: 'Find',
     camera: 'Camera',
     time: 'Time',
     view: 'View',
-    lesson: 'Lesson',
-    library: 'Library',
     sort: 'Sort',
     previousChapter: 'Previous chapter',
     back: 'Back',
@@ -203,8 +191,6 @@ export const ui = {
   },
   lesson: {
     sortHeading: 'Line the planets up by',
-    library: 'Lessons',
-    closeLibrary: 'Close the lesson library',
     searchPlaceholder: 'Search lessons…',
     noMatch: 'No lesson matches',
     chapterCount: (count: number) => `${count} chapters`,
@@ -212,12 +198,6 @@ export const ui = {
     continueAt: (chapter: number) => `Continue at chapter ${chapter}`,
     hideText: 'Hide the text',
     showText: 'Show the text',
-    viewControls: 'Lesson view',
-    zoomIn: 'Zoom in',
-    zoomInTitle: 'Zoom in - or scroll, or pinch',
-    zoomOut: 'Zoom out',
-    zoomOutTitle: 'Zoom out - or scroll, or pinch',
-    resetView: "Back to the lesson's view",
     resetViewTitle: "Back to the lesson's view - drag the scene to turn it a little",
     autoplay: 'Play the lesson: turn the pages by themselves',
     autoplayStop: 'Stop playing: turn the pages yourself',
@@ -242,6 +222,7 @@ export const ui = {
     betaBefore: 'This is a ',
     beta: 'beta version',
     betaAfter: '.',
+    scale: 'The Compact scale, where the app starts, makes the planets bigger and brings them closer, so they can be seen together: sizes and distances are not true to scale. Switch to Realistic under View.',
     madeBy: 'Made by Timo Böwing.',
     version: (number: string) => `Version ${number}`,
     projectPage: 'Project page',

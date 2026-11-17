@@ -1,19 +1,30 @@
 import type { Messages } from '../en'
 
 export const ui: Messages['ui'] = {
-  beta: 'Beta-Version',
-  // Under the beta note while the scale is Compact.
-  scaleNote: 'Kompakter Maßstab: Größen und Abstände sind nicht maßstabsgetreu. Umstellen unter „Ansicht“.',
-  welcome: {
+  beta: 'Beta',
+  // After the beta note while the scale is Compact.
+  betaCompact: ' · kompakter Maßstab',
+  // The start page: everything there is to start (the bar's Start button, and a first visit).
+  start: {
     title: 'Willkommen an Bord',
-    text: 'Ein geführter Flug durchs Sonnensystem: von der Sonne hinaus bis zum Neptun und zurück zur Erde – und eine Stimme erzählt dir, was jede dieser Welten besonders macht.',
-    language: 'Sprache',
-    start: 'Tour starten',
-    startHint: 'Mit Ton · etwa 8 Minuten',
-    explore: 'Selbst erkunden',
-    // The card shrunk to a small button, once the visitor does something else first.
-    pill: 'Tour starten · 8 Min.',
     close: 'Schließen',
+    grandText: 'Von der Sonne hinaus bis zum Neptun und zurück zur Erde – und eine Stimme erzählt dir, was jede dieser Welten besonders macht.',
+    grandStart: 'Tour starten',
+    grandHint: 'Mit Ton · etwa 8 Minuten',
+    tours: 'Weitere Touren',
+    lessons: 'Lektionen',
+    explore: 'Selbst erkunden',
+  },
+  // The one bar at the bottom.
+  bar: {
+    label: 'Steuerung',
+    start: 'Start',
+    search: 'Suchen',
+    more: 'Mehr',
+    leave: 'Verlassen',
+    endTour: 'Tour beenden',
+    resetView: 'Ansicht zurück',
+    play: 'Abspielen',
   },
   narration: {
     title: 'Erzählte Tour',
@@ -22,16 +33,8 @@ export const ui: Messages['ui'] = {
     voice: 'Erzählstimme',
     loading: 'Stimme lädt …',
   },
-  modes: {
-    group: 'Modus',
-    explore: 'Erkunden',
-    learn: 'Lernen',
-    tours: 'Touren',
-  },
-  // The Tours mode's library: the narrated tours.
+  // The tours' words where the start page and search name them.
   tours: {
-    library: 'Touren',
-    close: 'Touren schließen',
     grand: {
       title: 'Die große Tour',
       meta: 'Erzählt · etwa 8 Minuten · von der Sonne bis zum Neptun und zurück zur Erde',
@@ -40,16 +43,14 @@ export const ui: Messages['ui'] = {
   top: {
     search: 'Alles durchsuchen',
     searchTitle: 'Alles durchsuchen (Strg+K)',
-    settings: 'Einstellungen',
     about: 'Über, Impressum und Lizenzen',
     hide: 'Oberfläche ausblenden',
-    hideTitle: 'Oberfläche ausblenden (H)',
     show: 'Oberfläche einblenden',
     showTitle: 'Oberfläche einblenden (H)',
   },
   settings: {
-    title: 'Einstellungen',
-    close: 'Einstellungen schließen',
+    title: 'Mehr',
+    close: 'Mehr schließen',
     tabs: { general: 'Allgemein', video: 'Video', audio: 'Audio' },
     language: 'Sprache',
     graphics: 'Grafik',
@@ -64,9 +65,9 @@ export const ui: Messages['ui'] = {
     musicVolume: 'Lautstärke',
   },
   palette: {
-    placeholder: 'Himmelskörper, Lektionen, Einstellungen…',
+    placeholder: 'Himmelskörper, Touren, Lektionen, Einstellungen…',
     results: 'Ergebnisse',
-    groups: { objects: 'Himmelskörper', lessons: 'Lektionen', settings: 'Einstellungen' },
+    groups: { objects: 'Himmelskörper', tours: 'Touren', lessons: 'Lektionen', settings: 'Einstellungen' },
     on: 'An',
     off: 'Aus',
     current: 'Aktuell',
@@ -84,14 +85,8 @@ export const ui: Messages['ui'] = {
     spacecraft: 'Raumsonde',
   },
   find: {
-    title: 'Suchen',
-    close: 'Suche schließen',
-    placeholder: 'Sonne, Planeten, Monde, Kometen, Raumsonden suchen…',
-    tree: 'Himmelskörper',
     stopFollowing: 'Nicht mehr folgen',
     following: (name) => `Folgt: ${name}`,
-    nothingFound: 'Nichts gefunden',
-    groups: { sun: 'Sonne', planets: 'Planeten', dwarfPlanets: 'Zwergplaneten', asteroids: 'Asteroiden', comets: 'Kometen', spacecraft: 'Raumsonden' },
   },
   controls: {
     title: 'Steuerung',
@@ -130,12 +125,8 @@ export const ui: Messages['ui'] = {
     },
   },
   camera: {
-    title: 'Kamera',
-    close: 'Kamera schließen',
-    toFly: 'Zur Freiflug-Kamera wechseln',
-    toOrbit: 'Zur Orbit-Kamera wechseln',
-    startTour: 'Rundflug starten',
-    stopTour: 'Tour beenden',
+    orbit: 'Umkreisen',
+    fly: 'Freiflug',
     flightSpeed: (factor) => `Fluggeschwindigkeit ×${factor}`,
   },
   touch: {
@@ -185,13 +176,9 @@ export const ui: Messages['ui'] = {
     milkyWay: 'Milchstraße',
   },
   dock: {
-    explore: 'Erkunden',
-    find: 'Suchen',
     camera: 'Kamera',
     time: 'Zeit',
     view: 'Ansicht',
-    lesson: 'Lektion',
-    library: 'Bibliothek',
     sort: 'Sortieren',
     previousChapter: 'Vorheriges Kapitel',
     back: 'Zurück',
@@ -203,8 +190,6 @@ export const ui: Messages['ui'] = {
   },
   lesson: {
     sortHeading: 'Planeten aufreihen nach',
-    library: 'Lektionen',
-    closeLibrary: 'Bibliothek schließen',
     searchPlaceholder: 'Lektionen suchen…',
     noMatch: 'Keine passende Lektion',
     chapterCount: (count) => `${count} Kapitel`,
@@ -212,12 +197,6 @@ export const ui: Messages['ui'] = {
     continueAt: (chapter) => `Weiter bei Kapitel ${chapter}`,
     hideText: 'Text ausblenden',
     showText: 'Text einblenden',
-    viewControls: 'Ansicht der Lektion',
-    zoomIn: 'Vergrößern',
-    zoomInTitle: 'Vergrößern – oder scrollen, oder mit zwei Fingern',
-    zoomOut: 'Verkleinern',
-    zoomOutTitle: 'Verkleinern – oder scrollen, oder mit zwei Fingern',
-    resetView: 'Zurück zur Ansicht der Lektion',
     resetViewTitle: 'Zurück zur Ansicht der Lektion – zieh an der Szene, um sie etwas zu drehen',
     autoplay: 'Lektion abspielen: Kapitel blättern von selbst um',
     autoplayStop: 'Abspielen beenden: selbst umblättern',
@@ -242,6 +221,7 @@ export const ui: Messages['ui'] = {
     betaBefore: 'Dies ist eine ',
     beta: 'Beta-Version',
     betaAfter: '.',
+    scale: 'Der kompakte Maßstab, mit dem die App startet, macht die Planeten größer und rückt sie näher zusammen, damit man sie gemeinsam sieht: Größen und Abstände sind nicht maßstabsgetreu. Umstellen auf „Realistisch“ unter „Ansicht“.',
     madeBy: 'Gemacht von Timo Böwing.',
     version: (number: string) => `Version ${number}`,
     projectPage: 'Projektseite',

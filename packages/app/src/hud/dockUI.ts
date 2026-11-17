@@ -1,8 +1,8 @@
-export type PanelName = 'find' | 'camera' | 'time' | 'view'
+export type PanelName = 'time' | 'view'
 
-// Wires the dock buttons to the sheet above them — only one panel open at a time; clicking the
-// already-active dock button, or the panel's close button, closes the sheet. Both docks (explore
-// and lesson) have a View button; whichever is showing opens the same panel.
+// Wires the bar's panel buttons (Time, View) to the sheet above the bar — only one panel open at a
+// time; clicking the already-active button, the panel's close button, or the scene closes it. The
+// bar has a View button in each of its groups; whichever is showing opens the same panel.
 export class DockUI {
   private activePanel: PanelName | null = null
 
@@ -28,8 +28,8 @@ export class DockUI {
     if (this.activePanel !== panel) this.togglePanel(panel)
   }
 
-  // Closes whichever panel is currently open, if any — used when switching between explore and
-  // learn, so a sheet left open doesn't linger behind the other mode's dock.
+  // Closes whichever panel is currently open, if any — on a press on the scene, when another menu
+  // opens, and when a lesson starts or ends, so a sheet left open doesn't linger.
   closeActivePanel(): void {
     if (this.activePanel === null) return
     this.togglePanel(this.activePanel)

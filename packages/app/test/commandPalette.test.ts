@@ -27,4 +27,15 @@ describe('filterPaletteItems', () => {
     const many = Array.from({ length: 20 }, (_, index) => item('Objects', `Body ${index}`))
     expect(filterPaletteItems(many, '')).toHaveLength(6)
   })
+
+  it('puts the tours between the objects and the lessons', () => {
+    const withTour = [...items, item('Tours', 'Voyager 1: to the Moon and beyond')]
+    expect(filterPaletteItems(withTour, 'moon').map((entry) => entry.group)).toEqual(['Objects', 'Tours', 'Lessons', 'Settings'])
+  })
+
+  it('also finds an item by its detail - the moons of a planet by its name - after the label matches', () => {
+    const io: PaletteItem = { group: 'Objects', label: 'Io', detail: 'Moon of Jupiter', run: () => {} }
+    const jupiter: PaletteItem = { group: 'Objects', label: 'Jupiter', detail: 'Planet', run: () => {} }
+    expect(filterPaletteItems([io, jupiter], 'jupiter').map((entry) => entry.label)).toEqual(['Jupiter', 'Io'])
+  })
 })

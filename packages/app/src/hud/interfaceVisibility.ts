@@ -1,12 +1,13 @@
 import { isTextEntryTarget } from '../camera/input/keyboardState'
 
 // Hides the whole interface in Explore, leaving the scene and its labels, and one quiet button in
-// the hide button's spot to bring it back. H toggles, Escape brings it back, and Ctrl/Cmd+K brings
+// the top right corner to bring it back (the keyboard focus then returns to the bar's More, where
+// hiding is). H toggles, Escape brings it back, and Ctrl/Cmd+K brings
 // it back with the palette open (so the palette never opens unseen).
 export class InterfaceVisibility {
   constructor(
     private readonly body: HTMLElement,
-    private readonly buttons: { hide: HTMLButtonElement; show: HTMLButtonElement },
+    private readonly buttons: { hide: HTMLButtonElement; show: HTMLButtonElement; returnFocus: HTMLButtonElement },
   ) {
     buttons.hide.addEventListener('click', () => this.hide())
     buttons.show.addEventListener('click', () => this.show())
@@ -27,7 +28,7 @@ export class InterfaceVisibility {
   show(): void {
     if (!this.isHidden) return
     this.reveal()
-    this.buttons.hide.focus()
+    this.buttons.returnFocus.focus()
   }
 
   private reveal(): void {

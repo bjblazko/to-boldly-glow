@@ -49,9 +49,13 @@
 
     <div id="voyager-route-clock" class="hud-route-clock" aria-live="off" hidden></div>
 
+    <!-- Always there: the app is a beta - and, while the scale is Compact, not true to scale. A click
+         opens About, which says more. Under it, while the narrator's clip is on its way, the voice
+         loading status. -->
     <div class="hud-beta-note">
-      <span data-i18n="ui.beta">Beta version</span>
-      <button id="scale-note" class="hud-scale-note" type="button" data-i18n="ui.scaleNote">Compact scale: sizes and distances are not true to scale. Change it under View.</button>
+      <button id="beta-chip" class="hud-beta-chip" type="button" aria-haspopup="dialog" aria-controls="about-dialog">
+        <span data-i18n="ui.beta">Beta</span><span class="hud-beta-scale" data-i18n="ui.betaCompact"> · compact scale</span>
+      </button>
       <p id="voice-status" class="hud-voice-status" role="status" data-i18n="ui.narration.loading" hidden>Voice loading …</p>
     </div>
     <dialog id="about-dialog" class="hud-about" aria-labelledby="about-title">
@@ -67,6 +71,7 @@
           <span data-i18n="ui.about.intro">The solar system, live in your browser: explore it, or learn why there are seasons, Moon phases and eclipses.</span>
           <span data-i18n="ui.about.betaBefore">This is a </span><strong data-i18n="ui.about.beta">beta version</strong><span data-i18n="ui.about.betaAfter">.</span>
         </p>
+        <p data-i18n="ui.about.scale">The Compact scale, where the app starts, makes the planets bigger and brings them closer, so they can be seen together: sizes and distances are not true to scale. Switch to Realistic under View.</p>
         <p><span data-i18n="ui.about.madeBy">Made by Timo Böwing.</span> <span id="about-version" class="hud-about-version"></span></p>
         <ul class="hud-about-links">
           <li><a href="https://huepattl.de/products/to-boldly-glow" target="_blank" rel="noopener" data-i18n="ui.about.projectPage">Project page</a></li>
@@ -91,37 +96,7 @@
         <div id="about-credits"></div>
       </div>
     </dialog>
-    <!-- The narrated tour: a welcome card that starts it (with sound, a click being the browser's
-         permission to play it), and the narrator's subtitles with a mute button while it runs. -->
-    <div id="welcome-card" class="hud-welcome" role="dialog" aria-labelledby="welcome-title" hidden>
-      <button id="welcome-close" class="hud-close hud-welcome-close" type="button" aria-label="Close" data-i18n-attr="aria-label:ui.welcome.close">
-        <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
-      </button>
-      <h2 id="welcome-title" class="hud-welcome-title" data-i18n="ui.welcome.title">Welcome aboard</h2>
-      <p class="hud-welcome-text" data-i18n="ui.welcome.text">A guided flight through the Solar System: from the Sun out to Neptune, and home to Earth, with a narrator telling you what makes each world special.</p>
-      <h3 class="hud-group-title" id="welcome-language-title" data-i18n="ui.welcome.language">Language</h3>
-      <div id="welcome-language" class="hud-segmented" role="group" aria-labelledby="welcome-language-title"></div>
-      <h3 class="hud-group-title" id="welcome-voice-title" data-i18n="ui.narration.voice">Narrator</h3>
-      <div id="welcome-voice" class="hud-segmented" role="group" aria-labelledby="welcome-voice-title"></div>
-      <button id="welcome-start" class="hud-btn hud-btn-primary" type="button">
-        <svg class="icon" aria-hidden="true"><use href="#icon-play"></use></svg>
-        <span data-i18n="ui.welcome.start">Start the tour</span>
-      </button>
-      <p class="hud-welcome-hint" data-i18n="ui.welcome.startHint">With sound · about 8 minutes</p>
-      <button id="welcome-explore" class="hud-btn" type="button">
-        <svg class="icon" aria-hidden="true"><use href="#icon-planet"></use></svg>
-        <span data-i18n="ui.welcome.explore">Explore on my own</span>
-      </button>
-    </div>
-    <div id="welcome-pill" class="hud-welcome-pill" hidden>
-      <button id="welcome-pill-start" class="hud-btn hud-btn-primary" type="button">
-        <svg class="icon" aria-hidden="true"><use href="#icon-play"></use></svg>
-        <span data-i18n="ui.welcome.pill">Start the tour · 8 min</span>
-      </button>
-      <button id="welcome-pill-close" class="hud-close" type="button" aria-label="Close" data-i18n-attr="aria-label:ui.welcome.close">
-        <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
-      </button>
-    </div>
+    <!-- The narrator's subtitles while a narrated tour runs. -->
     <div id="narration-bar" class="hud-narration" role="region" aria-label="Narrated tour" data-i18n-attr="aria-label:ui.narration.title" hidden>
       <p id="narration-subtitle" class="hud-narration-text" aria-live="polite" hidden></p>
     </div>
@@ -304,34 +279,15 @@
         <circle cx="12" cy="12" r="2" />
         <circle cx="19.6" cy="15.1" r="1.4" />
       </symbol>
+      <symbol id="icon-home" viewBox="0 0 24 24">
+        <path d="M4 11.5 12 4.5l8 7" />
+        <path d="M6.5 9.5V19.5h4v-5h3v5h4V9.5" />
+      </symbol>
+      <symbol id="icon-fly" viewBox="0 0 24 24">
+        <path d="M12 3.5 15 13l5.5 3.5v1.5L15 16.5 14 20l-2-1-2 1-1-3.5L3.5 18v-1.5L9 13l3-9.5Z" />
+      </symbol>
     </svg>
 
-    <!-- Top bar: the Explore / Learn mode switch, and search-everything and settings on the right. -->
-    <div class="hud-modes" role="group" aria-label="Mode" data-i18n-attr="aria-label:ui.modes.group">
-      <button id="explore-mode-btn" class="hud-mode-btn is-active" type="button" aria-pressed="true">
-        <svg class="icon" aria-hidden="true"><use href="#icon-planet"></use></svg><span data-i18n="ui.modes.explore">Explore</span>
-      </button>
-      <button id="learn-mode-btn" class="hud-mode-btn" type="button" aria-pressed="false">
-        <svg class="icon" aria-hidden="true"><use href="#icon-book"></use></svg><span data-i18n="ui.modes.learn">Learn</span>
-      </button>
-      <button id="tours-mode-btn" class="hud-mode-btn" type="button" aria-pressed="false">
-        <svg class="icon" aria-hidden="true"><use href="#icon-play"></use></svg><span data-i18n="ui.modes.tours">Tours</span>
-      </button>
-    </div>
-    <div class="hud-top-actions">
-      <button id="palette-btn" class="hud-top-btn" type="button" aria-label="Search everything" title="Search everything (Ctrl+K)" data-i18n-attr="aria-label:ui.top.search;title:ui.top.searchTitle">
-        <svg class="icon" aria-hidden="true"><use href="#icon-search"></use></svg>
-      </button>
-      <button id="settings-btn" class="hud-top-btn" type="button" aria-label="Settings" data-i18n-attr="aria-label:ui.top.settings" aria-expanded="false" aria-controls="settings-panel">
-        <svg class="icon" aria-hidden="true"><use href="#icon-sliders"></use></svg>
-      </button>
-      <button id="about-btn" class="hud-top-btn" type="button" aria-label="About, imprint and licenses" title="About, imprint and licenses" data-i18n-attr="aria-label:ui.top.about;title:ui.top.about" aria-haspopup="dialog" aria-controls="about-dialog">
-        <svg class="icon" aria-hidden="true"><use href="#icon-info"></use></svg>
-      </button>
-      <button id="hide-ui-btn" class="hud-top-btn" type="button" aria-label="Hide interface" title="Hide interface (H)" data-i18n-attr="aria-label:ui.top.hide;title:ui.top.hideTitle">
-        <svg class="icon" aria-hidden="true"><use href="#icon-eye-off"></use></svg>
-      </button>
-    </div>
     <!-- With the interface hidden, the one control left: in the hide button's spot, it brings everything back. -->
     <button id="show-ui-btn" class="hud-show-ui" type="button" aria-label="Show interface" title="Show interface (H)" data-i18n-attr="aria-label:ui.top.show;title:ui.top.showTitle" hidden>
       <svg class="icon" aria-hidden="true"><use href="#icon-eye"></use></svg>
@@ -340,12 +296,12 @@
     <div id="settings-panel" class="hud-popover hud-settings" hidden>
       <div class="hud-sheet-head">
         <svg class="icon" aria-hidden="true"><use href="#icon-sliders"></use></svg>
-        <h2 class="hud-sheet-title" data-i18n="ui.settings.title">Settings</h2>
-        <button class="hud-close" type="button" id="settings-close" aria-label="Close settings" data-i18n-attr="aria-label:ui.settings.close">
+        <h2 class="hud-sheet-title" data-i18n="ui.settings.title">More</h2>
+        <button class="hud-close" type="button" id="settings-close" aria-label="Close" data-i18n-attr="aria-label:ui.settings.close">
           <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
         </button>
       </div>
-      <div id="settings-tabs" class="hud-tabs" role="tablist" aria-label="Settings" data-i18n-attr="aria-label:ui.settings.title">
+      <div id="settings-tabs" class="hud-tabs" role="tablist" aria-label="More" data-i18n-attr="aria-label:ui.settings.title">
         <button id="settings-tab-general" class="hud-tab" type="button" role="tab" aria-selected="true" aria-controls="settings-general" data-i18n="ui.settings.tabs.general">General</button>
         <button id="settings-tab-video" class="hud-tab" type="button" role="tab" aria-selected="false" aria-controls="settings-video" data-i18n="ui.settings.tabs.video">Video</button>
         <button id="settings-tab-audio" class="hud-tab" type="button" role="tab" aria-selected="false" aria-controls="settings-audio" data-i18n="ui.settings.tabs.audio">Audio</button>
@@ -406,6 +362,20 @@
           <input id="music-volume" class="hud-range" type="range" min="0" max="100" value="50" />
         </label>
       </section>
+      <div class="hud-more-actions">
+        <button id="controls-help" class="hud-btn" type="button">
+          <kbd class="hud-kbd" aria-hidden="true">?</kbd>
+          <span class="btn-label" data-i18n="ui.controls.show">Show the controls</span>
+        </button>
+        <button id="about-btn" class="hud-btn" type="button" aria-haspopup="dialog" aria-controls="about-dialog">
+          <svg class="icon" aria-hidden="true"><use href="#icon-info"></use></svg>
+          <span class="btn-label" data-i18n="ui.top.about">About, imprint and licenses</span>
+        </button>
+        <button id="hide-ui-btn" class="hud-btn" type="button">
+          <kbd class="hud-kbd" aria-hidden="true">H</kbd>
+          <span class="btn-label" data-i18n="ui.top.hide">Hide interface</span>
+        </button>
+      </div>
     </div>
 
     <div id="command-palette" class="hud-palette" role="dialog" aria-label="Search everything" data-i18n-attr="aria-label:ui.top.search" hidden>
@@ -419,48 +389,7 @@
 
     <div class="hud-sheet" id="hud-sheet">
       <div class="hud-sheet-scroll">
-        <div class="hud-sheet-panel" data-panel="find">
-          <div class="hud-sheet-head">
-            <svg class="icon" aria-hidden="true"><use href="#icon-search"></use></svg>
-            <h2 class="hud-sheet-title" data-i18n="ui.find.title">Find</h2>
-            <button class="hud-close" type="button" data-sheet-close aria-label="Close find panel" data-i18n-attr="aria-label:ui.find.close">
-              <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
-            </button>
-          </div>
-          <div class="hud-search">
-            <svg class="icon" aria-hidden="true"><use href="#icon-search"></use></svg>
-            <input id="entity-search-input" type="text" placeholder="Search the Sun, planets, moons, comets…" data-i18n-attr="placeholder:ui.find.placeholder" autocomplete="off" spellcheck="false" data-focus-on-open />
-          </div>
-          <div id="entity-tree" class="hud-tree" aria-label="Objects" data-i18n-attr="aria-label:ui.find.tree"></div>
-          <div id="follow-indicator" class="hud-chip" hidden>
-            <span id="follow-indicator-label"></span>
-            <button id="follow-stop-button" class="hud-chip-close" type="button" aria-label="Stop following" data-i18n-attr="aria-label:ui.find.stopFollowing">
-              <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
-            </button>
-          </div>
-        </div>
 
-        <div class="hud-sheet-panel" data-panel="camera">
-          <div class="hud-sheet-head">
-            <svg class="icon" aria-hidden="true"><use href="#icon-camera"></use></svg>
-            <h2 class="hud-sheet-title" data-i18n="ui.camera.title">Camera</h2>
-            <button class="hud-close" type="button" data-sheet-close aria-label="Close camera panel" data-i18n-attr="aria-label:ui.camera.close">
-              <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
-            </button>
-          </div>
-          <button id="camera-mode-toggle" class="hud-btn hud-btn-primary" type="button">
-            <svg class="icon" aria-hidden="true"><use href="#icon-camera"></use></svg>
-            <span class="btn-label" data-i18n="ui.camera.toFly">Switch to Free-fly Camera</span>
-          </button>
-          <button id="camera-tour-toggle" class="hud-btn" type="button">
-            <svg class="icon" aria-hidden="true"><use href="#icon-camera"></use></svg>
-            <span class="btn-label" data-i18n="ui.camera.startTour">Start Flyby</span>
-          </button>
-          <button id="controls-help" class="hud-btn" type="button">
-            <kbd class="hud-kbd" aria-hidden="true">?</kbd>
-            <span class="btn-label" data-i18n="ui.controls.show">Show the controls</span>
-          </button>
-        </div>
 
         <div class="hud-sheet-panel" data-panel="time">
           <div class="hud-sheet-head">
@@ -601,54 +530,110 @@
       </div>
     </div>
 
-    <nav class="hud-dock hud-explore-dock" aria-label="Explore" data-i18n-attr="aria-label:ui.dock.explore">
-      <button class="hud-dock-btn" data-panel="find" type="button">
-        <svg class="icon" aria-hidden="true"><use href="#icon-search"></use></svg>
-        <span class="hud-dock-label" data-i18n="ui.dock.find">Find</span>
+    <!-- Following a body: its name, and a button to let go. Just above the bar. -->
+    <div id="follow-indicator" class="hud-chip hud-follow-chip" hidden>
+      <span id="follow-indicator-label"></span>
+      <button id="follow-stop-button" class="hud-chip-close" type="button" aria-label="Stop following" data-i18n-attr="aria-label:ui.find.stopFollowing">
+        <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
       </button>
-      <button class="hud-dock-btn" data-panel="camera" type="button">
-        <svg class="icon" aria-hidden="true"><use href="#icon-camera"></use></svg>
-        <span class="hud-dock-label" data-i18n="ui.dock.camera">Camera</span>
-      </button>
-      <button class="hud-dock-btn" data-panel="time" type="button">
-        <svg class="icon" aria-hidden="true"><use href="#icon-clock"></use></svg>
-        <span class="hud-dock-label" data-i18n="ui.dock.time">Time</span>
-      </button>
-      <button class="hud-dock-btn" data-panel="view" type="button">
-        <svg class="icon" aria-hidden="true"><use href="#icon-layers"></use></svg>
-        <span class="hud-dock-label" data-i18n="ui.dock.view">View</span>
-      </button>
-    </nav>
+    </div>
 
-    <nav class="hud-dock hud-lesson-dock" aria-label="Lesson" data-i18n-attr="aria-label:ui.dock.lesson">
-      <button id="lesson-library-btn" class="hud-dock-btn" type="button">
-        <svg class="icon" aria-hidden="true"><use href="#icon-book"></use></svg>
-        <span class="hud-dock-label" data-i18n="ui.dock.library">Library</span>
+    <!-- The one bar: every control in one place. Start on the left, More (and Leave, in a lesson or
+         a tour) on the right; between them the groups for what is going on - exploring, a lesson,
+         a mission tour or the grand tour - shown by body[data-context] (see barContext.ts). -->
+    <nav id="hud-bar" class="hud-dock hud-bar" aria-label="Controls" data-i18n-attr="aria-label:ui.bar.label">
+      <button id="start-btn" class="hud-dock-btn" type="button" aria-haspopup="dialog" aria-controls="start-page" aria-expanded="false">
+        <svg class="icon" aria-hidden="true"><use href="#icon-home"></use></svg>
+        <span class="hud-dock-label" data-i18n="ui.bar.start">Start</span>
       </button>
-      <button id="lesson-sort-btn" class="hud-dock-btn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="lesson-sort-menu" hidden>
-        <svg class="icon" aria-hidden="true"><use href="#icon-sort"></use></svg>
-        <span class="hud-dock-label" data-i18n="ui.dock.sort">Sort</span>
+      <span class="hud-bar-sep" aria-hidden="true"></span>
+      <div class="hud-bar-group" data-for="explore">
+        <button id="search-btn" class="hud-dock-btn" type="button" title="Search (Ctrl+K)" data-i18n-attr="title:ui.top.searchTitle">
+          <svg class="icon" aria-hidden="true"><use href="#icon-search"></use></svg>
+          <span class="hud-dock-label" data-i18n="ui.bar.search">Search</span>
+        </button>
+        <div class="hud-camera-switch" role="group" aria-labelledby="camera-switch-label">
+          <div class="hud-camera-switch-buttons">
+            <button id="camera-orbit-btn" class="hud-camera-mode" type="button" aria-pressed="true">
+              <svg class="icon" aria-hidden="true"><use href="#icon-orbit"></use></svg><span data-i18n="ui.camera.orbit">Orbit</span>
+            </button>
+            <button id="camera-fly-btn" class="hud-camera-mode" type="button" aria-pressed="false">
+              <svg class="icon" aria-hidden="true"><use href="#icon-fly"></use></svg><span data-i18n="ui.camera.fly">Free flight</span>
+            </button>
+          </div>
+          <span id="camera-switch-label" class="hud-dock-label" data-i18n="ui.dock.camera">Camera</span>
+        </div>
+        <button class="hud-dock-btn" data-panel="time" type="button">
+          <svg class="icon" aria-hidden="true"><use href="#icon-clock"></use></svg>
+          <span class="hud-dock-label" data-i18n="ui.dock.time">Time</span>
+        </button>
+        <button class="hud-dock-btn" data-panel="view" type="button">
+          <svg class="icon" aria-hidden="true"><use href="#icon-layers"></use></svg>
+          <span class="hud-dock-label" data-i18n="ui.dock.view">View</span>
+        </button>
+      </div>
+      <div class="hud-bar-group" data-for="lesson">
+        <button id="lesson-sort-btn" class="hud-dock-btn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="lesson-sort-menu" hidden>
+          <svg class="icon" aria-hidden="true"><use href="#icon-sort"></use></svg>
+          <span class="hud-dock-label" data-i18n="ui.dock.sort">Sort</span>
+        </button>
+        <button id="lesson-prev-chapter" class="hud-dock-btn" type="button" aria-label="Previous chapter" data-i18n-attr="aria-label:ui.dock.previousChapter">
+          <svg class="icon" aria-hidden="true"><use href="#icon-prev"></use></svg>
+          <span class="hud-dock-label" data-i18n="ui.dock.back">Back</span>
+        </button>
+        <button id="lesson-chapter-btn" class="hud-dock-btn hud-chapter-btn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="lesson-chapter-menu">
+          <span id="lesson-chapter-count" class="hud-chapter-count"></span>
+          <span class="hud-dock-label" data-i18n="ui.dock.chapters">Chapters</span>
+        </button>
+        <button id="lesson-next-chapter" class="hud-dock-btn" type="button" aria-label="Next chapter" data-i18n-attr="aria-label:ui.dock.nextChapter">
+          <svg class="icon" aria-hidden="true"><use href="#icon-next"></use></svg>
+          <span class="hud-dock-label" data-i18n="ui.dock.next">Next</span>
+        </button>
+        <button id="lesson-autoplay" class="hud-dock-btn" type="button" aria-pressed="false" data-state="paused">
+          <svg class="icon icon-pause-glyph" aria-hidden="true"><use href="#icon-pause"></use></svg>
+          <svg class="icon icon-play-glyph" aria-hidden="true"><use href="#icon-play"></use></svg>
+          <span class="hud-dock-label">Play</span>
+        </button>
+        <span class="hud-bar-sep" aria-hidden="true"></span>
+        <button id="lesson-view-reset" class="hud-dock-btn" type="button" title="Back to the lesson's view - drag the scene to look around" data-i18n-attr="title:ui.lesson.resetViewTitle">
+          <svg class="icon" aria-hidden="true"><use href="#icon-reset"></use></svg>
+          <span class="hud-dock-label" data-i18n="ui.bar.resetView">Reset view</span>
+        </button>
+        <button class="hud-dock-btn" data-panel="view" type="button">
+          <svg class="icon" aria-hidden="true"><use href="#icon-layers"></use></svg>
+          <span class="hud-dock-label" data-i18n="ui.dock.view">View</span>
+        </button>
+      </div>
+      <div class="hud-bar-group" data-for="mission">
+        <button id="mission-prev" class="hud-dock-btn" type="button" aria-label="Previous station" data-i18n-attr="aria-label:missions.ui.previous">
+          <svg class="icon" aria-hidden="true"><use href="#icon-prev"></use></svg>
+          <span class="hud-dock-label" data-i18n="ui.dock.back">Back</span>
+        </button>
+        <button id="mission-play" class="hud-dock-btn" type="button" aria-label="Pause" data-state="playing">
+          <svg class="icon icon-pause-glyph" aria-hidden="true"><use href="#icon-pause"></use></svg>
+          <svg class="icon icon-play-glyph" aria-hidden="true"><use href="#icon-play"></use></svg>
+          <span class="hud-dock-label" data-i18n="ui.bar.play">Play</span>
+        </button>
+        <button id="mission-next" class="hud-dock-btn" type="button" aria-label="Next station" data-i18n-attr="aria-label:missions.ui.next">
+          <svg class="icon" aria-hidden="true"><use href="#icon-next"></use></svg>
+          <span class="hud-dock-label" data-i18n="ui.dock.next">Next</span>
+        </button>
+        <ol id="mission-timeline" class="hud-mission-timeline"></ol>
+      </div>
+      <div class="hud-bar-group" data-for="tour">
+        <button class="hud-dock-btn" data-panel="view" type="button">
+          <svg class="icon" aria-hidden="true"><use href="#icon-layers"></use></svg>
+          <span class="hud-dock-label" data-i18n="ui.dock.view">View</span>
+        </button>
+      </div>
+      <span class="hud-bar-sep" aria-hidden="true"></span>
+      <button id="settings-btn" class="hud-dock-btn" type="button" aria-expanded="false" aria-controls="settings-panel">
+        <svg class="icon" aria-hidden="true"><use href="#icon-sliders"></use></svg>
+        <span class="hud-dock-label" data-i18n="ui.bar.more">More</span>
       </button>
-      <button id="lesson-prev-chapter" class="hud-dock-btn" type="button" aria-label="Previous chapter" data-i18n-attr="aria-label:ui.dock.previousChapter">
-        <svg class="icon" aria-hidden="true"><use href="#icon-prev"></use></svg>
-        <span class="hud-dock-label" data-i18n="ui.dock.back">Back</span>
-      </button>
-      <button id="lesson-chapter-btn" class="hud-dock-btn hud-chapter-btn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="lesson-chapter-menu">
-        <span id="lesson-chapter-count" class="hud-chapter-count"></span>
-        <span class="hud-dock-label" data-i18n="ui.dock.chapters">Chapters</span>
-      </button>
-      <button id="lesson-next-chapter" class="hud-dock-btn" type="button" aria-label="Next chapter" data-i18n-attr="aria-label:ui.dock.nextChapter">
-        <svg class="icon" aria-hidden="true"><use href="#icon-next"></use></svg>
-        <span class="hud-dock-label" data-i18n="ui.dock.next">Next</span>
-      </button>
-      <button id="lesson-autoplay" class="hud-dock-btn" type="button" aria-pressed="false" data-state="paused">
-        <svg class="icon icon-pause-glyph" aria-hidden="true"><use href="#icon-pause"></use></svg>
-        <svg class="icon icon-play-glyph" aria-hidden="true"><use href="#icon-play"></use></svg>
-        <span class="hud-dock-label">Play</span>
-      </button>
-      <button class="hud-dock-btn" data-panel="view" type="button">
-        <svg class="icon" aria-hidden="true"><use href="#icon-layers"></use></svg>
-        <span class="hud-dock-label" data-i18n="ui.dock.view">View</span>
+      <button id="leave-btn" class="hud-dock-btn hud-leave-btn" type="button">
+        <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
+        <span id="leave-label" class="hud-dock-label" data-i18n="ui.bar.leave">Leave</span>
       </button>
     </nav>
     <div id="lesson-chapter-menu" class="hud-popover hud-chapter-menu" hidden>
@@ -659,32 +644,50 @@
       <ul id="lesson-sort-list" class="hud-chapter-list hud-sort-list" aria-labelledby="lesson-sort-heading"></ul>
     </div>
 
-    <div id="lesson-library" class="hud-library" role="dialog" aria-label="Lessons" data-i18n-attr="aria-label:ui.lesson.library" hidden>
+    <!-- The start page: everything there is to start - the narrated grand tour (its language and
+         narrator picked here; the click on Start is what lets the browser play its voice), the other
+         tours, the lessons, or exploring on one's own. Opens from the bar's Start button, and by
+         itself on a first visit. -->
+    <div id="start-page" class="hud-library hud-start" role="dialog" aria-labelledby="start-title" hidden>
       <div class="hud-sheet-head">
-        <svg class="icon" aria-hidden="true"><use href="#icon-book"></use></svg>
-        <h2 class="hud-sheet-title" data-i18n="ui.lesson.library">Lessons</h2>
-        <button class="hud-close" type="button" id="library-close" aria-label="Close the lesson library" data-i18n-attr="aria-label:ui.lesson.closeLibrary">
-          <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
-        </button>
-      </div>
-      <div class="hud-search">
-        <svg class="icon" aria-hidden="true"><use href="#icon-search"></use></svg>
-        <input id="library-search" type="text" placeholder="Search lessons…" data-i18n-attr="placeholder:ui.lesson.searchPlaceholder" autocomplete="off" spellcheck="false" />
-      </div>
-      <div id="library-topics" class="hud-library-topics"></div>
-    </div>
-
-    <div id="tour-library" class="hud-library" role="dialog" aria-labelledby="tour-library-title" hidden>
-      <div class="hud-sheet-head">
-        <svg class="icon" aria-hidden="true"><use href="#icon-play"></use></svg>
-        <h2 id="tour-library-title" class="hud-sheet-title" data-i18n="ui.tours.library">Tours</h2>
-        <button class="hud-close" type="button" id="tour-library-close" aria-label="Close the tours" data-i18n-attr="aria-label:ui.tours.close">
+        <svg class="icon" aria-hidden="true"><use href="#icon-home"></use></svg>
+        <h2 id="start-title" class="hud-sheet-title" data-i18n="ui.start.title">Welcome aboard</h2>
+        <button id="start-close" class="hud-close" type="button" aria-label="Close" data-i18n-attr="aria-label:ui.start.close">
           <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
         </button>
       </div>
       <div class="hud-library-topics">
+        <section class="hud-start-hero" aria-labelledby="start-grand-title">
+          <div class="hud-start-hero-text">
+            <h3 id="start-grand-title" class="hud-start-hero-title" data-i18n="ui.tours.grand.title">The grand tour</h3>
+            <p class="hud-start-text" data-i18n="ui.start.grandText">From the Sun out to Neptune, and home to Earth, with a narrator telling you what makes each world special.</p>
+            <div class="hud-start-choices">
+              <div id="start-language" class="hud-segmented" role="group" aria-label="Language" data-i18n-attr="aria-label:ui.settings.language"></div>
+              <div id="start-voice" class="hud-segmented" role="group" aria-label="Narrator" data-i18n-attr="aria-label:ui.narration.voice"></div>
+            </div>
+          </div>
+          <div class="hud-start-hero-go">
+            <button id="start-grand" class="hud-btn hud-btn-primary" type="button">
+              <svg class="icon" aria-hidden="true"><use href="#icon-play"></use></svg>
+              <span data-i18n="ui.start.grandStart">Start the tour</span>
+            </button>
+            <p class="hud-start-hint" data-i18n="ui.start.grandHint">With sound · about 8 minutes</p>
+          </div>
+        </section>
+        <h3 class="hud-group-title hud-start-heading" data-i18n="ui.start.tours">More tours</h3>
         <div id="tour-library-list" class="hud-library-cards"></div>
+        <h3 class="hud-group-title hud-start-heading" data-i18n="ui.start.lessons">Lessons</h3>
+        <div class="hud-search">
+          <svg class="icon" aria-hidden="true"><use href="#icon-search"></use></svg>
+          <input id="library-search" type="text" placeholder="Search lessons…" data-i18n-attr="placeholder:ui.lesson.searchPlaceholder" autocomplete="off" spellcheck="false" />
+        </div>
+        <div id="library-topics"></div>
+        <button id="start-explore" class="hud-btn hud-start-explore" type="button">
+          <svg class="icon" aria-hidden="true"><use href="#icon-planet"></use></svg>
+          <span data-i18n="ui.start.explore">Explore on my own</span>
+        </button>
       </div>
+    </div>
     </div>
 
     <div id="lesson-panel" class="hud-lesson-panel" hidden>
@@ -720,35 +723,8 @@
           <div id="mission-card-media" class="hud-lesson-media" hidden></div>
         </div>
       </article>
-      <nav class="hud-mission-bar" aria-label="Tour" data-i18n-attr="aria-label:missions.ui.timeline">
-        <button id="mission-prev" class="hud-icon-btn" type="button" aria-label="Previous station" data-i18n-attr="aria-label:missions.ui.previous;title:missions.ui.previous" title="Previous station">
-          <svg class="icon" aria-hidden="true"><use href="#icon-prev"></use></svg>
-        </button>
-        <button id="mission-play" class="hud-icon-btn" type="button" aria-label="Pause" data-state="playing">
-          <svg class="icon icon-pause-glyph" aria-hidden="true"><use href="#icon-pause"></use></svg>
-          <svg class="icon icon-play-glyph" aria-hidden="true"><use href="#icon-play"></use></svg>
-        </button>
-        <button id="mission-next" class="hud-icon-btn" type="button" aria-label="Next station" data-i18n-attr="aria-label:missions.ui.next;title:missions.ui.next" title="Next station">
-          <svg class="icon" aria-hidden="true"><use href="#icon-next"></use></svg>
-        </button>
-        <ol id="mission-timeline" class="hud-mission-timeline"></ol>
-        <button id="mission-close" class="hud-icon-btn" type="button" aria-label="Leave the tour" data-i18n-attr="aria-label:missions.ui.close;title:missions.ui.close" title="Leave the tour">
-          <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
-        </button>
-      </nav>
     </section>
 
-    <div id="lesson-view-controls" class="hud-view-controls" role="group" aria-label="Lesson view" data-i18n-attr="aria-label:ui.lesson.viewControls">
-      <button id="lesson-zoom-in" class="hud-icon-btn" type="button" aria-label="Zoom in" title="Zoom in - or scroll, or pinch" data-i18n-attr="aria-label:ui.lesson.zoomIn;title:ui.lesson.zoomInTitle">
-        <svg class="icon" aria-hidden="true"><use href="#icon-plus"></use></svg>
-      </button>
-      <button id="lesson-zoom-out" class="hud-icon-btn" type="button" aria-label="Zoom out" title="Zoom out - or scroll, or pinch" data-i18n-attr="aria-label:ui.lesson.zoomOut;title:ui.lesson.zoomOutTitle">
-        <svg class="icon" aria-hidden="true"><use href="#icon-minus"></use></svg>
-      </button>
-      <button id="lesson-view-reset" class="hud-icon-btn" type="button" aria-label="Back to the lesson's view" title="Back to the lesson's view - drag the scene to turn it a little" data-i18n-attr="aria-label:ui.lesson.resetView;title:ui.lesson.resetViewTitle">
-        <svg class="icon" aria-hidden="true"><use href="#icon-reset"></use></svg>
-      </button>
-    </div>
 
     <script type="module" src="/src/main.ts"></script>
   </body>

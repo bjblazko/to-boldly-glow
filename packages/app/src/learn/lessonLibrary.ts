@@ -4,38 +4,27 @@ import type { LessonTopic } from './lessons/lessonCatalog'
 import { msg } from '../i18n/i18n'
 
 export interface LessonLibraryElements {
-  dialog: HTMLElement
   topics: HTMLElement
   search: HTMLInputElement
-  closeButton: HTMLButtonElement
 }
 
-// The lesson library: every lesson as a card on its topic's shelf, with how many chapters it has
-// and where the learner left off, narrowed down by the search box (titles and chapter titles).
+// The lessons on the start page: every lesson as a card on its topic's shelf, with how many
+// chapters it has and where the learner left off, narrowed down by the search box (titles and
+// chapter titles).
 export class LessonLibrary {
   constructor(
     private readonly elements: LessonLibraryElements,
     private readonly shelves: readonly LessonTopic[],
     private readonly progress: LessonProgress,
-    private readonly handlers: { onPick(lesson: Lesson): void; onClose(): void },
+    private readonly handlers: { onPick(lesson: Lesson): void },
   ) {
     elements.search.addEventListener('input', () => this.render())
-    elements.closeButton.addEventListener('click', () => handlers.onClose())
   }
 
-  get isOpen(): boolean {
-    return !this.elements.dialog.hidden
-  }
-
-  open(): void {
+  // Afresh, with an empty search box: where each lesson was left may have changed.
+  reset(): void {
     this.elements.search.value = ''
     this.render()
-    this.elements.dialog.hidden = false
-    if (window.matchMedia('(pointer: fine)').matches) this.elements.search.focus()
-  }
-
-  close(): void {
-    this.elements.dialog.hidden = true
   }
 
   private render(): void {

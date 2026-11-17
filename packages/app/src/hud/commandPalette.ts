@@ -1,6 +1,6 @@
 import { msg } from '../i18n/i18n'
 
-export type PaletteGroup = 'Objects' | 'Lessons' | 'Settings'
+export type PaletteGroup = 'Objects' | 'Tours' | 'Lessons' | 'Settings'
 
 // One thing the palette can find and do.
 export interface PaletteItem {
@@ -11,9 +11,10 @@ export interface PaletteItem {
   run(): void
 }
 
-const GROUP_ORDER: PaletteGroup[] = ['Objects', 'Lessons', 'Settings']
+const GROUP_ORDER: PaletteGroup[] = ['Objects', 'Tours', 'Lessons', 'Settings']
 const GROUP_NAMES: Record<PaletteGroup, string> = {
   Objects: msg.ui.palette.groups.objects,
+  Tours: msg.ui.palette.groups.tours,
   Lessons: msg.ui.palette.groups.lessons,
   Settings: msg.ui.palette.groups.settings,
 }
@@ -21,15 +22,26 @@ const GROUP_NAMES: Record<PaletteGroup, string> = {
 const UNFILTERED_PER_GROUP = 6
 const FILTERED_PER_GROUP = 12
 
-// The items matching the query, by group, names that start with it first.
+// The items matching the query, by group: names that start with it first, then names containing
+// it, then those whose detail does (a planet's name finds its moons).
 export function filterPaletteItems(items: readonly PaletteItem[], query: string): PaletteItem[] {
   const needle = query.trim().toLowerCase()
   const limit = needle ? FILTERED_PER_GROUP : UNFILTERED_PER_GROUP
-  return GROUP_ORDER.flatMap((group) => {
-    const inGroup = items.filter((item) => item.group === group && item.label.toLowerCase().includes(needle))
-    const startsWith = (item: PaletteItem) => (item.label.toLowerCase().startsWith(needle) ? 0 : 1)
-    return [...inGroup].sort((a, b) => startsWith(a) - startsWith(b)).slice(0, limit)
-  })
+  return GROUP_ORDER.flatMap((group) =>
+    items
+      .filter((item) => item.group === group && matchRank(item, needle) < NO_MATCH)
+      .sort((a, b) => matchRank(a, needle) - matchRank(b, needle))
+      .slice(0, limit),
+  )
+}
+
+const NO_MATCH = 3
+
+function matchRank(item: PaletteItem, needle: string): number {
+  const label = item.label.toLowerCase()
+  if (label.startsWith(needle)) return 0
+  if (label.includes(needle)) return 1
+  return item.detail.toLowerCase().includes(needle) ? 2 : NO_MATCH
 }
 
 export interface CommandPaletteElements {
@@ -39,7 +51,7 @@ export interface CommandPaletteElements {
   openButton: HTMLButtonElement
 }
 
-// Search everything (Ctrl+K or Cmd+K, or the top-right search button): one box over the objects,
+// Search everything (Ctrl+K or Cmd+K, or the bar's Search): one box over the objects, the tours,
 // the lessons and the settings. Arrow keys move through the results, Enter does the chosen one,
 // Escape (or a press outside) closes it. The items are gathered fresh each time it opens, so the
 // settings show their current state.

@@ -1,5 +1,6 @@
 import type { Page } from '@playwright/test'
 import { captureNextFrame, installOffscreenSwapchain, waitForGpuIdle, type CapturedFrame } from './frameCapture'
+import { goTo } from './hud'
 
 // Opens the app with real rendering (see frameCapture.ts) and a frozen, test-controlled clock, so
 // every frame is deterministic and only happens when a test asks for it. Software WebGPU is slow
@@ -46,10 +47,7 @@ export async function labelAnchor(page: Page, selector: string): Promise<{ x: nu
 }
 
 export async function followEntity(page: Page, name: string): Promise<void> {
-  await page.locator('.hud-dock-btn[data-panel="find"]').click()
-  await page.locator('#entity-search-input').fill(name)
-  await page.locator('#entity-search-input').press('Enter')
-  await page.locator('.hud-dock-btn[data-panel="find"]').click()
+  await goTo(page, name)
   await renderFrames(page, 20)
 }
 
@@ -99,10 +97,16 @@ export async function dragCamera(page: Page, dx: number, dy: number): Promise<vo
 }
 
 export async function setDisplaySwitch(page: Page, selector: string, on: boolean): Promise<void> {
-  // Rendering switches (bloom, lens flares) are in Settings; the rest in View.
+  // Rendering switches (bloom, lens flares) are in More; the rest in View.
   const inSettings = (await page.locator(`#settings-panel ${selector}`).count()) > 0
   const opener = page.locator(inSettings ? '#settings-btn' : '.hud-dock-btn[data-panel="view"]:visible')
   await opener.click()
+  // More keeps its switches in tabs: the one holding this switch first.
+  if (inSettings) await page.locator(`#settings-tabs [aria-controls="${await tabPanelOf(page, selector)}"]`).click()
   await page.locator(selector).setChecked(on)
   await opener.click()
+}
+
+async function tabPanelOf(page: Page, selector: string): Promise<string> {
+  return page.locator(`#settings-panel [role="tabpanel"]:has(${selector})`).getAttribute('id').then((id) => id ?? '')
 }

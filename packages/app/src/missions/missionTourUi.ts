@@ -47,8 +47,8 @@ function findElements(find: Find): Elements {
 }
 
 // A mission tour on screen: the station's card (date, title, distance, text, facts, a photo or a
-// chart - all bundled with the app), the timeline of stations with play/pause and back/next, and
-// the fade into and out of a flyby.
+// chart - all bundled with the app), the bar's timeline of stations with play/pause and back/next,
+// and the fade into and out of a flyby. Escape (or the bar's End tour) leaves it.
 export class MissionTourUi {
   private readonly el: Elements
   private readonly media: LessonMedia
@@ -61,7 +61,6 @@ export class MissionTourUi {
     this.media = new LessonMedia(find('#mission-card-media'))
     find('#mission-prev').addEventListener('click', () => this.handlers?.previous())
     find('#mission-next').addEventListener('click', () => this.handlers?.next())
-    find('#mission-close').addEventListener('click', () => this.handlers?.close())
     this.el.play.addEventListener('click', () => this.handlers?.togglePause())
     window.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && this.mission) this.handlers?.close()

@@ -4,11 +4,13 @@ import { LESSON_TOPICS } from '../learn/lessons/lessonCatalog'
 import type { MoonDefinition } from '../solarSystem/moons'
 import { ALL_ENTITIES, type SolarSystemEntity } from '../solarSystem/entities'
 import { msg } from '../i18n/i18n'
+import type { TourId } from '../tours/tourLibrary'
 
 export interface PaletteActions {
   // Flies to the body and follows it (back in explore mode first, if a lesson runs).
   goTo(entity: SolarSystemEntity): void
   openLesson(lesson: Lesson): void
+  startTour(tour: TourId): void
   hideInterface(): void
   showAbout(): void
 }
@@ -16,10 +18,19 @@ export interface PaletteActions {
 const KIND_LABEL: Record<SolarSystemEntity['kind'], string> = msg.ui.kinds
 const TEXT = msg.ui.palette
 
-// Everything the command palette can find: every body, every lesson, and every switch and the scale
-// buttons as the View and Settings panels show them right now.
+// Everything the command palette can find: every body, every tour, every lesson, and every switch
+// and the scale buttons as the View and More panels show them right now.
 export function gatherPaletteItems(actions: PaletteActions): PaletteItem[] {
-  return [...objectItems(actions), ...lessonItems(actions), ...settingItems(), ...appItems(actions)]
+  return [...objectItems(actions), ...tourItems(actions), ...lessonItems(actions), ...settingItems(), ...appItems(actions)]
+}
+
+function tourItems(actions: PaletteActions): PaletteItem[] {
+  const tours: [TourId, { title: string; meta: string }][] = [
+    ['grand', msg.ui.tours.grand],
+    ['voyager1', msg.missions.voyager1],
+    ['voyager2', msg.missions.voyager2],
+  ]
+  return tours.map(([tour, text]) => ({ group: 'Tours', label: text.title, detail: text.meta, run: () => actions.startTour(tour) }))
 }
 
 function appItems(actions: PaletteActions): PaletteItem[] {

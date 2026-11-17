@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { openApp } from './support/appBoot'
+import { goTo } from './support/hud'
 
 test('body labels start off, show each name when switched on, and can be toggled off again', async ({ page }) => {
   const errors: string[] = []
@@ -17,10 +18,7 @@ test('body labels start off, show each name when switched on, and can be toggled
   await expect(page.locator('#body-labels .body-label', { hasText: 'Neptune' })).toBeAttached()
   // The clock starts at today's date, so whether Earth is inside the default view depends on the
   // day the test runs - fly to it first so its label's visibility doesn't.
-  await page.locator('.hud-dock-btn[data-panel="find"]').click()
-  await page.locator('#entity-search-input').fill('Earth')
-  await page.locator('#entity-search-input').press('Enter')
-  await page.locator('.hud-dock-btn[data-panel="find"]').click()
+  await goTo(page, 'Earth')
   await expect(page.locator('#body-labels .body-label', { hasText: 'Earth' })).toBeVisible()
 
   // Positive control: unchecking the toggle actually hides the labels container, not just the

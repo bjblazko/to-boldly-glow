@@ -20,7 +20,7 @@ import { BodyLabels } from '../labels/bodyLabels'
 import type { Vec3 } from '../math/tuples'
 import type { OrbitPaths } from '../orbitPaths/orbitPaths'
 import type { SceneLayout } from '../scene/sceneLayout'
-import { EntityFinder } from '../search/entityFinder'
+import { FollowChip } from '../hud/followChip'
 import { heliocentricPosition } from '../smallBodies/keplerOrbit'
 import { SMALL_BODIES } from '../smallBodies/smallBodyCatalog'
 import { SPACECRAFT, spacecraftAuPosition, spacecraftInFlight } from '../spacecraft/spacecraftCatalog'
@@ -43,7 +43,7 @@ interface SimulationMoment {
   scaleBlend: number
 }
 
-// The interactive explorer around the scene: scale switch, clock, camera and its controls, search.
+// The interactive explorer around the scene: scale switch, clock, camera and its controls, follow chip.
 export function createExplorer(canvas: HTMLCanvasElement, display: DisplaySettings, orbitPaths: OrbitPaths, sound: { narrationManifest: NarrationManifest | null; voice: VoiceSignals }) {
   const scaleMode = new ScaleModeSwitch(canvas, {
     realistic: requireElement('#scale-mode-realistic-btn'),
@@ -53,21 +53,19 @@ export function createExplorer(canvas: HTMLCanvasElement, display: DisplaySettin
   const now = (): SimulationMoment => ({ ephemeris: ephemerisAt(clock.getCurrentDate()), scaleBlend: scaleMode.blend })
   const shown: { frame: ShownFrame | null } = { frame: null }
   const select = (entity: SolarSystemEntity) => selectEntity(entity, camera, display, now())
-  // The Camera panel's tour button flies the silent loop; the narrated tours start from Tours.
   const { camera, guide } = createCamera(canvas, {
-    startTour: () => tour(),
     tourChanged: (touring) => {
       if (touring) return
       narration.end()
       narratedTourChanged.forEach((listener) => listener(false))
     },
     pick: (x, y) => pickAt({ canvas, frame: shown.frame }, x, y, select),
-    following: (entity) => searchUi.setFollowing(entity),
+    following: (entity) => follow.setFollowing(entity),
   })
-  const searchUi = createEntitySearch(camera, select)
+  const follow = createFollowChip(camera)
   const lens = createLens(camera, canvas, scaleMode.blend)
   const bodyLabels = new BodyLabels(requireElement('#body-labels'))
-  const tour = (route?: TourRoute) => startTour(camera, clock, now, route)
+  const tour = (route: TourRoute) => startTour(camera, clock, now, route)
   const narration = new NarratedTour(sound.narrationManifest, requireElement, sound.voice)
   // The narrator paces the grand tour and hears where it is; started from a click, so it may speak.
   const narratedTour = () => {
@@ -78,11 +76,10 @@ export function createExplorer(canvas: HTMLCanvasElement, display: DisplaySettin
   }
   // Who hears when a narrated tour sets off (true) and ends (false).
   const narratedTourChanged: ((flying: boolean) => void)[] = []
-  return { canvas, display, scaleMode, camera, guide, lens, clock, timeControls: createTimeControls(clock), bodyLabels, orbitPaths, searchUi, shown, select, startTour: () => tour(), startNarratedTour: narratedTour, narratedTourChanged }
+  return { canvas, display, scaleMode, camera, guide, lens, clock, timeControls: createTimeControls(clock), bodyLabels, orbitPaths, shown, select, startNarratedTour: narratedTour, narratedTourChanged }
 }
 
 interface CameraWiring {
-  startTour(): void
   tourChanged(touring: boolean): void
   pick(x: number, y: number): void
   following(entity: SolarSystemEntity | null): void
@@ -97,15 +94,15 @@ function createLens(camera: CameraDirector, canvas: HTMLCanvasElement, scaleBlen
   return lens
 }
 
-// The controls overlay, which the camera panel's Help button also shows.
+// The controls overlay, which More's "Show the controls" also shows.
 function createControlsOverlay(scene: HTMLElement, touch: boolean, mode: () => CameraMode): ControlsOverlay {
   const overlay = new ControlsOverlay({ scene, overlay: requireElement('#controls-overlay'), body: requireElement('#controls-body'), close: requireElement<HTMLButtonElement>('#controls-close') }, touch)
   requireElement('#controls-help').addEventListener('click', () => overlay.showPinned(mode()))
   return overlay
 }
 
-// The camera with its panel buttons, its controls overlay, the speed readout, and the touch-screen
-// flight pad.
+// The camera with the bar's camera switch, its controls overlay, the speed readout, and the
+// touch-screen flight pad.
 function createCamera(canvas: HTMLCanvasElement, wiring: CameraWiring): { camera: CameraDirector; guide: ControlsOverlay } {
   const touch = TouchFlightPad.wanted()
   const hint = new CameraHint(requireElement('#camera-hint'))
@@ -120,18 +117,16 @@ function createCamera(canvas: HTMLCanvasElement, wiring: CameraWiring): { camera
     rollRight: requireElement('#touch-flight-roll-right'),
     boost: requireElement('#touch-flight-boost'),
   })
-  const controls = new CameraControls(
-    { canvas, modeButton: document.querySelector('#camera-mode-toggle'), tourButton: document.querySelector('#camera-tour-toggle') },
-    () => wiring.startTour(),
-  )
+  // The keys show when the user switches mode, not when a lesson or tour takes the camera over.
+  const controls = new CameraControls({ canvas, orbitButton: requireElement('#camera-orbit-btn'), flyButton: requireElement('#camera-fly-btn') }, (mode) => guide.show(mode))
   const camera = new CameraDirector(canvas, {
     onModeChange: (mode) => {
       controls.showMode(mode)
-      guide.show(mode)
       pad.setVisible(mode === 'fly' && touch)
     },
     onTourChange: (touring) => {
-      controls.showTour(touring)
+      // Control is back, in free flight: its keys.
+      if (!touring) guide.show(camera.mode)
       wiring.tourChanged(touring)
     },
     onFollowChange: (entity) => {
@@ -191,7 +186,7 @@ export function shownSmallBodies(display: DisplaySettings, ephemeris: Ephemeris,
 
 // A paused or real-time clock shows no visible spin or moon motion during a flyby, so the tour
 // speeds it up to 1 hr/s - unless the user already picked a rate of their own.
-function startTour(camera: CameraDirector, clock: SimulationClock, now: () => SimulationMoment, route?: TourRoute): void {
+function startTour(camera: CameraDirector, clock: SimulationClock, now: () => SimulationMoment, route: TourRoute): void {
   if (camera.isTouring) return
   if (clock.isPaused() || clock.getTimeScale() === 1) {
     clock.play()
@@ -201,16 +196,10 @@ function startTour(camera: CameraDirector, clock: SimulationClock, now: () => Si
   camera.startTour(ephemeris, scaleBlend, route)
 }
 
-function createEntitySearch(camera: CameraDirector, select: (entity: SolarSystemEntity) => void): EntityFinder {
-  return new EntityFinder(
-    {
-      input: requireElement('#entity-search-input'),
-      tree: requireElement('#entity-tree'),
-      followIndicator: requireElement('#follow-indicator'),
-      followLabel: requireElement('#follow-indicator-label'),
-      stopButton: requireElement('#follow-stop-button'),
-    },
-    { onSelect: select, onStop: () => camera.stopFollowing() },
+function createFollowChip(camera: CameraDirector): FollowChip {
+  return new FollowChip(
+    { chip: requireElement('#follow-indicator'), label: requireElement('#follow-indicator-label'), stopButton: requireElement('#follow-stop-button') },
+    () => camera.stopFollowing(),
   )
 }
 

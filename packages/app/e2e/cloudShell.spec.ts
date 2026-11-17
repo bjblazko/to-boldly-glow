@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { openApp } from './support/appBoot'
+import { goTo } from './support/hud'
 
 test('gas giants render their translucent cloud shell without WebGPU errors', async ({ page }) => {
   const errors: string[] = []
@@ -7,9 +8,7 @@ test('gas giants render their translucent cloud shell without WebGPU errors', as
 
   await openApp(page)
 
-  await page.locator('.hud-dock-btn[data-panel="find"]').click()
-  await page.locator('#entity-search-input').fill('Jupiter')
-  await page.locator('#entity-search-input').press('Enter')
+  await goTo(page, 'Jupiter')
   await page.waitForTimeout(2000)
 
   expect(errors).toEqual([])

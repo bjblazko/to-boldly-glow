@@ -12,7 +12,7 @@ import {
   renderFrames,
   setDisplaySwitch,
 } from './support/renderedApp'
-import { exitLesson, openLesson } from './support/hud'
+import { exitLesson, openLesson, startGrandTour } from './support/hud'
 
 // These tests check what actually lands in the frame, not just app state - see support/renderedApp.ts.
 test.use({ viewport: { width: 480, height: 300 } })
@@ -134,9 +134,7 @@ test('the tour moves the view smoothly and hands over to free-fly without a jump
   await page.locator('.hud-dock-btn[data-panel="view"]:visible').click()
   await page.locator('#orbit-paths-toggle').uncheck()
   await page.locator('.hud-dock-btn[data-panel="view"]:visible').click()
-  await page.locator('.hud-dock-btn[data-panel="camera"]').click()
-  await page.locator('#camera-tour-toggle').click()
-  await page.locator('.hud-dock-btn[data-panel="camera"]').click()
+  await startGrandTour(page)
 
   await renderFrames(page, 60)
   const flying = await captureFrame(page)
@@ -148,7 +146,7 @@ test('the tour moves the view smoothly and hands over to free-fly without a jump
   await page.keyboard.press('Escape')
   const firstFreeFlyFrame = await captureFrame(page)
   expect(meanAbsoluteDifference(lastTourFrame, firstFreeFlyFrame)).toBeLessThan(NO_JUMP)
-  await expect(page.locator('#camera-mode-toggle .btn-label')).toHaveText('Switch to Orbit Camera')
+  await expect(page.locator('#camera-fly-btn')).toHaveAttribute('aria-pressed', 'true')
   expect(errors).toEqual([])
 })
 
@@ -156,9 +154,7 @@ test('the tour moves the view smoothly and hands over to free-fly without a jump
 test('the tour flies on when the scale is switched mid-flight', async ({ page }) => {
   test.setTimeout(120_000)
   const errors = await openRenderedApp(page)
-  await page.locator('.hud-dock-btn[data-panel="camera"]').click()
-  await page.locator('#camera-tour-toggle').click()
-  await page.locator('.hud-dock-btn[data-panel="camera"]').click()
+  await startGrandTour(page)
   await renderFrames(page, 40)
 
   await page.locator('.hud-dock-btn[data-panel="view"]:visible').click()
@@ -170,7 +166,7 @@ test('the tour flies on when the scale is switched mid-flight', async ({ page })
   const flying = await captureFrame(page)
   await renderFrames(page, 30)
   expect(meanAbsoluteDifference(flying, await captureFrame(page))).toBeGreaterThan(STILL_VIEW_CHANGE)
-  await expect(page.locator('#camera-tour-toggle .btn-label')).toHaveText('Stop Tour')
+  await expect(page.locator('body')).toHaveAttribute('data-context', 'tour')
   expect(errors).toEqual([])
 })
 
@@ -191,9 +187,7 @@ test('a full session renders without GPU errors', async ({ page }) => {
   await followEntity(page, 'Saturn')
   await followEntity(page, 'Europa')
 
-  await page.locator('.hud-dock-btn[data-panel="camera"]').click()
-  await page.locator('#camera-tour-toggle').click()
-  await page.locator('.hud-dock-btn[data-panel="camera"]').click()
+  await startGrandTour(page)
   await renderFrames(page, 10)
   await page.keyboard.press('KeyW')
   await renderFrames(page, 3)

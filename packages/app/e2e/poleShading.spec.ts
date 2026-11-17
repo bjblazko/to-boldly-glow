@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { openApp } from './support/appBoot'
+import { goTo } from './support/hud'
 
 test('viewing a planet near-pole-on renders without WebGPU errors', async ({ page }) => {
   const errors: string[] = []
@@ -7,9 +8,7 @@ test('viewing a planet near-pole-on renders without WebGPU errors', async ({ pag
 
   await openApp(page)
 
-  await page.locator('.hud-dock-btn[data-panel="find"]').click()
-  await page.locator('#entity-search-input').fill('Saturn')
-  await page.locator('#entity-search-input').press('Enter')
+  await goTo(page, 'Saturn')
   await page.waitForTimeout(2000) // let the fly-to tween settle
 
   // Drag to a near-polar viewing angle (large vertical drag), where the pole-fade shader path is
