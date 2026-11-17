@@ -63,8 +63,7 @@ export function createExplorer(canvas: HTMLCanvasElement, display: DisplaySettin
     following: (entity) => searchUi.setFollowing(entity),
   })
   const searchUi = createEntitySearch(camera, select)
-  const lens = new CameraLens(camera.orbit, canvas)
-  lens.applyZoomFloor(scaleMode.blend)
+  const lens = createLens(camera, canvas, scaleMode.blend)
   const bodyLabels = new BodyLabels(requireElement('#body-labels'))
   const tour = (route?: TourRoute) => startTour(camera, clock, now, route)
   const narration = new NarratedTour(sound.narrationManifest, requireElement, sound.voice)
@@ -88,6 +87,15 @@ interface CameraWiring {
 }
 
 // The camera with its panel buttons, the steering hint, and the touch-screen flight pad.
+// The orbit camera's zoom floor and projection, its lens shift known to the input, so a zoom lands
+// under the pointer in a lesson too.
+function createLens(camera: CameraDirector, canvas: HTMLCanvasElement, scaleBlend: number): CameraLens {
+  const lens = new CameraLens(camera.orbit, canvas)
+  camera.setLensShiftSource(() => lens.lensShiftNdc)
+  lens.applyZoomFloor(scaleBlend)
+  return lens
+}
+
 function createCamera(canvas: HTMLCanvasElement, wiring: CameraWiring): CameraDirector {
   const touch = TouchFlightPad.wanted()
   const hint = new CameraHint(requireElement('#camera-hint'), touch)

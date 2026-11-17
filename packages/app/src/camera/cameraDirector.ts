@@ -161,6 +161,11 @@ export class CameraDirector {
     this.input.setTouchCommand(command)
   }
 
+  // Where the lens shift comes from (see CameraLens), so a zoom lands under the pointer.
+  setLensShiftSource(source: () => number): void {
+    this.input.setLensShiftSource(source)
+  }
+
   // Keyboard flight first (it acts on the fly camera directly), then follow and tour, which need
   // the frame's simulated date.
   steer(deltaSeconds: number): void {

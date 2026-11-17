@@ -4,7 +4,9 @@ import { combineCommands, keyboardFlightCommand, keyboardOrbitTurn, ORBIT_KEY_TU
 import { clampSpeedLevel, cruiseSpeed, keepOutside, type Obstacle } from './input/flightSpeed'
 import { KeyboardState } from './input/keyboardState'
 import { OrbitMotion } from './input/orbitMotion'
+import { clientToNdc, panByPixels, type ScreenFrame } from './input/orbitPan'
 import { PointerGestures } from './input/pointerGestures'
+import { WheelClassifier } from './input/wheelKind'
 
 export { isTextEntryTarget } from './input/keyboardState'
 
@@ -25,8 +27,10 @@ export interface CameraInputEvents {
 }
 
 // Routes mouse, touch, wheel and keyboard input to whichever camera is active:
-// - orbit: drag (one finger) to turn around the target, wheel or pinch to zoom, WASD/arrows to
-//   turn and R/F to zoom from the keyboard - all with a little weight (see orbitMotion.ts);
+// - orbit: drag (one finger) to turn around the pivot; a trackpad's two-finger scroll, two fingers
+//   on a touch screen, or a right- or Shift-drag move the pivot; a mouse wheel or a pinch zooms
+//   toward the pointer; the arrows turn and W/S zoom from the keyboard - all with a little weight
+//   (see orbitMotion.ts);
 // - free flight: WASD/arrows to fly and strafe, R/F up and down, Q/E roll, Shift boost, drag to
 //   look around, wheel (or pinch) to set the speed - or the on-screen pad on a touch screen.
 export class CameraInputController {
@@ -41,19 +45,23 @@ export class CameraInputController {
   private wheelTravel = 0
   private pinchTravel = 0
   private touchCommand: () => FlightCommand = () => NO_COMMAND
+  private readonly wheelKind = new WheelClassifier()
+  // The lens shift lessons apply (see CameraLens), so a zoom lands under the pointer there too.
+  private lensShiftNdc: () => number = () => 0
 
   constructor(
-    canvas: HTMLCanvasElement,
+    private readonly canvas: HTMLCanvasElement,
     private readonly orbitCamera: OrbitCamera,
     private readonly flyCamera: FlyCamera,
     private readonly events: CameraInputEvents = { onDoubleTap: () => {}, onSpeedLevelChange: () => {} },
   ) {
-    this.orbitMotion = new OrbitMotion(orbitCamera)
+    this.orbitMotion = new OrbitMotion(orbitCamera, () => this.screen())
     this.gestures = new PointerGestures(
       canvas,
       {
         drag: (deltaX, deltaY, touch) => this.onDrag(deltaX, deltaY, touch),
-        pinch: (factor) => this.onPinch(factor),
+        pan: (deltaX, deltaY) => this.onPan(deltaX, deltaY),
+        pinch: (factor, centerX, centerY) => this.onPinch(factor, centerX, centerY),
         release: () => this.orbitMotion.release(),
         doubleTap: (x, y) => this.events.onDoubleTap(x, y),
       },
@@ -93,6 +101,10 @@ export class CameraInputController {
     this.touchCommand = command
   }
 
+  setLensShiftSource(source: () => number): void {
+    this.lensShiftNdc = source
+  }
+
   getViewMatrix() {
     return this.mode === 'orbit' ? this.orbitCamera.getViewMatrix() : this.flyCamera.getViewMatrix()
   }
@@ -127,9 +139,13 @@ export class CameraInputController {
     this.flyCamera.look(direction * deltaX * LOOK_RADIANS_PER_PX, -direction * deltaY * LOOK_RADIANS_PER_PX)
   }
 
-  private onPinch(factor: number): void {
+  private onPan(deltaX: number, deltaY: number): void {
+    if (this.mode === 'orbit') panByPixels(this.orbitCamera, deltaX, deltaY, this.screen())
+  }
+
+  private onPinch(factor: number, centerX: number, centerY: number): void {
     if (this.mode === 'orbit') {
-      this.orbitMotion.zoom(-Math.log(factor))
+      this.orbitMotion.zoom(-Math.log(factor), this.pointerNdc(centerX, centerY))
       return
     }
     this.pinchTravel += Math.log(factor)
@@ -141,13 +157,22 @@ export class CameraInputController {
   private onWheel = (event: WheelEvent) => {
     if (!this.enabled) return
     event.preventDefault()
-    if (this.mode === 'fly') this.wheelSpeed(event.deltaY)
+    if (this.mode === 'fly') return this.wheelSpeed(event.deltaY)
+    const action = this.wheelKind.classify(event)
+    // A trackpad's two-finger scroll pulls the scene along, as on a map.
+    if (action === 'pan') return panByPixels(this.orbitCamera, -event.deltaX, -event.deltaY, this.screen())
     // Trackpad pinch: browsers report it as a wheel event with ctrlKey set (not a real Ctrl press).
-    else if (event.ctrlKey) this.orbitMotion.zoom(event.deltaY * WHEEL_ZOOM_PER_UNIT * 5)
-    // Trackpad two-finger scroll reports deltaX too (a plain wheel never does): it turns the view,
-    // as click-and-drag is uncomfortable on a trackpad.
-    else if (event.deltaX !== 0) this.orbitCamera.applyDrag(-event.deltaX, -event.deltaY)
-    else this.orbitMotion.zoom(event.deltaY * WHEEL_ZOOM_PER_UNIT)
+    const perUnit = action === 'pinch' ? WHEEL_ZOOM_PER_UNIT * 5 : WHEEL_ZOOM_PER_UNIT
+    this.orbitMotion.zoom(event.deltaY * perUnit, this.pointerNdc(event.clientX, event.clientY))
+  }
+
+  private screen(): ScreenFrame {
+    const { clientWidth, clientHeight } = this.canvas
+    return { heightPx: clientHeight || 1, aspect: clientWidth / (clientHeight || 1), lensShiftNdc: this.lensShiftNdc() }
+  }
+
+  private pointerNdc(clientX: number, clientY: number): [number, number] {
+    return clientToNdc(clientX, clientY, this.canvas.getBoundingClientRect())
   }
 
   private wheelSpeed(deltaY: number): void {

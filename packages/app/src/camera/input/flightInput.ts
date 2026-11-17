@@ -21,14 +21,14 @@ export function combineCommands(a: FlightCommand, b: FlightCommand): FlightComma
   return { thrust: [axis(0), axis(1), axis(2)], roll: Math.min(Math.max(a.roll + b.roll, -1), 1), boost: a.boost || b.boost }
 }
 
-// In orbit mode the same keys turn the view around its target (pixels of drag per second) and
-// R/F zoom in and out (factor e per second).
+// In orbit mode the arrows turn the view around its pivot (pixels of drag per second), and W/S - as
+// W flies forward - or +/- zoom in and out (factor e per second).
 export const ORBIT_KEY_TURN_PX_PER_SECOND = 420
 export const ORBIT_KEY_ZOOM_PER_SECOND = 1.2
 
 export function keyboardOrbitTurn(keys: KeyboardState): { turn: [number, number]; zoom: number } {
   return {
-    turn: [keys.axis(['KeyA', 'ArrowLeft'], ['KeyD', 'ArrowRight']), keys.axis(['KeyW', 'ArrowUp'], ['KeyS', 'ArrowDown'])],
-    zoom: keys.axis(['KeyF', 'Minus', 'NumpadSubtract'], ['KeyR', 'Equal', 'NumpadAdd']),
+    turn: [keys.axis(['ArrowLeft'], ['ArrowRight']), keys.axis(['ArrowUp'], ['ArrowDown'])],
+    zoom: keys.axis(['KeyS', 'Minus', 'NumpadSubtract'], ['KeyW', 'Equal', 'NumpadAdd']),
   }
 }

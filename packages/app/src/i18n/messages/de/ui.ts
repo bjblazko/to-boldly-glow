@@ -101,8 +101,8 @@ export const ui: Messages['ui'] = {
     startTour: 'Rundflug starten',
     stopTour: 'Tour beenden',
     hints: {
-      orbitPointer: 'Ziehen zum Umkreisen · Scrollen zum Zoomen · WASD/Pfeiltasten drehen · Doppelklick auf einen Körper fliegt hin',
-      orbitTouch: 'Ziehen zum Umkreisen · Zwei Finger zum Zoomen · Doppeltippen auf einen Körper fliegt hin',
+      orbitPointer: 'Ziehen dreht · Zwei Finger, Rechts- oder Shift-Ziehen verschiebt · Scrollen oder Pinch zoomt zum Zeiger · Pfeile drehen, W/S zoomen · Doppelklick auf einen Körper fliegt hin',
+      orbitTouch: 'Ziehen dreht · Zwei Finger verschieben und zoomen · Doppeltippen auf einen Körper fliegt hin',
       flyPointer: 'WASD/Pfeiltasten fliegen · Ziehen schaut umher · R/F hoch/runter · Q/E rollen · Shift Boost · Scrollen ändert das Tempo',
       flyTouch: 'Stick zum Fliegen · Ziehen schaut umher · ▲▼ hoch/runter · ⚡ halten für Boost · Zwei Finger ändern das Tempo',
     },

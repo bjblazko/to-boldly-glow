@@ -1,7 +1,9 @@
 import { vec3 } from 'gl-matrix'
 import { describe, expect, it } from 'vitest'
 import { pickTarget } from '../src/camera/entityPicking'
+import { keyboardOrbitTurn } from '../src/camera/input/flightInput'
 import { clampSpeedLevel, cruiseSpeed, keepOutside, speedFactor } from '../src/camera/input/flightSpeed'
+import type { KeyboardState } from '../src/camera/input/keyboardState'
 import { OrbitMotion } from '../src/camera/input/orbitMotion'
 import { OrbitCamera } from '../src/camera/orbitCamera'
 import { createViewpoint } from '../src/camera/viewpoint'
@@ -78,5 +80,26 @@ describe('pickTarget', () => {
     expect(pickTarget({ x: 400, y: 300 }, targets, viewpoint)).toBe('near')
     expect(pickTarget({ x: 400, y: 300 }, targets.slice(0, 1), viewpoint)).toBe('far')
     expect(pickTarget({ x: 50, y: 50 }, targets, viewpoint)).toBeNull()
+  })
+})
+
+describe('keyboardOrbitTurn', () => {
+  // The keys held, read as KeyboardState reads them.
+  const held = (...codes: string[]) => {
+    const isDown = (...wanted: string[]) => wanted.some((code) => codes.includes(code))
+    return { isDown, axis: (positive: string[], negative: string[]) => Number(isDown(...positive)) - Number(isDown(...negative)) } as unknown as KeyboardState
+  }
+
+  it('zooms in with W and out with S, as W flies forward', () => {
+    expect(keyboardOrbitTurn(held('KeyW')).zoom).toBe(-1)
+    expect(keyboardOrbitTurn(held('KeyS')).zoom).toBe(1)
+    expect(keyboardOrbitTurn(held('KeyW')).turn).toEqual([0, 0])
+  })
+
+  it('turns with the arrows only: A, D, R and F do nothing in orbit', () => {
+    expect(keyboardOrbitTurn(held('ArrowLeft')).turn).toEqual([1, 0])
+    expect(keyboardOrbitTurn(held('KeyA')).turn).toEqual([0, 0])
+    expect(keyboardOrbitTurn(held('KeyR')).zoom).toBe(0)
+    expect(keyboardOrbitTurn(held('KeyF')).zoom).toBe(0)
   })
 })

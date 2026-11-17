@@ -100,8 +100,8 @@ export const ui = {
     startTour: 'Start Flyby',
     stopTour: 'Stop Tour',
     hints: {
-      orbitPointer: 'Drag to orbit · scroll to zoom · WASD/arrows turn · double-click a body to fly there',
-      orbitTouch: 'Drag to orbit · pinch to zoom · double-tap a body to fly there',
+      orbitPointer: 'Drag to turn · two fingers, right- or Shift-drag to move · scroll or pinch zooms toward the pointer · arrows turn, W/S zoom · double-click a body to fly there',
+      orbitTouch: 'Drag to turn · two fingers move and zoom · double-tap a body to fly there',
       flyPointer: 'WASD/arrows fly · drag to look · R/F up/down · Q/E roll · Shift boost · scroll sets speed',
       flyTouch: 'Stick to fly · drag to look · ▲▼ up/down · hold ⚡ to boost · pinch sets speed',
     },
