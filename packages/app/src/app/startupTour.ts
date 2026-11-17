@@ -1,23 +1,7 @@
-// How long the first picture stays still before the idle tour sets off.
-export const STARTUP_TOUR_DELAY_MS = 10_000
-
-const USER_INPUT_EVENTS = ['pointerdown', 'wheel', 'keydown'] as const
-
-// Starts the planet tour a moment after the scene first shows - unless the user moves first (a
-// press, a scroll, a key), or by then is in a lesson or following a body (`isAllowed`).
-export function scheduleStartupTour(start: () => void, isAllowed: () => boolean, input: EventTarget): void {
-  const cancel = () => {
-    clearTimeout(timer)
-    USER_INPUT_EVENTS.forEach((type) => input.removeEventListener(type, cancel, true))
-  }
-  const timer = setTimeout(() => {
-    cancel()
-    if (isAllowed()) start()
-  }, STARTUP_TOUR_DELAY_MS)
-  USER_INPUT_EVENTS.forEach((type) => input.addEventListener(type, cancel, true))
-}
-
-// A link (and the end-to-end tests) can ask for a still start with ?tour=off.
+// A link (and the end-to-end tests) can ask for a still start, without the welcome card, with
+// ?tour=off. Otherwise the card offers the narrated tour - and nothing flies until a click asks for
+// it: the browser lets the narrator speak only after one, and a tour without its voice would look as
+// if it had none.
 export function startupTourWanted(search: string): boolean {
   return new URLSearchParams(search).get('tour') !== 'off'
 }

@@ -20,7 +20,7 @@ test('the welcome card starts the narrated tour at the Sun, with the narrator; s
   await expect(page.locator('#narration-subtitle')).toBeHidden()
   await expect(page.locator('#narration-subtitle')).toContainText('Welcome aboard')
   // Opus where the browser plays it (Chromium does), MP3 otherwise.
-  await expect.poll(() => clips).toContain('/narration/lyra/en/sun-approach.webm')
+  await expect.poll(() => clips).toContain('/narration/lyra/en/tours/grand/sun-approach.webm')
 
   // Any manual camera input hands control back and silences the narrator.
   await page.locator('#scene').click({ position: { x: 40, y: 300 } })
@@ -35,13 +35,12 @@ test('the narrator speaks German in German', async ({ page }) => {
   await expect(page.locator('#narration-subtitle')).toContainText('Willkommen an Bord')
 })
 
-test('left alone, the welcome card steps aside for the silent tour', async ({ page }) => {
+test('left alone, the welcome card stays and nothing flies: a tour waits for a click', async ({ page }) => {
   await page.goto('/')
   await waitForFirstFrame(page)
+  await page.waitForTimeout(12_000)
   await expect(page.locator('#welcome-card')).toBeVisible()
-  await expect(page.locator('#camera-tour-toggle .btn-label')).toHaveText('Stop Tour', { timeout: 15_000 })
-  await expect(page.locator('#welcome-card')).toBeHidden()
-  await expect(page.locator('#narration-bar')).toBeHidden()
+  await expect(page.locator('#camera-tour-toggle .btn-label')).not.toHaveText('Stop Tour')
 })
 
 test('set up the view first: the card shrinks to a Start pill, which starts the tour in that view', async ({ page }) => {
@@ -129,7 +128,7 @@ test('the narrator picked on the welcome card speaks, and Settings shows the sam
   await waitForFirstFrame(page)
   await page.locator('#welcome-voice').getByRole('button', { name: 'Orion' }).click()
   await page.locator('#welcome-start').click()
-  await expect.poll(() => clips).toContain('/narration/orion/en/sun-approach.webm')
+  await expect.poll(() => clips).toContain('/narration/orion/en/tours/grand/sun-approach.webm')
   await page.locator('#settings-btn').click()
   await page.locator('#settings-tab-audio').click()
   await expect(page.locator('#settings-voice').getByRole('button', { name: 'Orion' })).toHaveAttribute('aria-pressed', 'true')

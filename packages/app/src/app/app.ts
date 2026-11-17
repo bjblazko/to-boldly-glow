@@ -298,13 +298,11 @@ function markRendered(app: Explorer): void {
   }
   showWelcomeCard(elements, {
     startNarratedTour: () => app.startNarratedTour(),
-    startIdleTour: () => app.startTour(),
     exploreOnOwn: () => {
       app.display.orbitPaths.set(true)
       app.display.bodyLabels.set(true)
     },
-    idleTourAllowed: () => document.body.dataset.appMode !== 'learn' && !app.canvas.dataset.followingId,
-  }, window)
+  })
 }
 
 // Labels, and what free flight and picking work from in the next frame.
