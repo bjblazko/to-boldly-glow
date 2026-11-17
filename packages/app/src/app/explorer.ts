@@ -10,6 +10,8 @@ import type { Obstacle } from '../camera/input/flightSpeed'
 import type { Viewpoint } from '../camera/viewpoint'
 import { CameraControls } from '../hud/cameraControls'
 import { CameraHint } from '../hud/cameraHint'
+import { ControlsOverlay } from '../hud/controlsOverlay'
+import type { CameraMode } from '../camera/inputController'
 import type { DisplaySettings } from '../hud/displaySettings'
 import { ScaleModeSwitch } from '../hud/scaleModeSwitch'
 import { initShuttleVisual } from '../hud/shuttleVisual'
@@ -52,7 +54,7 @@ export function createExplorer(canvas: HTMLCanvasElement, display: DisplaySettin
   const shown: { frame: ShownFrame | null } = { frame: null }
   const select = (entity: SolarSystemEntity) => selectEntity(entity, camera, display, now())
   // The Camera panel's tour button flies the silent loop; the narrated tours start from Tours.
-  const camera = createCamera(canvas, {
+  const { camera, guide } = createCamera(canvas, {
     startTour: () => tour(),
     tourChanged: (touring) => {
       if (touring) return
@@ -76,7 +78,7 @@ export function createExplorer(canvas: HTMLCanvasElement, display: DisplaySettin
   }
   // Who hears when a narrated tour sets off (true) and ends (false).
   const narratedTourChanged: ((flying: boolean) => void)[] = []
-  return { canvas, display, scaleMode, camera, lens, clock, timeControls: createTimeControls(clock), bodyLabels, orbitPaths, searchUi, shown, select, startTour: () => tour(), startNarratedTour: narratedTour, narratedTourChanged }
+  return { canvas, display, scaleMode, camera, guide, lens, clock, timeControls: createTimeControls(clock), bodyLabels, orbitPaths, searchUi, shown, select, startTour: () => tour(), startNarratedTour: narratedTour, narratedTourChanged }
 }
 
 interface CameraWiring {
@@ -86,7 +88,6 @@ interface CameraWiring {
   following(entity: SolarSystemEntity | null): void
 }
 
-// The camera with its panel buttons, the steering hint, and the touch-screen flight pad.
 // The orbit camera's zoom floor and projection, its lens shift known to the input, so a zoom lands
 // under the pointer in a lesson too.
 function createLens(camera: CameraDirector, canvas: HTMLCanvasElement, scaleBlend: number): CameraLens {
@@ -96,9 +97,19 @@ function createLens(camera: CameraDirector, canvas: HTMLCanvasElement, scaleBlen
   return lens
 }
 
-function createCamera(canvas: HTMLCanvasElement, wiring: CameraWiring): CameraDirector {
+// The controls overlay, which the camera panel's Help button also shows.
+function createControlsOverlay(scene: HTMLElement, touch: boolean, mode: () => CameraMode): ControlsOverlay {
+  const overlay = new ControlsOverlay({ scene, overlay: requireElement('#controls-overlay'), body: requireElement('#controls-body'), close: requireElement<HTMLButtonElement>('#controls-close') }, touch)
+  requireElement('#controls-help').addEventListener('click', () => overlay.showPinned(mode()))
+  return overlay
+}
+
+// The camera with its panel buttons, its controls overlay, the speed readout, and the touch-screen
+// flight pad.
+function createCamera(canvas: HTMLCanvasElement, wiring: CameraWiring): { camera: CameraDirector; guide: ControlsOverlay } {
   const touch = TouchFlightPad.wanted()
-  const hint = new CameraHint(requireElement('#camera-hint'), touch)
+  const hint = new CameraHint(requireElement('#camera-hint'))
+  const guide = createControlsOverlay(canvas, touch, () => camera.mode)
   const pad = new TouchFlightPad({
     pad: requireElement('#touch-flight-pad'),
     stick: requireElement('#touch-flight-stick'),
@@ -116,7 +127,7 @@ function createCamera(canvas: HTMLCanvasElement, wiring: CameraWiring): CameraDi
   const camera = new CameraDirector(canvas, {
     onModeChange: (mode) => {
       controls.showMode(mode)
-      hint.showMode(mode)
+      guide.show(mode)
       pad.setVisible(mode === 'fly' && touch)
     },
     onTourChange: (touring) => {
@@ -133,8 +144,7 @@ function createCamera(canvas: HTMLCanvasElement, wiring: CameraWiring): CameraDi
   })
   camera.setTouchFlightCommand(() => pad.command())
   controls.bind(camera)
-  hint.showMode('orbit')
-  return camera
+  return { camera, guide }
 }
 
 // Flies to the entity and follows it - showing the comets or the asteroids first, if the body is

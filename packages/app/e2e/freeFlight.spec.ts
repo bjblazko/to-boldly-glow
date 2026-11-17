@@ -17,7 +17,7 @@ test('free flight flies with the keyboard and looks around with a drag', async (
   test.setTimeout(120_000)
   const errors = await openRenderedApp(page)
   await switchToFreeFlight(page)
-  await expect(page.locator('#camera-hint')).toContainText('W/S thrust')
+  await expect(page.locator('#controls-overlay .hud-keycap[data-code="KeyW"]')).toBeVisible()
   const start = await captureFrame(page)
 
   await page.keyboard.down('KeyW')

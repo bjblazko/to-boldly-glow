@@ -33,7 +33,8 @@ export class CameraControls {
       // Enter/Space on a focused button activate that button, whose own click handler decides
       // (stopping here first made the Stop Tour button restart the tour from the keyboard).
       const activatesButton = (event.key === 'Enter' || event.key === ' ') && event.target instanceof HTMLButtonElement
-      if (!isTextEntryTarget(event.target) && !activatesButton) camera.stopTour()
+      // ? only shows the controls.
+      if (!isTextEntryTarget(event.target) && !activatesButton && event.key !== '?') camera.stopTour()
     })
   }
 

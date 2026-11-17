@@ -1,28 +1,15 @@
-import type { CameraMode } from '../camera/inputController'
 import { speedFactor } from '../camera/input/flightSpeed'
 import { formatFixed, msg } from '../i18n/i18n'
 
 const TEXT = msg.ui.camera
-const HINTS: Record<CameraMode, { pointer: string; touch: string }> = {
-  orbit: { pointer: TEXT.hints.orbitPointer, touch: TEXT.hints.orbitTouch },
-  fly: { pointer: TEXT.hints.flyPointer, touch: TEXT.hints.flyTouch },
-}
-const HINT_SECONDS = 7
 const SPEED_SECONDS = 1.5
 
-// A short line over the scene telling how the camera is steered, shown for a few seconds after
-// switching camera mode, and the free-flight speed setting whenever it changes.
+// A short line over the scene with the free-flight speed setting, shown whenever it changes (the
+// controls themselves are on the controls overlay).
 export class CameraHint {
   private hideTimer: ReturnType<typeof setTimeout> | undefined
 
-  constructor(
-    private readonly element: HTMLElement,
-    private readonly touch: boolean,
-  ) {}
-
-  showMode(mode: CameraMode): void {
-    this.show(HINTS[mode][this.touch ? 'touch' : 'pointer'], HINT_SECONDS)
-  }
+  constructor(private readonly element: HTMLElement) {}
 
   showSpeedLevel(level: number): void {
     const factor = speedFactor(level)

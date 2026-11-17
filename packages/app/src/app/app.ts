@@ -154,6 +154,7 @@ function createLessons(explorer: ReturnType<typeof createExplorer>, gpu: LessonG
       modeController: new LearnModeController(document.body, cameraInput, dock, searchUi),
       camera,
       lessonCamera: new LessonCamera(camera.orbit, lens, canvas),
+      showControls: () => explorer.guide.showOnce('lesson', 'orbit'),
       display,
       panel: new LessonPanel(requireElement),
       viewControls: new LessonViewControls(requireElement('#lesson-view-controls'), { zoom: (factor) => camera.zoom(factor), reset: () => session.resetView() }),

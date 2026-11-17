@@ -358,7 +358,7 @@
 body[data-app-mode='learn'] #hide-ui-btn {
   display: none;
 }
-body[data-ui-hidden] :is(.hud-modes, .hud-top-actions, .hud-dock, .hud-sheet, .hud-popover, .hud-palette, .hud-camera-hint, .hud-touch-pad) {
+body[data-ui-hidden] :is(.hud-modes, .hud-top-actions, .hud-dock, .hud-sheet, .hud-popover, .hud-palette, .hud-camera-hint, .hud-controls, .hud-touch-pad) {
   visibility: hidden;
 }
 .hud-show-ui {
@@ -1971,6 +1971,134 @@ body[data-ui-hidden] .hud-browser-hint {
   line-height: 1.4;
   text-align: center;
   pointer-events: none;
+}
+
+/* The controls overlay: a glass slab under the top bar, the camera mode's keys as keycaps laid out
+   as on a keyboard, and its gestures as wide caps, each with what it does. A held key lights up in
+   the camera's cyan. */
+.hud-controls {
+  position: fixed;
+  top: 78px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  box-sizing: border-box;
+  padding: 10px 16px 12px;
+  font-family: var(--hud-font);
+  color: var(--hud-text);
+  background: var(--hud-glass);
+  backdrop-filter: blur(28px) saturate(170%);
+  box-shadow: var(--hud-glass-edge), 2px 2px 0 rgba(34, 225, 255, 0.6), 4px 4px 0 rgba(123, 92, 255, 0.35);
+  animation: hud-controls-in 0.25s ease-out;
+  /* Never in the way: clicks go through it (and close it), except on its close button. */
+  pointer-events: none;
+}
+.hud-controls .hud-close {
+  pointer-events: auto;
+}
+.hud-controls[hidden] {
+  display: none;
+}
+@keyframes hud-controls-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -6px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hud-controls {
+    animation: none;
+  }
+}
+.hud-controls-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+.hud-controls-title {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--hud-cyan);
+}
+.hud-controls-body {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px 22px;
+}
+.hud-controls-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.hud-controls-caps {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.hud-controls-row {
+  display: flex;
+  gap: 4px;
+}
+.hud-keycap,
+.hud-gesturecap {
+  display: inline-grid;
+  place-items: center;
+  min-width: 28px;
+  height: 28px;
+  box-sizing: border-box;
+  padding: 0 6px;
+  font-family: var(--hud-mono);
+  font-size: 12px;
+  color: var(--hud-text);
+  background: var(--hud-well);
+  box-shadow: var(--hud-well-edge), 0 2px 0 rgba(255, 255, 255, 0.12);
+  transition:
+    background 0.08s,
+    box-shadow 0.08s;
+}
+.hud-keycap.is-wide {
+  min-width: 72px;
+}
+.hud-keycap.is-gap {
+  visibility: hidden;
+}
+.hud-keycap.is-pressed {
+  color: #04121a;
+  background: var(--hud-cyan);
+  box-shadow: 0 0 14px -2px rgba(34, 225, 255, 0.9);
+}
+.hud-gesturecap {
+  font-family: var(--hud-font);
+  font-size: 11.5px;
+  padding: 0 10px;
+}
+.hud-controls-caps:has(.hud-gesturecap) {
+  flex-direction: row;
+}
+.hud-controls-caption {
+  font-size: 11.5px;
+  color: var(--hud-dim);
+  text-align: center;
+  max-width: 140px;
+}
+.hud-controls-again {
+  margin: 10px 0 0;
+  font-size: 11px;
+  color: var(--hud-dim);
+  text-align: center;
+}
+body:has(.hud-library:not([hidden]), .hud-palette:not([hidden])) .hud-controls {
+  display: none;
 }
 
 /* Free flight on a touch screen: a thumbstick on the left, up/boost/down on the right, both above

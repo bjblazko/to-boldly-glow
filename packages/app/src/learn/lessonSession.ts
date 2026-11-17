@@ -33,6 +33,8 @@ export interface LessonSessionParts {
   // The lessons that stage their own Sun, Earth and Moon (the solar eclipse, the Moon's phases).
   stagedScenes: StagedLessonScene[]
   voice: LessonVoice
+  // Shows how to turn, move and zoom the view (the first lesson opened shows it).
+  showControls(): void
 }
 
 // Reads the lesson out: each chapter as it is shown, and a new order of the planets.
@@ -231,6 +233,7 @@ export class LessonSession implements ScenePlayer {
   // A lesson plays as it opens: the chapter shown and read, the next ones turned to by themselves.
   private playFromHere(lesson: Lesson): void {
     this.showChapter()
+    this.parts.showControls()
     this.autoplay.setPlaying(true)
     this.parts.voice.chapter(lesson.id, this.chapter)
   }
