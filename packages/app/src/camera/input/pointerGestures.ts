@@ -3,8 +3,9 @@ import { twoFingerMove, type Point } from './twoFingers'
 export interface GestureHandlers {
   // One pointer moved (CSS pixels); `touch` tells a finger from a mouse or pen.
   drag(deltaX: number, deltaY: number, touch: boolean): void
-  // The scene is pulled along (CSS pixels): a right- or Shift-drag, or two fingers moving together.
-  pan(deltaX: number, deltaY: number): void
+  // The scene is pulled along (CSS pixels): a right- or Shift-drag, or two fingers moving together
+  // (`touch`).
+  pan(deltaX: number, deltaY: number, touch: boolean): void
   // Two fingers moved apart (factor > 1) or together (< 1), about their midpoint (client coordinates).
   pinch(factor: number, centerX: number, centerY: number): void
   // Every pointer was lifted.
@@ -71,13 +72,13 @@ export class PointerGestures {
     pointer.y = event.clientY
     const after = this.fingers()
     if (before && after) this.moveTwoFingers(before, after)
-    else if (pointer.pans) this.handlers.pan(deltaX, deltaY)
+    else if (pointer.pans) this.handlers.pan(deltaX, deltaY, false)
     else this.handlers.drag(deltaX, deltaY, event.pointerType === 'touch')
   }
 
   private moveTwoFingers(before: [Point, Point], after: [Point, Point]): void {
     const { pan, factor, center } = twoFingerMove(before, after)
-    if (pan[0] !== 0 || pan[1] !== 0) this.handlers.pan(pan[0], pan[1])
+    if (pan[0] !== 0 || pan[1] !== 0) this.handlers.pan(pan[0], pan[1], true)
     if (factor !== 1) this.handlers.pinch(factor, center.x, center.y)
   }
 

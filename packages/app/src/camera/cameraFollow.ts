@@ -123,13 +123,15 @@ export class CameraFollowController {
 
   // Ends on the entity's sunlit side, with the camera's up turned to the entity's own pole.
   selectEntity(entity: SolarSystemEntity, T: number, daysSinceEpoch: number, scaleBlend: number): void {
+    // A moved pivot becomes the target the flight starts from, so it sets off without a jump.
+    vec3.copy(this.orbitCamera.target, this.orbitCamera.pivot())
+    this.orbitCamera.clearPan()
     const from = poseOf(this.orbitCamera)
     const target = entityWorldPosition(entity, T, daysSinceEpoch, scaleBlend)
     const upAxis = entityPoleDirection(entity)
     const radius = defaultFramingRadius(entity, scaleBlend, this.orbitCamera)
     const azimuth = defaultFramingAzimuth(target, from.azimuth, orbitBasisForUpAxis(upAxis))
     // The new body is turned around from its middle; the pivot may be moved a few framings from it.
-    this.orbitCamera.clearPan()
     this.orbitCamera.panLimit = radius * PAN_LIMIT_FRAMINGS
     this.followedEntity = entity
     this.flyTo = { from, to: { target, radius, azimuth, elevation: from.elevation, upAxis }, elapsedSeconds: 0, durationSeconds: this.flyToDurationSeconds }

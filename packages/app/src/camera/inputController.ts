@@ -60,7 +60,7 @@ export class CameraInputController {
       canvas,
       {
         drag: (deltaX, deltaY, touch) => this.onDrag(deltaX, deltaY, touch),
-        pan: (deltaX, deltaY) => this.onPan(deltaX, deltaY),
+        pan: (deltaX, deltaY, touch) => this.onPan(deltaX, deltaY, touch),
         pinch: (factor, centerX, centerY) => this.onPinch(factor, centerX, centerY),
         release: () => this.orbitMotion.release(),
         doubleTap: (x, y) => this.events.onDoubleTap(x, y),
@@ -139,8 +139,11 @@ export class CameraInputController {
     this.flyCamera.look(direction * deltaX * LOOK_RADIANS_PER_PX, -direction * deltaY * LOOK_RADIANS_PER_PX)
   }
 
-  private onPan(deltaX: number, deltaY: number): void {
+  // In free flight a Shift- or right-drag looks around like any drag (Shift is the boost there);
+  // two fingers only set the speed.
+  private onPan(deltaX: number, deltaY: number, touch: boolean): void {
     if (this.mode === 'orbit') panByPixels(this.orbitCamera, deltaX, deltaY, this.screen())
+    else if (!touch) this.onDrag(deltaX, deltaY, false)
   }
 
   private onPinch(factor: number, centerX: number, centerY: number): void {

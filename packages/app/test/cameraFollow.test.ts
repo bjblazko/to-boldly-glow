@@ -404,3 +404,16 @@ describe('CameraFollowController and the moved pivot', () => {
     expect(camera.panLimit).toBe(DEFAULT_PAN_LIMIT)
   })
 })
+
+describe('CameraFollowController starting from a moved pivot', () => {
+  it('flies off from where the view is, without a jump', () => {
+    const camera = new OrbitCamera()
+    camera.shiftPivot([4, 0, 0])
+    const eye = camera.getEyePosition()
+    const controller = new CameraFollowController(camera)
+    controller.selectEntity(findEntity('mars'), 0.1, 500, 1)
+    controller.update(0, 0.1, 500, 1)
+    const after = camera.getEyePosition()
+    expect(Math.hypot(after[0] - eye[0], after[1] - eye[1], after[2] - eye[2])).toBeCloseTo(0, 4)
+  })
+})
