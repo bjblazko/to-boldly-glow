@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest'
+import { vec3 } from 'gl-matrix'
 import {
+  borrowOrbitPose,
   COMPACT_MIN_ORBIT_RADIUS,
   minOrbitRadiusForBlend,
   OrbitCamera,
   orbitBasisForUpAxis,
   REALISTIC_MIN_ORBIT_RADIUS,
+  restoreOrbitPose,
 } from '../src/camera/orbitCamera'
 
 describe('orbitBasisForUpAxis', () => {
@@ -196,5 +199,21 @@ describe('OrbitCamera pan', () => {
     expect(Math.hypot(...right)).toBeCloseTo(1, 5)
     expect(Math.hypot(...up)).toBeCloseTo(1, 5)
     expect(dot(right, toPivot)).toBeCloseTo(0, 5)
+  })
+})
+
+describe('borrowing the orbit camera for a lesson', () => {
+  it('sets the moved pivot aside during the lesson and brings it back after', () => {
+    const camera = new OrbitCamera({ target: [9, 9, 9] })
+    camera.shiftPivot([1, 2, 3])
+    camera.panLimit = 40
+    const pose = borrowOrbitPose(camera)
+    expect(Math.hypot(...camera.panOffset)).toBe(0)
+    camera.panLimit = 5
+    vec3.set(camera.target, 0, 0, 0)
+    restoreOrbitPose(camera, pose)
+    expect([...camera.panOffset]).toEqual([1, 2, 3])
+    expect(camera.panLimit).toBe(40)
+    expect([...camera.target]).toEqual([9, 9, 9])
   })
 })

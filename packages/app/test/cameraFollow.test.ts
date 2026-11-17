@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { minOrbitRadiusForBlend, OrbitCamera, orbitBasisForUpAxis } from '../src/camera/orbitCamera'
+import { DEFAULT_PAN_LIMIT, minOrbitRadiusForBlend, OrbitCamera, orbitBasisForUpAxis } from '../src/camera/orbitCamera'
 import { CameraFollowController, defaultFramingAzimuth, interpolateUpAxis } from '../src/camera/cameraFollow'
 import { easeInOutCubic } from '../src/math/easing'
 import { ALL_ENTITIES, entityPoleDirection, entityWorldPosition } from '../src/solarSystem/entities'
@@ -362,5 +362,45 @@ describe('interpolateUpAxis', () => {
     // vec3.slerp divides by sin(angle) = 0 here; the resulting NaN once blanked the whole scene.
     const axis = interpolateUpAxis(ECLIPTIC_NORTH, ECLIPTIC_NORTH, 0.5)
     for (let i = 0; i < 3; i++) expect(axis[i]).toBeCloseTo(ECLIPTIC_NORTH[i], 6)
+  })
+})
+
+describe('CameraFollowController and the moved pivot', () => {
+  it('puts the pivot back on a newly selected body, and lets it move about 3 framings from it', () => {
+    const camera = new OrbitCamera()
+    camera.minRadius = minOrbitRadiusForBlend(1)
+    camera.shiftPivot([5, 0, 0])
+    const controller = new CameraFollowController(camera)
+    controller.selectEntity(findEntity('earth'), 0.1, 500, 1)
+    runPastFlyTo(controller, 0.1, 500, 1)
+    expect(Math.hypot(...camera.panOffset)).toBe(0)
+    expect(camera.panLimit).toBeCloseTo(camera.radius * 3, 6)
+  })
+
+  it('scales a moved pivot with the scene when the scale changes, like the distance', () => {
+    const camera = new OrbitCamera()
+    const controller = new CameraFollowController(camera)
+    camera.minRadius = minOrbitRadiusForBlend(1)
+    controller.selectEntity(findEntity('jupiter'), 0.1, 500, 1)
+    runPastFlyTo(controller, 0.1, 500, 1)
+    camera.shiftPivot([camera.radius * 0.5, 0, 0])
+    const offsetPerRadius = camera.panOffset[0] / camera.radius
+    for (let i = 0; i <= 20; i++) {
+      const scaleBlend = 1 - i / 20
+      camera.minRadius = minOrbitRadiusForBlend(scaleBlend)
+      controller.update(0.05, 0.1, 500, scaleBlend)
+    }
+    expect(camera.panOffset[0] / camera.radius).toBeCloseTo(offsetPerRadius, 4)
+  })
+
+  it('keeps a moved pivot but lets it roam freely again once the follow stops', () => {
+    const camera = new OrbitCamera()
+    const controller = new CameraFollowController(camera)
+    controller.selectEntity(findEntity('earth'), 0.1, 500, 1)
+    runPastFlyTo(controller, 0.1, 500, 1)
+    camera.shiftPivot([0.1, 0, 0])
+    controller.stopFollowing()
+    expect(camera.panOffset[0]).toBeCloseTo(0.1, 6)
+    expect(camera.panLimit).toBe(DEFAULT_PAN_LIMIT)
   })
 })

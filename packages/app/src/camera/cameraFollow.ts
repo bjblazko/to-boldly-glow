@@ -2,7 +2,7 @@ import { vec3 } from 'gl-matrix'
 import { AU_KM } from '../solarSystem/bodies'
 import { entityPoleDirection, entityWorldPosition, type SolarSystemEntity } from '../solarSystem/entities'
 import { scaledBodyRadiusUnits } from '../solarSystem/sceneScale'
-import { orbitBasisForUpAxis, type OrbitBasis, type OrbitCamera } from './orbitCamera'
+import { DEFAULT_PAN_LIMIT, orbitBasisForUpAxis, type OrbitBasis, type OrbitCamera } from './orbitCamera'
 import { easeInOutCubic, lerp, lerpAngle, lerpVec3 } from '../math/easing'
 
 export interface CameraFollowOptions {
@@ -12,6 +12,8 @@ export interface CameraFollowOptions {
 // How many body-radii away the default fly-to framing sits, so small moons get a close-up view
 // and large bodies (the Sun, Jupiter) get a farther one, all clamped to the camera's own zoom range.
 const FRAMING_RADIUS_MULTIPLIER = 6
+// How far the pivot may be moved from a followed body, in framing distances.
+const PAN_LIMIT_FRAMINGS = 3
 
 // Controls how quickly the locked-on camera eases toward a followed entity's live position each
 // frame, rather than snapping to it exactly. Framerate-independent exponential smoothing (see
@@ -126,12 +128,16 @@ export class CameraFollowController {
     const upAxis = entityPoleDirection(entity)
     const radius = defaultFramingRadius(entity, scaleBlend, this.orbitCamera)
     const azimuth = defaultFramingAzimuth(target, from.azimuth, orbitBasisForUpAxis(upAxis))
+    // The new body is turned around from its middle; the pivot may be moved a few framings from it.
+    this.orbitCamera.clearPan()
+    this.orbitCamera.panLimit = radius * PAN_LIMIT_FRAMINGS
     this.followedEntity = entity
     this.flyTo = { from, to: { target, radius, azimuth, elevation: from.elevation, upAxis }, elapsedSeconds: 0, durationSeconds: this.flyToDurationSeconds }
     this.lastFramingRadius = radius
   }
 
   stopFollowing(): void {
+    this.orbitCamera.panLimit = DEFAULT_PAN_LIMIT
     this.followedEntity = null
     this.lastFramingRadius = null
     this.flyTo = null
@@ -165,7 +171,15 @@ export class CameraFollowController {
     const target = this.orbitCamera.target
     vec3.copy(target, lerpVec3([target[0], target[1], target[2]], livePosition, followSmoothingFactor(deltaSeconds)))
     const framingRadius = defaultFramingRadius(entity, moment.scaleBlend, this.orbitCamera)
-    if (this.lastFramingRadius !== null && this.lastFramingRadius > 0) this.orbitCamera.radius *= framingRadius / this.lastFramingRadius
+    if (this.lastFramingRadius !== null && this.lastFramingRadius > 0) this.rescale(framingRadius / this.lastFramingRadius)
     this.lastFramingRadius = framingRadius
+  }
+
+  // The distance, and a moved pivot with its limit, keep their share of the scene.
+  private rescale(ratio: number): void {
+    const camera = this.orbitCamera
+    camera.radius *= ratio
+    camera.panLimit *= ratio
+    vec3.scale(camera.panOffset, camera.panOffset, ratio)
   }
 }

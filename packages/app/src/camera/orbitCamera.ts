@@ -189,3 +189,33 @@ export class OrbitCamera {
     this.radius = clamp(this.radius * factor, this.minRadius, this.maxRadius)
   }
 }
+
+// Everything a lesson or a mission tour changes on the orbit camera, kept to give back after.
+export interface OrbitPose {
+  target: vec3
+  radius: number
+  azimuth: number
+  elevation: number
+  upAxis: vec3
+  panOffset: vec3
+  panLimit: number
+}
+
+// Takes the camera's pose for later and sets the moved pivot aside: a borrowed camera starts on its
+// target.
+export function borrowOrbitPose(camera: OrbitCamera): OrbitPose {
+  const { radius, azimuth, elevation, panLimit } = camera
+  const pose = { target: vec3.clone(camera.target), radius, azimuth, elevation, upAxis: vec3.clone(camera.upAxis), panOffset: vec3.clone(camera.panOffset), panLimit }
+  camera.clearPan()
+  return pose
+}
+
+export function restoreOrbitPose(camera: OrbitCamera, pose: OrbitPose): void {
+  vec3.copy(camera.target, pose.target)
+  camera.radius = pose.radius
+  camera.azimuth = pose.azimuth
+  camera.elevation = pose.elevation
+  vec3.copy(camera.upAxis, pose.upAxis)
+  vec3.copy(camera.panOffset, pose.panOffset)
+  camera.panLimit = pose.panLimit
+}

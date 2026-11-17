@@ -6,17 +6,12 @@ import { FlyCamera } from './flyCamera'
 import type { FlightCommand } from './flyCamera'
 import type { Obstacle } from './input/flightSpeed'
 import { CameraInputController, type CameraMode } from './inputController'
-import { OrbitCamera } from './orbitCamera'
+import { borrowOrbitPose, OrbitCamera, restoreOrbitPose, type OrbitPose } from './orbitCamera'
 import { TourController, type TourRoute } from './tourController'
 
 // The orbit camera's pose, saved while a lesson borrows the camera.
-export interface CameraSnapshot {
+export interface CameraSnapshot extends OrbitPose {
   mode: CameraMode
-  target: vec3
-  radius: number
-  azimuth: number
-  elevation: number
-  upAxis: vec3
 }
 
 export interface CameraDirectorEvents {
@@ -65,7 +60,7 @@ export class CameraDirector {
   setMode(mode: CameraMode, { syncFlyPose = true } = {}): void {
     if (mode === 'fly' && this.input.mode === 'orbit' && syncFlyPose) {
       const eye = this.orbit.getEyePosition()
-      this.fly.setPose(eye, vec3.subtract(vec3.create(), this.orbit.target, eye), this.orbit.upAxis)
+      this.fly.setPose(eye, vec3.subtract(vec3.create(), this.orbit.pivot(), eye), this.orbit.upAxis)
     }
     this.input.setMode(mode)
     this.events.onModeChange(mode)
@@ -117,24 +112,13 @@ export class CameraDirector {
   takeOverForLesson(): CameraSnapshot {
     this.stopTour()
     this.stopFollowing()
-    const snapshot: CameraSnapshot = {
-      mode: this.input.mode,
-      target: vec3.clone(this.orbit.target),
-      radius: this.orbit.radius,
-      azimuth: this.orbit.azimuth,
-      elevation: this.orbit.elevation,
-      upAxis: vec3.clone(this.orbit.upAxis),
-    }
+    const snapshot: CameraSnapshot = { mode: this.input.mode, ...borrowOrbitPose(this.orbit) }
     this.setMode('orbit')
     return snapshot
   }
 
   restoreAfterLesson(snapshot: CameraSnapshot): void {
-    vec3.copy(this.orbit.target, snapshot.target)
-    this.orbit.radius = snapshot.radius
-    this.orbit.azimuth = snapshot.azimuth
-    this.orbit.elevation = snapshot.elevation
-    vec3.copy(this.orbit.upAxis, snapshot.upAxis)
+    restoreOrbitPose(this.orbit, snapshot)
     this.setMode(snapshot.mode, { syncFlyPose: false })
   }
 
