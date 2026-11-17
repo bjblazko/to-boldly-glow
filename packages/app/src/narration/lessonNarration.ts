@@ -1,6 +1,6 @@
 import { locale } from '../i18n/i18n'
 import type { Chapter } from '../learn/lessonTypes'
-import { AudioClipPlayer } from './audioClipPlayer'
+import { AudioClipPlayer, type VoiceSignals } from './audioClipPlayer'
 import { clipUrl, estimatedSeconds, type NarrationManifest } from './narrationManifest'
 import { lessonClipId, orderClipId } from './narrationSegments'
 import { narratorVoice } from './narratorVoice'
@@ -15,10 +15,10 @@ export class LessonNarration {
   constructor(
     private readonly manifest: NarrationManifest | null,
     private readonly soundToggle: HTMLInputElement,
-    // Hears when the narrator is audible, so the music can step back for it.
-    speaking: (audible: boolean) => void,
+    // When the narrator is audible (the music steps back) and when a clip is still loading.
+    voice: VoiceSignals,
   ) {
-    this.player = new AudioClipPlayer(speaking)
+    this.player = new AudioClipPlayer(voice)
     soundToggle.addEventListener('change', () => {
       if (!soundToggle.checked) this.stop()
     })
@@ -33,6 +33,17 @@ export class LessonNarration {
     return recorded?.seconds ?? estimatedSeconds(`${chapter.title} ${chapter.text}`)
   }
 
+  // Fetches the chapter's clip ahead (the next one, while this one is read).
+  prefetch(lessonId: string, chapter: Chapter): void {
+    const url = this.recordedUrl(lessonClipId(lessonId, chapter.id, chapter.focusPlanetId))
+    if (url) this.player.prefetch({ text: '', seconds: 0, url })
+  }
+
+  // Whether the clip being read is still loading.
+  get isLoading(): boolean {
+    return this.player.isLoading
+  }
+
   sorted(sortingId: string): void {
     this.say(orderClipId(sortingId))
   }
@@ -43,9 +54,16 @@ export class LessonNarration {
 
   private say(id: string): void {
     this.stop()
+    const recorded = this.manifest?.voices[narratorVoice()]?.clips[locale]?.[id]
+    const url = this.recordedUrl(id)
+    if (!recorded || !url) return
+    this.player.play({ text: '', seconds: recorded.seconds, url }, () => {})
+  }
+
+  // The clip's address, if it is recorded and the narrator's voice is on.
+  private recordedUrl(id: string): string | null {
     const voice = narratorVoice()
     const recorded = this.manifest?.voices[voice]?.clips[locale]?.[id]
-    if (!this.soundToggle.checked || !recorded) return
-    this.player.play({ text: '', seconds: recorded.seconds, url: clipUrl(voice, locale, id) }, () => {})
+    return this.soundToggle.checked && recorded ? clipUrl(voice, locale, id) : null
   }
 }

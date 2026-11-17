@@ -60,7 +60,9 @@ import { gatherPaletteItems, type PaletteActions } from './paletteItems'
 import { startupTourWanted } from './startupTour'
 import { showWelcomeCard } from './welcomeCard'
 import { ModeButtons } from '../hud/modeButtons'
+import type { VoiceSignals } from '../narration/audioClipPlayer'
 import { loadNarrationManifest, type NarrationManifest } from '../narration/narrationManifest'
+import { voiceSignals, VoiceStatus } from '../narration/voiceStatus'
 import { MusicEngine } from '../music/musicEngine'
 import { LessonNarration } from '../narration/lessonNarration'
 import { bindMusicSettings } from '../music/musicSettings'
@@ -77,8 +79,9 @@ export async function startApp(canvas: HTMLCanvasElement): Promise<void> {
   const [{ targets, linePipeline, features, groundSky, models }, narrationManifest] = await Promise.all([createRendering(gpu, canvas), loadNarrationManifest(), loadSpacecraftTrajectories()])
   const display = new DisplaySettings(canvas, (selector) => requireElement<HTMLInputElement>(selector))
   const music = new MusicEngine()
-  const explorer = createExplorer(canvas, display, features.orbitPaths, { narrationManifest, music })
-  const { lessons, players } = createPlayers(explorer, { device: gpu.device, linePipeline, models }, groundSky, { narrationManifest, music })
+  const voice = voiceSignals((audible) => music.duck(audible), new VoiceStatus(requireElement('#voice-status')))
+  const explorer = createExplorer(canvas, display, features.orbitPaths, { narrationManifest, voice })
+  const { lessons, players } = createPlayers(explorer, { device: gpu.device, linePipeline, models }, groundSky, { narrationManifest, voice })
   bindMusicSettings(requireElement('#music-switch'), requireElement<HTMLInputElement>('#music-volume'), music)
   const renderer = new SceneRenderer(gpu.device, targets, { ...features, players }, { display, linePipeline })
   watchCanvasSize(canvas, () => {
@@ -92,11 +95,10 @@ export async function startApp(canvas: HTMLCanvasElement): Promise<void> {
 
 // Who stages a scene of their own: the lessons and the mission tours - each with its narrator, the
 // music stepping back while one speaks - and the spacecraft drawn into the explore view.
-function createPlayers(explorer: ReturnType<typeof createExplorer>, gpu: LessonGpu & { models: ModelContext }, groundSky: GroundSky, sound: { narrationManifest: NarrationManifest | null; music: MusicEngine }) {
+function createPlayers(explorer: ReturnType<typeof createExplorer>, gpu: LessonGpu & { models: ModelContext }, groundSky: GroundSky, sound: { narrationManifest: NarrationManifest | null; voice: VoiceSignals }) {
   const soundToggle = requireElement<HTMLInputElement>('#narration-sound-toggle')
-  const speaking = (audible: boolean) => sound.music.duck(audible)
-  const missions = createMissionTours(explorer, gpu, new MissionNarration(sound.narrationManifest, soundToggle, speaking))
-  const lessons = createLessons(explorer, gpu, groundSky, { voice: new LessonNarration(sound.narrationManifest, soundToggle, speaking), missions })
+  const missions = createMissionTours(explorer, gpu, new MissionNarration(sound.narrationManifest, soundToggle, sound.voice))
+  const lessons = createLessons(explorer, gpu, groundSky, { voice: new LessonNarration(sound.narrationManifest, soundToggle, sound.voice), missions })
   const exploring = () => !lessons.active && !missions.session.active
   const now = () => ({ daysSinceEpoch: ephemerisAt(explorer.clock.getCurrentDate()).daysSinceEpoch, scaleBlend: explorer.scaleMode.blend })
   const spacecraft = new ExploreSpacecraft(gpu.models, { exploring, now })

@@ -1,5 +1,5 @@
 import { locale } from '../i18n/i18n'
-import { AudioClipPlayer } from './audioClipPlayer'
+import { AudioClipPlayer, type VoiceSignals } from './audioClipPlayer'
 import { NarrationBar } from './narrationBar'
 import { clipUrl, estimatedSeconds, type NarrationManifest } from './narrationManifest'
 import { NARRATION_SCRIPTS, segmentId } from './narrationSegments'
@@ -18,10 +18,10 @@ export class NarratedTour {
   constructor(
     private readonly manifest: NarrationManifest | null,
     findElement: <T extends HTMLElement>(selector: string) => T,
-    // Hears when the narrator is audible, so the music can step back for it.
-    speaking: (audible: boolean) => void,
+    // When the narrator is audible (the music steps back) and when a clip is still loading.
+    voice: VoiceSignals,
   ) {
-    this.player = new AudioClipPlayer(speaking)
+    this.player = new AudioClipPlayer(voice)
     this.bar = new NarrationBar(
       {
         bar: findElement('#narration-bar'),

@@ -20,6 +20,7 @@ export const ui: Messages['ui'] = {
     subtitles: 'Untertitel',
     sound: 'Stimme',
     voice: 'Erzählstimme',
+    loading: 'Stimme lädt …',
   },
   modes: {
     group: 'Modus',

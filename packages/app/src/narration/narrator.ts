@@ -14,6 +14,8 @@ export interface NarrationClip {
 // Plays one clip at a time and says when it has ended.
 export interface ClipPlayer {
   play(clip: NarrationClip, onEnded: () => void): void
+  // Fetches a clip ahead, so it starts at once when its turn comes.
+  prefetch?(clip: NarrationClip): void
   // Seconds into the clip playing.
   elapsed(): number
   stop(): void
@@ -52,10 +54,13 @@ export class Narrator implements TourPacing, TourListener {
     private readonly view: NarrationView,
   ) {}
 
-  // Asked as each leg is planned, just before it starts.
+  // Asked as each leg is planned, just before it starts: its clips, and the next stop's, are fetched
+  // ahead.
   pace(): LegPace {
     const stop = GRAND_TOUR[this.legsStarted]?.stop
     if (!stop) return { transitSeconds: 0, lapSeconds: 0 }
+    this.prefetchStop(this.legsStarted)
+    this.prefetchStop(this.legsStarted + 1)
     return {
       transitSeconds: this.clipFor(stop, 'approach').seconds + TRANSIT_MARGIN_SECONDS,
       lapSeconds: this.clipFor(stop, 'orbit').seconds + LAP_MARGIN_SECONDS,
@@ -87,6 +92,12 @@ export class Narrator implements TourPacing, TourListener {
     clearInterval(this.ticker)
     this.ticker = undefined
     this.view.show(null)
+  }
+
+  private prefetchStop(leg: number): void {
+    const stop = GRAND_TOUR[leg]?.stop
+    if (!stop || !this.player.prefetch) return
+    for (const part of ['approach', 'orbit'] as const) this.player.prefetch(this.clipFor(stop, part))
   }
 
   private enqueue(leg: number, part: NarrationPart): void {

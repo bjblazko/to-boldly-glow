@@ -431,6 +431,35 @@ body[data-ui-hidden] :is(.hud-modes, .hud-top-actions, .hud-dock, .hud-sheet, .h
   outline: 2px solid #fff;
   outline-offset: 2px;
 }
+/* "Voice loading …": the narrator's clip is still on its way, so the quiet is not a fault. */
+.hud-voice-status {
+  margin: 2px 0 0;
+  color: var(--hud-text);
+}
+.hud-voice-status::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 6px;
+  border-radius: 50%;
+  vertical-align: 1px;
+  background: currentColor;
+  animation: hud-voice-pulse 1.2s ease-in-out infinite;
+}
+.hud-voice-status[hidden] {
+  display: none;
+}
+@keyframes hud-voice-pulse {
+  50% {
+    opacity: 0.25;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hud-voice-status::before {
+    animation: none;
+  }
+}
 /* Follows the scale switch's choice at once, not the end of the scene's eased transition. */
 body:has(#scale-mode-compact-btn[aria-pressed='true']) .hud-scale-note {
   display: block;

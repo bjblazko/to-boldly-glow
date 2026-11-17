@@ -19,6 +19,7 @@ export const ui = {
     subtitles: 'Subtitles',
     sound: 'Voice',
     voice: 'Narrator',
+    loading: 'Voice loading …',
   },
   modes: {
     group: 'Mode',

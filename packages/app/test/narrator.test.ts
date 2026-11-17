@@ -8,6 +8,7 @@ import { cueAt, subtitleCues } from '../src/narration/subtitles'
 class FakePlayer implements ClipPlayer {
   playing: { clip: NarrationClip; onEnded: () => void } | null = null
   played: string[] = []
+  prefetch?: (clip: NarrationClip) => void
   play(clip: NarrationClip, onEnded: () => void): void {
     this.playing = { clip, onEnded }
     this.played.push(clip.text)
@@ -42,6 +43,14 @@ describe('the narrator', () => {
     expect(guide.pace()).toEqual({ transitSeconds: 23, lapSeconds: 26 })
     guide.onLegStart()
     expect(guide.pace()).toEqual({ transitSeconds: 13, lapSeconds: 16 })
+  })
+
+  it('fetches the clips of the stop ahead and of the one after it as each leg is planned', () => {
+    const { player, narrator: guide } = narrator()
+    const fetched: string[] = []
+    player.prefetch = (clip) => fetched.push(clip.text)
+    guide.pace()
+    expect(fetched).toEqual(['sun approach', 'sun orbit', 'mercury approach', 'mercury orbit'])
   })
 
   it('speaks the approach when the ship says it is near, then the rest while circling - one after the other', () => {

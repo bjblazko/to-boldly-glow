@@ -1,5 +1,5 @@
 import { locale } from '../i18n/i18n'
-import { AudioClipPlayer } from '../narration/audioClipPlayer'
+import { AudioClipPlayer, type VoiceSignals } from '../narration/audioClipPlayer'
 import { clipUrl, estimatedSeconds, type NarrationManifest } from '../narration/narrationManifest'
 import { narratorVoice } from '../narration/narratorVoice'
 
@@ -12,9 +12,10 @@ export class MissionNarration {
   constructor(
     private readonly manifest: NarrationManifest | null,
     private readonly soundToggle: HTMLInputElement,
-    speaking: (audible: boolean) => void,
+    // When the narrator is audible (the music steps back) and when a clip is still loading.
+    voice: VoiceSignals,
   ) {
-    this.player = new AudioClipPlayer(speaking)
+    this.player = new AudioClipPlayer(voice)
     soundToggle.addEventListener('change', () => {
       if (!soundToggle.checked) this.stop()
     })
@@ -30,6 +31,16 @@ export class MissionNarration {
     const recorded = this.recorded(clipId)
     if (!this.soundToggle.checked || !recorded) return
     this.player.play({ text: '', seconds: recorded.seconds, url: clipUrl(narratorVoice(), locale, clipId) }, () => {})
+  }
+
+  // Fetches a station's clip ahead (the next one, while this one is read).
+  prefetch(clipId: string): void {
+    if (this.soundToggle.checked && this.recorded(clipId)) this.player.prefetch({ text: '', seconds: 0, url: clipUrl(narratorVoice(), locale, clipId) })
+  }
+
+  // Whether the clip being read is still loading: the tour waits for it.
+  get isLoading(): boolean {
+    return this.player.isLoading
   }
 
   stop(): void {

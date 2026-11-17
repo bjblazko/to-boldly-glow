@@ -97,12 +97,17 @@ export class MissionTourSession implements ScenePlayer {
   update(deltaSeconds: number): void {
     const running = this.running
     if (!running) return
-    const moment = running.player.update(deltaSeconds)
-    if (!moment.paused) running.seconds += deltaSeconds
+    // While the narrator's clip is still loading, the tour waits for it.
+    const held = this.parts.narration.isLoading ? 0 : deltaSeconds
+    const moment = running.player.update(held)
+    if (!moment.paused) running.seconds += held
     const station = running.mission.stations[moment.stationIndex]
     void running.scenes.stage(moment, station)
     const next = running.mission.stations[moment.stationIndex + 1]
-    if (next) running.scenes.prefetch(next)
+    if (next) {
+      running.scenes.prefetch(next)
+      this.parts.narration.prefetch(missionClipId(running.mission.probe, next.id))
+    }
     this.steer(running, moment, station, deltaSeconds)
     this.parts.ui.update(moment, running.scenes.route.probeAu(running.mission.probe).distanceAu)
   }

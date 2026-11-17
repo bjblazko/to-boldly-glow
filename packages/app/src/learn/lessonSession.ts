@@ -41,6 +41,10 @@ export interface LessonVoice {
   // How long reading the chapter out takes (its clip, or its text's reading time).
   seconds(lessonId: string, chapter: Chapter): number
   sorted(sortingId: string): void
+  // Fetches a chapter's clip ahead.
+  prefetch(lessonId: string, chapter: Chapter): void
+  // Whether the clip being read is still loading: the lesson waits for it before turning the page.
+  readonly isLoading: boolean
   stop(): void
 }
 
@@ -128,7 +132,7 @@ export class LessonSession implements ScenePlayer {
   // A view from the ground may move with its scene, so the camera follows it every frame.
   update(deltaSeconds: number): void {
     if (!this.active) return
-    this.autoplay.update(deltaSeconds)
+    if (!this.parts.voice.isLoading) this.autoplay.update(deltaSeconds)
     this.parts.lessonCamera.update(deltaSeconds)
     const { kind } = this.chapter
     const staged = this.stagedScene
@@ -250,6 +254,8 @@ export class LessonSession implements ScenePlayer {
     this.parts.panel.show(this.player, this.sorting?.id)
     this.parts.progress.record(this.player.currentLesson, this.player.currentChapterIndex, this.sorting?.id)
     this.autoplay.chapterShown(this.parts.voice.seconds(this.player.currentLesson.id, this.chapter))
+    const next = this.player.currentLesson.chapters[this.player.currentChapterIndex + 1]
+    if (next) this.parts.voice.prefetch(this.player.currentLesson.id, next)
   }
 
   // Playing: the next chapter, or - after the last - stop.
