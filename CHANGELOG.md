@@ -9,9 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Apollo, first step: the lesson "The Saturn V, Taken Apart" - Apollo 11's rocket to scale, its
-  stack taken apart, each stage cut open (tanks, engines), with photos and figures; English and
-  German, narration still to be recorded.
+- Apollo, first step: the lesson "The Saturn V, Taken Apart" - Apollo 11's rocket to scale in an
+  open blueprint room, its stack taken apart, each stage cut open (tanks, engines), with photos and
+  figures checked against NASA's flight reports; narrated in English and German.
+
+### Changed
+
+- Lessons and mission tours on wide screens: the text, facts and photos stand in a column on the
+  right, one piece with the bar - the scene gets the rest of the screen. Upright and narrow screens
+  keep the panel above the bar.
+- A mission tour's bar works like a lesson's: back, the timeline, Next, then Pause/Play.
+
+### Security
+
+- Narration environment (build time only): Pillow 13; dev tools: npm audit fix.
 
 ## [0.6.0] - 2026-11-17
 
