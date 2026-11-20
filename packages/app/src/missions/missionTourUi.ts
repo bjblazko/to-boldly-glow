@@ -105,8 +105,7 @@ export class MissionTourUi {
     this.el.fade.style.opacity = String(moment.fade)
     this.el.distance.textContent = msg.missions.ui.distance(formatNumber(distanceAu, 1), formatNumber(distanceAu * LIGHT_HOURS_PER_AU, 1))
     const paused = moment.paused || moment.phase === 'end'
-    this.el.play.setAttribute('aria-label', paused ? msg.missions.ui.play : msg.missions.ui.pause)
-    this.el.play.dataset.state = paused ? 'paused' : 'playing'
+    this.showPlayState(paused)
     for (const item of this.el.timeline.querySelectorAll<HTMLElement>('li')) {
       const index = Number(item.dataset.index)
       item.classList.toggle('is-done', index < moment.stationIndex)
@@ -117,7 +116,17 @@ export class MissionTourUi {
   }
 
   ended(): void {
-    this.el.play.dataset.state = 'paused'
+    this.showPlayState(true)
+  }
+
+  // As in a lesson: the button says what it does - Pause while the tour runs, Play while it stands.
+  private showPlayState(paused: boolean): void {
+    const text = this.el.play.querySelector('.hud-dock-label')
+    const label = paused ? msg.ui.dock.play : msg.ui.dock.pause
+    if (!text || text.textContent === label) return
+    text.textContent = label
+    this.el.play.dataset.state = paused ? 'paused' : 'playing'
+    this.el.play.setAttribute('aria-label', paused ? msg.missions.ui.play : msg.missions.ui.pause)
   }
 
   private renderTimeline(mission: Mission): void {

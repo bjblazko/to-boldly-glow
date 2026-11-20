@@ -1331,8 +1331,8 @@ body:has(.hud-library:not([hidden]), .hud-palette:not([hidden])) .hud-camera-hin
 .hud-bar-group[data-for='lesson'] .hud-dock-btn[data-panel] .icon {
   color: var(--hud-dock-accent, #a594ff);
 }
-/* Next: the lesson's main action, with the dichroic face. */
-#lesson-next-chapter:not(:disabled) {
+/* Next: a lesson's and a mission tour's main action, with the dichroic face. */
+:is(#lesson-next-chapter, #mission-next):not(:disabled) {
   color: #fff;
   background: linear-gradient(115deg, rgba(255, 255, 255, 0.25) 0 30%, transparent 30%),
     linear-gradient(100deg, #ff3bbd, #ffcf4a);
@@ -1341,7 +1341,7 @@ body:has(.hud-library:not([hidden]), .hud-palette:not([hidden])) .hud-camera-hin
     var(--hud-ex-magenta),
     0 0 28px -4px rgba(255, 59, 189, 0.8);
 }
-#lesson-next-chapter:active:not(:disabled) {
+:is(#lesson-next-chapter, #mission-next):active:not(:disabled) {
   transform: translate(2px, 2px);
   box-shadow: var(--hud-lit), 1px 1px 0 #ff7ed4;
 }
