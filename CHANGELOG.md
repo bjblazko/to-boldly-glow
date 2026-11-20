@@ -12,6 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Apollo, first step: the lesson "The Saturn V, Taken Apart" - Apollo 11's rocket to scale in an
   open blueprint room, its stack taken apart, each stage cut open (tanks, engines), with photos and
   figures checked against NASA's flight reports; narrated in English and German.
+- Apollo, second step: the lesson "Columbia, Inside and Out" - the command and service module to
+  scale, the service module cut open sector by sector, and inside the Smithsonian's 3D scan of the
+  real capsule, lit by its floodlights with shadows; with NASA photos; narration still to be recorded.
+- The vehicle lessons look like film: soft lamplight with shadows, materials that shine or don't,
+  contact shadows in creases, depth of field, a vignette, fine grain and a warm grade.
 
 ### Changed
 

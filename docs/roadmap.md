@@ -45,7 +45,9 @@ from the Mission Report / Apollo Flight Journal state vectors, the real Moon, ev
 1. The Saturn V, taken apart (lesson; lathe-built model, exploded stack, cutaway) - spec
    `superpowers/specs/2026-11-20-apollo-saturn-v-design.md`.
 2. Columbia (CSM): the Smithsonian scan inside (CC0), our own exterior and SM cutaway; interior
-   light - spec `superpowers/specs/2026-11-20-apollo-columbia-design.md`.
+   light - spec `superpowers/specs/2026-11-20-apollo-columbia-design.md`. Done 2026-11-21 but for
+   the narration and sharper textures from the full-resolution scan; the hatch and windows are not
+   modelled outside yet.
 3. Eagle (LM): outside, our own cockpit, the stages separating, legs folded and deployed.
 4. Pad 39A: umbilical tower, crawler, pad; a ground scene on Earth.
 5. Mission data: event timeline in GET, trajectory reconstruction in the Earth-Moon system,
