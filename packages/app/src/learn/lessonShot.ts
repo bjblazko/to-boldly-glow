@@ -30,4 +30,8 @@ export interface LessonShot {
   // A model to look at from all around (the Voyager, its record): no limit on turning, and zooming
   // in as far as the zoom floor allows.
   freeLook?: boolean
+  // The vertical field of view (radians; 45 degrees if not given): wider for a cramped cabin.
+  fov?: number
+  // How far the user may move the view's pivot about (scene units; the bounds' reach if not given).
+  panReach?: number
 }

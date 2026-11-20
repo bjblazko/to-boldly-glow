@@ -1,4 +1,3 @@
-import { VERTICAL_FOV_RADIANS } from '../camera/viewpoint'
 import { NO_FILM_LOOK } from '../bloom/filmLook'
 import type { Viewpoint } from '../camera/viewpoint'
 import type { BodyRenderer } from '../bodies/bodyRenderer'
@@ -67,7 +66,8 @@ export class SceneRenderer {
     pass.end()
     this.drawCameraEffects(encoder)
     const { viewpoint } = frame
-    const camera = { projection: viewpoint.projection, focalPixels: viewpoint.pixels.height / 2 / Math.tan(VERTICAL_FOV_RADIANS / 2) }
+    // The projection's [5] is 1 / tan(half the vertical field of view).
+    const camera = { projection: viewpoint.projection, focalPixels: (viewpoint.pixels.height / 2) * viewpoint.projection[5] }
     this.targets.present(encoder, { look: this.parts.players.filmLook?.() ?? NO_FILM_LOOK, seed: frame.nowSeconds, camera })
     this.device.queue.submit([encoder.finish()])
   }

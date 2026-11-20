@@ -13,7 +13,8 @@ export type ColumbiaPart = 'cm' | 'sm' | 'smInside' | 'sps' | 'rcs' | 'antenna' 
 // cabin - held still (the cabin doesn't turn), close (a zoom floor of a few centimetres), never
 // backed off through the wall (bounds that already fit). With +Y up the camera stands along
 // (cos e cos a, sin e, -cos e sin a) from its target.
-const INSIDE = { zoomFloor: 0.05, maxZoomOut: 1.2, reach: 0.15, halfWidth: 0.2, height: 0 }
+// A wide lens (75 degrees) for the cramped cabin, and room to move the view about the whole of it.
+const INSIDE = { zoomFloor: 0.05, maxZoomOut: 1.2, reach: 0.15, halfWidth: 0.2, height: 0, fov: (75 * Math.PI) / 180, panReach: 1.2 }
 const FRAMES: Record<string, VehicleFrame> = {
   whole: { height: 5.2, radius: 24, reach: 6, halfWidth: 4.5 },
   serviceModule: { height: 4.8, radius: 13, reach: 3.2, halfWidth: 2.6 },

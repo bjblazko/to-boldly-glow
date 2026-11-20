@@ -237,6 +237,7 @@ export class LessonCamera {
   // A view from the ground passes its shot; it never backs off, as its eye is the observer.
   frame(kind: ChapterKind, groundShot?: GroundShot | null, { focusPlanetId, lineupOrder, glide = false }: FramingOptions = {}): void {
     const from = glide ? this.currentView() : null
+    this.lens.fov = VERTICAL_FOV_RADIANS
     this.applyPreset(groundShot ? groundPreset(groundShot) : this.presetFor(kind, focusPlanetId, lineupOrder))
     // Lessons ignore the explore view's scale: the lineup is at true scale (the Sun's radius there is
     // ~0.09 units), so its zoom floor and near plane come from its own framing distance; the seasons,
@@ -245,7 +246,7 @@ export class LessonCamera {
     this.lens.setLessonZoomFloor(sceneFloor)
     this.fitShot(kind, groundShot, { focusPlanetId, lineupOrder })
     // The observer's eye on the ground stays put (the lesson doesn't take camera input there).
-    if (!groundShot) this.allowLookingAround(sceneFloor, this.boundsFor(kind, groundShot, focusPlanetId))
+    if (!groundShot) this.allowLookingAround(sceneFloor, { bounds: this.boundsFor(kind, groundShot, focusPlanetId) })
     this.watch.framedAt(this.viewState())
     this.glide = from ? this.startGlide(from) : null
   }
@@ -253,11 +254,12 @@ export class LessonCamera {
   // A staged scene's own shot for a chapter (see LessonShot), or a flight there (glide).
   frameShot(shot: LessonShot, glide = false): void {
     const from = glide ? this.currentView() : null
+    this.lens.fov = shot.fov ?? VERTICAL_FOV_RADIANS
     this.applyPreset(shot.preset)
     const sceneFloor = shot.zoomFloor ?? COMPACT_MIN_ORBIT_RADIUS
     this.lens.setLessonZoomFloor(sceneFloor)
     this.fitAbovePanel(shot.bounds, shot.maxZoomOut)
-    this.allowLookingAround(sceneFloor, shot.bounds, shot.freeLook)
+    this.allowLookingAround(sceneFloor, shot)
     this.watch.framedAt(this.viewState())
     this.glide = from ? this.startGlide(from) : null
   }
@@ -295,6 +297,7 @@ export class LessonCamera {
     this.freePanLimit = null
     this.lens.setLessonZoomFloor(null)
     this.lens.lensShift = NO_LENS_SHIFT
+    this.lens.fov = VERTICAL_FOV_RADIANS
     this.orbit.radius = Math.max(this.orbit.radius, this.orbit.minRadius)
   }
 
@@ -308,13 +311,13 @@ export class LessonCamera {
     return { pivot: this.orbit.pivot(), radius, azimuth, elevation }
   }
 
-  private allowLookingAround(sceneFloor: number, bounds: ContentBounds, freeLook = false): void {
+  private allowLookingAround(sceneFloor: number, { bounds, freeLook = false, panReach }: Pick<LessonShot, 'bounds' | 'freeLook' | 'panReach'>): void {
     const { azimuth, elevation, radius } = this.orbit
     this.freeMaxRadius ??= this.orbit.maxRadius
     this.freePanLimit ??= this.orbit.panLimit
     this.orbit.viewLimits = lookAroundLimits(azimuth, elevation, freeLook)
     this.orbit.maxRadius = radius * ZOOM_OUT_LIMIT
-    this.orbit.panLimit = panLimitFor(bounds)
+    this.orbit.panLimit = panReach ?? panLimitFor(bounds)
     this.lens.setLessonZoomFloor(freeLook ? sceneFloor : Math.max(sceneFloor, radius * ZOOM_IN_LIMIT))
   }
 
@@ -395,7 +398,7 @@ export class LessonCamera {
   private fitAbovePanel(content: ContentBounds, maxZoomOut: number): void {
     const { clientWidth: width, clientHeight: height } = this.canvas
     if (height <= 0) return
-    const { radius, lensShift } = fitToRegion(content, { region: sceneRegion(width, height), aspect: width / height }, this.orbit.radius, maxZoomOut)
+    const { radius, lensShift } = fitToRegion(content, { region: sceneRegion(width, height), aspect: width / height, fov: this.lens.fov }, this.orbit.radius, maxZoomOut)
     this.orbit.radius = radius
     this.lens.lensShift = lensShift
   }

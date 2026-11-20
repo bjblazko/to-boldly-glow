@@ -29,6 +29,8 @@ export interface VehicleFrame {
   elevation?: number
   zoomFloor?: number
   maxZoomOut?: number
+  fov?: number
+  panReach?: number
 }
 
 export function vehicleShot(key: string, frame: VehicleFrame): LessonShot {
@@ -40,5 +42,7 @@ export function vehicleShot(key: string, frame: VehicleFrame): LessonShot {
     maxZoomOut: frame.maxZoomOut ?? 2.5,
     zoomFloor: frame.zoomFloor ?? 3,
     freeLook: true,
+    fov: frame.fov,
+    panReach: frame.panReach,
   }
 }

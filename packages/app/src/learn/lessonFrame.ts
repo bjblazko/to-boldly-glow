@@ -1,4 +1,4 @@
-import { NO_LENS_SHIFT, VERTICAL_FOV_RADIANS, type LensShift } from '../camera/viewpoint'
+import { NO_LENS_SHIFT, type LensShift } from '../camera/viewpoint'
 import { barHeight } from '../hud/barHeight'
 import type { ContentBounds } from './lessonShot'
 
@@ -73,9 +73,9 @@ export interface Framing {
 // backing the camera off only when the content is too tall or too wide for the region - never
 // moving it closer than the preset, and at most maxZoomOut times farther. The content's middle is
 // the target sideways (it reaches halfWidth either way) and `(top + bottom) / 2` above it.
-export function fitToRegion(content: ContentBounds, screen: { region: ScreenRegion; aspect: number }, presetRadius: number, maxZoomOut: number): Framing {
+export function fitToRegion(content: ContentBounds, screen: { region: ScreenRegion; aspect: number; fov: number }, presetRadius: number, maxZoomOut: number): Framing {
   const { region, aspect } = screen
-  const tanHalfFov = Math.tan(VERTICAL_FOV_RADIANS / 2)
+  const tanHalfFov = Math.tan(screen.fov / 2)
   const halfHeightToFit = Math.max((content.top - content.bottom) / (2 * (region.bottom - region.top)), content.halfWidth / (aspect * (region.right - region.left)))
   const radius = Math.min(Math.max(presetRadius, halfHeightToFit / tanHalfFov), presetRadius * maxZoomOut)
   // A point y above the target lands at screen fraction 0.5 - y / (2 * halfHeight) - shift / 2

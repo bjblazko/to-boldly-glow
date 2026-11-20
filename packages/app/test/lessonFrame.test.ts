@@ -24,7 +24,7 @@ describe('where a lesson scene goes', () => {
   it('puts the content’s middle in the middle of the region, at any shift', () => {
     const region = sceneRegion(1280, 800)
     const content = { top: 30, bottom: -10, halfWidth: 5 }
-    const { radius, lensShift } = fitToRegion(content, { region, aspect: 1.6 }, 100, 2)
+    const { radius, lensShift } = fitToRegion(content, { region, aspect: 1.6, fov: Math.PI / 4 }, 100, 2)
     // The camera looks along -Z at the target (the origin) from `radius` away.
     const view = mat4.lookAt(mat4.create(), [0, 0, radius], [0, 0, 0], [0, 1, 0])
     const clip = vec4.transformMat4(vec4.create(), [0, (content.top + content.bottom) / 2, 0, 1], mat4.multiply(mat4.create(), perspectiveProjection(1.6, 1, lensShift), view))

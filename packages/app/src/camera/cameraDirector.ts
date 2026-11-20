@@ -154,8 +154,8 @@ export class CameraDirector {
   }
 
   // Where the lens shift comes from (see CameraLens), so a zoom lands under the pointer.
-  setLensShiftSource(source: () => LensShift): void {
-    this.input.setLensShiftSource(source)
+  setLensSource(source: () => { lensShift: LensShift; fov: number }): void {
+    this.input.setLensSource(source)
   }
 
   // Keyboard flight first (it acts on the fly camera directly), then follow and tour, which need
