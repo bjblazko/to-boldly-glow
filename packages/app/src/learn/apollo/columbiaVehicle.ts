@@ -28,16 +28,15 @@ const FRAMES: Record<string, VehicleFrame> = {
   notes: { ...INSIDE, target: [-0.1, 8.8, -0.87], radius: 0.75, elevation: 0, azimuth: -1.79 },
 }
 
-// The cabin's light: its floodlights - two over the couches by the console, a dimmer one down in
-// the lower equipment bay - in a warm white, over a low fill (the scan's colours already carry some
-// of the museum's light) and a touch of sunlight through the windows.
+// The cabin's light: its floodlights - two on the underside of the main display console over the
+// couches, a dimmer one on the wall of the lower equipment bay (each 3 cm off a surface found on
+// the built cabin) - in a warm white, over a low fill (the scan's colours already carry some of the
+// museum's light) and a touch of sunlight through the windows. They are fixed to the panels and the
+// wall, so they rise with the command module when it lifts off its service module.
 const CABIN_LIGHT = { sun: 0.12, fill: 0.45 }
 const FLOOD = [1.0, 0.9, 0.76] as const
-const CABIN_LAMPS = [
-  { place: [-0.55, 9.1, 0.45] as [number, number, number], reach: 2.2, color: FLOOD.map((value) => value * 2.2) as [number, number, number] },
-  { place: [0.55, 9.1, 0.45] as [number, number, number], reach: 2.2, color: FLOOD.map((value) => value * 2.2) as [number, number, number] },
-  { place: [0, 8.15, -0.55] as [number, number, number], reach: 1.6, color: FLOOD.map((value) => value * 1.2) as [number, number, number] },
-]
+const lamp = (place: [number, number, number], fixedTo: string, strength: number, reach: number) => ({ place, fixedTo, reach, color: FLOOD.map((value) => value * strength) as [number, number, number] })
+const CABIN_LAMPS = [lamp([-0.544, 9.015, 0.284], 'panels', 2.2, 2.2), lamp([0.547, 9.007, 0.277], 'panels', 2.2, 2.2), lamp([0.012, 8.335, -0.927], 'hull', 1.2, 1.6)]
 
 // What the cabin is made of: the panels painted metal with a tight sheen, the walls dull paint, the
 // couches' fabric and straps hardly shining, the notes on paper and tape.

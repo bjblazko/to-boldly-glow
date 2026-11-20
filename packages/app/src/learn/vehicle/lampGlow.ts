@@ -9,7 +9,7 @@ import { MAX_LAMPS } from '../../spacecraft/modelShader'
 // stands in front of it (depth tested, not written), added onto the picture.
 
 // How large a glow is (metres across) and how bright its middle (the bloom starts above 1).
-const GLOW_SIZE = 0.16
+const GLOW_SIZE = 0.06
 const GLOW_BRIGHTNESS = 3.0
 
 // viewProjection, the camera's right and up, then per lamp its place and its colour.

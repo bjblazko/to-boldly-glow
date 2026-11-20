@@ -23,8 +23,9 @@ export interface ModelSceneOptions {
   stageSeconds: number
   // How strong the sunlight and the fill are (see ModelPose.light; sunlit by default).
   light?: { sun: number; fill: number }
-  // Lamps that light it from near by, in the model's own frame: they turn with it.
-  lamps?: readonly Lamp[]
+  // Lamps that light it from near by, in the model's own frame: they turn with it, and move with the
+  // assembly they are fixed to when the model is taken apart.
+  lamps?: readonly (Lamp & { fixedTo?: string })[]
   // Materials by part (a soft plastic sheen for the rest).
   materials?: Readonly<Record<string, Material>>
 }
@@ -101,7 +102,7 @@ export class ModelScene<Part extends string> {
     const highlight = { assembly: this.highlighted ? this.assemblyIndex(this.highlighted) : -1, strength }
     const visibility = this.model.assemblies.map((assembly) => this.fades.current[assembly.id])
     const world = turntableMatrix(this.angle, 1)
-    const lamps = this.options.lamps?.map((lamp) => ({ ...lamp, place: transformPoint(world, lamp.place) }))
+    const lamps = this.options.lamps?.map(({ fixedTo, ...lamp }) => ({ ...lamp, place: transformPoint(world, this.moved(lamp.place, fixedTo)) }))
     this.lampsNow = lamps ?? []
     const materials = this.model.assemblies.map((assembly) => this.options.materials?.[assembly.id])
     const pose = { world, toSun: TOWARD_SUN, explode, highlight, cut, visibility, light: this.options.light, lamps, materials }
@@ -129,6 +130,13 @@ export class ModelScene<Part extends string> {
   private turnToward(deltaSeconds: number, target: number): void {
     const left = Math.atan2(Math.sin(target - this.angle), Math.cos(target - this.angle))
     this.angle += left * Math.min(1, deltaSeconds * FACE_RATE)
+  }
+
+  // A point fixed to an assembly, moved as far as that assembly is taken apart.
+  private moved(point: Vec3, assembly: string | undefined): Vec3 {
+    const offset = this.model.assemblies.find((candidate) => candidate.id === assembly)?.explode ?? [0, 0, 0]
+    const amount = this.stage.current.explode
+    return [point[0] + offset[0] * amount, point[1] + offset[1] * amount, point[2] + offset[2] * amount]
   }
 
   private visibility(gone: readonly Part[]): Record<string, number> {
