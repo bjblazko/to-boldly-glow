@@ -59,6 +59,7 @@ export class SceneRenderer {
     this.update(frame)
     const encoder = this.device.createCommandEncoder({ label: 'frame encoder' })
     if (this.settings.display.asteroids.on) this.parts.asteroids.placeOnOrbits(encoder)
+    this.parts.players.encodeBeforeScene?.(encoder)
     const pass = this.targets.beginScenePass(encoder)
     this.draw(pass, frame.layout)
     pass.end()

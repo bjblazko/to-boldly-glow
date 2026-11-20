@@ -173,6 +173,10 @@ export class LessonSession implements ScenePlayer {
   }
 
   // Right after the sky's backdrop, before the Sun, planets and moons.
+  encodeBeforeScene(encoder: GPUCommandEncoder): void {
+    if (this.active) this.stagedScene?.encodeBeforeScene?.(encoder, this.chapter)
+  }
+
   drawBehindBodies(pass: GPURenderPassEncoder): void {
     this.stagedScene?.drawBehindBodies(pass, this.chapter)
   }

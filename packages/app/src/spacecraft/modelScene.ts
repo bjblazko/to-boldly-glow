@@ -103,6 +103,11 @@ export class ModelScene<Part extends string> {
     this.cameraAngle = Math.atan2(viewpoint.position[0], viewpoint.position[2])
   }
 
+  // Before the scene's pass: the model's lamp shadow map, if it has one.
+  encodeShadow(encoder: GPUCommandEncoder): void {
+    this.renderer.encodeShadow(encoder)
+  }
+
   draw(pass: GPURenderPassEncoder): void {
     this.renderer.draw(pass)
   }

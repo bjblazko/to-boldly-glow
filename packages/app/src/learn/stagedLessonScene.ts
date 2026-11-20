@@ -29,6 +29,8 @@ export interface StagedLessonScene {
   shot?(chapter: Chapter): LessonShot
   updateOverlays(layout: SceneLayout, chapter: Chapter, frame: StagedOverlayFrame): void
   hideOverlays(): void
+  // Passes before the scene's own (a lamp's shadow map), for scenes that need them.
+  encodeBeforeScene?(encoder: GPUCommandEncoder, chapter: Chapter): void
   drawBehindBodies(pass: GPURenderPassEncoder, chapter: Chapter): void
   drawInFrontOfBodies(pass: GPURenderPassEncoder, chapter: Chapter): void
   // Expects the line pipeline to be set on the pass.

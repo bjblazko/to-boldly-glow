@@ -11,8 +11,9 @@ export const MAX_ASSEMBLIES = 16
 // Lamps: a cabin's floodlights (none for a spacecraft in sunlight).
 export const MAX_LAMPS = 3
 // viewProjection, world, toLight, cameraPosition, look, highlight, per assembly its offset and its
-// part, then per lamp its place and range and its colour and strength.
-export const MODEL_UNIFORM_FLOAT_COUNT = 16 + 16 + 4 + 4 + 4 + 4 + MAX_ASSEMBLIES * 4 * 2 + MAX_LAMPS * 4 * 2
+// part, per lamp its place and range and its colour and strength, then the first lamp's shadow map
+// projection and its settings.
+export const MODEL_UNIFORM_FLOAT_COUNT = 16 + 16 + 4 + 4 + 4 + 4 + MAX_ASSEMBLIES * 4 * 2 + MAX_LAMPS * 4 * 2 + 16 + 4
 
 // The kinds as the shader counts them (part.x).
 export const ASSEMBLY_KIND_CODE = { solid: 0, shell: 1, inside: 2 } as const
@@ -36,11 +37,17 @@ struct Uniforms {
   // its strength.
   lampPlaces: array<vec4f, ${MAX_LAMPS}>,
   lampColors: array<vec4f, ${MAX_LAMPS}>,
+  // The first lamp's shadow map: world to its clip space; x: whether it casts shadows (0 or 1),
+  // y: one texel of the map (in texture coordinates).
+  shadowViewProjection: mat4x4f,
+  shadow: vec4f,
 }
 
 @group(0) @binding(0) var<uniform> uni: Uniforms;
 @group(0) @binding(1) var modelSampler: sampler;
 @group(0) @binding(2) var modelTexture: texture_2d<f32>;
+@group(0) @binding(3) var shadowSampler: sampler_comparison;
+@group(0) @binding(4) var shadowMap: texture_depth_2d;
 
 struct VertexInput {
   @location(0) position: vec3f,
@@ -94,8 +101,25 @@ fn hidden(in: VertexOutput, position: vec2f) -> bool {
 
 const GLOW = vec3f(0.35, 0.75, 1.0);
 
+// How much of the first lamp's light reaches this point (0 to 1): the shadow map compared at nine
+// points around it, for a soft edge. Outside the lamp's cone counts as lit.
+fn lampShadow(worldPosition: vec3f) -> f32 {
+  if (uni.shadow.x == 0.0) { return 1.0; }
+  let clip = uni.shadowViewProjection * vec4f(worldPosition, 1.0);
+  let ndc = clip.xyz / clip.w;
+  let uv = vec2f(ndc.x * 0.5 + 0.5, 0.5 - ndc.y * 0.5);
+  if (clip.w <= 0.0 || any(uv < vec2f(0.0)) || any(uv > vec2f(1.0)) || ndc.z > 1.0) { return 1.0; }
+  var lit = 0.0;
+  for (var dy = -1; dy <= 1; dy++) {
+    for (var dx = -1; dx <= 1; dx++) {
+      lit += textureSampleCompareLevel(shadowMap, shadowSampler, uv + vec2f(f32(dx), f32(dy)) * uni.shadow.y, ndc.z - 0.0005);
+    }
+  }
+  return lit / 9.0;
+}
+
 // The lamps' light on a surface: each falls off with distance (softly, reaching zero at its range)
-// and lights the side facing it, with a little shine.
+// and lights the side facing it, with a little shine; the first lamp casts shadows.
 fn lampLight(worldPosition: vec3f, normal: vec3f, toCamera: vec3f) -> vec3f {
   var light = vec3f(0.0);
   for (var i = 0u; i < ${MAX_LAMPS}u; i++) {
@@ -107,7 +131,8 @@ fn lampLight(worldPosition: vec3f, normal: vec3f, toCamera: vec3f) -> vec3f {
     let falloff = 1.0 / (1.0 + 4.0 * distance * distance) * (1.0 - smoothstep(0.6 * place.w, place.w, distance));
     let diffuse = max(dot(normal, direction), 0.0);
     let shine = pow(max(dot(normal, normalize(direction + toCamera)), 0.0), 32.0) * 0.15 * step(0.0, diffuse);
-    light += uni.lampColors[i].rgb * falloff * (diffuse + shine);
+    let shadowed = select(1.0, lampShadow(worldPosition), i == 0u);
+    light += uni.lampColors[i].rgb * falloff * (diffuse + shine) * shadowed;
   }
   return light;
 }

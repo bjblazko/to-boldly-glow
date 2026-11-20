@@ -91,6 +91,10 @@ export class VehicleLesson implements StagedLessonScene {
     this.labels.hideAll()
   }
 
+  encodeBeforeScene(encoder: GPUCommandEncoder, chapter: Chapter): void {
+    for (const scene of this.current(chapter)?.scenes ?? []) scene.encodeShadow(encoder)
+  }
+
   drawBehindBodies(pass: GPURenderPassEncoder, chapter: Chapter): void {
     this.current(chapter)?.room.draw(pass)
   }

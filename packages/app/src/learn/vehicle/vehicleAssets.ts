@@ -10,11 +10,11 @@ export interface LoadedModel {
 const loading = new Map<string, Promise<LoadedModel>>()
 
 // A vehicle's model (bundled with the app), loaded the first time a lesson needs it, then kept.
-export function loadVehicleModel(models: ModelContext, { url, name }: VehicleModel): Promise<LoadedModel> {
+export function loadVehicleModel(models: ModelContext, { url, name, lamps }: VehicleModel): Promise<LoadedModel> {
   const key = `${url}/${name}`
   let pending = loading.get(key)
   if (!pending) {
-    pending = loadModel(key).then(async (model) => ({ model: model.description, renderer: await ModelRenderer.create(models, model, url) }))
+    pending = loadModel(key).then(async (model) => ({ model: model.description, renderer: await ModelRenderer.create(models, model, url, { shadows: Boolean(lamps?.length) }) }))
     loading.set(key, pending)
   }
   return pending
