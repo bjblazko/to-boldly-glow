@@ -66,7 +66,7 @@ ${FILM_LOOK_WGSL}
 
 @fragment
 fn fs(in: VertexOutput) -> @location(0) vec4f {
-  let hdrColor = textureSampleLevel(hdrTexture, inputSampler, in.uv, 0.0).rgb;
+  let hdrColor = focused(hdrTexture, inputSampler, depthMap, in.uv, look);
   let bloomColor = textureSampleLevel(bloomTexture, inputSampler, in.uv, 0.0).rgb;
   let combined = hdrColor * openness(depthMap, in.uv, look) + bloomColor * ${BLOOM_INTENSITY.toFixed(1)};
   return vec4f(filmLook(tonemap(combined), in.uv, look), 1.0);
