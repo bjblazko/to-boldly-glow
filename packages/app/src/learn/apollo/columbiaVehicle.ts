@@ -32,10 +32,21 @@ const FRAMES: Record<string, VehicleFrame> = {
 // the built cabin) - in a warm white, over a low fill (the scan's colours already carry some of the
 // museum's light) and a touch of sunlight through the windows. They are fixed to the panels and the
 // wall, so they rise with the command module when it lifts off its service module.
-const CABIN_LIGHT = { sun: 0.12, fill: 0.45 }
-const FLOOD = [1.0, 0.9, 0.76] as const
-const lamp = (place: [number, number, number], fixedTo: string, strength: number, reach: number) => ({ place, fixedTo, reach, color: FLOOD.map((value) => value * strength) as [number, number, number] })
-const CABIN_LAMPS = [lamp([-0.544, 9.015, 0.284], 'panels', 2.2, 2.2), lamp([0.547, 9.007, 0.277], 'panels', 2.2, 2.2), lamp([0.012, 8.335, -0.927], 'hull', 1.2, 1.6)]
+//
+// Lit like a film set: a strong, warm key (the left console light, the one casting shadows), the
+// right one as a soft neutral fill, the equipment bay's light as a cool rim from below, and little
+// light besides - the cabin's corners left dark.
+const CABIN_LIGHT = { sun: 0.05, fill: 0.18 }
+type Rgb = [number, number, number]
+const KEY: Rgb = [1.0, 0.8, 0.58]
+const FILL: Rgb = [0.95, 0.92, 0.88]
+const RIM: Rgb = [0.5, 0.75, 1.0]
+const lamp = (place: Rgb, fixedTo: string, light: { color: Rgb; strength: number; reach: number }) => ({ place, fixedTo, reach: light.reach, color: light.color.map((value) => value * light.strength) as Rgb })
+const CABIN_LAMPS = [
+  lamp([-0.544, 9.015, 0.284], 'panels', { color: KEY, strength: 3.6, reach: 2.4 }),
+  lamp([0.547, 9.007, 0.277], 'panels', { color: FILL, strength: 0.9, reach: 1.8 }),
+  lamp([0.012, 8.335, -0.927], 'hull', { color: RIM, strength: 1.8, reach: 1.8 }),
+]
 
 // What the cabin is made of: the panels painted metal with a tight sheen, the walls dull paint, the
 // couches' fabric and straps hardly shining, the notes on paper and tape.
@@ -55,6 +66,8 @@ export const COLUMBIA: VehicleConfig = {
   turntable: { secondsPerTurn: 90, startAngle: 0, stageSeconds: 2.4 },
   room: { facing: VEHICLE_ROOM_FACING, size: { halfWidth: 7, height: 14, minor: 0.5, major: 1 } },
   occlusionReach: 0.15,
+  // Darker corners and deeper creases than the Saturn V's room: the cabin's drama.
+  filmLook: { vignette: 0.62, occlusion: 1.0 },
   shot: (id) => vehicleShot(`columbia-${id}`, FRAMES[id] ?? FRAMES.whole),
   partName: (part) => msg.lessons.columbia.parts[part as ColumbiaPart],
   mark: (name) => msg.lessons.columbia.marks[name] ?? { label: name },

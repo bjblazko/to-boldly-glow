@@ -1,5 +1,6 @@
 import type { LessonShot } from '../lessonShot'
 import type { ModelSceneOptions } from '../../spacecraft/modelScene'
+import type { FilmLook } from '../../bloom/filmLook'
 import type { RoomShape } from './blueprintRoom'
 
 // One model of a vehicle: where it lives under public/ (`<url>/<name>.json`) and its light.
@@ -21,6 +22,8 @@ export interface VehicleConfig {
   shot(id: string): LessonShot
   // How far the film look's contact shadows look around (metres): a cabin's creases, a rocket's joints.
   occlusionReach: number
+  // The film look where it differs from the vehicle lessons' own.
+  filmLook?: Partial<FilmLook>
   partName(part: string): string
   mark(name: string): { label: string; note?: string }
 }

@@ -100,7 +100,8 @@ export class VehicleLesson implements StagedLessonScene {
   // A vehicle's lessons look like film: contact shadows at the vehicle's scale, a vignette, a fine
   // grain, a warm grade.
   filmLook(chapter: Chapter): FilmLook {
-    return { ...VEHICLE_FILM_LOOK, reach: this.vehicles[stageOf(chapter).vehicle].occlusionReach }
+    const config = this.vehicles[stageOf(chapter).vehicle]
+    return { ...VEHICLE_FILM_LOOK, reach: config.occlusionReach, ...config.filmLook }
   }
 
   encodeBeforeScene(encoder: GPUCommandEncoder, chapter: Chapter): void {
