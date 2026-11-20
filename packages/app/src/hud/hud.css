@@ -1236,16 +1236,19 @@ body:has(#scale-mode-compact-btn[aria-pressed='true']) .hud-beta-scale {
   padding-bottom: 12px;
 }
 
-/* Wide landscape screens: the panel is a column on the right that stands on the bar - one "L"
-   around the scene, which lessonFrame.ts fits into the space left of it (its numbers mirror
-   these: from 900px wide and an aspect of 11/10, 380px wide, 18px from the edge, ending on the
-   bar's top, 86px above the bottom: the bar's 68px plus its 18px). In a lesson the bar moves right
-   under the column, their right faces in one line; the column has no bottom face of its own and
-   lies over the bar's top edge, so the two read as one slab. The column stays put, so there is no
-   grip to drag it by; folded, it shrinks to its title at the top and lets go of the bar. The cards
-   that sit in the top right corner move left of it. */
+/* Wide landscape screens: a lesson's panel - and a mission tour's card - is a column on the right
+   standing on the bar: one "L" around the scene, which lessonFrame.ts fits into the space left of
+   it (its numbers mirror these: from 900px wide and an aspect of 11/10, 380px wide, 18px from the
+   edge, ending on the bar's top 86px above the bottom - the bar's 68px plus its 18px). The bar
+   moves right under the column and the two are drawn as one slab: one glass (its sheen laid over
+   the window, so it runs on across the join), one outline (the column's top and left, the bar's
+   top only left of the column), one right face (the column's, reaching down past the bar) and one
+   bottom face (the bar's); the column casts no shadow of its own. A lesson column folded to its
+   title stands apart again, a slab of its own. The column stays put, so there is no grip to drag
+   it by. The cards that sit in the top right corner move left of it. */
 @media (min-width: 900px) and (min-aspect-ratio: 11/10) {
-  .hud-lesson-panel {
+  .hud-lesson-panel,
+  body[data-mission-tour] .hud-mission-card {
     left: auto;
     right: 18px;
     top: 18px;
@@ -1255,16 +1258,8 @@ body:has(#scale-mode-compact-btn[aria-pressed='true']) .hud-beta-scale {
     transform: none;
     z-index: 4;
   }
-  .hud-lesson-panel:not(.is-folded)::before {
-    display: none;
-  }
   .hud-lesson-panel.is-folded {
     bottom: auto;
-  }
-  body[data-app-mode='learn'] .hud-bar {
-    left: auto;
-    right: 18px;
-    transform: none;
   }
   .hud-lesson-panel-grip {
     visibility: hidden;
@@ -1274,8 +1269,50 @@ body:has(#scale-mode-compact-btn[aria-pressed='true']) .hud-beta-scale {
   .hud-lesson-panel-body {
     flex: 1;
   }
+  body:is([data-app-mode='learn'], [data-mission-tour]) .hud-bar {
+    left: auto;
+    right: 18px;
+    transform: none;
+  }
   body[data-app-mode='learn'] :is(.hud-phase-inset, .hud-route-clock) {
     right: calc(18px + 380px + 16px);
+  }
+
+  /* The L as one slab. */
+  .hud-lesson-panel:not(.is-folded),
+  body[data-mission-tour] .hud-mission-card {
+    background: var(--hud-glass);
+    background-attachment: fixed;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75), inset 1px 0 0 rgba(255, 255, 255, 0.4);
+  }
+  .hud-lesson-panel:not(.is-folded)::before,
+  body[data-mission-tour] .hud-mission-card::before {
+    display: none;
+  }
+  .hud-lesson-panel:not(.is-folded)::after,
+  body[data-mission-tour] .hud-mission-card::after {
+    height: calc(100% + 68px);
+  }
+  body[data-app-mode='learn']:has(.hud-lesson-panel:not(.is-folded)) .hud-bar,
+  body[data-mission-tour] .hud-bar {
+    background: linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)) 0 0 / calc(100% - 380px) 1px no-repeat, var(--hud-glass);
+    background-attachment: scroll, fixed, fixed;
+    box-shadow:
+      inset 1px 0 0 rgba(255, 255, 255, 0.4),
+      0 50px 80px -30px rgba(0, 0, 0, 0.85),
+      30px 40px 80px -40px var(--hud-slab-glow, rgba(123, 92, 255, 0.55));
+  }
+  body[data-app-mode='learn']:has(.hud-lesson-panel:not(.is-folded)) .hud-bar::after,
+  body[data-mission-tour] .hud-bar::after {
+    display: none;
+  }
+  /* On the way between stations the card's words step back, not the slab. */
+  .hud-mission.is-travelling .hud-mission-card {
+    opacity: 1;
+  }
+  .hud-mission.is-travelling .hud-mission-card > * {
+    opacity: 0.45;
+    transition: opacity 0.4s ease;
   }
 }
 

@@ -12,6 +12,7 @@ import type { SceneLayout } from '../scene/sceneLayout'
 import type { ModelContext } from '../spacecraft/modelRenderer'
 import { encounterGoal, flightGoal, steerCamera, type CameraGoal } from './missionCamera'
 import type { MissionNarration } from './missionNarration'
+import { besideColumnShift } from '../learn/lessonFrame'
 import { MissionPlayer, type MissionMoment } from './missionPlayer'
 import { MissionScenes } from './missionScenes'
 import { missionClipId, stationDay, type Mission, type Station } from './missionTimeline'
@@ -167,6 +168,7 @@ export class MissionTourSession implements ScenePlayer {
   // flyby (behind the fade) jumps instead of gliding.
   private steer(running: Running, moment: MissionMoment, station: Station, deltaSeconds: number): void {
     const { orbit } = this.parts.camera
+    this.parts.lens.lensShift = besideColumnShift(globalThis.innerWidth, globalThis.innerHeight)
     const flyby = MissionScenes.showsFlyby(moment) && running.scenes.isFlybyReady(station)
     const cut = running.lastPhase === null || flyby !== (running.lastPhase === 'encounter' || running.lastPhase === 'fadeOut') || prefersReducedMotion()
     running.lastPhase = moment.phase

@@ -1,4 +1,4 @@
-import { VERTICAL_FOV_RADIANS, type LensShift } from '../camera/viewpoint'
+import { NO_LENS_SHIFT, VERTICAL_FOV_RADIANS, type LensShift } from '../camera/viewpoint'
 import type { ContentBounds } from './lessonShot'
 
 // Where on the screen a lesson's scene goes, clear of the lesson panel: on a wide landscape screen
@@ -53,6 +53,14 @@ export function sceneRegion(width: number, height: number): ScreenRegion {
 // Above the bar, the panel's top edge at its tallest (a fraction of the height).
 function panelTop(height: number): number {
   return Math.max(LESSON_PANEL_MIN_TOP_PX, height - LESSON_PANEL_RESERVED_PX) / height
+}
+
+// For scenes that frame themselves (a mission tour following its probe): the lens shift that moves
+// the middle of the screen to the middle of the space left of the side column; none without one.
+export function besideColumnShift(width: number, height: number): LensShift {
+  if (!hasSidePanel(width, height)) return NO_LENS_SHIFT
+  const region = sceneRegion(width, height)
+  return { x: region.left + region.right - 1, y: 1 - (region.top + region.bottom) }
 }
 
 export interface Framing {

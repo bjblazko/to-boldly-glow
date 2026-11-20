@@ -1,7 +1,7 @@
 import { mat4, vec4 } from 'gl-matrix'
 import { describe, expect, it } from 'vitest'
 import { perspectiveProjection } from '../src/camera/viewpoint'
-import { fitToRegion, hasSidePanel, sceneRegion } from '../src/learn/lessonFrame'
+import { besideColumnShift, fitToRegion, hasSidePanel, sceneRegion } from '../src/learn/lessonFrame'
 
 describe('where a lesson scene goes', () => {
   it('puts the panel in a column on wide landscape screens, above the bar elsewhere', () => {
@@ -32,5 +32,10 @@ describe('where a lesson scene goes', () => {
     expect((x + 1) / 2).toBeCloseTo((region.left + region.right) / 2, 6)
     expect((1 - y) / 2).toBeCloseTo((region.top + region.bottom) / 2, 6)
     expect(radius).toBeGreaterThanOrEqual(100)
+  })
+
+  it('moves a self-framing scene (a mission tour) left of the column, and leaves it be without one', () => {
+    expect(besideColumnShift(1280, 800).x).toBeLessThan(-0.2)
+    expect(besideColumnShift(390, 844)).toEqual({ x: 0, y: 0 })
   })
 })
