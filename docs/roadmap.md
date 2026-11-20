@@ -20,6 +20,17 @@ Not shipped to users (`npm audit --omit=dev`: 0 vulnerabilities).
 - The 0.6.0 offline zip predates two small fixes (the follow chip's font, free flight letting go of
   a followed body); they ship with the next version's zip.
 
+## Lesson layout: the "L" (chosen 2026-11-20)
+**What**: Every lesson's panel becomes a side column on the right, full height, beside the bar at
+the bottom - an "L" around the scene. Today the panel sits centred above the bar and pushes the
+scene up, while the screen's sides stay empty.
+**Approach**: Title, text, facts and photo stacked in a column of about 380 px (scrolling if long),
+collapsible to a slim edge with the title. The lesson camera shifts the picture left instead of
+up (the lens shift that today works vertically). On narrow screens the column becomes a sheet
+pulled up from the bottom, as now. Later, perhaps: a compact subtitle strip for autoplay.
+**Considered**: a subtitle strip with a details drawer (most room for the scene, less to read at a
+glance); cards in the corners (most cinematic, hardest to keep clear of labels and small screens).
+
 ## Apollo (planned 2026-11-20)
 **What**: Apollo 11, later Apollo 8, 13 and 15-17. Lessons on the whole mission (launch, TLI,
 docking, landing, ascent, return, quarantine; photos, original audio, measurements) and on each
