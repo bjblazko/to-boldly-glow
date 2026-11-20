@@ -1253,6 +1253,8 @@ body:has(#scale-mode-compact-btn[aria-pressed='true']) .hud-beta-scale {
     right: 18px;
     top: 18px;
     bottom: calc(18px + var(--hud-bar-height, 68px));
+    /* 380px including the mission card's padding: the bar's top edge stops at the column's edge. */
+    box-sizing: border-box;
     width: 380px;
     max-height: none;
     transform: none;
