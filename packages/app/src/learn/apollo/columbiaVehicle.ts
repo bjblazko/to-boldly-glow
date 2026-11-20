@@ -56,6 +56,7 @@ export const COLUMBIA: VehicleConfig = {
   // One turn every ninety seconds, starting square to the camera; the cabin holds this angle too.
   turntable: { secondsPerTurn: 90, startAngle: 0, stageSeconds: 2.4 },
   room: { facing: VEHICLE_ROOM_FACING, size: { halfWidth: 7, height: 14, minor: 0.5, major: 1 } },
+  occlusionReach: 0.15,
   shot: (id) => vehicleShot(`columbia-${id}`, FRAMES[id] ?? FRAMES.whole),
   partName: (part) => msg.lessons.columbia.parts[part as ColumbiaPart],
   mark: (name) => msg.lessons.columbia.marks[name] ?? { label: name },

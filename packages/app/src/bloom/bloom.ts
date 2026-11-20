@@ -3,7 +3,7 @@ import { ADDITIVE_BLEND } from '../gpu/scenePipeline'
 import { createFullscreenPipeline, runFullscreenPass } from '../gpu/fullscreenPass'
 import { downsampleShaderCode } from '../gpu/downsampleShader'
 import { bloomCompositeShaderCode, bloomUpsampleShaderCode, brightPassShaderCode } from './bloomShaders'
-import type { FilmLook } from './filmLook'
+import { filmLookValues, type FilmCamera, type FilmLook } from './filmLook'
 
 export const HDR_FORMAT: GPUTextureFormat = 'rgba16float'
 const MAX_BLOOM_MIP_LEVELS = 5
@@ -40,19 +40,20 @@ export class Bloom {
   ) {}
 
   // Bloom is a nicety: if its setup fails, the app falls back to rendering straight to the swapchain.
-  static async tryCreate(device: GPUDevice, swapchainFormat: GPUTextureFormat, size: { width: number; height: number }): Promise<Bloom | null> {
+  // `depth`: the scene's depth buffer, which the film look's occlusion reads.
+  static async tryCreate(device: GPUDevice, swapchainFormat: GPUTextureFormat, size: { width: number; height: number }, depth: GPUTextureView): Promise<Bloom | null> {
     try {
       const pipelines = await createBloomPipelines(device, swapchainFormat)
-      return new Bloom(device, pipelines, createBloomTargets(device, pipelines, size))
+      return new Bloom(device, pipelines, createBloomTargets(device, pipelines, { size, depth }))
     } catch (error) {
       console.warn('Bloom post-processing unavailable, falling back to direct rendering.', error)
       return null
     }
   }
 
-  resize(size: { width: number; height: number }): void {
+  resize(size: { width: number; height: number }, depth: GPUTextureView): void {
     destroyBloomTargets(this.targets)
-    this.targets = createBloomTargets(this.device, this.pipelines, size)
+    this.targets = createBloomTargets(this.device, this.pipelines, { size, depth })
   }
 
   // The scene pass draws into the multisampled HDR texture and resolves into a sampleable one.
@@ -67,9 +68,9 @@ export class Bloom {
 
   // Bright pass -> downsample chain -> upsample chain -> composite + tonemap onto the swapchain, with
   // the scene's film look (`seed` moves the grain from frame to frame).
-  composite(encoder: GPUCommandEncoder, swapchainView: GPUTextureView, { look, seed }: { look: FilmLook; seed: number }): void {
+  composite(encoder: GPUCommandEncoder, swapchainView: GPUTextureView, { look, seed, camera }: { look: FilmLook; seed: number; camera: FilmCamera }): void {
     const { pipelines, targets } = this
-    this.device.queue.writeBuffer(pipelines.look, 0, Float32Array.from([look.vignette, look.grain, look.grade, seed % 1000]))
+    this.device.queue.writeBuffer(pipelines.look, 0, filmLookValues(look, seed, camera))
     const mipView = (level: number) => targets.bloomTexture.createView({ baseMipLevel: level, mipLevelCount: 1 })
     const pass = (pipeline: GPURenderPipeline, bindGroup: GPUBindGroup, target: GPUTextureView, loadOp: GPULoadOp = 'clear') =>
       runFullscreenPass(encoder, { pipeline, bindGroup, target, loadOp })
@@ -87,7 +88,7 @@ async function createBloomPipelines(device: GPUDevice, swapchainFormat: GPUTextu
     downsample: await createFullscreenPipeline(device, { label: 'bloom downsample pipeline', code: downsampleShaderCode, format: HDR_FORMAT }),
     upsample: await createFullscreenPipeline(device, { label: 'bloom upsample pipeline', code: bloomUpsampleShaderCode, format: HDR_FORMAT, blend: ADDITIVE_BLEND }),
     composite: await createFullscreenPipeline(device, { label: 'bloom composite pipeline', code: bloomCompositeShaderCode, format: swapchainFormat }),
-    look: device.createBuffer({ label: 'film look', size: 16, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST }),
+    look: device.createBuffer({ label: 'film look', size: 48, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST }),
   }
 }
 
@@ -97,7 +98,7 @@ function computeMipCount(width: number, height: number): number {
   return Math.max(1, Math.min(MAX_BLOOM_MIP_LEVELS, maxPossibleLevels))
 }
 
-function createBloomTargets(device: GPUDevice, pipelines: BloomPipelines, size: { width: number; height: number }): BloomTargets {
+function createBloomTargets(device: GPUDevice, pipelines: BloomPipelines, { size, depth }: { size: { width: number; height: number }; depth: GPUTextureView }): BloomTargets {
   const hdrMultisampleTexture = device.createTexture({
     label: 'hdr msaa color',
     size: [size.width, size.height],
@@ -124,7 +125,7 @@ function createBloomTargets(device: GPUDevice, pipelines: BloomPipelines, size: 
     brightPassBindGroup: bindGroup(pipelines.brightPass, [hdrResolveTexture.createView()]),
     downsampleBindGroups: levels.map((i) => bindGroup(pipelines.downsample, [mipView(i)])),
     upsampleBindGroups: levels.map((i) => bindGroup(pipelines.upsample, [mipView(i + 1)])),
-    compositeBindGroup: bindGroup(pipelines.composite, [hdrResolveTexture.createView(), mipView(0), { buffer: pipelines.look }]),
+    compositeBindGroup: bindGroup(pipelines.composite, [hdrResolveTexture.createView(), mipView(0), { buffer: pipelines.look }, depth]),
   }
 }
 

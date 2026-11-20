@@ -18,7 +18,7 @@ import { loadVehicleModel } from './vehicleAssets'
 import type { VehicleConfig, VehicleModel } from './vehicleConfig'
 import type { VehicleId, VehicleStage } from './vehicleStage'
 
-const VEHICLE_FILM_LOOK: FilmLook = { vignette: 0.45, grain: 0.035, grade: 0.7 }
+const VEHICLE_FILM_LOOK: FilmLook = { vignette: 0.45, grain: 0.035, grade: 0.7, occlusion: 0.8, reach: 0 }
 
 // A vehicle on show: its models (sharing one stage and one turn) and its room.
 interface OnShow {
@@ -97,9 +97,10 @@ export class VehicleLesson implements StagedLessonScene {
     this.labels.hideAll()
   }
 
-  // A vehicle's lessons look like film: a vignette, a fine grain, a warm grade.
-  filmLook(): FilmLook {
-    return VEHICLE_FILM_LOOK
+  // A vehicle's lessons look like film: contact shadows at the vehicle's scale, a vignette, a fine
+  // grain, a warm grade.
+  filmLook(chapter: Chapter): FilmLook {
+    return { ...VEHICLE_FILM_LOOK, reach: this.vehicles[stageOf(chapter).vehicle].occlusionReach }
   }
 
   encodeBeforeScene(encoder: GPUCommandEncoder, chapter: Chapter): void {

@@ -62,12 +62,13 @@ ${FILM_LOOK_WGSL}
 @group(0) @binding(1) var hdrTexture: texture_2d<f32>;
 @group(0) @binding(2) var bloomTexture: texture_2d<f32>;
 @group(0) @binding(3) var<uniform> look: FilmLook;
+@group(0) @binding(4) var depthMap: texture_depth_multisampled_2d;
 
 @fragment
 fn fs(in: VertexOutput) -> @location(0) vec4f {
   let hdrColor = textureSampleLevel(hdrTexture, inputSampler, in.uv, 0.0).rgb;
   let bloomColor = textureSampleLevel(bloomTexture, inputSampler, in.uv, 0.0).rgb;
-  let combined = hdrColor + bloomColor * ${BLOOM_INTENSITY.toFixed(1)};
+  let combined = hdrColor * openness(depthMap, in.uv, look) + bloomColor * ${BLOOM_INTENSITY.toFixed(1)};
   return vec4f(filmLook(tonemap(combined), in.uv, look), 1.0);
 }
 `

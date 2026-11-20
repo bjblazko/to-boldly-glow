@@ -31,6 +31,7 @@ export const SATURN_V: VehicleConfig = {
   // moves a side at angle φ to φ - angle, and the camera stands at -azimuth).
   turntable: { secondsPerTurn: 120, startAngle: LETTERING_ANGLE + VEHICLE_AZIMUTH, stageSeconds: 2.6 },
   room: { facing: VEHICLE_ROOM_FACING, size: { halfWidth: 32, height: 120, minor: 5, major: 10 } },
+  occlusionReach: 2,
   shot: (id) => vehicleShot(`saturnV-${id}`, FRAMES[id] ?? FRAMES.whole),
   partName: (part) => msg.lessons.saturnV.parts[part as SaturnVPart],
   mark: (name) => msg.lessons.saturnV.marks[name] ?? { label: name },

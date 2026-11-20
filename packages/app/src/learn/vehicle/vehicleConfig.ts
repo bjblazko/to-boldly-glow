@@ -19,6 +19,8 @@ export interface VehicleConfig {
   turntable: Omit<ModelSceneOptions, 'light' | 'lamps' | 'materials'>
   room: RoomShape
   shot(id: string): LessonShot
+  // How far the film look's contact shadows look around (metres): a cabin's creases, a rocket's joints.
+  occlusionReach: number
   partName(part: string): string
   mark(name: string): { label: string; note?: string }
 }

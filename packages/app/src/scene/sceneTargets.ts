@@ -1,4 +1,4 @@
-import type { FilmLook } from '../bloom/filmLook'
+import type { FilmCamera, FilmLook } from '../bloom/filmLook'
 import type { GpuContext } from '../gpu/device'
 import { createRenderTargets, destroyRenderTargets, type RenderTargets } from '../gpu/renderTargets'
 import { Bloom, HDR_FORMAT } from '../bloom/bloom'
@@ -21,7 +21,7 @@ export class SceneTargets {
 
   static async create(gpu: GpuContext, canvas: HTMLCanvasElement): Promise<SceneTargets> {
     const targets = createRenderTargets(gpu.device, gpu.format, canvas.width, canvas.height)
-    const bloom = await Bloom.tryCreate(gpu.device, gpu.format, canvas)
+    const bloom = await Bloom.tryCreate(gpu.device, gpu.format, canvas, targets.depthTexture.createView())
     return new SceneTargets(gpu, canvas, bloom, targets)
   }
 
@@ -38,7 +38,7 @@ export class SceneTargets {
   resize(): void {
     destroyRenderTargets(this.targets)
     this.targets = createRenderTargets(this.gpu.device, this.gpu.format, this.canvas.width, this.canvas.height)
-    this.bloom?.resize(this.canvas)
+    this.bloom?.resize(this.canvas, this.targets.depthTexture.createView())
   }
 
   beginScenePass(encoder: GPUCommandEncoder): GPURenderPassEncoder {
@@ -65,7 +65,7 @@ export class SceneTargets {
 
   // After the scene and camera-effects passes: bloom's composite is then the only write to the
   // swapchain. Without bloom there is no HDR image, so nothing to tonemap either.
-  present(encoder: GPUCommandEncoder, finish: { look: FilmLook; seed: number }): void {
+  present(encoder: GPUCommandEncoder, finish: { look: FilmLook; seed: number; camera: FilmCamera }): void {
     this.bloom?.composite(encoder, this.swapchainView(), finish)
   }
 
