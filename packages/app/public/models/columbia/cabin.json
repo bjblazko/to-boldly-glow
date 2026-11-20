@@ -1,0 +1,99 @@
+{
+ "vertexCount": 471584,
+ "indexCount": 768078,
+ "indexFormat": "uint32",
+ "draws": [
+  {
+   "texture": "cabin-hull.jpg",
+   "firstIndex": 0,
+   "indexCount": 146391
+  },
+  {
+   "texture": "cabin-panels.jpg",
+   "firstIndex": 146391,
+   "indexCount": 411582
+  },
+  {
+   "texture": "cabin-seats.jpg",
+   "firstIndex": 557973,
+   "indexCount": 208272
+  },
+  {
+   "texture": "cabin-notes.jpg",
+   "firstIndex": 766245,
+   "indexCount": 1833
+  }
+ ],
+ "bounds": {
+  "min": [
+   -1.3815699815750122,
+   7.565605163574219,
+   -1.0684306621551514
+  ],
+  "max": [
+   1.4123910665512085,
+   10.074435234069824,
+   1.4182851314544678
+  ]
+ },
+ "assemblies": [
+  {
+   "id": "hull",
+   "explode": [
+    0,
+    0,
+    0
+   ],
+   "kind": "inside"
+  },
+  {
+   "id": "panels",
+   "explode": [
+    0,
+    0,
+    0
+   ],
+   "kind": "inside"
+  },
+  {
+   "id": "seats",
+   "explode": [
+    0,
+    0,
+    0
+   ],
+   "kind": "inside"
+  },
+  {
+   "id": "notes",
+   "explode": [
+    0,
+    0,
+    0
+   ],
+   "kind": "inside"
+  }
+ ],
+ "anchors": {
+  "hull": [
+   0.015410542488098145,
+   8.820020198822021,
+   0.1749272346496582
+  ],
+  "panels": [
+   0.0006654262542724609,
+   8.846335887908936,
+   -0.07698920369148254
+  ],
+  "seats": [
+   0.018689990043640137,
+   8.583319902420044,
+   0.16877013444900513
+  ],
+  "notes": [
+   0.05674198269844055,
+   8.916565895080566,
+   -0.5724586844444275
+  ]
+ }
+}

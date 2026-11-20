@@ -144,6 +144,22 @@ export const CREDIT_GROUPS: CreditGroup[] = [
         files: ['images/apollo/'],
       },
       {
+        name: 'North American Rockwell for NASA, “Apollo Spacecraft News Reference” (1968)',
+        use: TEXT.uses.csmModel,
+        license: TEXT.licenses.publicDomain,
+        home: 'https://archive.org/details/apollo-spacecraft-news-reference-1968',
+        changes: TEXT.changes.csmModel,
+        files: ['models/columbia/csm.bin', 'models/columbia/csm.json', 'models/columbia/csm-palette.png'],
+      },
+      {
+        name: 'Smithsonian National Air and Space Museum, “Command Module Apollo 11: Interior” (3D scan)',
+        use: TEXT.uses.columbiaCabin,
+        license: 'CC0 1.0',
+        home: 'https://3d.si.edu/object/3d/command-module-apollo-11:d8c63e8a-4ebc-11ea-b77f-2e728ce88125',
+        changes: TEXT.changes.columbiaCabin,
+        files: ['models/columbia/cabin.bin', 'models/columbia/cabin.json', 'models/columbia/cabin-hull.jpg', 'models/columbia/cabin-panels.jpg', 'models/columbia/cabin-seats.jpg', 'models/columbia/cabin-notes.jpg'],
+      },
+      {
         name: 'NASA/JPL Horizons (Giorgini & JPL Solar System Dynamics Group)',
         use: TEXT.uses.horizons,
         license: TEXT.licenses.publicDomain,

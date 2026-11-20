@@ -2,6 +2,7 @@ import type { AssemblyKind } from '../../../app/src/spacecraft/modelFile'
 import type { MeshPrimitive } from '../spacecraft/glbMesh'
 import { latheMesh, mergePrimitives, type ProfilePoint } from './latheMesh'
 import { ENGINES, FAIRING, FIN, LES, LM, PERSON, SHELLS, TANKS, TOTAL_HEIGHT, type Tank } from './saturnVProfile'
+import { swatchUv } from './palette'
 import { placedLathe, plateMesh, strutMesh, tankProfile } from './shapes'
 
 // The assemblies the Saturn V is taken apart into, top to bottom. A stage is three of them: its
@@ -41,7 +42,7 @@ export const SWATCHES = ['engine', 'lox', 'rp1', 'lh2', 'tunnel', 'gold', 'perso
 type Swatch = (typeof SWATCHES)[number]
 
 function swatch(name: Swatch): [number, number] {
-  return [(SWATCHES.indexOf(name) + 0.5) / SWATCHES.length, 0.5]
+  return swatchUv(SWATCHES, name)
 }
 
 const ROUND = 96
