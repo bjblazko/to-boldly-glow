@@ -1,4 +1,5 @@
 import { FULLSCREEN_TRIANGLE_VERTEX_WGSL } from '../gpu/fullscreenTriangle'
+import { FILM_LOOK_WGSL } from './filmLook'
 import { TONEMAP_WGSL } from './tonemapWgsl'
 
 // Bright-pass: extracts the portion of the HDR scene color above THRESHOLD (per channel, not
@@ -48,22 +49,25 @@ fn fs(in: VertexOutput) -> @location(0) vec4f {
 
 // Composite: adds the bloom mip chain's base level (already upsampled/accumulated back up to it)
 // onto the full-resolution HDR scene color, then tonemaps it down to displayable [0,1] (see
-// tonemapWgsl.ts) before writing to the swapchain. This is the only pass that touches the swapchain.
+// tonemapWgsl.ts) and gives it the scene's film look, if any (filmLook.ts), before writing to the
+// swapchain. This is the only pass that touches the swapchain.
 const BLOOM_INTENSITY = 0.6
 
 export const bloomCompositeShaderCode = /* wgsl */ `
 ${FULLSCREEN_TRIANGLE_VERTEX_WGSL}
 ${TONEMAP_WGSL}
+${FILM_LOOK_WGSL}
 
 @group(0) @binding(0) var inputSampler: sampler;
 @group(0) @binding(1) var hdrTexture: texture_2d<f32>;
 @group(0) @binding(2) var bloomTexture: texture_2d<f32>;
+@group(0) @binding(3) var<uniform> look: FilmLook;
 
 @fragment
 fn fs(in: VertexOutput) -> @location(0) vec4f {
   let hdrColor = textureSampleLevel(hdrTexture, inputSampler, in.uv, 0.0).rgb;
   let bloomColor = textureSampleLevel(bloomTexture, inputSampler, in.uv, 0.0).rgb;
   let combined = hdrColor + bloomColor * ${BLOOM_INTENSITY.toFixed(1)};
-  return vec4f(tonemap(combined), 1.0);
+  return vec4f(filmLook(tonemap(combined), in.uv, look), 1.0);
 }
 `

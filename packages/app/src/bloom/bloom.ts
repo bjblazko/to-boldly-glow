@@ -3,6 +3,7 @@ import { ADDITIVE_BLEND } from '../gpu/scenePipeline'
 import { createFullscreenPipeline, runFullscreenPass } from '../gpu/fullscreenPass'
 import { downsampleShaderCode } from '../gpu/downsampleShader'
 import { bloomCompositeShaderCode, bloomUpsampleShaderCode, brightPassShaderCode } from './bloomShaders'
+import type { FilmLook } from './filmLook'
 
 export const HDR_FORMAT: GPUTextureFormat = 'rgba16float'
 const MAX_BLOOM_MIP_LEVELS = 5
@@ -13,6 +14,8 @@ interface BloomPipelines {
   downsample: GPURenderPipeline
   upsample: GPURenderPipeline
   composite: GPURenderPipeline
+  // The film look's strengths and the grain's seed (see filmLook.ts).
+  look: GPUBuffer
 }
 
 interface BloomTargets {
@@ -62,9 +65,11 @@ export class Bloom {
     return this.targets.hdrResolveTexture.createView()
   }
 
-  // Bright pass -> downsample chain -> upsample chain -> composite + tonemap onto the swapchain.
-  composite(encoder: GPUCommandEncoder, swapchainView: GPUTextureView): void {
+  // Bright pass -> downsample chain -> upsample chain -> composite + tonemap onto the swapchain, with
+  // the scene's film look (`seed` moves the grain from frame to frame).
+  composite(encoder: GPUCommandEncoder, swapchainView: GPUTextureView, { look, seed }: { look: FilmLook; seed: number }): void {
     const { pipelines, targets } = this
+    this.device.queue.writeBuffer(pipelines.look, 0, Float32Array.from([look.vignette, look.grain, look.grade, seed % 1000]))
     const mipView = (level: number) => targets.bloomTexture.createView({ baseMipLevel: level, mipLevelCount: 1 })
     const pass = (pipeline: GPURenderPipeline, bindGroup: GPUBindGroup, target: GPUTextureView, loadOp: GPULoadOp = 'clear') =>
       runFullscreenPass(encoder, { pipeline, bindGroup, target, loadOp })
@@ -82,6 +87,7 @@ async function createBloomPipelines(device: GPUDevice, swapchainFormat: GPUTextu
     downsample: await createFullscreenPipeline(device, { label: 'bloom downsample pipeline', code: downsampleShaderCode, format: HDR_FORMAT }),
     upsample: await createFullscreenPipeline(device, { label: 'bloom upsample pipeline', code: bloomUpsampleShaderCode, format: HDR_FORMAT, blend: ADDITIVE_BLEND }),
     composite: await createFullscreenPipeline(device, { label: 'bloom composite pipeline', code: bloomCompositeShaderCode, format: swapchainFormat }),
+    look: device.createBuffer({ label: 'film look', size: 16, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST }),
   }
 }
 
@@ -104,10 +110,10 @@ function createBloomTargets(device: GPUDevice, pipelines: BloomPipelines, size: 
   const mipCount = computeMipCount(bloomSize[0], bloomSize[1])
   const bloomTexture = createSampleableTexture(device, 'bloom mip chain', bloomSize, mipCount)
   const mipView = (level: number) => bloomTexture.createView({ baseMipLevel: level, mipLevelCount: 1 })
-  const bindGroup = (pipeline: GPURenderPipeline, views: GPUTextureView[]) =>
+  const bindGroup = (pipeline: GPURenderPipeline, resources: GPUBindingResource[]) =>
     device.createBindGroup({
       layout: pipeline.getBindGroupLayout(0),
-      entries: [pipelines.sampler, ...views].map((resource, binding) => ({ binding, resource })),
+      entries: [pipelines.sampler, ...resources].map((resource, binding) => ({ binding, resource })),
     })
   const levels = Array.from({ length: mipCount - 1 }, (_, i) => i)
   return {
@@ -118,7 +124,7 @@ function createBloomTargets(device: GPUDevice, pipelines: BloomPipelines, size: 
     brightPassBindGroup: bindGroup(pipelines.brightPass, [hdrResolveTexture.createView()]),
     downsampleBindGroups: levels.map((i) => bindGroup(pipelines.downsample, [mipView(i)])),
     upsampleBindGroups: levels.map((i) => bindGroup(pipelines.upsample, [mipView(i + 1)])),
-    compositeBindGroup: bindGroup(pipelines.composite, [hdrResolveTexture.createView(), mipView(0)]),
+    compositeBindGroup: bindGroup(pipelines.composite, [hdrResolveTexture.createView(), mipView(0), { buffer: pipelines.look }]),
   }
 }
 

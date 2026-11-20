@@ -1,3 +1,4 @@
+import type { FilmLook } from '../bloom/filmLook'
 import type { CameraDirector, CameraSnapshot } from '../camera/cameraDirector'
 import type { Viewpoint } from '../camera/viewpoint'
 import type { DisplaySettings, LessonDisplaySnapshot } from '../hud/displaySettings'
@@ -173,6 +174,10 @@ export class LessonSession implements ScenePlayer {
   }
 
   // Right after the sky's backdrop, before the Sun, planets and moons.
+  filmLook(): FilmLook | null {
+    return this.active ? (this.stagedScene?.filmLook?.(this.chapter) ?? null) : null
+  }
+
   encodeBeforeScene(encoder: GPUCommandEncoder): void {
     if (this.active) this.stagedScene?.encodeBeforeScene?.(encoder, this.chapter)
   }

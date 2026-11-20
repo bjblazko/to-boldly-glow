@@ -1,3 +1,4 @@
+import type { FilmLook } from '../bloom/filmLook'
 import type { Viewpoint } from '../camera/viewpoint'
 import type { SceneLayout } from '../scene/sceneLayout'
 import type { Ephemeris } from '../time/ephemeris'
@@ -31,6 +32,8 @@ export interface StagedLessonScene {
   hideOverlays(): void
   // Passes before the scene's own (a lamp's shadow map), for scenes that need them.
   encodeBeforeScene?(encoder: GPUCommandEncoder, chapter: Chapter): void
+  // A film look over the finished picture, for scenes that want one.
+  filmLook?(chapter: Chapter): FilmLook | null
   drawBehindBodies(pass: GPURenderPassEncoder, chapter: Chapter): void
   drawInFrontOfBodies(pass: GPURenderPassEncoder, chapter: Chapter): void
   // Expects the line pipeline to be set on the pass.

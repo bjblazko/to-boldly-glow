@@ -11,11 +11,14 @@ import type { Chapter } from '../lessonTypes'
 import type { StagedLessonScene, StagedOverlayFrame } from '../stagedLessonScene'
 import { spacecraftLayout } from '../voyager/spacecraftStage'
 import type { VoyagerLabels } from '../voyager/voyagerLabels'
+import type { FilmLook } from '../../bloom/filmLook'
 import { BlueprintRoom } from './blueprintRoom'
 import { LampGlow } from './lampGlow'
 import { loadVehicleModel } from './vehicleAssets'
 import type { VehicleConfig, VehicleModel } from './vehicleConfig'
 import type { VehicleId, VehicleStage } from './vehicleStage'
+
+const VEHICLE_FILM_LOOK: FilmLook = { vignette: 0.45, grain: 0.035, grade: 0.7 }
 
 // A vehicle on show: its models (sharing one stage and one turn) and its room.
 interface OnShow {
@@ -92,6 +95,11 @@ export class VehicleLesson implements StagedLessonScene {
 
   hideOverlays(): void {
     this.labels.hideAll()
+  }
+
+  // A vehicle's lessons look like film: a vignette, a fine grain, a warm grade.
+  filmLook(): FilmLook {
+    return VEHICLE_FILM_LOOK
   }
 
   encodeBeforeScene(encoder: GPUCommandEncoder, chapter: Chapter): void {

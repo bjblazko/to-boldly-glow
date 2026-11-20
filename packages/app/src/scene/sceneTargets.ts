@@ -1,3 +1,4 @@
+import type { FilmLook } from '../bloom/filmLook'
 import type { GpuContext } from '../gpu/device'
 import { createRenderTargets, destroyRenderTargets, type RenderTargets } from '../gpu/renderTargets'
 import { Bloom, HDR_FORMAT } from '../bloom/bloom'
@@ -64,8 +65,8 @@ export class SceneTargets {
 
   // After the scene and camera-effects passes: bloom's composite is then the only write to the
   // swapchain. Without bloom there is no HDR image, so nothing to tonemap either.
-  present(encoder: GPUCommandEncoder): void {
-    this.bloom?.composite(encoder, this.swapchainView())
+  present(encoder: GPUCommandEncoder, finish: { look: FilmLook; seed: number }): void {
+    this.bloom?.composite(encoder, this.swapchainView(), finish)
   }
 
   private swapchainView(): GPUTextureView {
