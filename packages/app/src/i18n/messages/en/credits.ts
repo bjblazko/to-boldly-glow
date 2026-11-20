@@ -25,12 +25,15 @@ export const credits = {
     voyagerPhotos: 'The photos in the Voyager lessons and tours, taken by the probes (and of the launches)',
     horizons: 'The Voyagers’ trajectories, speeds and planet flybys',
     spdf: 'The Voyagers’ measurements at the heliopause, 2012 and 2018',
+    saturnVModel: 'The Saturn V’s dimensions and figures, from which its model and the lesson’s numbers are made',
+    saturnVPhotos: 'The photos in the Saturn V lesson',
   },
   changes: {
     solarSystemScope: 'Resized and renamed; the gas giants’ relief maps are derived from their color maps.',
     voyagerModel: 'Converted to the app’s format, split into its main parts; a sticker with NASA’s logotype painted over.',
     cropped: 'Cropped to the record and resized.',
     resized: 'Resized.',
+    saturnVModel: 'The model is our own, built from the measurements; its paint follows photos of the rocket.',
   },
   licenses: {
     publicDomain: 'Public domain',

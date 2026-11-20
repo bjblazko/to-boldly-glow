@@ -1,5 +1,6 @@
 import type { Messages } from '../en'
 import { voyagerLesson } from './voyager'
+import { saturnV } from './saturnV'
 import { voyagerDeepDive } from './voyagerDeepDive'
 
 export const lessons: Messages['lessons'] = {
@@ -238,4 +239,5 @@ export const lessons: Messages['lessons'] = {
   },
   voyager: voyagerLesson,
   voyagerDeepDive,
+  saturnV,
 }

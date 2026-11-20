@@ -5,8 +5,11 @@ import type { Vec3 } from '../../math/tuples'
 export interface LabelSpec {
   text: string
   point: Vec3
-  // A ring on a point (a part, an engraving), a probe on its route, or a region (the heliopause).
-  variant?: 'hotspot' | 'probe' | 'region'
+  // A ring on a point (a part, an engraving), a probe on its route, a region (the heliopause), or a
+  // measure marked in the scene (a height).
+  variant?: 'hotspot' | 'probe' | 'region' | 'mark'
+  // A second, quieter line under the text (what an abbreviation stands for).
+  note?: string
 }
 
 // The Voyager lessons' labels in the scene: one per probe part, record engraving or probe on the
@@ -28,9 +31,9 @@ export class VoyagerLabels {
     this.shown.clear()
   }
 
-  place(id: string, { text, point, variant = 'hotspot' }: LabelSpec, viewpoint: Viewpoint): void {
+  place(id: string, { text, point, variant = 'hotspot', note }: LabelSpec, viewpoint: Viewpoint): void {
     const label = this.label(id, variant)
-    if (label.textContent !== text) label.textContent = text
+    setLines(label, text, note)
     placeLabel(label, projectToCss(viewpoint, point))
     this.shown.add(id)
   }
@@ -66,4 +69,13 @@ export class VoyagerLabels {
     }
     return label
   }
+}
+
+// The label's text, and its note as a second line (both rewritten only when they change).
+function setLines(label: HTMLElement, text: string, note: string | undefined): void {
+  const [main, second] = [label.firstElementChild, label.lastElementChild] as (HTMLElement | null)[]
+  if (main?.textContent === text && (note === undefined ? label.childElementCount === 1 : second?.textContent === note)) return
+  const lines = [Object.assign(document.createElement('span'), { textContent: text })]
+  if (note !== undefined) lines.push(Object.assign(document.createElement('span'), { className: 'body-label-note', textContent: note }))
+  label.replaceChildren(...lines)
 }

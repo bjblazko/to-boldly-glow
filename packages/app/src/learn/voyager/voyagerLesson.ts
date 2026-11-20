@@ -1,11 +1,11 @@
 import type { SceneLayout } from '../../scene/sceneLayout'
 import type { ModelContext } from '../../spacecraft/modelRenderer'
+import { ModelScene } from '../../spacecraft/modelScene'
 import type { Ephemeris } from '../../time/ephemeris'
 import type { GroundShot } from '../ground/groundShot'
 import type { LessonShot } from '../lessonShot'
 import { isVoyagerKind, type Chapter } from '../lessonTypes'
 import type { StagedLessonScene, StagedOverlayFrame } from '../stagedLessonScene'
-import { ProbeScene } from './probeScene'
 import { RecordScene } from './recordScene'
 import { RouteScene } from './routeScene'
 import { spacecraftLayout } from './spacecraftStage'
@@ -13,12 +13,17 @@ import { loadVoyagerAssets } from './voyagerAssets'
 import type { VoyagerLabels } from './voyagerLabels'
 import { placeVoyagerLabels } from './voyagerOverlay'
 import { voyagerShot } from './voyagerShots'
+import type { VoyagerPart } from './voyagerStage'
 
 interface VoyagerScenes {
-  probe: ProbeScene
+  probe: ModelScene<VoyagerPart>
   record: RecordScene
   route: RouteScene
 }
+
+// One turn every 90 seconds, slow enough to read the labels; it starts turned so the dish, the
+// booms and the record all face the camera.
+const PROBE_TURNTABLE = { secondsPerTurn: 90, startAngle: -0.5, stageSeconds: 2.2 }
 
 function prefersReducedMotion(): boolean {
   return globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
@@ -113,7 +118,7 @@ export class VoyagerLesson implements StagedLessonScene {
   private async load(): Promise<void> {
     const assets = await loadVoyagerAssets(this.gpu.models)
     this.scenes = {
-      probe: new ProbeScene(assets.probe, assets.model),
+      probe: new ModelScene<VoyagerPart>(assets.probe, assets.model, PROBE_TURNTABLE),
       record: new RecordScene(assets.record),
       route: new RouteScene(this.gpu, assets.trajectories),
     }

@@ -128,6 +128,22 @@ export const CREDIT_GROUPS: CreditGroup[] = [
         files: ['images/voyager/'],
       },
       {
+        name: 'NASA: “Saturn V News Reference” (1968), “Saturn V Flight Manual SA-506”, “Saturn V Launch Vehicle Flight Evaluation Report AS-506”, “Apollo 11 Mission Report”, “Stages to Saturn” (SP-4206)',
+        use: TEXT.uses.saturnVModel,
+        license: TEXT.licenses.publicDomain,
+        home: 'https://archive.org/details/saturn-v-news-reference',
+        changes: TEXT.changes.saturnVModel,
+        files: ['models/saturnV/'],
+      },
+      {
+        name: 'NASA/MSFC and NASA/KSC, Saturn V photos (NASA Image and Video Library: 6901000, KSC-69P-372, 9903405, 6758331, 6861994, 0100806)',
+        use: TEXT.uses.saturnVPhotos,
+        license: TEXT.licenses.publicDomain,
+        home: 'https://images.nasa.gov/',
+        changes: TEXT.changes.resized,
+        files: ['images/apollo/'],
+      },
+      {
         name: 'NASA/JPL Horizons (Giorgini & JPL Solar System Dynamics Group)',
         use: TEXT.uses.horizons,
         license: TEXT.licenses.publicDomain,

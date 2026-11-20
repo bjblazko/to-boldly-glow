@@ -37,6 +37,16 @@
   font-style: italic;
 }
 
+/* A height marked on the vehicle lessons' walls, in the lines' muted orange. */
+.voyager-label.is-mark {
+  color: rgba(255, 210, 150, 0.9);
+  font-size: 11px;
+}
+.voyager-label.is-mark .body-label-note {
+  color: rgba(255, 225, 190, 0.6);
+  font-size: 10px;
+}
+
 .hud-route-clock {
   --hud-slab-depth: 5px;
   --hud-slab-glow: rgba(34, 225, 255, 0.4);

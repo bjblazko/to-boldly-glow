@@ -2,7 +2,7 @@ import type { Viewpoint } from '../../camera/viewpoint'
 import { formatNumber, locale, msg } from '../../i18n/i18n'
 import { LOCALE_TAGS } from '../../i18n/locale'
 import type { Chapter } from '../lessonTypes'
-import type { ProbeScene } from './probeScene'
+import type { ModelScene } from '../../spacecraft/modelScene'
 import type { RecordScene } from './recordScene'
 import { dateOfDay, type RouteScene } from './routeScene'
 import type { VoyagerLabels } from './voyagerLabels'
@@ -13,7 +13,7 @@ const KM_PER_AU = 149597870.7
 const LIGHT_HOURS_PER_AU = 499.005 / 3600
 
 interface Scenes {
-  probe: ProbeScene
+  probe: ModelScene<VoyagerPart>
   record: RecordScene
   route: RouteScene
 }
@@ -30,7 +30,7 @@ export function placeVoyagerLabels(labels: VoyagerLabels, scenes: Scenes, chapte
   if (chapter.kind !== 'voyagerRoute') labels.hideClock()
 }
 
-function placePartLabels(labels: VoyagerLabels, parts: VoyagerPart[], probe: ProbeScene, viewpoint: Viewpoint): void {
+function placePartLabels(labels: VoyagerLabels, parts: VoyagerPart[], probe: ModelScene<VoyagerPart>, viewpoint: Viewpoint): void {
   for (const part of parts) labels.place(`part-${part}`, { text: msg.voyager.parts[part], point: probe.anchor(part) }, viewpoint)
 }
 

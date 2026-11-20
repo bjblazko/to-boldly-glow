@@ -15,7 +15,9 @@
     "fetch-voyager-trajectories": "tsx src/fetchVoyagerTrajectories.ts",
     "extract-heliopause": "tsx src/extractHeliopauseData.ts",
     "fetch-voyager-photos": "tsx src/fetchVoyagerPhotos.ts",
-    "fetch-voyager-encounters": "tsx src/fetchVoyagerEncounters.ts"
+    "fetch-voyager-encounters": "tsx src/fetchVoyagerEncounters.ts",
+    "build-saturn-v": "tsx src/buildSaturnV.ts",
+    "fetch-saturn-v-photos": "tsx src/fetchSaturnVPhotos.ts"
   },
   "devDependencies": {
     "@gltf-transform/core": "^4.5.1",

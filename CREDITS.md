@@ -229,6 +229,36 @@ https://spdf.gsfc.nasa.gov/pub/data/voyager/voyager2/merged/voyager2_daily.asc, 
 Subsystem's 3.0-4.6 MeV protons and the magnetometer's field strength. With thanks to SPDF and the
 instruments' teams (CRS: E. C. Stone et al.; MAG: N. F. Ness, L. F. Burlaga et al.), as SPDF asks.
 
+## Apollo: the Saturn V
+
+The Saturn V lesson's rocket (`packages/app/public/models/saturnV/`) is our own model, built by
+`packages/data-pipeline/src/buildSaturnV.ts` from the rocket's dimensions; nothing is downloaded and
+no third-party model is used. Its sources, all NASA and public domain:
+
+- the "Saturn V News Reference" (NASA Marshall Space Flight Center, December 1968,
+  https://archive.org/details/saturn-v-news-reference): stage sizes, tanks, engines, flows;
+- the "Saturn V Flight Manual SA-506" (https://archive.org/details/saturn-5-flight-manual-sa-506):
+  the fin span and the separation planes' vehicle stations, which give the interstages' lengths;
+- the "Saturn V Launch Vehicle Flight Evaluation Report AS-506" (MPR-SAT-FE-69-9,
+  https://archive.org/details/saturn-v-launch-vehicle-flight-evaluation-report-as-506): Apollo 11's
+  mass at ignition (2,938,315 kg), its burn times, the altitude at S-IC/S-II separation and the speed
+  after trans-lunar injection;
+- the "Apollo 11 Mission Report" (MSC-00171, https://archive.org/details/apollo-11-mission-report):
+  the command module's mass at landing (10,873 lb);
+- "Stages to Saturn" (NASA SP-4206, https://archive.org/details/stagestosaturnte00bilsrich): the
+  S-IVB as an improved S-IV.
+
+Measures none of them settle (the spacecraft-LM adapter, the escape tower, the S-IVB's tank
+lengths, the fins' shape) are approximations from common published figures, marked `APPROX` in
+`apollo/saturnVProfile.ts`. The paint is drawn from photos of the rocket; it carries the US flag
+(public domain) and no NASA insignia.
+
+The photos (`packages/app/public/images/apollo/`) are from NASA's Image and Video Library, resized
+by `packages/data-pipeline/src/fetchSaturnVPhotos.ts`, each caption checked for a non-NASA credit:
+6901000 (Apollo 11 launch), 9903405 (an F-1 engine), 6758331 (an S-II stacked, Apollo 6),
+6861994 (an S-IVB on its test stand, Apollo 10) and 0100806 (Instrument Unit chart), NASA/MSFC; and
+KSC-69P-372 (Apollo 11 rollout), NASA/KSC.
+
 ## Tonemapping
 
 The tonemapping (`packages/app/src/bloom/tonemapWgsl.ts`) follows Troy Sobotka's AgX view

@@ -1,11 +1,17 @@
 // A textured model lit by the Sun: Lambert with a soft highlight, a faint fill so the shadowed side
 // keeps its shape, and both faces of every triangle drawn (the model's thin sheets - the dish, the
 // booms' struts - are single-sided). Each vertex belongs to an assembly that can move out (the
-// exploded view) and be picked out with a glow while the rest dims.
+// exploded view), be picked out with a glow while the rest dims, fade away, and - for a model with
+// an inside (the Saturn V) - be cut open: a shell loses the quarter between +X and +Z below the
+// cut's height, its inner face darker, and what is inside shows only there.
 
-export const MAX_ASSEMBLIES = 8
-// viewProjection, world, toLight, cameraPosition, look, highlight, then one offset per assembly.
-export const MODEL_UNIFORM_FLOAT_COUNT = 16 + 16 + 4 + 4 + 4 + 4 + MAX_ASSEMBLIES * 4
+export const MAX_ASSEMBLIES = 16
+// viewProjection, world, toLight, cameraPosition, look, highlight, then per assembly its offset
+// and its part (kind, visibility).
+export const MODEL_UNIFORM_FLOAT_COUNT = 16 + 16 + 4 + 4 + 4 + 4 + MAX_ASSEMBLIES * 4 * 2
+
+// The kinds as the shader counts them (part.x).
+export const ASSEMBLY_KIND_CODE = { solid: 0, shell: 1, inside: 2 } as const
 
 export const modelShaderCode = /* wgsl */ `
 struct Uniforms {
@@ -16,9 +22,12 @@ struct Uniforms {
   cameraPosition: vec4f,
   // x: fill light, y: highlight's shininess, z: how far the exploded view has opened (0 to 1).
   look: vec4f,
-  // x: the assembly picked out (-1: none), y: how strongly (0 to 1).
+  // x: the assembly picked out (-1: none), y: how strongly (0 to 1); z: the cut open (1) or not
+  // (0), w: up to which height (model frame, metres).
   highlight: vec4f,
   offsets: array<vec4f, ${MAX_ASSEMBLIES}>,
+  // x: the assembly's kind (0 solid, 1 shell, 2 inside), y: how visible it is (0 to 1).
+  parts: array<vec4f, ${MAX_ASSEMBLIES}>,
 }
 
 @group(0) @binding(0) var<uniform> uni: Uniforms;
@@ -38,6 +47,8 @@ struct VertexOutput {
   @location(1) normal: vec3f,
   @location(2) uv: vec2f,
   @location(3) @interpolate(flat) assembly: i32,
+  // The point in the model's own frame, after the exploded view moved it.
+  @location(4) local: vec3f,
 }
 
 @vertex
@@ -51,14 +62,35 @@ fn vs(vert: VertexInput) -> VertexOutput {
   out.normal = (uni.world * vec4f(vert.normal, 0.0)).xyz;
   out.uv = vert.uv;
   out.assembly = assembly;
+  out.local = moved;
   return out;
+}
+
+// A fixed pattern of thresholds over the screen: fading a part drops more of its pixels.
+fn dither(position: vec2f) -> f32 {
+  let cell = vec2u(position) % vec2u(4u);
+  var matrix = array<f32, 16>(0.0, 8.0, 2.0, 10.0, 12.0, 4.0, 14.0, 6.0, 3.0, 11.0, 1.0, 9.0, 15.0, 7.0, 13.0, 5.0);
+  return (matrix[cell.y * 4u + cell.x] + 0.5) / 16.0;
+}
+
+// Whether a fragment is left out: faded away, cut away, or inside while the model is closed.
+fn hidden(in: VertexOutput, position: vec2f) -> bool {
+  let part = uni.parts[in.assembly];
+  if (part.y < dither(position)) { return true; }
+  let open = uni.highlight.z > 0.0 && in.local.y < uni.highlight.w;
+  let inCutQuarter = open && in.local.x > 0.0 && in.local.z > 0.0;
+  if (part.x == 1.0) { return inCutQuarter; }
+  if (part.x == 2.0) { return !open; }
+  return false;
 }
 
 const GLOW = vec3f(0.35, 0.75, 1.0);
 
 @fragment
 fn fs(in: VertexOutput, @builtin(front_facing) frontFacing: bool) -> @location(0) vec4f {
-  let albedo = textureSample(modelTexture, modelSampler, in.uv).rgb;
+  var albedo = textureSample(modelTexture, modelSampler, in.uv).rgb;
+  // In the fragment stage the clip position holds the pixel's place on the screen.
+  if (hidden(in, in.clip.xy)) { discard; }
   let toCamera = normalize(uni.cameraPosition.xyz - in.worldPosition);
   var normal = normalize(in.normal);
   if (!frontFacing) { normal = -normal; }
@@ -66,6 +98,8 @@ fn fs(in: VertexOutput, @builtin(front_facing) frontFacing: bool) -> @location(0
   let diffuse = max(dot(normal, toLight), 0.0);
   let halfway = normalize(toLight + toCamera);
   let specular = pow(max(dot(normal, halfway), 0.0), uni.look.y) * 0.25 * step(0.0, dot(normal, toLight));
+  // A shell's inner face, seen through the cut, in shade.
+  if (!frontFacing && uni.parts[in.assembly].x == 1.0) { albedo *= 0.35; }
   var color = albedo * (diffuse * uni.toLight.w + uni.look.x) + vec3f(specular * uni.toLight.w);
   let picked = uni.highlight.x >= 0.0 && in.assembly == i32(uni.highlight.x);
   let strength = uni.highlight.y;

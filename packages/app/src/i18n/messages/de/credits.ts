@@ -24,6 +24,8 @@ export const credits: Messages['credits'] = {
     voyagerModel: 'Die Raumsonde Voyager in den Voyager-Lektionen',
     goldenRecord: 'Hülle und Platte der Goldenen Schallplatte (Fotos)',
     voyagerPhotos: 'Die Fotos der Voyager-Lektionen und -Touren, aufgenommen von den Sonden (und von den Starts)',
+    saturnVModel: 'Maße und Zahlen der Saturn V, aus denen ihr Modell und die Zahlen der Lektion stammen',
+    saturnVPhotos: 'Die Fotos der Saturn-V-Lektion',
     horizons: 'Flugbahnen, Geschwindigkeiten und Planeten-Vorbeiflüge der Voyager-Sonden',
     spdf: 'Die Messwerte der Voyager-Sonden an der Heliopause, 2012 und 2018',
   },
@@ -32,6 +34,7 @@ export const credits: Messages['credits'] = {
     voyagerModel: 'Ins Format der App umgewandelt, in seine Hauptteile zerlegt; ein Aufkleber mit dem NASA-Schriftzug übermalt.',
     cropped: 'Auf die Platte zugeschnitten und verkleinert.',
     resized: 'Verkleinert.',
+    saturnVModel: 'Das Modell ist unser eigenes, aus den Maßen gebaut; die Lackierung folgt Fotos der Rakete.',
   },
   licenses: {
     publicDomain: 'Gemeinfrei',

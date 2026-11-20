@@ -4,7 +4,7 @@ import { createScenePipeline } from '../gpu/scenePipeline'
 import type { TextureLoader } from '../gpu/textureLoader'
 import type { Vec3 } from '../math/tuples'
 import { MODEL_VERTEX_FLOATS, type ModelData } from './modelFile'
-import { MAX_ASSEMBLIES, MODEL_UNIFORM_FLOAT_COUNT, modelShaderCode } from './modelShader'
+import { ASSEMBLY_KIND_CODE, MAX_ASSEMBLIES, MODEL_UNIFORM_FLOAT_COUNT, modelShaderCode } from './modelShader'
 
 const MODEL_VERTEX_BUFFERS: GPUVertexBufferLayout[] = [
   {
@@ -31,15 +31,23 @@ export interface ModelPose {
   // How strong the sunlight and the shadowless fill are; a texture that is a photo of something
   // already lit (the Golden Record) wants mostly fill, so it isn't darkened twice.
   light?: { sun: number; fill: number }
+  // How far it is cut open (0: closed, 1: open from the bottom to the top of the exploded view).
+  cut?: number
+  // How visible each assembly is (0 to 1, by index; 1 where not given): parts thrown off fade.
+  visibility?: readonly number[]
 }
 
 // A spacecraft in sunlight: the shadowed side stays dark, as in space, with a faint fill.
 const SUNLIT = { sun: 1, fill: 0.07 }
 const SHININESS = 24
+const OFFSETS_AT = 48
+const PARTS_AT = OFFSETS_AT + MAX_ASSEMBLIES * 4
 
-// What every model shares: the device, the pipeline, the texture loader and a sampler.
+// What every model shares: the device, the scene's color format, the pipeline, the texture loader
+// and a sampler.
 export interface ModelContext {
   device: GPUDevice
+  format: GPUTextureFormat
   pipeline: GPURenderPipeline
   textures: TextureLoader
   sampler: GPUSampler
@@ -55,7 +63,7 @@ export async function createModelContext(device: GPUDevice, format: GPUTextureFo
     buffers: MODEL_VERTEX_BUFFERS,
   })
   const sampler = device.createSampler({ label: 'model sampler', magFilter: 'linear', minFilter: 'linear', mipmapFilter: 'linear', maxAnisotropy: 16 })
-  return { device, pipeline, textures, sampler }
+  return { device, format, pipeline, textures, sampler }
 }
 
 interface Draw {
@@ -73,6 +81,7 @@ export class ModelRenderer {
     private readonly context: ModelContext,
     private readonly mesh: { vertex: GPUBuffer; index: GPUBuffer; format: GPUIndexFormat; uniforms: GPUBuffer },
     private readonly draws: Draw[],
+    private readonly cutaway: Cutaway,
   ) {}
 
   // The model's textures are loaded from next to it (`textureBaseUrl`/<file>).
@@ -86,7 +95,7 @@ export class ModelRenderer {
         indexCount,
       })),
     )
-    return new ModelRenderer(context, { ...uploadMesh(device, model), uniforms }, draws)
+    return new ModelRenderer(context, { ...uploadMesh(device, model), uniforms }, draws, cutawayOf(model))
   }
 
   // `offsets`: how far each assembly moves out when fully exploded (metres, model frame).
@@ -98,8 +107,10 @@ export class ModelRenderer {
     values.set([...pose.toSun, light.sun], 32)
     values.set([viewpoint.position[0], viewpoint.position[1], viewpoint.position[2], 1], 36)
     values.set([light.fill, SHININESS, pose.explode, 0], 40)
-    values.set([pose.highlight.assembly, pose.highlight.strength, 0, 0], 44)
-    offsets.slice(0, MAX_ASSEMBLIES).forEach((offset, index) => values.set([...offset, 0], 48 + index * 4))
+    const cut = pose.cut ?? 0
+    values.set([pose.highlight.assembly, pose.highlight.strength, cut > 0 ? 1 : 0, this.cutaway.bottom + cut * this.cutaway.reach], 44)
+    offsets.slice(0, MAX_ASSEMBLIES).forEach((offset, index) => values.set([...offset, 0], OFFSETS_AT + index * 4))
+    for (let index = 0; index < MAX_ASSEMBLIES; index++) values.set([this.cutaway.kinds[index], pose.visibility?.[index] ?? 1, 0, 0], PARTS_AT + index * 4)
     this.context.device.queue.writeBuffer(this.mesh.uniforms, 0, values)
   }
 
@@ -112,6 +123,21 @@ export class ModelRenderer {
       pass.drawIndexed(indexCount, 1, firstIndex)
     }
   }
+}
+
+// What the cut needs: each assembly's kind as the shader counts it, and the heights the cut sweeps
+// over - from the model's bottom to its top with every part moved fully out.
+interface Cutaway {
+  kinds: number[]
+  bottom: number
+  reach: number
+}
+
+function cutawayOf({ description }: ModelData): Cutaway {
+  const kinds = Array.from({ length: MAX_ASSEMBLIES }, (_, index) => ASSEMBLY_KIND_CODE[description.assemblies[index]?.kind ?? 'solid'])
+  const highest = Math.max(0, ...description.assemblies.map((assembly) => assembly.explode[1]))
+  const { min, max } = description.bounds
+  return { kinds, bottom: min[1], reach: max[1] + highest - min[1] }
 }
 
 function bindTexture({ device, pipeline, sampler }: ModelContext, uniforms: GPUBuffer, texture: GPUTexture): GPUBindGroup {

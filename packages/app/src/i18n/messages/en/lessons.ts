@@ -1,4 +1,5 @@
 import { voyagerLesson } from './voyager'
+import { saturnV } from './saturnV'
 import { voyagerDeepDive } from './voyagerDeepDive'
 
 // The lessons' words: each lesson's title and note, and its chapters' titles and texts, by chapter id.
@@ -236,4 +237,5 @@ export const lessons = {
   },
   voyager: voyagerLesson,
   voyagerDeepDive,
+  saturnV,
 }

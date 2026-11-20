@@ -4,18 +4,24 @@
 
 export const MODEL_VERTEX_FLOATS = 9
 
+export type AssemblyKind = 'shell' | 'inside' | 'solid'
+
 export interface ModelDescription {
   vertexCount: number
   indexCount: number
   indexFormat: 'uint16' | 'uint32'
   // The parts it can be taken apart into, in the order the vertices' assembly index counts them,
-  // with how far each moves out in the exploded view (metres).
-  assemblies: { id: string; explode: [number, number, number] }[]
+  // with how far each moves out in the exploded view (metres), and what the cutaway does to it:
+  // a shell is cut open, what is inside shows only while it is open, a solid part stays as it is
+  // (the default).
+  assemblies: { id: string; explode: [number, number, number]; kind?: AssemblyKind }[]
   // One draw per texture: a run of the index list and the image (next to the .json) it samples.
   draws: { texture: string; firstIndex: number; indexCount: number }[]
   // The points the lesson's labels point at, by name (metres, in the model's frame).
   anchors: Record<string, [number, number, number]>
   bounds: { min: [number, number, number]; max: [number, number, number] }
+  // Heights worth marking beside the assembled model (metres, by name): the Saturn V's stage tops.
+  marks?: Record<string, number>
 }
 
 export interface ModelData {

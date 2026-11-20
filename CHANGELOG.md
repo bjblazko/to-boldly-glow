@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Apollo, first step: the lesson "The Saturn V, Taken Apart" - Apollo 11's rocket to scale, its
+  stack taken apart, each stage cut open (tanks, engines), with photos and figures; English and
+  German, narration still to be recorded.
+
 ## [0.6.0] - 2026-11-17
 
 Voyager, a calmer interface with everything in one bar, and a camera you can steer like the

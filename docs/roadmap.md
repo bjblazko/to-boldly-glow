@@ -18,6 +18,36 @@ Not shipped to users, so not urgent for the live app (`npm audit --omit=dev`: 0 
 - The 0.6.0 offline zip predates two small fixes (the follow chip's font, free flight letting go of
   a followed body); they ship with the next version's zip.
 
+## Apollo (planned 2026-11-20)
+**What**: Apollo 11, later Apollo 8, 13 and 15-17. Lessons on the whole mission (launch, TLI,
+docking, landing, ascent, return, quarantine; photos, original audio, measurements) and on each
+vehicle (Saturn V, CSM, LM, pad 39A), outside and inside; and a very cinematic "Apollo 11" tour
+with outside and inside shots - chosen by the viewer or directed automatically - including the
+tower, the ascent and the lunar surface.
+**Decisions**: interiors are our own to-scale cutaway models built from NASA dimensions in the
+data pipeline (the Smithsonian's CC0 scan only for the command module Columbia); Lyra narrates
+(en, de) with short original NASA audio clips, subtitled; documentary accuracy - the trajectory
+from the Mission Report / Apollo Flight Journal state vectors, the real Moon, events in GET.
+**Steps** (one session, one result each):
+1. The Saturn V, taken apart (lesson; lathe-built model, exploded stack, cutaway) - spec
+   `superpowers/specs/2026-11-20-apollo-saturn-v-design.md`.
+2. Columbia (CSM): the Smithsonian scan inside, our own SM cutaway; interior light.
+3. Eagle (LM): outside, our own cockpit, the stages separating, legs folded and deployed.
+4. Pad 39A: umbilical tower, crawler, pad; a ground scene on Earth.
+5. Mission data: event timeline in GET, trajectory reconstruction in the Earth-Moon system,
+   tested against documented values.
+6. Lesson Apollo 11, part 1: launch to lunar orbit (a cislunar scene, metre pass for the craft).
+7. Tranquility Base: terrain from the LRO NAC DTM, the descent (P63/P64/P66, 1202 alarm, fuel);
+   lesson part 2.
+8. Lesson part 3: ascent, rendezvous, TEI, re-entry, splashdown, quarantine.
+9. Original audio and photo pipeline (each file's rights checked), subtitles, data charts.
+10. Camera language for the tour (cuts, tracking, onboard and tower cameras, auto direction).
+11. Launch and ascent (exhaust, staging).
+12. The full "Apollo 11" tour.
+**Risks**: depth precision for metres beside Earth and Moon (a metre pass, as in the Voyager
+encounters), interior light and shadow (the model shader has none), download size (load per
+lesson), rights of every photo and audio clip (`huepattl-legal-check` before shipping).
+
 ## Eye candy: richer space visuals
 **What**: Make the scene look more like space photography: livelier stars, better planet surfaces,
 and the objects you'd actually see in the sky.

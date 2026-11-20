@@ -1,0 +1,263 @@
+{
+ "vertexCount": 18642,
+ "indexCount": 92772,
+ "indexFormat": "uint16",
+ "draws": [
+  {
+   "texture": "saturnV-paint.jpg",
+   "firstIndex": 0,
+   "indexCount": 13848
+  },
+  {
+   "texture": "saturnV-palette.png",
+   "firstIndex": 13848,
+   "indexCount": 78924
+  }
+ ],
+ "bounds": {
+  "min": [
+   -14.2391996383667,
+   0,
+   -9.601200103759766
+  ],
+  "max": [
+   9.601200103759766,
+   110.64240264892578,
+   9.601200103759766
+  ]
+ },
+ "assemblies": [
+  {
+   "id": "les",
+   "explode": [
+    0,
+    46,
+    0
+   ],
+   "kind": "solid"
+  },
+  {
+   "id": "cm",
+   "explode": [
+    0,
+    42,
+    0
+   ],
+   "kind": "solid"
+  },
+  {
+   "id": "sm",
+   "explode": [
+    0,
+    40,
+    0
+   ],
+   "kind": "solid"
+  },
+  {
+   "id": "sla",
+   "explode": [
+    0,
+    27,
+    0
+   ],
+   "kind": "shell"
+  },
+  {
+   "id": "lm",
+   "explode": [
+    0,
+    37.5,
+    0
+   ],
+   "kind": "solid"
+  },
+  {
+   "id": "iu",
+   "explode": [
+    0,
+    22,
+    0
+   ],
+   "kind": "solid"
+  },
+  {
+   "id": "sivb",
+   "explode": [
+    0,
+    16,
+    0
+   ],
+   "kind": "shell"
+  },
+  {
+   "id": "sivbInside",
+   "explode": [
+    0,
+    16,
+    0
+   ],
+   "kind": "inside"
+  },
+  {
+   "id": "sivbEngine",
+   "explode": [
+    0,
+    16,
+    0
+   ],
+   "kind": "solid"
+  },
+  {
+   "id": "sii",
+   "explode": [
+    0,
+    8,
+    0
+   ],
+   "kind": "shell"
+  },
+  {
+   "id": "siiInside",
+   "explode": [
+    0,
+    8,
+    0
+   ],
+   "kind": "inside"
+  },
+  {
+   "id": "siiEngines",
+   "explode": [
+    0,
+    8,
+    0
+   ],
+   "kind": "solid"
+  },
+  {
+   "id": "sic",
+   "explode": [
+    0,
+    0,
+    0
+   ],
+   "kind": "shell"
+  },
+  {
+   "id": "sicInside",
+   "explode": [
+    0,
+    0,
+    0
+   ],
+   "kind": "inside"
+  },
+  {
+   "id": "sicEngines",
+   "explode": [
+    0,
+    0,
+    0
+   ],
+   "kind": "solid"
+  },
+  {
+   "id": "person",
+   "explode": [
+    0,
+    0,
+    0
+   ],
+   "kind": "solid"
+  }
+ ],
+ "anchors": {
+  "sic": [
+   0,
+   21.331200420856476,
+   0
+  ],
+  "sicInside": [
+   0,
+   22.799999952316284,
+   0
+  ],
+  "sicEngines": [
+   0,
+   2.8956000804901123,
+   0
+  ],
+  "sii": [
+   0,
+   54.49740219116211,
+   0
+  ],
+  "siiInside": [
+   0,
+   56.587398529052734,
+   0
+  ],
+  "siiEngines": [
+   0,
+   44.75150108337402,
+   0
+  ],
+  "sivb": [
+   0,
+   75.86240005493164,
+   0
+  ],
+  "sivbInside": [
+   0,
+   78.36240005493164,
+   0
+  ],
+  "sivbEngine": [
+   0,
+   70.12150192260742,
+   0
+  ],
+  "iu": [
+   0,
+   85.24939727783203,
+   0
+  ],
+  "sla": [
+   0,
+   89.97359848022461,
+   0
+  ],
+  "lm": [
+   0,
+   88.4563980102539,
+   0
+  ],
+  "sm": [
+   0,
+   95.07579803466797,
+   0
+  ],
+  "cm": [
+   0,
+   100.37580108642578,
+   0
+  ],
+  "les": [
+   0,
+   104.70160293579102,
+   0
+  ],
+  "person": [
+   -14.029199600219727,
+   0.8999999761581421,
+   0
+  ]
+ },
+ "marks": {
+  "sic": 42.062400000000004,
+  "sii": 66.9324,
+  "sivb": 84.7924,
+  "top": 110.64240000000001
+ }
+}
