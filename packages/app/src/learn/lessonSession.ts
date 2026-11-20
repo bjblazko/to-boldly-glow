@@ -232,12 +232,19 @@ export class LessonSession implements ScenePlayer {
     this.arrangeLineup()
     this.borrowed = { camera: camera.takeOverForLesson(), display: display.clearForLesson() }
     modeController.enter(lesson.id)
+    camera.setScenePick((ndc) => this.lookAtPicked(ndc))
     this.seasons.start(this.chapter.seasonPhaseDegrees)
     this.stagedScene?.start(this.chapter)
     this.viewFixed = null
     this.frameCamera()
     panel.visible = true
     this.playFromHere(lesson)
+  }
+
+  // A double click in a scene that lets the user look at a spot: the camera glides there.
+  private lookAtPicked(ndc: [number, number]): void {
+    const point = this.stagedScene?.pick?.(ndc, this.chapter)
+    if (point) this.parts.lessonCamera.lookAt(point)
   }
 
   // A lesson plays as it opens: the chapter shown and read, the next ones turned to by themselves.
@@ -254,6 +261,7 @@ export class LessonSession implements ScenePlayer {
     this.autoplay.setPlaying(false)
     this.parts.voice.stop()
     modeController.exit()
+    camera.setScenePick(null)
     if (this.borrowed) {
       camera.restoreAfterLesson(this.borrowed.camera)
       lessonCamera.release()

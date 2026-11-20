@@ -1,7 +1,7 @@
 import { vec3 } from 'gl-matrix'
 import { EasedTween } from '../math/easedTween'
 import { lerp, lerpVec3 } from '../math/easing'
-import { COMPACT_MIN_ORBIT_RADIUS, type OrbitCamera } from '../camera/orbitCamera'
+import { COMPACT_MIN_ORBIT_RADIUS, orbitBasisForUpAxis, type OrbitCamera } from '../camera/orbitCamera'
 import type { CameraLens } from '../camera/cameraLens'
 import { NO_LENS_SHIFT, VERTICAL_FOV_RADIANS, type LensShift } from '../camera/viewpoint'
 import { ECLIPTIC_NORTH } from '../solarSystem/poleOrientation'
@@ -335,6 +335,26 @@ export class LessonCamera {
     this.orbit.azimuth = preset.azimuth
     this.orbit.elevation = preset.elevation
     vec3.set(this.orbit.upAxis, ...preset.upAxis)
+  }
+
+  // Glides to look at a point (what a double click found), from about where the camera already is:
+  // the same side of the point, no farther than now - so inside a cabin it never backs out through
+  // a wall.
+  lookAt(point: Vec3): void {
+    const from = this.currentView()
+    const eye = this.orbit.getEyePosition()
+    const toEye = vec3.subtract(vec3.create(), eye, point)
+    const distance = vec3.length(toEye)
+    if (distance === 0) return
+    vec3.scale(toEye, toEye, 1 / distance)
+    const up: Vec3 = [this.orbit.upAxis[0], this.orbit.upAxis[1], this.orbit.upAxis[2]]
+    const { right, forward0 } = orbitBasisForUpAxis(up)
+    this.orbit.clearPan()
+    vec3.set(this.orbit.target, ...point)
+    this.orbit.radius = Math.max(this.orbit.minRadius, Math.min(distance, from.radius))
+    this.orbit.elevation = Math.asin(Math.max(-1, Math.min(1, vec3.dot(toEye, up))))
+    this.orbit.azimuth = Math.atan2(vec3.dot(toEye, right), vec3.dot(toEye, forward0))
+    this.glide = this.startGlide(from)
   }
 
   // Starts the flight from where the camera was to the shot just framed, which becomes its end. On

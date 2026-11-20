@@ -1,10 +1,12 @@
-import { loadModel, type ModelDescription } from '../../spacecraft/modelFile'
+import { loadModel, type ModelData, type ModelDescription } from '../../spacecraft/modelFile'
 import { ModelRenderer, type ModelContext } from '../../spacecraft/modelRenderer'
 import type { VehicleModel } from './vehicleConfig'
 
 export interface LoadedModel {
   model: ModelDescription
   renderer: ModelRenderer
+  // Its triangles, kept for picking what a double click points at.
+  data: ModelData
 }
 
 const loading = new Map<string, Promise<LoadedModel>>()
@@ -14,7 +16,7 @@ export function loadVehicleModel(models: ModelContext, { url, name, lamps }: Veh
   const key = `${url}/${name}`
   let pending = loading.get(key)
   if (!pending) {
-    pending = loadModel(key).then(async (model) => ({ model: model.description, renderer: await ModelRenderer.create(models, model, url, { shadows: Boolean(lamps?.length) }) }))
+    pending = loadModel(key).then(async (model) => ({ model: model.description, data: model, renderer: await ModelRenderer.create(models, model, url, { shadows: Boolean(lamps?.length) }) }))
     loading.set(key, pending)
   }
   return pending

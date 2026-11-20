@@ -1,3 +1,4 @@
+import { mat4, vec4 } from 'gl-matrix'
 import type { Viewpoint } from '../../camera/viewpoint'
 import { formatNumber } from '../../i18n/i18n'
 import type { Vec3 } from '../../math/tuples'
@@ -36,6 +37,8 @@ export class VehicleLesson implements StagedLessonScene {
   private readonly onShow = new Map<VehicleId, OnShow>()
   private readonly loading = new Map<VehicleId, Promise<void>>()
   private chapter: Chapter | null = null
+  // The last frame's camera, for turning a double click into a ray.
+  private viewpoint: Viewpoint | null = null
 
   constructor(
     private readonly gpu: { models: ModelContext },
@@ -84,6 +87,7 @@ export class VehicleLesson implements StagedLessonScene {
     const shown = this.current(chapter)
     if (!shown) return
     const stage = stageOf(chapter)
+    this.viewpoint = viewpoint
     for (const scene of shown.scenes) scene.prepare(viewpoint)
     shown.glow.update(viewpoint, shown.scenes.flatMap((scene) => scene.lamps))
     shown.room.update(viewpoint, stage.heights ? Object.values(shown.marks) : [])
@@ -95,6 +99,20 @@ export class VehicleLesson implements StagedLessonScene {
 
   hideOverlays(): void {
     this.labels.hideAll()
+  }
+
+  // The nearest point of the vehicle under a double click: a ray from the camera through it.
+  pick(ndc: [number, number], chapter: Chapter): Vec3 | null {
+    const shown = this.current(chapter)
+    if (!shown || !this.viewpoint) return null
+    const origin: Vec3 = [this.viewpoint.position[0], this.viewpoint.position[1], this.viewpoint.position[2]]
+    const far = vec4.transformMat4(vec4.create(), [ndc[0], ndc[1], 1, 1], mat4.invert(mat4.create(), this.viewpoint.viewProjection) ?? mat4.create())
+    const toFar = [far[0] / far[3] - origin[0], far[1] / far[3] - origin[1], far[2] / far[3] - origin[2]]
+    const length = Math.hypot(toFar[0], toFar[1], toFar[2])
+    const direction: Vec3 = [toFar[0] / length, toFar[1] / length, toFar[2] / length]
+    const hits = shown.scenes.map((scene) => scene.pick(origin, direction)).filter((hit): hit is Vec3 => hit !== null)
+    const distance = (hit: Vec3) => Math.hypot(hit[0] - origin[0], hit[1] - origin[1], hit[2] - origin[2])
+    return hits.sort((a, b) => distance(a) - distance(b))[0] ?? null
   }
 
   // A vehicle's lessons look like film: contact shadows at the vehicle's scale, a vignette, a fine
@@ -161,7 +179,7 @@ export class VehicleLesson implements StagedLessonScene {
       BlueprintRoom.create(device, format, config.room),
       LampGlow.create(device, format),
     ])
-    const scenes = loaded.map(({ model, renderer }, index) => new ModelScene<string>(renderer, model, { ...config.turntable, ...pick(config.models[index]) }))
+    const scenes = loaded.map(({ model, renderer, data }, index) => new ModelScene<string>(renderer, model, { ...config.turntable, ...pick(config.models[index]) }, data))
     this.onShow.set(vehicle, { scenes, room, glow, marks: loaded[0].model.marks ?? {} })
     if (this.chapter && stageOf(this.chapter).vehicle === vehicle) this.stage(this.chapter, true)
   }

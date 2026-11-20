@@ -2,7 +2,8 @@ import type { Viewpoint } from '../camera/viewpoint'
 import { StageTween } from '../learn/stageTween'
 import { TOWARD_SUN, transformPoint, turntableMatrix } from '../learn/voyager/spacecraftStage'
 import type { Vec3 } from '../math/tuples'
-import type { ModelDescription } from './modelFile'
+import type { ModelData, ModelDescription } from './modelFile'
+import { pickModel } from './modelPick'
 import type { Lamp, Material, ModelRenderer } from './modelRenderer'
 
 // What a chapter shows of a model: how far it is taken apart (0 to 1), the part picked out, how far
@@ -52,6 +53,8 @@ export class ModelScene<Part extends string> {
     private readonly renderer: ModelRenderer,
     private readonly model: ModelDescription,
     private readonly options: ModelSceneOptions,
+    // The model's triangles, for finding what a double click points at (none: it can't be picked).
+    private readonly geometry: ModelData | null = null,
   ) {
     this.angle = options.startAngle
     this.stage = new StageTween(['explode', 'highlight', 'cut'], options.stageSeconds)
@@ -108,6 +111,34 @@ export class ModelScene<Part extends string> {
     const pose = { world, toSun: TOWARD_SUN, explode, highlight, cut, visibility, light: this.options.light, lamps, materials }
     this.renderer.update(viewpoint, pose, this.model.assemblies.map((assembly) => assembly.explode))
     this.cameraAngle = Math.atan2(viewpoint.position[0], viewpoint.position[2])
+  }
+
+  // Where a ray (world space) first meets what the picture shows of the model, or null.
+  pick(origin: Vec3, direction: Vec3): Vec3 | null {
+    if (!this.geometry) return null
+    // The turntable only turns about +Y (no move, no scale): its inverse turns back, and it turns
+    // directions as it turns points.
+    const toModel = turntableMatrix(-this.angle, 1)
+    const from = transformPoint(toModel, origin)
+    const along = transformPoint(toModel, direction)
+    const distance = pickModel(this.geometry, from, along, this.pickState())
+    if (distance === null) return null
+    return transformPoint(turntableMatrix(this.angle, 1), [from[0] + along[0] * distance, from[1] + along[1] * distance, from[2] + along[2] * distance])
+  }
+
+  // What the picture shows this frame, as pickModel tests it (the shader's rules: faded parts and
+  // closed insides don't show, and a shell loses the quarter between +X and +Z below the cut).
+  private pickState() {
+    const { explode, cut } = this.stage.current
+    const { min, max } = this.model.bounds
+    const highest = Math.max(0, ...this.model.assemblies.map((assembly) => assembly.explode[1]))
+    const cutHeight = min[1] + cut * (max[1] + highest - min[1])
+    const kind = (index: number) => this.model.assemblies[index]?.kind ?? 'solid'
+    return {
+      moved: this.model.assemblies.map((assembly) => assembly.explode.map((value) => value * explode) as Vec3),
+      shown: (index: number) => (this.fades.current[this.model.assemblies[index]?.id] ?? 1) > 0.5 && !(kind(index) === 'inside' && cut <= 0),
+      cutAway: (index: number, [x, y, z]: Vec3) => kind(index) === 'shell' && cut > 0 && x > 0 && z > 0 && y < cutHeight,
+    }
   }
 
   // The model's lamps as they were placed for this frame (see prepare).

@@ -1,3 +1,4 @@
+import type { Vec3 } from '../math/tuples'
 import type { FilmLook } from '../bloom/filmLook'
 import type { Viewpoint } from '../camera/viewpoint'
 import type { SceneLayout } from '../scene/sceneLayout'
@@ -32,6 +33,9 @@ export interface StagedLessonScene {
   hideOverlays(): void
   // Passes before the scene's own (a lamp's shadow map), for scenes that need them.
   encodeBeforeScene?(encoder: GPUCommandEncoder, chapter: Chapter): void
+  // What a double click on the scene points at (normalized device coordinates), for scenes that
+  // let the user look at a spot (a cabin): the point it hits, or null.
+  pick?(ndc: [number, number], chapter: Chapter): Vec3 | null
   // A film look over the finished picture, for scenes that want one.
   filmLook?(chapter: Chapter): FilmLook | null
   drawBehindBodies(pass: GPURenderPassEncoder, chapter: Chapter): void
