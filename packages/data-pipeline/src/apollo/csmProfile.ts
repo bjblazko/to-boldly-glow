@@ -49,6 +49,34 @@ export function commandModuleProfile(): ProfilePoint[] {
   ]
 }
 
+// The cone's side, as the profile above draws it: from the shoulder up to the apex cover.
+export const CONE_SIDE = {
+  bottom: { height: CSM_HEIGHTS.cmBase + HEAT_SHIELD_DEPTH + SHOULDER, radius: CSM_RADIUS },
+  top: { height: CSM_HEIGHTS.cmTop - 0.32, radius: APEX_RADIUS + 0.2 },
+}
+
+// The hatch and the windows on the cone: NR gives their sizes - the side hatch about 29 in high
+// and 34 in wide with its own window, two side windows about 13 in square, two triangular
+// rendezvous windows about 8 by 13 in looking forward. Where they sit is APPROX: the hatch on the
+// side toward the camera's first view (+Z), the side windows to its left and right, the rendezvous
+// windows above, near the hatch. Angles in radians from +X toward +Z; heights of their middles
+// above the heat shield's bottom; width and height in metres along the cone.
+export interface ConeOpening {
+  angle: number
+  height: number
+  width: number
+  tall: number
+  kind: 'hatch' | 'glass'
+}
+
+const HATCH_ANGLE = Math.PI / 2
+export const CM_OPENINGS: ConeOpening[] = [
+  { angle: HATCH_ANGLE, height: 1.3, width: 34 * IN, tall: 29 * IN, kind: 'hatch' },
+  { angle: HATCH_ANGLE, height: 1.36, width: 9 * IN, tall: 9 * IN, kind: 'glass' }, // the hatch window
+  ...[-1, 1].map((side): ConeOpening => ({ angle: HATCH_ANGLE + side * 1.15, height: 1.25, width: 13 * IN, tall: 13 * IN, kind: 'glass' })),
+  ...[-1, 1].map((side): ConeOpening => ({ angle: HATCH_ANGLE + side * 0.42, height: 1.95, width: 8 * IN, tall: 13 * IN, kind: 'glass' })),
+]
+
 export const SERVICE_MODULE: ProfilePoint[] = [
   [0, CSM_HEIGHTS.aftBulkhead],
   [CSM_RADIUS, CSM_HEIGHTS.aftBulkhead],

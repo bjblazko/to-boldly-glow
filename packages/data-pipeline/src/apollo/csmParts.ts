@@ -1,6 +1,6 @@
 import type { AssemblyKind } from '../../../app/src/spacecraft/modelFile'
 import type { MeshPrimitive } from '../spacecraft/glbMesh'
-import { commandModuleProfile, CSM_HEIGHTS, CSM_RADIUS, PERSON_PLACE, RCS_QUAD, SECTOR_DEGREES, SERVICE_MODULE, SPS_ENGINE, TANKS, type TankShape } from './csmProfile'
+import { CM_OPENINGS, commandModuleProfile, CONE_SIDE, type ConeOpening, CSM_HEIGHTS, CSM_RADIUS, PERSON_PLACE, RCS_QUAD, SECTOR_DEGREES, SERVICE_MODULE, SPS_ENGINE, TANKS, type TankShape } from './csmProfile'
 import { latheMesh, mergePrimitives, type ProfilePoint } from './latheMesh'
 import { paletteTexture, swatchUv, type Rgb } from './palette'
 import { PERSON } from './saturnVProfile'
@@ -23,7 +23,7 @@ export function csmExplodeOffset(assembly: CsmAssembly): [number, number, number
 
 export const CSM_PALETTE_TEXTURE = 'csm-palette.png'
 
-const SWATCHES = ['cm', 'sm', 'heatShield', 'engine', 'oxidizer', 'fuel', 'helium', 'oxygen', 'hydrogen', 'fuelCell', 'rcs', 'person'] as const
+const SWATCHES = ['cm', 'sm', 'heatShield', 'engine', 'oxidizer', 'fuel', 'helium', 'oxygen', 'hydrogen', 'fuelCell', 'rcs', 'person', 'hatch', 'glass'] as const
 type Swatch = (typeof SWATCHES)[number]
 
 const COLORS: Record<Swatch, Rgb> = {
@@ -39,6 +39,8 @@ const COLORS: Record<Swatch, Rgb> = {
   fuelCell: [200, 160, 60],
   rcs: [228, 228, 228],
   person: [235, 120, 40],
+  hatch: [172, 176, 182], // the hatch's own panel, a shade darker than the skin
+  glass: [22, 28, 38], // the windows, dark
 }
 
 export function csmPalette(): Promise<Buffer> {
@@ -67,7 +69,31 @@ function commandModule(): MeshPrimitive {
   return mergePrimitives([
     latheMesh(profile.slice(0, shoulder + 1), colored('heatShield', 96)),
     latheMesh(profile.slice(shoulder), colored('cm', 96)),
+    ...CM_OPENINGS.map(opening),
   ])
+}
+
+// The cone's radius at a height on its side.
+function coneRadius(height: number): number {
+  const { bottom, top } = CONE_SIDE
+  const along = (height - bottom.height) / (top.height - bottom.height)
+  return bottom.radius + (top.radius - bottom.radius) * along
+}
+
+// A hatch or window: a patch of the cone a little proud of the skin, bent with it - glass a little
+// prouder still, so the hatch's window lies on the hatch, not in it. Its height along the cone is
+// turned into the height it spans (the side leans in).
+const PROUD = { hatch: 0.006, glass: 0.01 }
+function opening({ angle, height, width, tall, kind }: ConeOpening): MeshPrimitive {
+  const proud = PROUD[kind]
+  const { bottom, top } = CONE_SIDE
+  const lean = Math.atan2(bottom.radius - top.radius, top.height - bottom.height)
+  const middle = CSM_HEIGHTS.cmBase + height
+  const [low, high] = [middle - (tall / 2) * Math.cos(lean), middle + (tall / 2) * Math.cos(lean)]
+  const radius = coneRadius(middle) + proud
+  const sweep = width / radius
+  const profile: ProfilePoint[] = [[coneRadius(low) + proud, low], [coneRadius(high) + proud, high]]
+  return latheMesh(profile, { ...colored(kind, 12), startAngle: angle - sweep / 2, sweep, sharp: true })
 }
 
 // Where a part stands: its sector's start angle plus `around` of its width, `out` from the axis.

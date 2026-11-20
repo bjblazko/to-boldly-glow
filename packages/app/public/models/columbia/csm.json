@@ -1,12 +1,12 @@
 {
- "vertexCount": 9314,
- "indexCount": 46440,
+ "vertexCount": 9470,
+ "indexCount": 46872,
  "indexFormat": "uint16",
  "draws": [
   {
    "texture": "csm-palette.png",
    "firstIndex": 0,
-   "indexCount": 46440
+   "indexCount": 46872
   }
  ],
  "bounds": {

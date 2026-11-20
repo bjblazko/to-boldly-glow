@@ -15,6 +15,8 @@ export interface LatheOptions {
   axis?: readonly [number, number]
   // The angle the first segment starts at (radians, from +X toward +Z).
   startAngle?: number
+  // How far round it sweeps (radians; once round by default): a patch of a surface of revolution.
+  sweep?: number
   // Each stretch of the profile shaded on its own (a stepped body); otherwise smooth (a dome, a
   // bell).
   sharp?: boolean
@@ -78,7 +80,7 @@ function addRing({ point: [radius, height], normal: [outward, up] }: Ring, optio
   const [axisX, axisZ] = options.axis ?? [0, 0]
   for (let segment = 0; segment <= options.segments; segment++) {
     const around = segment / options.segments
-    const angle = (options.startAngle ?? 0) + around * 2 * Math.PI
+    const angle = (options.startAngle ?? 0) + around * (options.sweep ?? 2 * Math.PI)
     const [cos, sin] = [Math.cos(angle), Math.sin(angle)]
     positions.push(axisX + radius * cos, height, axisZ + radius * sin)
     normals.push(outward * cos, up, outward * sin)
