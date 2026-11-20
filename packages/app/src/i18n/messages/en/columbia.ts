@@ -83,6 +83,11 @@ export const columbia = {
     sm: { label: 'Top of the service module' },
     cm: { label: 'Top of the command module' },
   } as Record<string, { label: string; note?: string }>,
+  captions: {
+    splashdown: 'Columbia in the Pacific after splashdown, 24 July 1969, the crew in the raft beside it.',
+    hornet: 'Columbia aboard the USS Hornet, its heat shield charred by re-entry; beside it the quarantine trailer.',
+    simulator: 'Michael Collins training in the command module simulator, June 1969.',
+  },
   facts: {
     cmHeight: { label: 'Command module', value: '3.2 m tall' },
     diameter: { label: 'Diameter', value: '3.9 m' },

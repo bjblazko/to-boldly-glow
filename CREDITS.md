@@ -257,7 +257,10 @@ The photos (`packages/app/public/images/apollo/`) are from NASA's Image and Vide
 by `packages/data-pipeline/src/fetchSaturnVPhotos.ts`, each caption checked for a non-NASA credit:
 6901000 (Apollo 11 launch), 9903405 (an F-1 engine), 6758331 (an S-II stacked, Apollo 6),
 6861994 (an S-IVB on its test stand, Apollo 10) and 0100806 (Instrument Unit chart), NASA/MSFC; and
-KSC-69P-372 (Apollo 11 rollout), NASA/KSC.
+KSC-69P-372 (Apollo 11 rollout), NASA/KSC. The Columbia lesson's photos, fetched the same way by
+`packages/data-pipeline/src/fetchColumbiaPhotos.ts`: 372772main_GPN-2000-001212_full (Columbia after
+splashdown, NASA), S69-40758 (Columbia aboard the USS Hornet) and S69-38317 (Michael Collins in the
+command module simulator), NASA/JSC.
 
 ## Apollo: Columbia, the command and service module
 

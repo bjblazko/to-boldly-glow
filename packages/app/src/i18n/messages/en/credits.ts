@@ -26,7 +26,7 @@ export const credits = {
     horizons: 'The Voyagers’ trajectories, speeds and planet flybys',
     spdf: 'The Voyagers’ measurements at the heliopause, 2012 and 2018',
     saturnVModel: 'The Saturn V’s dimensions and figures, from which its model and the lesson’s numbers are made',
-    saturnVPhotos: 'The photos in the Saturn V lesson',
+    saturnVPhotos: 'The photos in the Saturn V and Columbia lessons',
     csmModel: 'The command and service module’s dimensions and layout, from which its model is made',
     columbiaCabin: 'Columbia’s cabin, inside: walls, instrument panels, couches and the crew’s notes',
   },

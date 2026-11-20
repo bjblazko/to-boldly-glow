@@ -81,6 +81,11 @@ export const columbia: Messages['lessons']['columbia'] = {
     sm: { label: 'Oberkante Versorgungsmodul' },
     cm: { label: 'Oberkante Kommandomodul' },
   },
+  captions: {
+    splashdown: 'Columbia nach der Wasserung im Pazifik, 24. Juli 1969, die Crew im Floß daneben.',
+    hornet: 'Columbia an Bord der USS Hornet, der Hitzeschild vom Wiedereintritt verkohlt; daneben der Quarantäne-Container.',
+    simulator: 'Michael Collins beim Training im Simulator des Kommandomoduls, Juni 1969.',
+  },
   facts: {
     cmHeight: { label: 'Kommandomodul', value: '3,2 m hoch' },
     diameter: { label: 'Durchmesser', value: '3,9 m' },

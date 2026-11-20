@@ -18,7 +18,8 @@
     "fetch-voyager-encounters": "tsx src/fetchVoyagerEncounters.ts",
     "build-saturn-v": "tsx src/buildSaturnV.ts",
     "fetch-saturn-v-photos": "tsx src/fetchSaturnVPhotos.ts",
-    "build-columbia": "tsx src/buildColumbia.ts"
+    "build-columbia": "tsx src/buildColumbia.ts",
+    "fetch-columbia-photos": "tsx src/fetchColumbiaPhotos.ts"
   },
   "devDependencies": {
     "@gltf-transform/core": "^4.5.1",
