@@ -34,8 +34,10 @@ function outside(): { model: ModelDescription; binary: Buffer } {
 function inside(cabin: Cabin): { model: ModelDescription; binary: Buffer } {
   const parts = new Map<CabinAssembly, MeshPrimitive[]>(CABIN_ASSEMBLIES.map((assembly) => [assembly, cabin.parts.filter((part) => part.assembly === assembly).map((part) => part.primitive)]))
   const { binary, description } = packModel(assignAssemblies(parts, CABIN_ASSEMBLIES))
-  const assemblies = CABIN_ASSEMBLIES.map((id) => ({ id, explode: [0, 0, 0] as [number, number, number], kind: CABIN_KIND }))
-  return { model: { ...description, assemblies, anchors: assemblyAnchors(parts, () => false) }, binary }
+  // The cabin rises with the command module when the two modules are taken apart; the scan is seen
+  // from inside only.
+  const assemblies = CABIN_ASSEMBLIES.map((id) => ({ id, explode: csmExplodeOffset('cm'), kind: CABIN_KIND }))
+  return { model: { ...description, assemblies, anchors: assemblyAnchors(parts, () => false), oneSided: true }, binary }
 }
 
 export async function buildColumbia(out: string, scan: string): Promise<void> {

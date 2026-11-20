@@ -43,27 +43,30 @@ const SHININESS = 24
 const OFFSETS_AT = 48
 const PARTS_AT = OFFSETS_AT + MAX_ASSEMBLIES * 4
 
-// What every model shares: the device, the scene's color format, the pipeline, the texture loader
-// and a sampler.
+// What every model shares: the device, the scene's color format, the pipelines (both faces of
+// every triangle drawn - a probe's thin sheets - or only the front - a scanned room, whose surfaces
+// are not meant to be seen from behind), the texture loader and a sampler.
 export interface ModelContext {
   device: GPUDevice
   format: GPUTextureFormat
-  pipeline: GPURenderPipeline
+  pipelines: Record<'bothSides' | 'frontOnly', GPURenderPipeline>
   textures: TextureLoader
   sampler: GPUSampler
 }
 
 export async function createModelContext(device: GPUDevice, format: GPUTextureFormat, textures: TextureLoader): Promise<ModelContext> {
-  const pipeline = await createScenePipeline(device, {
-    label: 'textured model',
-    code: modelShaderCode,
-    format,
-    primitive: { topology: 'triangle-list', cullMode: 'none' },
-    depth: { write: true, compare: 'less' },
-    buffers: MODEL_VERTEX_BUFFERS,
-  })
+  const pipeline = (cullMode: GPUCullMode) =>
+    createScenePipeline(device, {
+      label: `textured model (${cullMode === 'none' ? 'both sides' : 'front only'})`,
+      code: modelShaderCode,
+      format,
+      primitive: { topology: 'triangle-list', cullMode },
+      depth: { write: true, compare: 'less' },
+      buffers: MODEL_VERTEX_BUFFERS,
+    })
+  const [bothSides, frontOnly] = await Promise.all([pipeline('none'), pipeline('back')])
   const sampler = device.createSampler({ label: 'model sampler', magFilter: 'linear', minFilter: 'linear', mipmapFilter: 'linear', maxAnisotropy: 16 })
-  return { device, format, pipeline, textures, sampler }
+  return { device, format, pipelines: { bothSides, frontOnly }, textures, sampler }
 }
 
 interface Draw {
@@ -79,7 +82,7 @@ export class ModelRenderer {
 
   private constructor(
     private readonly context: ModelContext,
-    private readonly mesh: { vertex: GPUBuffer; index: GPUBuffer; format: GPUIndexFormat; uniforms: GPUBuffer },
+    private readonly mesh: { pipeline: GPURenderPipeline; vertex: GPUBuffer; index: GPUBuffer; format: GPUIndexFormat; uniforms: GPUBuffer },
     private readonly draws: Draw[],
     private readonly cutaway: Cutaway,
   ) {}
@@ -87,15 +90,16 @@ export class ModelRenderer {
   // The model's textures are loaded from next to it (`textureBaseUrl`/<file>).
   static async create(context: ModelContext, model: ModelData, textureBaseUrl: string): Promise<ModelRenderer> {
     const { device } = context
+    const pipeline = model.description.oneSided ? context.pipelines.frontOnly : context.pipelines.bothSides
     const uniforms = device.createBuffer({ label: 'model uniforms', size: MODEL_UNIFORM_FLOAT_COUNT * 4, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST })
     const draws = await Promise.all(
       model.description.draws.map(async ({ texture, firstIndex, indexCount }) => ({
-        bindGroup: bindTexture(context, uniforms, await context.textures.loadColor(`${textureBaseUrl}/${texture}`)),
+        bindGroup: bindTexture(context, pipeline, uniforms, await context.textures.loadColor(`${textureBaseUrl}/${texture}`)),
         firstIndex,
         indexCount,
       })),
     )
-    return new ModelRenderer(context, { ...uploadMesh(device, model), uniforms }, draws, cutawayOf(model))
+    return new ModelRenderer(context, { pipeline, ...uploadMesh(device, model), uniforms }, draws, cutawayOf(model))
   }
 
   // `offsets`: how far each assembly moves out when fully exploded (metres, model frame).
@@ -115,7 +119,7 @@ export class ModelRenderer {
   }
 
   draw(pass: GPURenderPassEncoder): void {
-    pass.setPipeline(this.context.pipeline)
+    pass.setPipeline(this.mesh.pipeline)
     pass.setVertexBuffer(0, this.mesh.vertex)
     pass.setIndexBuffer(this.mesh.index, this.mesh.format)
     for (const { bindGroup, firstIndex, indexCount } of this.draws) {
@@ -140,7 +144,7 @@ function cutawayOf({ description }: ModelData): Cutaway {
   return { kinds, bottom: min[1], reach: max[1] + highest - min[1] }
 }
 
-function bindTexture({ device, pipeline, sampler }: ModelContext, uniforms: GPUBuffer, texture: GPUTexture): GPUBindGroup {
+function bindTexture({ device, sampler }: ModelContext, pipeline: GPURenderPipeline, uniforms: GPUBuffer, texture: GPUTexture): GPUBindGroup {
   return device.createBindGroup({
     label: `model ${texture.label}`,
     layout: pipeline.getBindGroupLayout(0),

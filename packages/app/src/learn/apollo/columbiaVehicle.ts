@@ -1,25 +1,31 @@
 import { msg } from '../../i18n/i18n'
 import type { VehicleConfig } from '../vehicle/vehicleConfig'
-import { VEHICLE_AZIMUTH, VEHICLE_ROOM_FACING, vehicleShot, type VehicleFrame } from '../vehicle/vehicleCamera'
+import { VEHICLE_ROOM_FACING, vehicleShot, type VehicleFrame } from '../vehicle/vehicleCamera'
 
 // The assemblies of Columbia's two models (see the data pipeline's apollo/csmParts.ts and
 // apollo/columbiaInterior.ts): the outside, built from its dimensions, and the scanned cabin.
 export type ColumbiaPart = 'cm' | 'sm' | 'smInside' | 'sps' | 'rcs' | 'antenna' | 'person' | 'hull' | 'panels' | 'seats' | 'notes'
 
-// The spacecraft stands on its engine's nozzle; the command module's cabin is 7.6 to 10.1 m up,
-// the couches about 8.6 m, the main display console above and in front of them. Inside, the camera
-// stands among the couches looking up - held still (the cabin doesn't turn), close (its zoom floor
-// a few centimetres), and never backed off out through the wall (bounds that already fit).
-const INSIDE = { zoomFloor: 0.05, maxZoomOut: 1.2, reach: 0.15, halfWidth: 0.2 }
+// The spacecraft stands on its engine's nozzle. Inside (measured on the built cabin: each part's
+// centre and the way its surface faces), the main display console hangs at 9.0 m facing down to the
+// couches at 8.5 m, the crew's notes are on the wall at z -0.87 m facing in, and the cabin is 1.1
+// to 1.3 m in radius between 8.0 and 8.8 m. The camera looks at each from in front of it, within the
+// cabin - held still (the cabin doesn't turn), close (a zoom floor of a few centimetres), never
+// backed off through the wall (bounds that already fit). With +Y up the camera stands along
+// (cos e cos a, sin e, -cos e sin a) from its target.
+const INSIDE = { zoomFloor: 0.05, maxZoomOut: 1.2, reach: 0.15, halfWidth: 0.2, height: 0 }
 const FRAMES: Record<string, VehicleFrame> = {
   whole: { height: 5.2, radius: 24, reach: 6, halfWidth: 4.5 },
   serviceModule: { height: 4.8, radius: 13, reach: 3.2, halfWidth: 2.6 },
   engine: { height: 2.2, radius: 9, reach: 2.4, halfWidth: 2 },
   commandModule: { height: 8.8, radius: 9, reach: 2, halfWidth: 2.4 },
-  inside: { ...INSIDE, height: 0, target: [0, 9.0, -0.25], radius: 1.0, elevation: -0.75, azimuth: VEHICLE_AZIMUTH },
-  panels: { ...INSIDE, height: 0, target: [0, 9.2, -0.45], radius: 0.7, elevation: -0.9, azimuth: VEHICLE_AZIMUTH },
-  seats: { ...INSIDE, height: 0, target: [0, 8.55, 0.15], radius: 0.9, elevation: 0.9, azimuth: VEHICLE_AZIMUTH + Math.PI },
-  notes: { ...INSIDE, height: 0, target: [0.06, 8.9, -0.57], radius: 0.8, elevation: 0.2, azimuth: Math.PI / 2 },
+  // From beside the couches, up at the console (it faces down and toward +Z).
+  inside: { ...INSIDE, target: [0.09, 8.98, 0.18], radius: 1.0, elevation: -0.8, azimuth: -1.74 },
+  panels: { ...INSIDE, target: [0.09, 8.98, 0.18], radius: 0.6, elevation: -1.1, azimuth: -1.74 },
+  // From under the console, down onto the couches.
+  seats: { ...INSIDE, target: [0, 8.49, 0.25], radius: 0.8, elevation: 0.9, azimuth: Math.PI / 2 },
+  // Square to the wall the notes are on (it faces +Z).
+  notes: { ...INSIDE, target: [-0.1, 8.8, -0.87], radius: 0.75, elevation: 0, azimuth: -1.79 },
 }
 
 // The cabin's light comes mostly from its own textures (the scan's colours already carry the light

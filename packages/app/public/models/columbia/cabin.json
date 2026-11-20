@@ -41,7 +41,7 @@
    "id": "hull",
    "explode": [
     0,
-    0,
+    2.5,
     0
    ],
    "kind": "inside"
@@ -50,7 +50,7 @@
    "id": "panels",
    "explode": [
     0,
-    0,
+    2.5,
     0
    ],
    "kind": "inside"
@@ -59,7 +59,7 @@
    "id": "seats",
    "explode": [
     0,
-    0,
+    2.5,
     0
    ],
    "kind": "inside"
@@ -68,7 +68,7 @@
    "id": "notes",
    "explode": [
     0,
-    0,
+    2.5,
     0
    ],
    "kind": "inside"
@@ -95,5 +95,6 @@
    8.916565895080566,
    -0.5724586844444275
   ]
- }
+ },
+ "oneSided": true
 }
