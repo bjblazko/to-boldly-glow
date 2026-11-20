@@ -23,6 +23,7 @@ import { PhaseInset } from '../learn/phases/phaseInset'
 import { PhasesLabels } from '../learn/phases/phasesLabels'
 import { PhasesLesson } from '../learn/phases/phasesLesson'
 import { VoyagerLabels } from '../learn/voyager/voyagerLabels'
+import { watchBarHeight } from '../hud/barHeight'
 import { SaturnVLesson } from '../learn/apollo/saturnVLesson'
 import { VoyagerLesson } from '../learn/voyager/voyagerLesson'
 import { createModelContext, type ModelContext } from '../spacecraft/modelRenderer'
@@ -75,13 +76,20 @@ export async function startApp(canvas: HTMLCanvasElement): Promise<void> {
   const { lessons, players, firstFrame } = createPlayers(explorer, { device: gpu.device, linePipeline, models }, groundSky, { narrationManifest, voice })
   bindMusicSettings(requireElement('#music-switch'), requireElement<HTMLInputElement>('#music-volume'), music)
   const renderer = new SceneRenderer(gpu.device, targets, { ...features, players }, { display, linePipeline })
+  watchLayout(canvas, targets, lessons)
+  const fps = new FpsMeter(requireElement('#fps-display'), () => display.fps.on)
+  const app: Explorer = { ...explorer, lessons, players, renderer, fps, firstFrame }
+  runFrameLoop((time) => renderFrame(app, time))
+}
+
+// A resized window or a taller bar (a route's timeline) changes the room the scene has: the
+// render targets follow the canvas, and a lesson frames its scene anew.
+function watchLayout(canvas: HTMLCanvasElement, targets: SceneTargets, lessons: { reframe(): void }): void {
   watchCanvasSize(canvas, () => {
     targets.resize()
     lessons.reframe()
   })
-  const fps = new FpsMeter(requireElement('#fps-display'), () => display.fps.on)
-  const app: Explorer = { ...explorer, lessons, players, renderer, fps, firstFrame }
-  runFrameLoop((time) => renderFrame(app, time))
+  watchBarHeight(requireElement('#hud-bar'), () => lessons.reframe())
 }
 
 // Who stages a scene of their own: the lessons and the mission tours - each with its narrator, the

@@ -1239,7 +1239,7 @@ body:has(#scale-mode-compact-btn[aria-pressed='true']) .hud-beta-scale {
 /* Wide landscape screens: a lesson's panel - and a mission tour's card - is a column on the right
    standing on the bar: one "L" around the scene, which lessonFrame.ts fits into the space left of
    it (its numbers mirror these: from 900px wide and an aspect of 11/10, 380px wide, 18px from the
-   edge, ending on the bar's top 86px above the bottom - the bar's 68px plus its 18px). The bar
+   edge, ending on the bar's top: its measured height, --hud-bar-height, plus its 18px). The bar
    moves right under the column and the two are drawn as one slab: one glass (its sheen laid over
    the window, so it runs on across the join), one outline (the column's top and left, the bar's
    top only left of the column), one right face (the column's, reaching down past the bar) and one
@@ -1252,7 +1252,7 @@ body:has(#scale-mode-compact-btn[aria-pressed='true']) .hud-beta-scale {
     left: auto;
     right: 18px;
     top: 18px;
-    bottom: 86px;
+    bottom: calc(18px + var(--hud-bar-height, 68px));
     width: 380px;
     max-height: none;
     transform: none;
@@ -1291,7 +1291,7 @@ body:has(#scale-mode-compact-btn[aria-pressed='true']) .hud-beta-scale {
   }
   .hud-lesson-panel:not(.is-folded)::after,
   body[data-mission-tour] .hud-mission-card::after {
-    height: calc(100% + 68px);
+    height: calc(100% + var(--hud-bar-height, 68px));
   }
   body[data-app-mode='learn']:has(.hud-lesson-panel:not(.is-folded)) .hud-bar,
   body[data-mission-tour] .hud-bar {

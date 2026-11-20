@@ -1,4 +1,5 @@
 import { NO_LENS_SHIFT, VERTICAL_FOV_RADIANS, type LensShift } from '../camera/viewpoint'
+import { barHeight } from '../hud/barHeight'
 import type { ContentBounds } from './lessonShot'
 
 // Where on the screen a lesson's scene goes, clear of the lesson panel: on a wide landscape screen
@@ -11,8 +12,8 @@ import type { ContentBounds } from './lessonShot'
 const SIDE_PANEL_MIN_WIDTH_PX = 900
 const SIDE_PANEL_MIN_ASPECT = 1.1
 const SIDE_PANEL_RESERVED_PX = 414
-// The bar at the bottom: 68px tall, 18px above the bottom edge.
-const DOCK_RESERVED_PX = 86
+// The bar sits 18px above the bottom edge; its height is measured (see hud/barHeight.ts).
+const BAR_GAP_PX = 18
 // Above the bar, the panel's top rises at most to max(16px, 100% - 376px).
 const LESSON_PANEL_RESERVED_PX = 376
 const LESSON_PANEL_MIN_TOP_PX = 16
@@ -43,9 +44,9 @@ export function hasSidePanel(width: number, height: number): boolean {
 }
 
 // The part of the screen the scene is fitted into.
-export function sceneRegion(width: number, height: number): ScreenRegion {
+export function sceneRegion(width: number, height: number, barHeightPx = barHeight()): ScreenRegion {
   const side = hasSidePanel(width, height)
-  const bottom = side ? 1 - DOCK_RESERVED_PX / height - FIT_MARGIN : Math.max(panelTop(height) - FIT_MARGIN, FIT_MIN_BAND_BOTTOM)
+  const bottom = side ? 1 - (BAR_GAP_PX + barHeightPx) / height - FIT_MARGIN : Math.max(panelTop(height) - FIT_MARGIN, FIT_MIN_BAND_BOTTOM)
   const top = Math.max(FIT_MARGIN_TOP, Math.min(TOP_BAR_RESERVED_PX / height, bottom - FIT_MIN_BAND_HEIGHT))
   return side ? { left: FIT_MARGIN, right: 1 - SIDE_PANEL_RESERVED_PX / width - FIT_MARGIN, top, bottom } : { left: 0, right: 1, top, bottom }
 }
