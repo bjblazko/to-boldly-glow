@@ -4,7 +4,7 @@ import { clientToNdc, panByPixels, zoomToward, type ScreenFrame } from '../src/c
 import { OrbitCamera } from '../src/camera/orbitCamera'
 import { perspectiveProjection, VERTICAL_FOV_RADIANS } from '../src/camera/viewpoint'
 
-const screen: ScreenFrame = { heightPx: 800, aspect: 1.6, lensShiftNdc: 0.1 }
+const screen: ScreenFrame = { heightPx: 800, aspect: 1.6, lensShift: { x: -0.3, y: 0.1 } }
 
 function camera(): OrbitCamera {
   return new OrbitCamera({ target: [1, 2, 3], radius: 20, azimuth: 0.6, elevation: 0.3, minRadius: 5 })
@@ -12,7 +12,7 @@ function camera(): OrbitCamera {
 
 // Where a world point lands on screen (NDC), as the renderer draws it.
 function toNdc(orbit: OrbitCamera, point: vec3): [number, number] {
-  const viewProjection = mat4.multiply(mat4.create(), perspectiveProjection(screen.aspect, orbit.minRadius, screen.lensShiftNdc), orbit.getViewMatrix())
+  const viewProjection = mat4.multiply(mat4.create(), perspectiveProjection(screen.aspect, orbit.minRadius, screen.lensShift), orbit.getViewMatrix())
   const clip = vec4.transformMat4(vec4.create(), [point[0], point[1], point[2], 1], viewProjection)
   return [clip[0] / clip[3], clip[1] / clip[3]]
 }
@@ -40,8 +40,8 @@ describe('zoomToward', () => {
     const tanHalf = Math.tan(VERTICAL_FOV_RADIANS / 2)
     const { right, up } = orbit.screenAxes()
     const point = vec3.clone(orbit.pivot())
-    vec3.scaleAndAdd(point, point, right, ndc[0] * tanHalf * screen.aspect * orbit.radius)
-    vec3.scaleAndAdd(point, point, up, (ndc[1] - screen.lensShiftNdc) * tanHalf * orbit.radius)
+    vec3.scaleAndAdd(point, point, right, (ndc[0] - screen.lensShift.x) * tanHalf * screen.aspect * orbit.radius)
+    vec3.scaleAndAdd(point, point, up, (ndc[1] - screen.lensShift.y) * tanHalf * orbit.radius)
     const before = toNdc(orbit, point)
     zoomToward(orbit, 0.5, ndc, screen)
     const after = toNdc(orbit, point)

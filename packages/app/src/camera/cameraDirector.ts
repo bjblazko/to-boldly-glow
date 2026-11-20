@@ -8,6 +8,7 @@ import type { Obstacle } from './input/flightSpeed'
 import { CameraInputController, type CameraMode } from './inputController'
 import { borrowOrbitPose, OrbitCamera, restoreOrbitPose, type OrbitPose } from './orbitCamera'
 import { TourController, type TourRoute } from './tourController'
+import type { LensShift } from './viewpoint'
 
 // The orbit camera's pose, saved while a lesson borrows the camera.
 export interface CameraSnapshot extends OrbitPose {
@@ -148,7 +149,7 @@ export class CameraDirector {
   }
 
   // Where the lens shift comes from (see CameraLens), so a zoom lands under the pointer.
-  setLensShiftSource(source: () => number): void {
+  setLensShiftSource(source: () => LensShift): void {
     this.input.setLensShiftSource(source)
   }
 

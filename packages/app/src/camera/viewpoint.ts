@@ -14,14 +14,23 @@ const FAR_PLANE_DISTANCE = 5000
 // Compact scale's near plane of 0.1 (5 * 0.02) and shrinks proportionally from there.
 const NEAR_PLANE_FRACTION_OF_MIN_RADIUS = 0.02
 
-// lensShiftNdc moves the image vertically (in NDC, positive = up) without changing the perspective,
-// so no angle in the scene changes - lessons use it to keep their scene above the lesson panel.
-export function perspectiveProjection(aspect: number, minOrbitRadius: number, lensShiftNdc = 0): mat4 {
+// How far the image is moved across the screen (in NDC: x positive = right, y positive = up)
+// without changing the perspective, so no angle in the scene changes - lessons use it to keep their
+// scene clear of the lesson panel, beside it or above it.
+export interface LensShift {
+  x: number
+  y: number
+}
+
+export const NO_LENS_SHIFT: LensShift = { x: 0, y: 0 }
+
+export function perspectiveProjection(aspect: number, minOrbitRadius: number, lensShift: LensShift = NO_LENS_SHIFT): mat4 {
   const near = minOrbitRadius * NEAR_PLANE_FRACTION_OF_MIN_RADIUS
   const matrix = mat4.perspective(mat4.create(), VERTICAL_FOV_RADIANS, aspect, near, FAR_PLANE_DISTANCE)
-  // Column-major: [9] multiplies view-space z into clip y, and clip w = -z, so this adds the shift
-  // to every point's NDC y.
-  matrix[9] = -lensShiftNdc
+  // Column-major: [8] and [9] multiply view-space z into clip x and y, and clip w = -z, so these
+  // add the shift to every point's NDC x and y.
+  matrix[8] = -lensShift.x
+  matrix[9] = -lensShift.y
   return matrix
 }
 

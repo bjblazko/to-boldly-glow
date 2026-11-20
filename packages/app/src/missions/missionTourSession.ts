@@ -1,6 +1,6 @@
 import type { CameraDirector, CameraSnapshot } from '../camera/cameraDirector'
 import type { CameraLens } from '../camera/cameraLens'
-import type { Viewpoint } from '../camera/viewpoint'
+import { NO_LENS_SHIFT, type Viewpoint } from '../camera/viewpoint'
 import { COMPACT_MIN_ORBIT_RADIUS } from '../camera/orbitCamera'
 import type { DisplaySettings, LessonDisplaySnapshot } from '../hud/displaySettings'
 import { msg } from '../i18n/i18n'
@@ -195,7 +195,7 @@ export class MissionTourSession implements ScenePlayer {
     camera.orbit.viewLimits = null
     camera.orbit.maxRadius = MAX_TOUR_RADIUS
     lens.setLessonZoomFloor(COMPACT_MIN_ORBIT_RADIUS)
-    lens.lensShiftNdc = 0
+    lens.lensShift = NO_LENS_SHIFT
     return borrowed
   }
 

@@ -26,6 +26,19 @@
   box-shadow: var(--hud-well-edge);
   background: #000;
 }
+/* In the side column (see .hud-lesson-panel in hud.css) the photo spans the column, its caption
+   below it. */
+@media (min-width: 900px) and (min-aspect-ratio: 11/10) {
+  .hud-lesson-photo {
+    grid-template-columns: 1fr;
+  }
+  .hud-lesson-photo img {
+    width: 100%;
+    height: auto;
+    max-height: 260px;
+    object-fit: contain;
+  }
+}
 .hud-lesson-photo figcaption {
   display: flex;
   flex-direction: column;

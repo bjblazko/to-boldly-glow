@@ -5,6 +5,7 @@ import { clampSpeedLevel, cruiseSpeed, keepOutside, type Obstacle } from './inpu
 import { KeyboardState } from './input/keyboardState'
 import { OrbitMotion } from './input/orbitMotion'
 import { clientToNdc, panByPixels, type ScreenFrame } from './input/orbitPan'
+import { NO_LENS_SHIFT, type LensShift } from './viewpoint'
 import { PointerGestures } from './input/pointerGestures'
 import { WheelClassifier } from './input/wheelKind'
 
@@ -48,7 +49,7 @@ export class CameraInputController {
   private touchCommand: () => FlightCommand = () => NO_COMMAND
   private readonly wheelKind = new WheelClassifier()
   // The lens shift lessons apply (see CameraLens), so a zoom lands under the pointer there too.
-  private lensShiftNdc: () => number = () => 0
+  private lensShift: () => LensShift = () => NO_LENS_SHIFT
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
@@ -102,8 +103,8 @@ export class CameraInputController {
     this.touchCommand = command
   }
 
-  setLensShiftSource(source: () => number): void {
-    this.lensShiftNdc = source
+  setLensShiftSource(source: () => LensShift): void {
+    this.lensShift = source
   }
 
   getViewMatrix() {
@@ -172,7 +173,7 @@ export class CameraInputController {
 
   private screen(): ScreenFrame {
     const { clientWidth, clientHeight } = this.canvas
-    return { heightPx: clientHeight || 1, aspect: clientWidth / (clientHeight || 1), lensShiftNdc: this.lensShiftNdc() }
+    return { heightPx: clientHeight || 1, aspect: clientWidth / (clientHeight || 1), lensShift: this.lensShift() }
   }
 
   private pointerNdc(clientX: number, clientY: number): [number, number] {

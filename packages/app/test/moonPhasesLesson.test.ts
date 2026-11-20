@@ -5,6 +5,7 @@ import { OrbitCamera } from '../src/camera/orbitCamera'
 import { createViewpoint, projectToPixels } from '../src/camera/viewpoint'
 import { EARTH_RADIUS, MOON_ORBIT_TILT_DEGREES, MOON_RADIUS, SUN_RADIUS, shadowEdgeLines } from '../src/learn/eclipse/eclipseGeometry'
 import { LessonCamera } from '../src/learn/lessonCamera'
+import { sceneRegion } from '../src/learn/lessonFrame'
 import { isPhasesKind } from '../src/learn/lessonTypes'
 import { LESSON_TOPICS, LESSONS_BY_ID } from '../src/learn/lessons/lessonCatalog'
 import { MOON_PHASES_LESSON } from '../src/learn/lessons/moonPhases'
@@ -150,7 +151,9 @@ describe('the sky over the ground chapters', () => {
         camera.frame('phasesSky', moonGroundShot(moon, { moon: stage.moonAltitudeDegrees, sun: stage.sunAltitudeDegrees }))
         for (let i = 0; i < 3; i++) expect(orbit.getEyePosition()[i]).toBeCloseTo(PHASES_EARTH_POSITION[i], 4)
         const seen = projectToPixels(createViewpoint(orbit.getViewMatrix(), lens.projection(), canvas), moon)
-        expect(seen.x).toBeCloseTo(width / 2, 0)
+        // Across, in the middle of the part of the screen the panel leaves free.
+        const free = sceneRegion(width, height)
+        expect(seen.x).toBeCloseTo(((free.left + free.right) / 2) * width, 0)
         expect(seen.y).toBeGreaterThan(0)
         expect(seen.y).toBeLessThan(height * 0.55)
       }

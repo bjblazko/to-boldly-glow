@@ -1236,6 +1236,49 @@ body:has(#scale-mode-compact-btn[aria-pressed='true']) .hud-beta-scale {
   padding-bottom: 12px;
 }
 
+/* Wide landscape screens: the panel is a column on the right that stands on the bar - one "L"
+   around the scene, which lessonFrame.ts fits into the space left of it (its numbers mirror
+   these: from 900px wide and an aspect of 11/10, 380px wide, 18px from the edge, ending on the
+   bar's top, 86px above the bottom: the bar's 68px plus its 18px). In a lesson the bar moves right
+   under the column, their right faces in one line; the column has no bottom face of its own and
+   lies over the bar's top edge, so the two read as one slab. The column stays put, so there is no
+   grip to drag it by; folded, it shrinks to its title at the top and lets go of the bar. The cards
+   that sit in the top right corner move left of it. */
+@media (min-width: 900px) and (min-aspect-ratio: 11/10) {
+  .hud-lesson-panel {
+    left: auto;
+    right: 18px;
+    top: 18px;
+    bottom: 86px;
+    width: 380px;
+    max-height: none;
+    transform: none;
+    z-index: 4;
+  }
+  .hud-lesson-panel:not(.is-folded)::before {
+    display: none;
+  }
+  .hud-lesson-panel.is-folded {
+    bottom: auto;
+  }
+  body[data-app-mode='learn'] .hud-bar {
+    left: auto;
+    right: 18px;
+    transform: none;
+  }
+  .hud-lesson-panel-grip {
+    visibility: hidden;
+    height: 10px;
+    padding: 0;
+  }
+  .hud-lesson-panel-body {
+    flex: 1;
+  }
+  body[data-app-mode='learn'] :is(.hud-phase-inset, .hud-route-clock) {
+    right: calc(18px + 380px + 16px);
+  }
+}
+
 /* Lessons frame the camera themselves: the hint on flying and orbiting doesn't apply - nor while
    the library or the palette is open over the scene. */
 body[data-app-mode='learn'] .hud-camera-hint,

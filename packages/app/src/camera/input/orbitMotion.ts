@@ -1,4 +1,5 @@
 import type { OrbitCamera } from '../orbitCamera'
+import { NO_LENS_SHIFT } from '../viewpoint'
 import { zoomToward, type ScreenFrame } from './orbitPan'
 
 // A released drag keeps the view turning, slowing to a stop over about this long.
@@ -22,7 +23,7 @@ export class OrbitMotion {
 
   constructor(
     private readonly camera: OrbitCamera,
-    private readonly screen: () => ScreenFrame = () => ({ heightPx: 1, aspect: 1, lensShiftNdc: 0 }),
+    private readonly screen: () => ScreenFrame = () => ({ heightPx: 1, aspect: 1, lensShift: NO_LENS_SHIFT }),
   ) {}
 
   drag(deltaX: number, deltaY: number): void {

@@ -1,4 +1,5 @@
-import { makePanelDraggable } from '../hud/draggablePanel'
+import { makePanelDraggable, resetPanelPosition } from '../hud/draggablePanel'
+import { SIDE_PANEL_MEDIA_QUERY } from './lessonFrame'
 import type { LessonPlayer } from './lessonPlayer'
 import { LessonSortMenu } from './lessonSortMenu'
 import type { ChapterFact } from './lessonTypes'
@@ -59,6 +60,10 @@ export class LessonPanel {
     this.nextButton = find('#lesson-next-chapter')
     this.autoplayButton = find('#lesson-autoplay')
     makePanelDraggable(this.el.panel, find('#lesson-panel-grip'))
+    // The side column stays put: a panel dragged aside before goes back into it.
+    globalThis.matchMedia?.(SIDE_PANEL_MEDIA_QUERY).addEventListener('change', (query) => {
+      if (query.matches) resetPanelPosition(this.el.panel)
+    })
     this.el.foldButton.addEventListener('click', () => this.setFolded(!this.el.body.hidden))
     this.chapterMenu = new MenuPopover(this.el.chapterMenu, this.el.chapterButton)
     this.media = new LessonMedia(find('#lesson-chapter-media'))

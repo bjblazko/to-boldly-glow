@@ -42,3 +42,8 @@ export function makePanelDraggable(panel: HTMLElement, grip: HTMLElement): void 
     moveTo(rect.left, rect.top)
   })
 }
+
+// Back to the panel's CSS position (after a drag), e.g. when the layout puts it somewhere else.
+export function resetPanelPosition(panel: HTMLElement): void {
+  for (const property of ['left', 'top', 'bottom', 'transform'] as const) panel.style[property] = ''
+}

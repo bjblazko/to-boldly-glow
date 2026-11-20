@@ -1,13 +1,13 @@
 import { vec3 } from 'gl-matrix'
 import type { OrbitCamera } from '../orbitCamera'
-import { VERTICAL_FOV_RADIANS } from '../viewpoint'
+import { VERTICAL_FOV_RADIANS, type LensShift } from '../viewpoint'
 
 // What turns screen pixels into world distances at the pivot: the canvas's height in CSS pixels,
-// its aspect ratio, and the lens shift lessons use to keep their scene above the panel.
+// its aspect ratio, and the lens shift lessons use to keep their scene clear of the panel.
 export interface ScreenFrame {
   heightPx: number
   aspect: number
-  lensShiftNdc: number
+  lensShift: LensShift
 }
 
 const TAN_HALF_FOV = Math.tan(VERTICAL_FOV_RADIANS / 2)
@@ -32,8 +32,8 @@ export function zoomToward(camera: OrbitCamera, factor: number, ndc: [number, nu
   if (!ndc) return
   const applied = camera.radius / before
   // From the pivot to the point under the pointer; the pivot moves toward it by (1 - applied).
-  const toPoint = vec3.scale(vec3.create(), right, ndc[0] * TAN_HALF_FOV * screen.aspect * before)
-  vec3.scaleAndAdd(toPoint, toPoint, up, (ndc[1] - screen.lensShiftNdc) * TAN_HALF_FOV * before)
+  const toPoint = vec3.scale(vec3.create(), right, (ndc[0] - screen.lensShift.x) * TAN_HALF_FOV * screen.aspect * before)
+  vec3.scaleAndAdd(toPoint, toPoint, up, (ndc[1] - screen.lensShift.y) * TAN_HALF_FOV * before)
   camera.shiftPivot(vec3.scale(toPoint, toPoint, 1 - applied))
 }
 

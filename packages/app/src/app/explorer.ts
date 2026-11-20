@@ -89,7 +89,7 @@ interface CameraWiring {
 // under the pointer in a lesson too.
 function createLens(camera: CameraDirector, canvas: HTMLCanvasElement, scaleBlend: number): CameraLens {
   const lens = new CameraLens(camera.orbit, canvas)
-  camera.setLensShiftSource(() => lens.lensShiftNdc)
+  camera.setLensShiftSource(() => lens.lensShift)
   lens.applyZoomFloor(scaleBlend)
   return lens
 }

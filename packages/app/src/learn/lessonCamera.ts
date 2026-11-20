@@ -3,7 +3,7 @@ import { EasedTween } from '../math/easedTween'
 import { lerp, lerpVec3 } from '../math/easing'
 import { COMPACT_MIN_ORBIT_RADIUS, type OrbitCamera } from '../camera/orbitCamera'
 import type { CameraLens } from '../camera/cameraLens'
-import { VERTICAL_FOV_RADIANS } from '../camera/viewpoint'
+import { NO_LENS_SHIFT, VERTICAL_FOV_RADIANS, type LensShift } from '../camera/viewpoint'
 import { ECLIPTIC_NORTH } from '../solarSystem/poleOrientation'
 import type { Vec3 } from '../math/tuples'
 import { RING_OUTER_RADIUS_FACTOR } from '../saturnRing/ringMesh'
@@ -12,6 +12,7 @@ import { PHASES_EARTH_POSITION } from './phases/phasesGeometry'
 import { groundBounds, groundPreset } from './ground/groundFraming'
 import type { GroundShot } from './ground/groundShot'
 import type { Chapter } from './lessonTypes'
+import { fitToRegion, sceneRegion } from './lessonFrame'
 import { lookAroundLimits, panLimitFor, ViewWatch, type ViewState } from './lookAround'
 import type { CameraPreset, ContentBounds, LessonShot } from './lessonShot'
 import { EARTH_STAGED_POSITION } from './seasons/seasonsScene'
@@ -125,20 +126,6 @@ const FOCUS_MAX_ZOOM_OUT = 4
 // Moving from one sizes chapter to the next flies the camera there, rather than cutting.
 export const GLIDE_SECONDS = 1.6
 
-// The lesson panel covers the canvas's bottom; its top rises at most to max(16px, 100% - 376px)
-// (see .hud-lesson-panel in hud.css) - keep the two in sync.
-const LESSON_PANEL_RESERVED_PX = 376
-const LESSON_PANEL_MIN_TOP_PX = 16
-// The top bar (the Explore / Learn switch) covers the canvas's top 76px.
-const TOP_BAR_RESERVED_PX = 76
-const FIT_MARGIN_TOP = 0.05
-const FIT_MARGIN_BOTTOM = 0.04
-// On short windows the panel covers most of the screen; the scene still gets at least the top half
-// (the panel can be dragged aside), and the camera backs off at most this far from the preset.
-const FIT_MIN_BAND_BOTTOM = 0.5
-// Nor does the top bar squeeze the scene below this share of the screen: on short windows the
-// scene reaches up beside the (narrow) mode switch instead.
-const FIT_MIN_BAND_HEIGHT = 0.4
 const FIT_MAX_ZOOM_OUT = 2
 
 // How far the user may zoom around a scene from where the chapter frames it (see lookAround.ts for
@@ -176,7 +163,7 @@ interface CameraView {
   radius: number
   azimuth: number
   elevation: number
-  lensShiftNdc: number
+  lensShift: LensShift
 }
 
 // The target and angles ease along evenly; the distance by the same factor each step, so a flight
@@ -187,7 +174,7 @@ function blendViews(from: CameraView, to: CameraView, t: number): CameraView {
     radius: Math.exp(lerp(Math.log(from.radius), Math.log(to.radius), t)),
     azimuth: lerp(from.azimuth, to.azimuth, t),
     elevation: lerp(from.elevation, to.elevation, t),
-    lensShiftNdc: lerp(from.lensShiftNdc, to.lensShiftNdc, t),
+    lensShift: { x: lerp(from.lensShift.x, to.lensShift.x, t), y: lerp(from.lensShift.y, to.lensShift.y, t) },
   }
 }
 
@@ -307,7 +294,7 @@ export class LessonCamera {
     if (this.freePanLimit !== null) this.orbit.panLimit = this.freePanLimit
     this.freePanLimit = null
     this.lens.setLessonZoomFloor(null)
-    this.lens.lensShiftNdc = 0
+    this.lens.lensShift = NO_LENS_SHIFT
     this.orbit.radius = Math.max(this.orbit.radius, this.orbit.minRadius)
   }
 
@@ -363,7 +350,7 @@ export class LessonCamera {
   private currentView(): CameraView {
     const { radius, azimuth, elevation } = this.orbit
     const pivot = this.orbit.pivot()
-    return { target: [pivot[0], pivot[1], pivot[2]], radius, azimuth, elevation, lensShiftNdc: this.lens.lensShiftNdc }
+    return { target: [pivot[0], pivot[1], pivot[2]], radius, azimuth, elevation, lensShift: this.lens.lensShift }
   }
 
   private showView(view: CameraView): void {
@@ -372,7 +359,7 @@ export class LessonCamera {
     this.orbit.radius = view.radius
     this.orbit.azimuth = view.azimuth
     this.orbit.elevation = view.elevation
-    this.lens.lensShiftNdc = view.lensShiftNdc
+    this.lens.lensShift = view.lensShift
   }
 
   private presetFor(kind: ChapterKind, focusPlanetId?: string, lineupOrder?: readonly string[]): CameraPreset {
@@ -404,26 +391,13 @@ export class LessonCamera {
     }
   }
 
-  // Centers the scene in the band of the screen above the lesson panel with a lens shift (which
-  // changes no angle in the scene), backing the camera off only when the content is too tall for
-  // the band or too wide for the screen - never moving it closer than the preset, and at most
-  // maxZoomOut times farther.
+  // Fits the scene into the part of the screen the lesson panel leaves free (see lessonFrame.ts).
   private fitAbovePanel(content: ContentBounds, maxZoomOut: number): void {
-    const height = this.canvas.clientHeight
+    const { clientWidth: width, clientHeight: height } = this.canvas
     if (height <= 0) return
-    const panelTop = Math.max(LESSON_PANEL_MIN_TOP_PX, height - LESSON_PANEL_RESERVED_PX) / height
-    const bottom = Math.max(panelTop - FIT_MARGIN_BOTTOM, FIT_MIN_BAND_BOTTOM)
-    const band = { top: Math.max(FIT_MARGIN_TOP, Math.min(TOP_BAR_RESERVED_PX / height, bottom - FIT_MIN_BAND_HEIGHT)), bottom }
-    const tanHalfFov = Math.tan(VERTICAL_FOV_RADIANS / 2)
-    const halfHeightToFit = Math.max(
-      (content.top - content.bottom) / (2 * (band.bottom - band.top)),
-      content.halfWidth / (this.canvas.clientWidth / height),
-    )
-    const presetRadius = this.orbit.radius
-    this.orbit.radius = Math.min(Math.max(presetRadius, halfHeightToFit / tanHalfFov), presetRadius * maxZoomOut)
-    // A point y above the target lands at screen fraction 0.5 - y / (2 * halfHeight) - shift / 2
-    // from the top; solve for the shift that puts the content's middle in the band's middle.
-    const halfHeight = this.orbit.radius * tanHalfFov
-    this.lens.lensShiftNdc = 1 - (band.top + band.bottom) - (content.top + content.bottom) / 2 / halfHeight
+    const { radius, lensShift } = fitToRegion(content, { region: sceneRegion(width, height), aspect: width / height }, this.orbit.radius, maxZoomOut)
+    this.orbit.radius = radius
+    this.lens.lensShift = lensShift
   }
+
 }

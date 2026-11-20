@@ -221,44 +221,62 @@ test('globe overlays and both location markers render without WebGPU errors acro
   expect(errors).toEqual([])
 })
 
-test('the lesson panel can be dragged by its grip handle, clamped to the viewport, and stays put across chapter navigation', async ({ page }) => {
-  const errors: string[] = []
-  page.on('pageerror', (error) => errors.push(error.message))
+// Upright screens keep the panel above the bar, where it can be dragged aside.
+test.describe('stacked panel', () => {
+  test.use({ viewport: { width: 820, height: 1000 } })
 
+  test('the lesson panel can be dragged by its grip handle, clamped to the viewport, and stays put across chapter navigation', async ({ page }) => {
+    const errors: string[] = []
+    page.on('pageerror', (error) => errors.push(error.message))
+
+    await openApp(page)
+
+    await openLesson(page, 'seasons')
+
+    const panel = page.locator('#lesson-panel')
+    const grip = page.locator('#lesson-panel-grip')
+    const beforeBox = await panel.boundingBox()
+    if (!beforeBox) throw new Error('lesson panel has no bounding box')
+
+    // Drag the grip a good distance up and to the left - the panel starts anchored near the bottom
+    // center, so this should land it clearly away from its starting position (not clamped there).
+    const gripBox = await grip.boundingBox()
+    if (!gripBox) throw new Error('lesson panel grip has no bounding box')
+    await page.mouse.move(gripBox.x + gripBox.width / 2, gripBox.y + gripBox.height / 2)
+    await page.mouse.down()
+    await page.mouse.move(60, 60, { steps: 10 })
+    await page.mouse.up()
+
+    const afterDragBox = await panel.boundingBox()
+    if (!afterDragBox) throw new Error('lesson panel has no bounding box after drag')
+    expect(afterDragBox.x).toBeLessThan(beforeBox.x)
+    expect(afterDragBox.y).toBeLessThan(beforeBox.y)
+    // Clamped to the viewport, not dragged off the top-left edge.
+    expect(afterDragBox.x).toBeGreaterThanOrEqual(0)
+    expect(afterDragBox.y).toBeGreaterThanOrEqual(0)
+
+    // The dragged position must persist across chapter navigation, not reset.
+    await page.locator('#lesson-next-chapter').click()
+    const afterNavBox = await panel.boundingBox()
+    if (!afterNavBox) throw new Error('lesson panel has no bounding box after navigation')
+    expect(Math.round(afterNavBox.x)).toBe(Math.round(afterDragBox.x))
+    expect(Math.round(afterNavBox.y)).toBe(Math.round(afterDragBox.y))
+
+    expect(errors).toEqual([])
+  })
+})
+
+// Wide landscape screens: the panel is a column on the right that stands on the bar - one "L".
+test('on a wide screen the lesson panel is a column standing on the bar, their right edges in line', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 })
   await openApp(page)
-
   await openLesson(page, 'seasons')
-
-  const panel = page.locator('#lesson-panel')
-  const grip = page.locator('#lesson-panel-grip')
-  const beforeBox = await panel.boundingBox()
-  if (!beforeBox) throw new Error('lesson panel has no bounding box')
-
-  // Drag the grip a good distance up and to the left - the panel starts anchored near the bottom
-  // center, so this should land it clearly away from its starting position (not clamped there).
-  const gripBox = await grip.boundingBox()
-  if (!gripBox) throw new Error('lesson panel grip has no bounding box')
-  await page.mouse.move(gripBox.x + gripBox.width / 2, gripBox.y + gripBox.height / 2)
-  await page.mouse.down()
-  await page.mouse.move(60, 60, { steps: 10 })
-  await page.mouse.up()
-
-  const afterDragBox = await panel.boundingBox()
-  if (!afterDragBox) throw new Error('lesson panel has no bounding box after drag')
-  expect(afterDragBox.x).toBeLessThan(beforeBox.x)
-  expect(afterDragBox.y).toBeLessThan(beforeBox.y)
-  // Clamped to the viewport, not dragged off the top-left edge.
-  expect(afterDragBox.x).toBeGreaterThanOrEqual(0)
-  expect(afterDragBox.y).toBeGreaterThanOrEqual(0)
-
-  // The dragged position must persist across chapter navigation, not reset.
-  await page.locator('#lesson-next-chapter').click()
-  const afterNavBox = await panel.boundingBox()
-  if (!afterNavBox) throw new Error('lesson panel has no bounding box after navigation')
-  expect(Math.round(afterNavBox.x)).toBe(Math.round(afterDragBox.x))
-  expect(Math.round(afterNavBox.y)).toBe(Math.round(afterDragBox.y))
-
-  expect(errors).toEqual([])
+  const panel = (await page.locator('#lesson-panel').boundingBox())!
+  const bar = (await page.locator('#hud-bar').boundingBox())!
+  expect(panel.width).toBeCloseTo(380, 0)
+  expect(panel.x + panel.width).toBeCloseTo(bar.x + bar.width, 0)
+  expect(panel.y + panel.height).toBeCloseTo(bar.y, 0)
+  await expect(page.locator('#lesson-panel-grip')).toBeHidden()
 })
 
 test('opening a lesson while following a body ends the follow, so it cannot drag the lesson camera away', async ({ page }) => {

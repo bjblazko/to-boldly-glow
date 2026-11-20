@@ -4,6 +4,7 @@ import { CameraLens } from '../src/camera/cameraLens'
 import { OrbitCamera } from '../src/camera/orbitCamera'
 import { createViewpoint, projectToPixels } from '../src/camera/viewpoint'
 import { LessonCamera } from '../src/learn/lessonCamera'
+import { sceneRegion } from '../src/learn/lessonFrame'
 import { PLANET_SIZES_LESSON } from '../src/learn/lessons/planetSizes'
 import { LINEUP_SUN_RADIUS, lineupSlot, sizesLayout } from '../src/learn/sizes/sizesLineup'
 import { realOrientation } from '../src/scene/exploreLayout'
@@ -63,14 +64,15 @@ describe('PLANET_SIZES_LESSON', () => {
 })
 
 describe('the camera on a planet chapter', () => {
-  it('shows the planet whole and large in the band above the lesson panel, on any screen', () => {
+  it('shows the planet whole and large in the part of the screen the lesson panel leaves free, on any screen', () => {
     for (const [width, height] of [
       [1280, 800],
       [1024, 700],
       [390, 844],
     ]) {
       const { orbit, lens, camera } = lessonCamera(width, height)
-      const panelTop = Math.max(16, height - 376)
+      const free = sceneRegion(width, height)
+      const [freeTop, freeBottom, freeLeft, freeRight] = [free.top * height, free.bottom * height, free.left * width, free.right * width]
       for (const chapter of planetChapters) {
         const id = chapter.focusPlanetId!
         camera.frame('sizes', null, { focusPlanetId: id })
@@ -82,12 +84,12 @@ describe('the camera on a planet chapter', () => {
         const seen = (side: number[], amount: number) => projectToPixels(viewpoint, [x + side[0] * amount, side[1] * amount, side[2] * amount])
         const [top, bottom, left, rightEdge] = [seen(up, radius), seen(up, -radius), seen(right, -radius), seen(right, radius)]
         const where = `${id} at ${width}x${height}`
-        expect(top.y, where).toBeGreaterThan(70)
-        expect(bottom.y, where).toBeLessThan(panelTop)
-        expect(left.x, where).toBeGreaterThan(0)
-        expect(rightEdge.x, where).toBeLessThan(width)
+        expect(top.y, where).toBeGreaterThan(freeTop - 1)
+        expect(bottom.y, where).toBeLessThan(freeBottom + 1)
+        expect(left.x, where).toBeGreaterThan(freeLeft - 1)
+        expect(rightEdge.x, where).toBeLessThan(freeRight + 1)
         // Saturn leaves room for its rings.
-        expect(bottom.y - top.y, where).toBeGreaterThan((panelTop - 76) * (id === 'saturn' ? 0.3 : 0.5))
+        expect(bottom.y - top.y, where).toBeGreaterThan((freeBottom - freeTop) * (id === 'saturn' ? 0.3 : 0.5))
       }
     }
   })
@@ -109,7 +111,7 @@ describe('the camera on a planet chapter', () => {
 
   it('flies from one planet to the next and arrives exactly on its shot', () => {
     const { orbit, lens, camera } = lessonCamera(1280, 800)
-    const snapshot = () => ({ target: [...orbit.target], radius: orbit.radius, azimuth: orbit.azimuth, elevation: orbit.elevation, lensShift: lens.lensShiftNdc })
+    const snapshot = () => ({ target: [...orbit.target], radius: orbit.radius, azimuth: orbit.azimuth, elevation: orbit.elevation, lensShift: lens.lensShift })
     camera.frame('sizes', null, { focusPlanetId: 'saturn' })
     const saturn = snapshot()
     camera.frame('sizes', null, { focusPlanetId: 'jupiter' })
@@ -127,7 +129,8 @@ describe('the camera on a planet chapter', () => {
     for (let i = 0; i < 3; i++) expect(arrived.target[i]).toBeCloseTo(saturn.target[i], 9)
     expect(arrived.radius).toBeCloseTo(saturn.radius, 9)
     expect(arrived.azimuth).toBeCloseTo(saturn.azimuth, 9)
-    expect(arrived.lensShift).toBeCloseTo(saturn.lensShift, 9)
+    expect(arrived.lensShift.x).toBeCloseTo(saturn.lensShift.x, 9)
+    expect(arrived.lensShift.y).toBeCloseTo(saturn.lensShift.y, 9)
   })
 })
 
