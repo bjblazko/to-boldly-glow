@@ -14,7 +14,7 @@ import type { VoyagerLabels } from '../voyager/voyagerLabels'
 import { BlueprintRoom } from './blueprintRoom'
 import { LampGlow } from './lampGlow'
 import { loadVehicleModel } from './vehicleAssets'
-import type { VehicleConfig } from './vehicleConfig'
+import type { VehicleConfig, VehicleModel } from './vehicleConfig'
 import type { VehicleId, VehicleStage } from './vehicleStage'
 
 // A vehicle on show: its models (sharing one stage and one turn) and its room.
@@ -151,10 +151,15 @@ export class VehicleLesson implements StagedLessonScene {
       BlueprintRoom.create(device, format, config.room),
       LampGlow.create(device, format),
     ])
-    const scenes = loaded.map(({ model, renderer }, index) => new ModelScene<string>(renderer, model, { ...config.turntable, light: config.models[index].light, lamps: config.models[index].lamps }))
+    const scenes = loaded.map(({ model, renderer }, index) => new ModelScene<string>(renderer, model, { ...config.turntable, ...pick(config.models[index]) }))
     this.onShow.set(vehicle, { scenes, room, glow, marks: loaded[0].model.marks ?? {} })
     if (this.chapter && stageOf(this.chapter).vehicle === vehicle) this.stage(this.chapter, true)
   }
+}
+
+// What of a model's config its scene takes: how it is lit and what it is made of.
+function pick({ light, lamps, materials }: VehicleModel): Pick<VehicleModel, 'light' | 'lamps' | 'materials'> {
+  return { light, lamps, materials }
 }
 
 function stageOf(chapter: Chapter): VehicleStage {

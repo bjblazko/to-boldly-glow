@@ -38,7 +38,17 @@ export interface ModelPose {
   visibility?: readonly number[]
   // Lamps lighting it from near by (a cabin's floodlights), in world space.
   lamps?: readonly Lamp[]
+  // Each assembly's material, by index (a soft plastic sheen where not given).
+  materials?: readonly (Material | undefined)[]
 }
+
+// How a surface shines: how tight its highlight is and how strong.
+export interface Material {
+  shininess: number
+  shine: number
+}
+
+const PLAIN: Material = { shininess: 24, shine: 0.25 }
 
 // A lamp: where it is, how far its light reaches (metres) and its colour times its strength.
 export interface Lamp {
@@ -49,7 +59,6 @@ export interface Lamp {
 
 // A spacecraft in sunlight: the shadowed side stays dark, as in space, with a faint fill.
 const SUNLIT = { sun: 1, fill: 0.07 }
-const SHININESS = 24
 const OFFSETS_AT = 48
 const PARTS_AT = OFFSETS_AT + MAX_ASSEMBLIES * 4
 const LAMPS_AT = PARTS_AT + MAX_ASSEMBLIES * 4
@@ -130,12 +139,12 @@ export class ModelRenderer {
     const light = pose.light ?? SUNLIT
     values.set([...pose.toSun, light.sun], 32)
     values.set([viewpoint.position[0], viewpoint.position[1], viewpoint.position[2], 1], 36)
-    values.set([light.fill, SHININESS, pose.explode, 0], 40)
+    values.set([light.fill, 0, pose.explode, 0], 40)
     const cut = pose.cut ?? 0
     const { cutaway } = this.shape
     values.set([pose.highlight.assembly, pose.highlight.strength, cut > 0 ? 1 : 0, cutaway.bottom + cut * cutaway.reach], 44)
     offsets.slice(0, MAX_ASSEMBLIES).forEach((offset, index) => values.set([...offset, 0], OFFSETS_AT + index * 4))
-    for (let index = 0; index < MAX_ASSEMBLIES; index++) values.set([cutaway.kinds[index], pose.visibility?.[index] ?? 1, 0, 0], PARTS_AT + index * 4)
+    writeParts(values, pose, cutaway.kinds)
     writeLamps(values, pose.lamps ?? [])
     this.updateShadow(pose, offsets)
     this.context.device.queue.writeBuffer(this.mesh.uniforms, 0, values)
@@ -169,6 +178,14 @@ export class ModelRenderer {
       pass.setBindGroup(0, bindGroup)
       pass.drawIndexed(indexCount, 1, firstIndex)
     }
+  }
+}
+
+// Each assembly's kind, how visible it is and its material.
+function writeParts(values: Float32Array, { visibility, materials }: ModelPose, kinds: readonly number[]): void {
+  for (let index = 0; index < MAX_ASSEMBLIES; index++) {
+    const { shininess, shine } = materials?.[index] ?? PLAIN
+    values.set([kinds[index], visibility?.[index] ?? 1, shininess, shine], PARTS_AT + index * 4)
   }
 }
 

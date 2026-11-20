@@ -25,13 +25,14 @@ struct Uniforms {
   // Toward the Sun, world space; w: sunlight strength.
   toLight: vec4f,
   cameraPosition: vec4f,
-  // x: fill light, y: highlight's shininess, z: how far the exploded view has opened (0 to 1).
+  // x: fill light, z: how far the exploded view has opened (0 to 1).
   look: vec4f,
   // x: the assembly picked out (-1: none), y: how strongly (0 to 1); z: the cut open (1) or not
   // (0), w: up to which height (model frame, metres).
   highlight: vec4f,
   offsets: array<vec4f, ${MAX_ASSEMBLIES}>,
-  // x: the assembly's kind (0 solid, 1 shell, 2 inside), y: how visible it is (0 to 1).
+  // x: the assembly's kind (0 solid, 1 shell, 2 inside), y: how visible it is (0 to 1), z: how
+  // tight its highlight is (shininess), w: how strong (its material: metal shines, fabric hardly).
   parts: array<vec4f, ${MAX_ASSEMBLIES}>,
   // Per lamp: xyz its place (world), w how far it reaches (0: no lamp); then rgb its colour times
   // its strength.
@@ -121,7 +122,7 @@ fn lampShadow(worldPosition: vec3f) -> f32 {
 // The lamps' light on a surface: each falls off with distance (softly, reaching zero at its range)
 // and lights the side facing it, wrapping softly round, with a little shine; the first lamp casts
 // shadows.
-fn lampLight(worldPosition: vec3f, normal: vec3f, toCamera: vec3f) -> vec3f {
+fn lampLight(worldPosition: vec3f, normal: vec3f, toCamera: vec3f, material: vec2f) -> vec3f {
   var light = vec3f(0.0);
   for (var i = 0u; i < ${MAX_LAMPS}u; i++) {
     let place = uni.lampPlaces[i];
@@ -134,7 +135,7 @@ fn lampLight(worldPosition: vec3f, normal: vec3f, toCamera: vec3f) -> vec3f {
     // so it models a scanned surface without tracing every triangle of it.
     let facing = dot(normal, direction);
     let diffuse = (facing * 0.5 + 0.5) * (facing * 0.5 + 0.5);
-    let shine = pow(max(dot(normal, normalize(direction + toCamera)), 0.0), 32.0) * 0.15 * step(0.0, facing);
+    let shine = pow(max(dot(normal, normalize(direction + toCamera)), 0.0), material.x) * material.y * step(0.0, facing);
     let shadowed = select(1.0, lampShadow(worldPosition), i == 0u);
     light += uni.lampColors[i].rgb * falloff * (diffuse + shine) * shadowed;
   }
@@ -152,10 +153,11 @@ fn fs(in: VertexOutput, @builtin(front_facing) frontFacing: bool) -> @location(0
   let toLight = normalize(uni.toLight.xyz);
   let diffuse = max(dot(normal, toLight), 0.0);
   let halfway = normalize(toLight + toCamera);
-  let specular = pow(max(dot(normal, halfway), 0.0), uni.look.y) * 0.25 * step(0.0, dot(normal, toLight));
+  let material = uni.parts[in.assembly].zw;
+  let specular = pow(max(dot(normal, halfway), 0.0), material.x) * material.y * step(0.0, dot(normal, toLight));
   // A shell's inner face, seen through the cut, in shade.
   if (!frontFacing && uni.parts[in.assembly].x == 1.0) { albedo *= 0.35; }
-  var color = albedo * (diffuse * uni.toLight.w + uni.look.x + lampLight(in.worldPosition, normal, toCamera)) + vec3f(specular * uni.toLight.w);
+  var color = albedo * (diffuse * uni.toLight.w + uni.look.x + lampLight(in.worldPosition, normal, toCamera, material)) + vec3f(specular * uni.toLight.w);
   let picked = uni.highlight.x >= 0.0 && in.assembly == i32(uni.highlight.x);
   let strength = uni.highlight.y;
   if (picked) {

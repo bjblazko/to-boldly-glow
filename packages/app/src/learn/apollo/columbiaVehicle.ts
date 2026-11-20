@@ -39,10 +39,19 @@ const CABIN_LAMPS = [
   { place: [0, 8.15, -0.55] as [number, number, number], reach: 1.6, color: FLOOD.map((value) => value * 1.2) as [number, number, number] },
 ]
 
+// What the cabin is made of: the panels painted metal with a tight sheen, the walls dull paint, the
+// couches' fabric and straps hardly shining, the notes on paper and tape.
+const CABIN_MATERIALS = {
+  panels: { shininess: 48, shine: 0.35 },
+  hull: { shininess: 14, shine: 0.1 },
+  seats: { shininess: 4, shine: 0.03 },
+  notes: { shininess: 10, shine: 0.06 },
+}
+
 export const COLUMBIA: VehicleConfig = {
   models: [
     { url: 'models/columbia', name: 'csm' },
-    { url: 'models/columbia', name: 'cabin', light: CABIN_LIGHT, lamps: CABIN_LAMPS },
+    { url: 'models/columbia', name: 'cabin', light: CABIN_LIGHT, lamps: CABIN_LAMPS, materials: CABIN_MATERIALS },
   ],
   // One turn every ninety seconds, starting square to the camera; the cabin holds this angle too.
   turntable: { secondsPerTurn: 90, startAngle: 0, stageSeconds: 2.4 },
