@@ -125,6 +125,11 @@ export class CameraDirector {
     this.setMode(snapshot.mode, { syncFlyPose: false })
   }
 
+  // Stops the glide the user's last input left behind (see CameraInputController.stopMotion).
+  stopMotion(): void {
+    this.input.stopMotion()
+  }
+
   setInputEnabled(enabled: boolean): void {
     this.input.setEnabled(enabled)
   }

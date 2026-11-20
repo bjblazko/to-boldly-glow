@@ -78,6 +78,13 @@ export class CameraInputController {
     this.flyCamera.stop()
   }
 
+  // Drops what is still gliding (a wheel's zoom, a flick's turn): a lesson framing its shot anew must
+  // not be zoomed on by the user's last notch.
+  stopMotion(): void {
+    this.orbitMotion.stop()
+    this.flyCamera.stop()
+  }
+
   // Learn mode and the tour lock the camera: input stops responding entirely - not just visually,
   // a lingering drag or held key could otherwise fight them. No camera pose is touched here.
   setEnabled(enabled: boolean): void {

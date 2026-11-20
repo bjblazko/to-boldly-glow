@@ -199,6 +199,7 @@ export class LessonSession implements ScenePlayer {
   // Frames the chapter's shot, or flies there (glide). The user may look around a shot from space; a
   // view from the ground is the observer's own eye and stands still, so camera input is off there.
   private frameCamera(glide = false): void {
+    this.parts.camera.stopMotion()
     const groundShot = this.stagedScene?.groundShot(this.chapter)
     const { kind, focusPlanetId } = this.chapter
     const shot = groundShot ? undefined : this.stagedScene?.shot?.(this.chapter)
