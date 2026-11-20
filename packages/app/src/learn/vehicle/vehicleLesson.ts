@@ -12,6 +12,7 @@ import type { StagedLessonScene, StagedOverlayFrame } from '../stagedLessonScene
 import { spacecraftLayout } from '../voyager/spacecraftStage'
 import type { VoyagerLabels } from '../voyager/voyagerLabels'
 import { BlueprintRoom } from './blueprintRoom'
+import { LampGlow } from './lampGlow'
 import { loadVehicleModel } from './vehicleAssets'
 import type { VehicleConfig } from './vehicleConfig'
 import type { VehicleId, VehicleStage } from './vehicleStage'
@@ -20,6 +21,7 @@ import type { VehicleId, VehicleStage } from './vehicleStage'
 interface OnShow {
   scenes: ModelScene<string>[]
   room: BlueprintRoom
+  glow: LampGlow
   marks: Record<string, number>
 }
 
@@ -80,6 +82,7 @@ export class VehicleLesson implements StagedLessonScene {
     if (!shown) return
     const stage = stageOf(chapter)
     for (const scene of shown.scenes) scene.prepare(viewpoint)
+    shown.glow.update(viewpoint, shown.scenes.flatMap((scene) => scene.lamps))
     shown.room.update(viewpoint, stage.heights ? Object.values(shown.marks) : [])
     this.labels.begin()
     this.placeParts(shown.scenes, stage, viewpoint)
@@ -100,7 +103,10 @@ export class VehicleLesson implements StagedLessonScene {
   }
 
   drawInFrontOfBodies(pass: GPURenderPassEncoder, chapter: Chapter): void {
-    for (const scene of this.current(chapter)?.scenes ?? []) scene.draw(pass)
+    const shown = this.current(chapter)
+    if (!shown) return
+    for (const scene of shown.scenes) scene.draw(pass)
+    shown.glow.draw(pass)
   }
 
   drawOverlays(): void {}
@@ -140,9 +146,13 @@ export class VehicleLesson implements StagedLessonScene {
   private async load(vehicle: VehicleId): Promise<void> {
     const config = this.vehicles[vehicle]
     const { device, format } = this.gpu.models
-    const [loaded, room] = await Promise.all([Promise.all(config.models.map((model) => loadVehicleModel(this.gpu.models, model))), BlueprintRoom.create(device, format, config.room)])
+    const [loaded, room, glow] = await Promise.all([
+      Promise.all(config.models.map((model) => loadVehicleModel(this.gpu.models, model))),
+      BlueprintRoom.create(device, format, config.room),
+      LampGlow.create(device, format),
+    ])
     const scenes = loaded.map(({ model, renderer }, index) => new ModelScene<string>(renderer, model, { ...config.turntable, light: config.models[index].light, lamps: config.models[index].lamps }))
-    this.onShow.set(vehicle, { scenes, room, marks: loaded[0].model.marks ?? {} })
+    this.onShow.set(vehicle, { scenes, room, glow, marks: loaded[0].model.marks ?? {} })
     if (this.chapter && stageOf(this.chapter).vehicle === vehicle) this.stage(this.chapter, true)
   }
 }

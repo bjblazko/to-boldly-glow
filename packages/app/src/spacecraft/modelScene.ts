@@ -41,6 +41,8 @@ export class ModelScene<Part extends string> {
   private highlighted: Part | undefined
   // Where the camera stood last frame, seen from the model: the cut turns toward it.
   private cameraAngle: number | null = null
+  // The lamps where they are this frame (turned with the model).
+  private lampsNow: readonly Lamp[] = []
   private still = false
 
   constructor(
@@ -98,9 +100,15 @@ export class ModelScene<Part extends string> {
     const visibility = this.model.assemblies.map((assembly) => this.fades.current[assembly.id])
     const world = turntableMatrix(this.angle, 1)
     const lamps = this.options.lamps?.map((lamp) => ({ ...lamp, place: transformPoint(world, lamp.place) }))
+    this.lampsNow = lamps ?? []
     const pose = { world, toSun: TOWARD_SUN, explode, highlight, cut, visibility, light: this.options.light, lamps }
     this.renderer.update(viewpoint, pose, this.model.assemblies.map((assembly) => assembly.explode))
     this.cameraAngle = Math.atan2(viewpoint.position[0], viewpoint.position[2])
+  }
+
+  // The model's lamps as they were placed for this frame (see prepare).
+  get lamps(): readonly Lamp[] {
+    return this.lampsNow
   }
 
   // Before the scene's pass: the model's lamp shadow map, if it has one.
