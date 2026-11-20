@@ -31,7 +31,7 @@ const FRAMES: Record<string, VehicleFrame> = {
 // The cabin's light: its floodlights - two over the couches by the console, a dimmer one down in
 // the lower equipment bay - in a warm white, over a low fill (the scan's colours already carry some
 // of the museum's light) and a touch of sunlight through the windows.
-const CABIN_LIGHT = { sun: 0.12, fill: 0.3 }
+const CABIN_LIGHT = { sun: 0.12, fill: 0.45 }
 const FLOOD = [1.0, 0.9, 0.76] as const
 const CABIN_LAMPS = [
   { place: [-0.55, 9.1, 0.45] as [number, number, number], reach: 2.2, color: FLOOD.map((value) => value * 2.2) as [number, number, number] },
