@@ -33,8 +33,8 @@ export const columbia: Messages['lessons']['columbia'] = {
       title: 'Das Kommandomodul',
       text:
         'Ein Kegel, 3,2 m hoch und 3,9 m breit. Unter der Haut liegt der Hitzeschild: Stahlwaben mit einem ' +
-        'Phenol-Epoxidharz darüber, das verkohlte und abgetragen wurde, als die Kapsel durch die Atmosphäre ' +
-        'zurückfiel. Fünf Fenster, eine Seitenluke und oben der Tunnel zur Mondfähre.',
+        'Phenol-Epoxidharz darüber, das verkohlte und abfiel, als die Kapsel durch die Atmosphäre ' +
+        'zurückkehrte. Fünf Fenster, eine Seitenluke und oben der Tunnel zur Mondfähre.',
     },
     inside: {
       title: 'Innen',
@@ -53,15 +53,15 @@ export const columbia: Messages['lessons']['columbia'] = {
       title: 'Drei Liegen',
       text:
         'Die drei Liegen stehen auf zusammendrückbaren Wabenstreben, die den Aufprall auf dem Wasser ' +
-        'abfederten. Unter ihnen liegt die untere Geräteabteilung mit den Navigationsinstrumenten, in der ' +
-        'ein Astronaut stehen konnte.',
+        'abfederten. An ihrem Fußende liegt die untere Geräteabteilung mit den Navigationsinstrumenten: ' +
+        'Sextant, Teleskop und der Steuercomputer mit seiner Tastatur.',
     },
     notes: {
       title: 'Notizen an den Wänden',
       text:
-        'Die Crew schrieb während des Flugs an die Wände der Columbia: Zahlen, Merkzettel, einen Kalender. ' +
-        'Michael Collins, der in der Columbia blieb, während Armstrong und Aldrin auf dem Mond liefen, ' +
-        'hinterließ eine Nachricht, mit der er seinem Raumschiff dankte. Der Scan bewahrt jede Zeile.',
+        'Handgeschriebene Zahlen und Notizen bedecken Teile der Wände. Michael Collins flog Columbia allein ' +
+        'um den Mond, während Armstrong und Aldrin auf seiner Oberfläche liefen. Der Scan bewahrt jede ' +
+        'Zeile, so wie die Kapsel heimkehrte.',
     },
   },
   parts: {

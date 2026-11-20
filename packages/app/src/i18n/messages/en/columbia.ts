@@ -35,7 +35,7 @@ export const columbia = {
       title: 'The Command Module',
       text:
         'A cone 3.2 m tall and 3.9 m across. Under its skin lies the heat shield: steel honeycomb covered ' +
-        'with a phenolic epoxy resin that charred and wore away as the capsule fell back through the ' +
+        'with a phenolic epoxy resin that charred and fell away as the capsule came back through the ' +
         'atmosphere. Five windows, a side hatch and, at the top, the tunnel to the lunar module.',
     },
     inside: {
@@ -55,15 +55,15 @@ export const columbia = {
       title: 'Three Couches',
       text:
         'The three couches stand on crushable honeycomb struts that softened the blow when the capsule hit ' +
-        'the water. Beneath them is the lower equipment bay with the navigation instruments, where an ' +
-        'astronaut could stand.',
+        'the water. At their foot lies the lower equipment bay with the navigation instruments: a sextant, ' +
+        'a telescope and the guidance computer with its keyboard.',
     },
     notes: {
       title: 'Notes on the Walls',
       text:
-        'The crew wrote on Columbia’s walls during the flight: numbers, reminders, a calendar. Michael ' +
-        'Collins, who stayed in Columbia while Armstrong and Aldrin walked on the Moon, left a message ' +
-        'thanking his spacecraft. The scan keeps every line.',
+        'Handwritten numbers and notes cover parts of Columbia’s walls. Michael Collins flew her alone ' +
+        'around the Moon while Armstrong and Aldrin walked on its surface. The scan keeps every line, ' +
+        'just as the capsule came home.',
     },
   },
   parts: {
