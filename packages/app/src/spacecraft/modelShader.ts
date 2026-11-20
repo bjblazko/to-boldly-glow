@@ -119,7 +119,8 @@ fn lampShadow(worldPosition: vec3f) -> f32 {
 }
 
 // The lamps' light on a surface: each falls off with distance (softly, reaching zero at its range)
-// and lights the side facing it, with a little shine; the first lamp casts shadows.
+// and lights the side facing it, wrapping softly round, with a little shine; the first lamp casts
+// shadows.
 fn lampLight(worldPosition: vec3f, normal: vec3f, toCamera: vec3f) -> vec3f {
   var light = vec3f(0.0);
   for (var i = 0u; i < ${MAX_LAMPS}u; i++) {
@@ -129,8 +130,11 @@ fn lampLight(worldPosition: vec3f, normal: vec3f, toCamera: vec3f) -> vec3f {
     let distance = length(toLamp);
     let direction = toLamp / max(distance, 1e-4);
     let falloff = 1.0 / (1.0 + 4.0 * distance * distance) * (1.0 - smoothstep(0.6 * place.w, place.w, distance));
-    let diffuse = max(dot(normal, direction), 0.0);
-    let shine = pow(max(dot(normal, normalize(direction + toCamera)), 0.0), 32.0) * 0.15 * step(0.0, diffuse);
+    // Half Lambert: the light wraps softly round to the far side instead of stopping at a hard edge,
+    // so it models a scanned surface without tracing every triangle of it.
+    let facing = dot(normal, direction);
+    let diffuse = (facing * 0.5 + 0.5) * (facing * 0.5 + 0.5);
+    let shine = pow(max(dot(normal, normalize(direction + toCamera)), 0.0), 32.0) * 0.15 * step(0.0, facing);
     let shadowed = select(1.0, lampShadow(worldPosition), i == 0u);
     light += uni.lampColors[i].rgb * falloff * (diffuse + shine) * shadowed;
   }
