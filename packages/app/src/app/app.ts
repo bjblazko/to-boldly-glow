@@ -24,7 +24,9 @@ import { PhasesLabels } from '../learn/phases/phasesLabels'
 import { PhasesLesson } from '../learn/phases/phasesLesson'
 import { VoyagerLabels } from '../learn/voyager/voyagerLabels'
 import { watchBarHeight } from '../hud/barHeight'
-import { SaturnVLesson } from '../learn/apollo/saturnVLesson'
+import { COLUMBIA } from '../learn/apollo/columbiaVehicle'
+import { SATURN_V } from '../learn/apollo/saturnVVehicle'
+import { VehicleLesson } from '../learn/vehicle/vehicleLesson'
 import { VoyagerLesson } from '../learn/voyager/voyagerLesson'
 import { createModelContext, type ModelContext } from '../spacecraft/modelRenderer'
 import { ScenePlayers } from '../scene/scenePlayers'
@@ -158,7 +160,7 @@ function createLessons(explorer: ReturnType<typeof createExplorer>, gpu: LessonG
       viewControls: new LessonViewControls(requireElement('#lesson-view-reset'), { reset: () => session.resetView() }),
       progress,
       labels: new SeasonsLabels(requireElement),
-      stagedScenes: [new EclipseLesson(gpu, groundSky, new EclipseLabels(requireElement)), createPhasesLesson(gpu, groundSky), new VoyagerLesson(gpu, new VoyagerLabels(requireElement('#voyager-labels'), requireElement('#voyager-route-clock'))), new SaturnVLesson(gpu, new VoyagerLabels(requireElement('#voyager-labels'), null))],
+      stagedScenes: [new EclipseLesson(gpu, groundSky, new EclipseLabels(requireElement)), createPhasesLesson(gpu, groundSky), new VoyagerLesson(gpu, new VoyagerLabels(requireElement('#voyager-labels'), requireElement('#voyager-route-clock'))), new VehicleLesson(gpu, new VoyagerLabels(requireElement('#voyager-labels'), null), { saturnV: SATURN_V, columbia: COLUMBIA })],
       voice,
     },
     gpu,

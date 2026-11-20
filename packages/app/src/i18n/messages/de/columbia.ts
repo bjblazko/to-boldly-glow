@@ -1,0 +1,93 @@
+import type { Messages } from '../en'
+
+export const columbia: Messages['lessons']['columbia'] = {
+  title: 'Columbia, von außen und innen',
+  note:
+    'Die Außenseite ist aus den veröffentlichten Maßen gebaut; das Innere des Versorgungsmoduls ist ' +
+    'schematisch. Die Kabine ist der 3D-Scan der echten Columbia durch die Smithsonian, so wie sie heute ' +
+    'im National Air and Space Museum steht.',
+  chapters: {
+    whole: {
+      title: 'Das Raumschiff',
+      text:
+        'Das Raumschiff von Apollo 11 bestand aus zwei Teilen: dem Kommandomodul Columbia, in dem die drei ' +
+        'Astronauten lebten, und dem Versorgungsmodul dahinter mit Haupttriebwerk, Treibstoff, Sauerstoff ' +
+        'und Strom. Gemeinsam flogen sie zum Mond und zurück; nur das Kommandomodul kehrte zur Erde heim.',
+    },
+    serviceModule: {
+      title: 'Das Versorgungsmodul, aufgeschnitten',
+      text:
+        'Sechs keilförmige Sektoren umgeben das Haupttriebwerk. Zwei enthalten den Oxidator, zwei den ' +
+        'Brennstoff, jeweils in einem Sammel- und einem Vorratstank; Helium in der Mitte drückt die ' +
+        'Treibstoffe zum Triebwerk. Ein Sektor enthält drei Brennstoffzellen und die Sauerstoff- und ' +
+        'Wasserstofftanks, aus denen sie Strom machen. Etwa drei Viertel des Gewichts sind Treibstoff.',
+    },
+    engine: {
+      title: 'Das Triebwerk, das funktionieren musste',
+      text:
+        'Das Haupttriebwerk schiebt mit etwa 89 Kilonewton und lässt sich neu zünden. Es bremste Apollo 11 ' +
+        'in eine Umlaufbahn um den Mond und schickte Columbia nach der Landung nach Hause. Ein zweites ' +
+        'Triebwerk als Reserve gab es nicht.',
+    },
+    commandModule: {
+      title: 'Das Kommandomodul',
+      text:
+        'Ein Kegel, 3,2 m hoch und 3,9 m breit. Unter der Haut liegt der Hitzeschild: Stahlwaben mit einem ' +
+        'Phenol-Epoxidharz darüber, das verkohlte und abgetragen wurde, als die Kapsel durch die Atmosphäre ' +
+        'zurückfiel. Fünf Fenster, eine Seitenluke und oben der Tunnel zur Mondfähre.',
+    },
+    inside: {
+      title: 'Innen',
+      text:
+        'So sieht Columbia heute aus, gescannt von der Smithsonian. Die Kabine bot etwa 6 Kubikmeter Platz – ' +
+        'für drei Männer und acht Tage, den ganzen Weg zum Mond und zurück.',
+    },
+    panels: {
+      title: 'Die Hauptinstrumententafel',
+      text:
+        'Über den Liegen wölbt sich die Hauptinstrumententafel: Schalter, Anzeigen und Warnlampen für jedes ' +
+        'System an Bord und die Tastatur des Steuercomputers. Links saß der Kommandant, in der Mitte der ' +
+        'Pilot des Kommandomoduls, rechts der Pilot der Mondfähre.',
+    },
+    seats: {
+      title: 'Drei Liegen',
+      text:
+        'Die drei Liegen stehen auf zusammendrückbaren Wabenstreben, die den Aufprall auf dem Wasser ' +
+        'abfederten. Unter ihnen liegt die untere Geräteabteilung mit den Navigationsinstrumenten, in der ' +
+        'ein Astronaut stehen konnte.',
+    },
+    notes: {
+      title: 'Notizen an den Wänden',
+      text:
+        'Die Crew schrieb während des Flugs an die Wände der Columbia: Zahlen, Merkzettel, einen Kalender. ' +
+        'Michael Collins, der in der Columbia blieb, während Armstrong und Aldrin auf dem Mond liefen, ' +
+        'hinterließ eine Nachricht, mit der er seinem Raumschiff dankte. Der Scan bewahrt jede Zeile.',
+    },
+  },
+  parts: {
+    cm: 'Kommandomodul',
+    sm: 'Versorgungsmodul',
+    smInside: 'Tanks und Brennstoffzellen',
+    sps: 'Haupttriebwerk',
+    rcs: 'Steuerdüsen',
+    antenna: 'Richtantenne',
+    person: 'Ein Mensch (1,8 m)',
+    hull: 'Kabinenwand',
+    panels: 'Hauptinstrumententafel',
+    seats: 'Liegen',
+    notes: 'Notizen der Crew',
+  },
+  marks: {
+    sm: { label: 'Oberkante Versorgungsmodul' },
+    cm: { label: 'Oberkante Kommandomodul' },
+  },
+  facts: {
+    cmHeight: { label: 'Kommandomodul', value: '3,2 m hoch' },
+    diameter: { label: 'Durchmesser', value: '3,9 m' },
+    smMass: { label: 'Versorgungsmodul, betankt', value: 'etwa 25 t' },
+    propellant: { label: 'Anteil Treibstoff', value: 'etwa 75 %' },
+    thrust: { label: 'Haupttriebwerk', value: 'etwa 89 kN' },
+    room: { label: 'Platz innen', value: 'etwa 6 m³' },
+    crew: { label: 'Besatzung', value: '3' },
+  },
+}

@@ -12,6 +12,8 @@ export interface ModelStage<Part extends string> {
   highlight?: Part
   cut?: number
   gone?: readonly Part[]
+  // Held at its starting angle, not turning (a cabin seen from inside).
+  still?: boolean
 }
 
 export interface ModelSceneOptions {
@@ -19,6 +21,8 @@ export interface ModelSceneOptions {
   secondsPerTurn: number
   startAngle: number
   stageSeconds: number
+  // How strong the sunlight and the fill are (see ModelPose.light; sunlit by default).
+  light?: { sun: number; fill: number }
 }
 
 // How quickly the model turns its cut toward the camera (per second, of the angle left).
@@ -35,6 +39,7 @@ export class ModelScene<Part extends string> {
   private highlighted: Part | undefined
   // Where the camera stood last frame, seen from the model: the cut turns toward it.
   private cameraAngle: number | null = null
+  private still = false
 
   constructor(
     private readonly renderer: ModelRenderer,
@@ -53,13 +58,15 @@ export class ModelScene<Part extends string> {
   }
 
   show(stage: ModelStage<Part>, snap: boolean): void {
+    this.still = stage.still ?? false
     if (stage.highlight) this.highlighted = stage.highlight
     this.stage.moveTo({ explode: stage.explode ?? 0, highlight: stage.highlight ? 1 : 0, cut: stage.cut ?? 0 }, snap)
     this.fades.moveTo(this.visibility(stage.gone ?? []), snap)
   }
 
   update(deltaSeconds: number, turning = true): void {
-    if (this.stage.current.cut > 0 && this.cameraAngle !== null) this.faceCamera(deltaSeconds, this.cameraAngle)
+    if (this.still) this.turnToward(deltaSeconds, this.options.startAngle)
+    else if (this.stage.current.cut > 0 && this.cameraAngle !== null) this.turnToward(deltaSeconds, this.cameraAngle - Math.PI / 4)
     else if (turning) this.angle += (deltaSeconds * 2 * Math.PI) / this.options.secondsPerTurn
     this.stage.update(deltaSeconds)
     this.fades.update(deltaSeconds)
@@ -72,6 +79,11 @@ export class ModelScene<Part extends string> {
     return transformPoint(turntableMatrix(this.angle, 1), point)
   }
 
+  // Whether the model has this part at all.
+  has(part: string): boolean {
+    return this.model.assemblies.some((assembly) => assembly.id === part)
+  }
+
   // Whether a part is there to be labelled (not thrown off).
   isShown(part: Part): boolean {
     return (this.fades.current[part] ?? 1) > 0.5
@@ -82,7 +94,7 @@ export class ModelScene<Part extends string> {
     const { explode, highlight: strength, cut } = this.stage.current
     const highlight = { assembly: this.highlighted ? this.assemblyIndex(this.highlighted) : -1, strength }
     const visibility = this.model.assemblies.map((assembly) => this.fades.current[assembly.id])
-    const pose = { world: turntableMatrix(this.angle, 1), toSun: TOWARD_SUN, explode, highlight, cut, visibility }
+    const pose = { world: turntableMatrix(this.angle, 1), toSun: TOWARD_SUN, explode, highlight, cut, visibility, light: this.options.light }
     this.renderer.update(viewpoint, pose, this.model.assemblies.map((assembly) => assembly.explode))
     this.cameraAngle = Math.atan2(viewpoint.position[0], viewpoint.position[2])
   }
@@ -91,10 +103,10 @@ export class ModelScene<Part extends string> {
     this.renderer.draw(pass)
   }
 
-  // The cut quarter (between the model's +X and +Z) turned toward the camera: about the up axis
-  // by `angle`, its middle points along (sin(angle + 45°), cos(angle + 45°)) in x and z.
-  private faceCamera(deltaSeconds: number, cameraAngle: number): void {
-    const target = cameraAngle - Math.PI / 4
+  // Eases the turn toward an angle. The cut quarter (between the model's +X and +Z) faces the
+  // camera at the camera's angle less 45°: turned by `angle` about the up axis, its middle points
+  // along (sin(angle + 45°), cos(angle + 45°)) in x and z.
+  private turnToward(deltaSeconds: number, target: number): void {
     const left = Math.atan2(Math.sin(target - this.angle), Math.cos(target - this.angle))
     this.angle += left * Math.min(1, deltaSeconds * FACE_RATE)
   }

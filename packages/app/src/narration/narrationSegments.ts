@@ -14,11 +14,11 @@ export const TTS_LANGUAGES: Record<Locale, string> = { en: 'English', de: 'Germa
 
 // The lessons whose chapters the narrator reads out, as the catalog keeps their texts. The planets
 // lesson's planet chapters take the tour's words for each planet instead (see lessonClipId).
-const READ_LESSONS = ['seasons', 'moonPhases', 'solarEclipse', 'voyager', 'voyagerDeepDive', 'saturnV'] as const
+const READ_LESSONS = ['seasons', 'moonPhases', 'solarEclipse', 'voyager', 'voyagerDeepDive', 'saturnV', 'columbia'] as const
 
 // Lessons whose texts are ready for `npm run narrate` but not spoken yet: until their clips exist the
 // lesson stays silent, and the manifest test lets them be.
-export const UNRECORDED_LESSONS: readonly string[] = []
+export const UNRECORDED_LESSONS: readonly string[] = ['columbia']
 
 // The mission tours' stations, likewise (tours/<probe>/<station>).
 const UNRECORDED_MISSIONS: readonly string[] = []
