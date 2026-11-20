@@ -15,8 +15,15 @@ Python 3.12 (PyTorch has no wheels for newer ones yet), then:
 ```sh
 cd packages/data-pipeline
 python3.12 -m venv narration/.venv
-narration/.venv/bin/pip install -r narration/requirements.txt
+narration/.venv/bin/pip install --no-deps -r narration/requirements.txt
 ```
+
+`requirements.txt` pins every package, so `--no-deps` installs exactly that list. It has to: Pillow
+is at 13 for its security fixes, while gradio 6.17.3 (which qwen-tts pulls in for its web demo, never
+loaded here) caps it below 13 - and the gradio releases that allow Pillow 13 need a newer
+huggingface-hub than transformers 4.57.3 takes. qwen-tts 0.1.1 pins transformers 4.57.3 exactly and
+does not run on transformers 5 (`check_model_inputs` changed); move on once a qwen-tts release does.
+Tested 2026-11-20: Pillow 13 changes no sample of the spoken clips.
 
 The models (several GB) download from Hugging Face on first use, into `~/.cache/huggingface`.
 On Apple silicon they run on the GPU (MPS); 8 GB of memory is enough.

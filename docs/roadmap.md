@@ -5,16 +5,19 @@ Each entry here is a named future feature with just enough detail to pick up lat
 re-deriving requirements from scratch. Before implementation, each entry should go through its own
 brainstorming → design-spec → implementation-plan cycle.
 
-## Next: housekeeping (planned 2026-11-17)
+## Housekeeping (2026-11-17, mostly done 2026-11-20)
 
-Not shipped to users, so not urgent for the live app (`npm audit --omit=dev`: 0 vulnerabilities).
+Not shipped to users (`npm audit --omit=dev`: 0 vulnerabilities).
 
-- Dev tools: `npm audit fix` for minimatch and picomatch (ReDoS in file-pattern matching, build and
-  tests only), then lint, typecheck, tests and build.
-- Narration environment (`packages/data-pipeline/narration/requirements.txt`, runs only on the AI PC
-  for Qwen3-TTS): update Pillow (5 critical, many high Dependabot alerts), transformers, accelerate
-  and opentelemetry-api - together with recording Lyra's new middle line for the new supercut, so
-  the TTS can be checked with the new versions right there.
+- Done: dev tools - `npm audit fix` (minimatch via ESLint and typescript-eslint), lint, typecheck,
+  tests and build pass.
+- Done: narration environment - Pillow 13.0.0 (all its Dependabot alerts) and opentelemetry-api
+  1.45.2; the clips came out sample for sample the same. Installed with `pip install --no-deps`
+  (see `packages/data-pipeline/narration/README.md`).
+- Open: transformers stays at 4.57.3 (4 high alerts, fixed only in 5.x): qwen-tts 0.1.1 pins it and
+  fails on transformers 5. Low exposure - build time only, on the AI PC, loading only Qwen's own
+  model. Update once a qwen-tts release supports transformers 5; accelerate stays at qwen-tts's pin.
+- Open: recording Lyra's new middle line for the new supercut.
 - The 0.6.0 offline zip predates two small fixes (the follow chip's font, free flight letting go of
   a followed body); they ship with the next version's zip.
 
