@@ -19,13 +19,12 @@ const FRAMES: Record<string, VehicleFrame> = {
   serviceModule: { height: 4.8, radius: 13, reach: 3.2, halfWidth: 2.6 },
   engine: { height: 2.2, radius: 9, reach: 2.4, halfWidth: 2 },
   commandModule: { height: 8.8, radius: 9, reach: 2, halfWidth: 2.4 },
-  // From beside the couches, up at the console (it faces down and toward +Z).
-  inside: { ...INSIDE, target: [0.09, 8.98, 0.18], radius: 1.0, elevation: -0.8, azimuth: -1.74 },
-  panels: { ...INSIDE, target: [0.09, 8.98, 0.18], radius: 0.6, elevation: -1.1, azimuth: -1.74 },
-  // From under the console, down onto the couches.
-  seats: { ...INSIDE, target: [0, 8.49, 0.25], radius: 0.8, elevation: 0.9, azimuth: Math.PI / 2 },
-  // Square to the wall the notes are on (it faces +Z).
-  notes: { ...INSIDE, target: [-0.1, 8.8, -0.87], radius: 0.75, elevation: 0, azimuth: -1.79 },
+  // Eye points found on the built cabin: the most room round them (27 cm or more) above the couches,
+  // with a clear line of sight to what they look at.
+  inside: { ...INSIDE, target: [0.09, 8.98, 0.18], radius: 0.64, elevation: -0.36, azimuth: -0.56 },
+  panels: { ...INSIDE, target: [0.09, 8.98, 0.18], radius: 0.47, elevation: -0.4, azimuth: -1.78 },
+  seats: { ...INSIDE, target: [0, 8.49, 0.25], radius: 0.7, elevation: 0.38, azimuth: -0.39 },
+  notes: { ...INSIDE, target: [-0.1, 8.8, -0.87], radius: 0.54, elevation: 0.48, azimuth: -1.36 },
 }
 
 // The cabin's light: its floodlights - two on the underside of the main display console over the
