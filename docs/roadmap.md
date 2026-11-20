@@ -17,7 +17,6 @@ Not shipped to users (`npm audit --omit=dev`: 0 vulnerabilities).
 - Open: transformers stays at 4.57.3 (4 high alerts, fixed only in 5.x): qwen-tts 0.1.1 pins it and
   fails on transformers 5. Low exposure - build time only, on the AI PC, loading only Qwen's own
   model. Update once a qwen-tts release supports transformers 5; accelerate stays at qwen-tts's pin.
-- Open: recording Lyra's new middle line for the new supercut.
 - The 0.6.0 offline zip predates two small fixes (the follow chip's font, free flight letting go of
   a followed body); they ship with the next version's zip.
 
