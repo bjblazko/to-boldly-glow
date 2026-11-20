@@ -1,6 +1,7 @@
 import sharp from 'sharp'
 import { SWATCHES } from './saturnVParts'
-import { HEIGHTS, SIVB_INTERSTAGE, TANKS, TOTAL_HEIGHT } from './saturnVProfile'
+import { LETTER_GRID, letterPath } from './blockLetters'
+import { HEIGHTS, SIVB_INTERSTAGE, STAGE_RADIUS, TANKS, TOTAL_HEIGHT } from './saturnVProfile'
 
 // The Saturn V's paint, drawn from its layout: white, the black-and-white roll pattern on the
 // S-IC's base, intertank and forward skirt and on the S-IVB's aft end, "UNITED STATES" down the
@@ -32,14 +33,18 @@ function band(from: number, to: number, color: string): string {
   return `<rect x="0" y="${y(to)}" width="${WIDTH}" height="${y(from) - y(to)}" fill="${color}"/>`
 }
 
-// "UNITED STATES" letter under letter, in the middle of the second quarter.
-function lettering(top: number): string {
-  const letterMetres = 1.4
-  const pixelsPerMetre = HEIGHT / TOTAL_HEIGHT
-  const x = WIDTH * LETTERING_AROUND
+// "UNITED STATES" letter under letter, in the middle of the second quarter, in our own block letters
+// (blockLetters.ts): each letter 1.1 m tall and 0.7 m wide on the S-IC, a line every 1.4 m.
+function lettering(top: number, radius: number): string {
+  const [lineMetres, letterHeight, letterWidth] = [1.4, 1.1, 0.7]
+  const scaleX = (letterWidth * metresAround(radius)) / LETTER_GRID.width
+  const scaleY = (letterHeight * (HEIGHT / TOTAL_HEIGHT)) / LETTER_GRID.height
+  const left = WIDTH * LETTERING_AROUND - (LETTER_GRID.width * scaleX) / 2
   return [...'UNITED STATES'].map((letter, index) => {
-    const baseline = y(top - (index + 1) * letterMetres)
-    return letter === ' ' ? '' : `<text x="${x}" y="${baseline}" font-family="Helvetica, Arial, sans-serif" font-weight="700" font-size="${letterMetres * pixelsPerMetre * 0.9}" text-anchor="middle" fill="${BLACK}">${letter}</text>`
+    const path = letterPath(letter)
+    if (!path) return ''
+    const upper = y(top - index * lineMetres)
+    return `<path transform="translate(${left} ${upper}) scale(${scaleX} ${scaleY})" d="${path}" fill="${BLACK}" fill-rule="evenodd"/>`
   }).join('')
 }
 
@@ -65,8 +70,8 @@ function paintSvg(): string {
     band(HEIGHTS.slaTop, HEIGHTS.smTop, '#c9cbcc'), // the service module's aluminium
     band(HEIGHTS.cmTop + 2.2, TOTAL_HEIGHT - 2.4, WHITE), // the escape motor
     band(TOTAL_HEIGHT - 2.4, TOTAL_HEIGHT - 1.9, BLACK),
-    flag(loxTop - 0.5, 5.03),
-    lettering(loxTop - 3.0),
+    flag(loxTop - 0.5, STAGE_RADIUS),
+    lettering(loxTop - 3.0, STAGE_RADIUS),
   ]
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}">${parts.join('')}</svg>`
 }

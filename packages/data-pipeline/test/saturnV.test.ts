@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { letterPath } from '../src/apollo/blockLetters'
 import { latheMesh, mergePrimitives } from '../src/apollo/latheMesh'
 import { assemblyKind, explodeOffset, SATURN_V_ASSEMBLIES, saturnVParts } from '../src/apollo/saturnVParts'
 import { ENGINES, HEIGHTS, SII_INTERSTAGE, SIVB_INTERSTAGE, STAGE_RADIUS, TOTAL_HEIGHT, UPPER_RADIUS } from '../src/apollo/saturnVProfile'
@@ -105,5 +106,13 @@ describe('the Saturn V', () => {
     const order = ['sic', 'sii', 'sivb', 'iu', 'sla', 'lm', 'sm', 'cm', 'les'] as const
     const rises = order.map((assembly) => explodeOffset(assembly)[1])
     expect(rises).toEqual([...rises].sort((a, b) => a - b))
+  })
+})
+
+describe('the block letters', () => {
+  it('draw every letter of the lettering, and refuse one they lack', () => {
+    for (const letter of 'UNITEDSTATES') expect(letterPath(letter)).toMatch(/^M/)
+    expect(letterPath(' ')).toBe('')
+    expect(() => letterPath('Q')).toThrow()
   })
 })

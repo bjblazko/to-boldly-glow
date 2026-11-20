@@ -15,7 +15,9 @@ advice. Re-check a source's terms when you actually take a file from it, and rec
    ([JPL Image Use Policy](https://www.jpl.nasa.gov/jpl-image-use-policy)).
 2. **Except**: the NASA insignia ("meatball"), the "worm" logotype and the JPL logo are *not* public
    domain - none in our renders, models (check their textures), icons or screenshots. No wording
-   that implies NASA/JPL endorses the app.
+   that implies NASA/JPL endorses the app. A NASA photo in which one of them merely appears (on a
+   test stand, a building, a suit) is fine to show: that is reproducing the photo, not using the
+   insignia as an emblem. Do not crop or frame such a photo so the logo becomes its subject.
 3. **Third-party material on NASA sites stays third-party.** A caption naming another owner
    (ESA, a university, a photographer, "© ...") means: not ours to bundle. Check every single file's
    caption, not just the site.
@@ -24,6 +26,9 @@ advice. Re-check a source's terms when you actually take a file from it, and rec
    is a modification. NonCommercial (CC ...-NC) only if the project stays non-commercial - avoid it
    so the option stays open. ShareAlike (CC BY-SA) is fine for an asset file; the converted file
    then carries BY-SA too, the MIT code is unaffected.
+6. **Text in our own textures** is drawn with our own shapes (e.g.
+   `packages/data-pipeline/src/apollo/blockLetters.ts`), not rendered from a system font: no
+   font's glyphs ship with the app, and the textures come out the same on every machine.
 
 ## Sources
 
