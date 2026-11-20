@@ -7,6 +7,7 @@ export interface VehicleModel {
   url: string
   name: string
   light?: ModelSceneOptions['light']
+  lamps?: ModelSceneOptions['lamps']
 }
 
 // What a vehicle lesson needs to know about one vehicle: its models (the outside first - its
@@ -14,7 +15,7 @@ export interface VehicleModel {
 // parts and heights.
 export interface VehicleConfig {
   models: VehicleModel[]
-  turntable: Omit<ModelSceneOptions, 'light'>
+  turntable: Omit<ModelSceneOptions, 'light' | 'lamps'>
   room: RoomShape
   shot(id: string): LessonShot
   partName(part: string): string

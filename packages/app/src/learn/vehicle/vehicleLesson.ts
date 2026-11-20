@@ -137,7 +137,7 @@ export class VehicleLesson implements StagedLessonScene {
     const config = this.vehicles[vehicle]
     const { device, format } = this.gpu.models
     const [loaded, room] = await Promise.all([Promise.all(config.models.map((model) => loadVehicleModel(this.gpu.models, model))), BlueprintRoom.create(device, format, config.room)])
-    const scenes = loaded.map(({ model, renderer }, index) => new ModelScene<string>(renderer, model, { ...config.turntable, light: config.models[index].light }))
+    const scenes = loaded.map(({ model, renderer }, index) => new ModelScene<string>(renderer, model, { ...config.turntable, light: config.models[index].light, lamps: config.models[index].lamps }))
     this.onShow.set(vehicle, { scenes, room, marks: loaded[0].model.marks ?? {} })
     if (this.chapter && stageOf(this.chapter).vehicle === vehicle) this.stage(this.chapter, true)
   }

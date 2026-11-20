@@ -28,14 +28,21 @@ const FRAMES: Record<string, VehicleFrame> = {
   notes: { ...INSIDE, target: [-0.1, 8.8, -0.87], radius: 0.75, elevation: 0, azimuth: -1.79 },
 }
 
-// The cabin's light comes mostly from its own textures (the scan's colours already carry the light
-// in the museum); a little sunlight models the shapes.
-const CABIN_LIGHT = { sun: 0.2, fill: 0.95 }
+// The cabin's light: its floodlights - two over the couches by the console, a dimmer one down in
+// the lower equipment bay - in a warm white, over a low fill (the scan's colours already carry some
+// of the museum's light) and a touch of sunlight through the windows.
+const CABIN_LIGHT = { sun: 0.12, fill: 0.3 }
+const FLOOD = [1.0, 0.9, 0.76] as const
+const CABIN_LAMPS = [
+  { place: [-0.55, 9.1, 0.45] as [number, number, number], reach: 2.2, color: FLOOD.map((value) => value * 2.2) as [number, number, number] },
+  { place: [0.55, 9.1, 0.45] as [number, number, number], reach: 2.2, color: FLOOD.map((value) => value * 2.2) as [number, number, number] },
+  { place: [0, 8.15, -0.55] as [number, number, number], reach: 1.6, color: FLOOD.map((value) => value * 1.2) as [number, number, number] },
+]
 
 export const COLUMBIA: VehicleConfig = {
   models: [
     { url: 'models/columbia', name: 'csm' },
-    { url: 'models/columbia', name: 'cabin', light: CABIN_LIGHT },
+    { url: 'models/columbia', name: 'cabin', light: CABIN_LIGHT, lamps: CABIN_LAMPS },
   ],
   // One turn every ninety seconds, starting square to the camera; the cabin holds this angle too.
   turntable: { secondsPerTurn: 90, startAngle: 0, stageSeconds: 2.4 },

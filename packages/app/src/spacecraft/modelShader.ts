@@ -8,7 +8,11 @@
 export const MAX_ASSEMBLIES = 16
 // viewProjection, world, toLight, cameraPosition, look, highlight, then per assembly its offset
 // and its part (kind, visibility).
-export const MODEL_UNIFORM_FLOAT_COUNT = 16 + 16 + 4 + 4 + 4 + 4 + MAX_ASSEMBLIES * 4 * 2
+// Lamps: a cabin's floodlights (none for a spacecraft in sunlight).
+export const MAX_LAMPS = 3
+// viewProjection, world, toLight, cameraPosition, look, highlight, per assembly its offset and its
+// part, then per lamp its place and range and its colour and strength.
+export const MODEL_UNIFORM_FLOAT_COUNT = 16 + 16 + 4 + 4 + 4 + 4 + MAX_ASSEMBLIES * 4 * 2 + MAX_LAMPS * 4 * 2
 
 // The kinds as the shader counts them (part.x).
 export const ASSEMBLY_KIND_CODE = { solid: 0, shell: 1, inside: 2 } as const
@@ -28,6 +32,10 @@ struct Uniforms {
   offsets: array<vec4f, ${MAX_ASSEMBLIES}>,
   // x: the assembly's kind (0 solid, 1 shell, 2 inside), y: how visible it is (0 to 1).
   parts: array<vec4f, ${MAX_ASSEMBLIES}>,
+  // Per lamp: xyz its place (world), w how far it reaches (0: no lamp); then rgb its colour times
+  // its strength.
+  lampPlaces: array<vec4f, ${MAX_LAMPS}>,
+  lampColors: array<vec4f, ${MAX_LAMPS}>,
 }
 
 @group(0) @binding(0) var<uniform> uni: Uniforms;
@@ -86,6 +94,24 @@ fn hidden(in: VertexOutput, position: vec2f) -> bool {
 
 const GLOW = vec3f(0.35, 0.75, 1.0);
 
+// The lamps' light on a surface: each falls off with distance (softly, reaching zero at its range)
+// and lights the side facing it, with a little shine.
+fn lampLight(worldPosition: vec3f, normal: vec3f, toCamera: vec3f) -> vec3f {
+  var light = vec3f(0.0);
+  for (var i = 0u; i < ${MAX_LAMPS}u; i++) {
+    let place = uni.lampPlaces[i];
+    if (place.w <= 0.0) { continue; }
+    let toLamp = place.xyz - worldPosition;
+    let distance = length(toLamp);
+    let direction = toLamp / max(distance, 1e-4);
+    let falloff = 1.0 / (1.0 + 4.0 * distance * distance) * (1.0 - smoothstep(0.6 * place.w, place.w, distance));
+    let diffuse = max(dot(normal, direction), 0.0);
+    let shine = pow(max(dot(normal, normalize(direction + toCamera)), 0.0), 32.0) * 0.15 * step(0.0, diffuse);
+    light += uni.lampColors[i].rgb * falloff * (diffuse + shine);
+  }
+  return light;
+}
+
 @fragment
 fn fs(in: VertexOutput, @builtin(front_facing) frontFacing: bool) -> @location(0) vec4f {
   var albedo = textureSample(modelTexture, modelSampler, in.uv).rgb;
@@ -100,7 +126,7 @@ fn fs(in: VertexOutput, @builtin(front_facing) frontFacing: bool) -> @location(0
   let specular = pow(max(dot(normal, halfway), 0.0), uni.look.y) * 0.25 * step(0.0, dot(normal, toLight));
   // A shell's inner face, seen through the cut, in shade.
   if (!frontFacing && uni.parts[in.assembly].x == 1.0) { albedo *= 0.35; }
-  var color = albedo * (diffuse * uni.toLight.w + uni.look.x) + vec3f(specular * uni.toLight.w);
+  var color = albedo * (diffuse * uni.toLight.w + uni.look.x + lampLight(in.worldPosition, normal, toCamera)) + vec3f(specular * uni.toLight.w);
   let picked = uni.highlight.x >= 0.0 && in.assembly == i32(uni.highlight.x);
   let strength = uni.highlight.y;
   if (picked) {

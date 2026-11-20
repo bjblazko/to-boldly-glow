@@ -3,7 +3,7 @@ import { StageTween } from '../learn/stageTween'
 import { TOWARD_SUN, transformPoint, turntableMatrix } from '../learn/voyager/spacecraftStage'
 import type { Vec3 } from '../math/tuples'
 import type { ModelDescription } from './modelFile'
-import type { ModelRenderer } from './modelRenderer'
+import type { Lamp, ModelRenderer } from './modelRenderer'
 
 // What a chapter shows of a model: how far it is taken apart (0 to 1), the part picked out, how far
 // it is cut open (0 to 1; models with an inside) and the parts already thrown off (faded out).
@@ -23,6 +23,8 @@ export interface ModelSceneOptions {
   stageSeconds: number
   // How strong the sunlight and the fill are (see ModelPose.light; sunlit by default).
   light?: { sun: number; fill: number }
+  // Lamps that light it from near by, in the model's own frame: they turn with it.
+  lamps?: readonly Lamp[]
 }
 
 // How quickly the model turns its cut toward the camera (per second, of the angle left).
@@ -94,7 +96,9 @@ export class ModelScene<Part extends string> {
     const { explode, highlight: strength, cut } = this.stage.current
     const highlight = { assembly: this.highlighted ? this.assemblyIndex(this.highlighted) : -1, strength }
     const visibility = this.model.assemblies.map((assembly) => this.fades.current[assembly.id])
-    const pose = { world: turntableMatrix(this.angle, 1), toSun: TOWARD_SUN, explode, highlight, cut, visibility, light: this.options.light }
+    const world = turntableMatrix(this.angle, 1)
+    const lamps = this.options.lamps?.map((lamp) => ({ ...lamp, place: transformPoint(world, lamp.place) }))
+    const pose = { world, toSun: TOWARD_SUN, explode, highlight, cut, visibility, light: this.options.light, lamps }
     this.renderer.update(viewpoint, pose, this.model.assemblies.map((assembly) => assembly.explode))
     this.cameraAngle = Math.atan2(viewpoint.position[0], viewpoint.position[2])
   }

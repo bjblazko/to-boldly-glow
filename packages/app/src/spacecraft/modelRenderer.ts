@@ -4,7 +4,7 @@ import { createScenePipeline } from '../gpu/scenePipeline'
 import type { TextureLoader } from '../gpu/textureLoader'
 import type { Vec3 } from '../math/tuples'
 import { MODEL_VERTEX_FLOATS, type ModelData } from './modelFile'
-import { ASSEMBLY_KIND_CODE, MAX_ASSEMBLIES, MODEL_UNIFORM_FLOAT_COUNT, modelShaderCode } from './modelShader'
+import { ASSEMBLY_KIND_CODE, MAX_ASSEMBLIES, MAX_LAMPS, MODEL_UNIFORM_FLOAT_COUNT, modelShaderCode } from './modelShader'
 
 const MODEL_VERTEX_BUFFERS: GPUVertexBufferLayout[] = [
   {
@@ -35,6 +35,15 @@ export interface ModelPose {
   cut?: number
   // How visible each assembly is (0 to 1, by index; 1 where not given): parts thrown off fade.
   visibility?: readonly number[]
+  // Lamps lighting it from near by (a cabin's floodlights), in world space.
+  lamps?: readonly Lamp[]
+}
+
+// A lamp: where it is, how far its light reaches (metres) and its colour times its strength.
+export interface Lamp {
+  place: Vec3
+  reach: number
+  color: Vec3
 }
 
 // A spacecraft in sunlight: the shadowed side stays dark, as in space, with a faint fill.
@@ -42,6 +51,7 @@ const SUNLIT = { sun: 1, fill: 0.07 }
 const SHININESS = 24
 const OFFSETS_AT = 48
 const PARTS_AT = OFFSETS_AT + MAX_ASSEMBLIES * 4
+const LAMPS_AT = PARTS_AT + MAX_ASSEMBLIES * 4
 
 // What every model shares: the device, the scene's color format, the pipelines (both faces of
 // every triangle drawn - a probe's thin sheets - or only the front - a scanned room, whose surfaces
@@ -115,6 +125,7 @@ export class ModelRenderer {
     values.set([pose.highlight.assembly, pose.highlight.strength, cut > 0 ? 1 : 0, this.cutaway.bottom + cut * this.cutaway.reach], 44)
     offsets.slice(0, MAX_ASSEMBLIES).forEach((offset, index) => values.set([...offset, 0], OFFSETS_AT + index * 4))
     for (let index = 0; index < MAX_ASSEMBLIES; index++) values.set([this.cutaway.kinds[index], pose.visibility?.[index] ?? 1, 0, 0], PARTS_AT + index * 4)
+    writeLamps(values, pose.lamps ?? [])
     this.context.device.queue.writeBuffer(this.mesh.uniforms, 0, values)
   }
 
@@ -126,6 +137,15 @@ export class ModelRenderer {
       pass.setBindGroup(0, bindGroup)
       pass.drawIndexed(indexCount, 1, firstIndex)
     }
+  }
+}
+
+// Each lamp's place and reach, then its colour; the slots left over stay dark (reach 0).
+function writeLamps(values: Float32Array, lamps: readonly Lamp[]): void {
+  for (let index = 0; index < MAX_LAMPS; index++) {
+    const lamp = lamps[index]
+    values.set(lamp ? [...lamp.place, lamp.reach] : [0, 0, 0, 0], LAMPS_AT + index * 4)
+    values.set(lamp ? [...lamp.color, 0] : [0, 0, 0, 0], LAMPS_AT + (MAX_LAMPS + index) * 4)
   }
 }
 
