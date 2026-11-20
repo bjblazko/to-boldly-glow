@@ -81,6 +81,38 @@
             "hash": "b0abf459cc8ca0cf",
             "seconds": 8.4
           },
+          "lessons/saturnV/iu": {
+            "hash": "2c06dd7530867c02",
+            "seconds": 19.36
+          },
+          "lessons/saturnV/returns": {
+            "hash": "0a74bd86b67e79ce",
+            "seconds": 18.4
+          },
+          "lessons/saturnV/sic": {
+            "hash": "128dbf58ea66df75",
+            "seconds": 34.32
+          },
+          "lessons/saturnV/sii": {
+            "hash": "68ee60d9d107c113",
+            "seconds": 26.88
+          },
+          "lessons/saturnV/sivb": {
+            "hash": "06c24ec1378b1cff",
+            "seconds": 29.68
+          },
+          "lessons/saturnV/spacecraft": {
+            "hash": "bc6723082882ffbd",
+            "seconds": 23.36
+          },
+          "lessons/saturnV/stack": {
+            "hash": "ed14ffb48c026812",
+            "seconds": 29.28
+          },
+          "lessons/saturnV/whole": {
+            "hash": "770dda099ec35df0",
+            "seconds": 22.8
+          },
           "lessons/seasons/december-solstice": {
             "hash": "be9bf7634ec114b3",
             "seconds": 16.16
@@ -438,6 +470,38 @@
           "lessons/planetSizes/order-year": {
             "hash": "e7705827e473cc38",
             "seconds": 10.48
+          },
+          "lessons/saturnV/iu": {
+            "hash": "2d212b862eeee520",
+            "seconds": 21.92
+          },
+          "lessons/saturnV/returns": {
+            "hash": "c8f936eaa5469d9f",
+            "seconds": 20.0
+          },
+          "lessons/saturnV/sic": {
+            "hash": "06dea4026639dfed",
+            "seconds": 32.56
+          },
+          "lessons/saturnV/sii": {
+            "hash": "116e044a5f25e9b1",
+            "seconds": 30.4
+          },
+          "lessons/saturnV/sivb": {
+            "hash": "4239550cae708b13",
+            "seconds": 28.4
+          },
+          "lessons/saturnV/spacecraft": {
+            "hash": "688347649e3aa246",
+            "seconds": 22.48
+          },
+          "lessons/saturnV/stack": {
+            "hash": "ce38af841a614a70",
+            "seconds": 33.12
+          },
+          "lessons/saturnV/whole": {
+            "hash": "08064fcd39faccbc",
+            "seconds": 23.04
           },
           "lessons/seasons/december-solstice": {
             "hash": "d3ddac8d0cead577",
@@ -805,6 +869,38 @@
             "hash": "06b7a27ab469a78a",
             "seconds": 9.68
           },
+          "lessons/saturnV/iu": {
+            "hash": "683f16adc0b40398",
+            "seconds": 22.16
+          },
+          "lessons/saturnV/returns": {
+            "hash": "bd59415aed5d0f3e",
+            "seconds": 19.36
+          },
+          "lessons/saturnV/sic": {
+            "hash": "b70a049626bb531f",
+            "seconds": 39.12
+          },
+          "lessons/saturnV/sii": {
+            "hash": "04b34d9f8aceedf2",
+            "seconds": 31.92
+          },
+          "lessons/saturnV/sivb": {
+            "hash": "30a8e8f4199c6561",
+            "seconds": 30.08
+          },
+          "lessons/saturnV/spacecraft": {
+            "hash": "1b513ec2d7001b6b",
+            "seconds": 25.28
+          },
+          "lessons/saturnV/stack": {
+            "hash": "fdb8aaf8e4513b95",
+            "seconds": 30.88
+          },
+          "lessons/saturnV/whole": {
+            "hash": "240c3b19c22db387",
+            "seconds": 23.84
+          },
           "lessons/seasons/december-solstice": {
             "hash": "c4a5805b1e53705a",
             "seconds": 17.84
@@ -1162,6 +1258,38 @@
           "lessons/planetSizes/order-year": {
             "hash": "38cd7a231f5fe82f",
             "seconds": 8.56
+          },
+          "lessons/saturnV/iu": {
+            "hash": "4c021dfdeb47c3a8",
+            "seconds": 22.48
+          },
+          "lessons/saturnV/returns": {
+            "hash": "f456df88515544de",
+            "seconds": 19.2
+          },
+          "lessons/saturnV/sic": {
+            "hash": "8bceb5849bc30581",
+            "seconds": 31.68
+          },
+          "lessons/saturnV/sii": {
+            "hash": "cac4f02af60713c4",
+            "seconds": 27.44
+          },
+          "lessons/saturnV/sivb": {
+            "hash": "fff41083c60da32c",
+            "seconds": 28.08
+          },
+          "lessons/saturnV/spacecraft": {
+            "hash": "0013e6371f9c046e",
+            "seconds": 21.28
+          },
+          "lessons/saturnV/stack": {
+            "hash": "371077c3daf9b6a6",
+            "seconds": 30.72
+          },
+          "lessons/saturnV/whole": {
+            "hash": "3897296438032126",
+            "seconds": 22.48
           },
           "lessons/seasons/december-solstice": {
             "hash": "71d897c56108053d",

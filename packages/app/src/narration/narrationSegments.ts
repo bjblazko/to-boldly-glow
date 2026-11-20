@@ -18,7 +18,7 @@ const READ_LESSONS = ['seasons', 'moonPhases', 'solarEclipse', 'voyager', 'voyag
 
 // Lessons whose texts are ready for `npm run narrate` but not spoken yet: until their clips exist the
 // lesson stays silent, and the manifest test lets them be.
-export const UNRECORDED_LESSONS: readonly string[] = ['saturnV']
+export const UNRECORDED_LESSONS: readonly string[] = []
 
 // The mission tours' stations, likewise (tours/<probe>/<station>).
 const UNRECORDED_MISSIONS: readonly string[] = []
