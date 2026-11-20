@@ -5,6 +5,38 @@
     "lyra": {
       "clips": {
         "de": {
+          "lessons/columbia/commandModule": {
+            "hash": "57a2a260427b2bf3",
+            "seconds": 19.52
+          },
+          "lessons/columbia/engine": {
+            "hash": "0475b34368234fe0",
+            "seconds": 17.04
+          },
+          "lessons/columbia/inside": {
+            "hash": "edbd1a1984daeb12",
+            "seconds": 12.4
+          },
+          "lessons/columbia/notes": {
+            "hash": "273dc48d0cf8e4d7",
+            "seconds": 14.88
+          },
+          "lessons/columbia/panels": {
+            "hash": "4ffd797fc75ff9a2",
+            "seconds": 18.0
+          },
+          "lessons/columbia/seats": {
+            "hash": "05a1bf9bc9e7a3e2",
+            "seconds": 16.96
+          },
+          "lessons/columbia/serviceModule": {
+            "hash": "53c30fac70ac1f73",
+            "seconds": 24.32
+          },
+          "lessons/columbia/whole": {
+            "hash": "8f47d8e527bccbcb",
+            "seconds": 18.0
+          },
           "lessons/moonPhases/always-half-lit": {
             "hash": "02183f3a5a6b704c",
             "seconds": 26.56
@@ -395,6 +427,38 @@
           }
         },
         "en": {
+          "lessons/columbia/commandModule": {
+            "hash": "1a8ef354acc7dba8",
+            "seconds": 21.6
+          },
+          "lessons/columbia/engine": {
+            "hash": "30002dae9767dda6",
+            "seconds": 17.04
+          },
+          "lessons/columbia/inside": {
+            "hash": "4d93cbf1c84d68ef",
+            "seconds": 12.56
+          },
+          "lessons/columbia/notes": {
+            "hash": "a0efa14daa17affb",
+            "seconds": 14.72
+          },
+          "lessons/columbia/panels": {
+            "hash": "d4d257f0a61d5b05",
+            "seconds": 16.72
+          },
+          "lessons/columbia/seats": {
+            "hash": "c1ab5db12662b23e",
+            "seconds": 15.92
+          },
+          "lessons/columbia/serviceModule": {
+            "hash": "5f85cc4c190bfa47",
+            "seconds": 22.88
+          },
+          "lessons/columbia/whole": {
+            "hash": "1fe43e0f299bd80f",
+            "seconds": 17.28
+          },
           "lessons/moonPhases/always-half-lit": {
             "hash": "d71540260dc4167d",
             "seconds": 23.6
@@ -793,6 +857,38 @@
     "orion": {
       "clips": {
         "de": {
+          "lessons/columbia/commandModule": {
+            "hash": "f674174526811054",
+            "seconds": 21.6
+          },
+          "lessons/columbia/engine": {
+            "hash": "11930c4975747f63",
+            "seconds": 17.84
+          },
+          "lessons/columbia/inside": {
+            "hash": "ed594e705b27a8be",
+            "seconds": 12.72
+          },
+          "lessons/columbia/notes": {
+            "hash": "2b079c60480b7268",
+            "seconds": 16.96
+          },
+          "lessons/columbia/panels": {
+            "hash": "61bd3b6f2bf0060b",
+            "seconds": 17.28
+          },
+          "lessons/columbia/seats": {
+            "hash": "81b44355e1927999",
+            "seconds": 16.72
+          },
+          "lessons/columbia/serviceModule": {
+            "hash": "562f829cae9f08e0",
+            "seconds": 26.08
+          },
+          "lessons/columbia/whole": {
+            "hash": "7c1b938af5683204",
+            "seconds": 21.6
+          },
           "lessons/moonPhases/always-half-lit": {
             "hash": "f27118cb55407307",
             "seconds": 27.6
@@ -1183,6 +1279,38 @@
           }
         },
         "en": {
+          "lessons/columbia/commandModule": {
+            "hash": "c01c4ea780e6f8f7",
+            "seconds": 19.28
+          },
+          "lessons/columbia/engine": {
+            "hash": "8ab6980be7477955",
+            "seconds": 15.6
+          },
+          "lessons/columbia/inside": {
+            "hash": "de1007540aa78ec2",
+            "seconds": 13.6
+          },
+          "lessons/columbia/notes": {
+            "hash": "7ace20d968e0c24e",
+            "seconds": 15.84
+          },
+          "lessons/columbia/panels": {
+            "hash": "1577f368c4d8bc44",
+            "seconds": 16.8
+          },
+          "lessons/columbia/seats": {
+            "hash": "8059dbbec99fa34f",
+            "seconds": 16.16
+          },
+          "lessons/columbia/serviceModule": {
+            "hash": "5564e83b71b9c358",
+            "seconds": 22.88
+          },
+          "lessons/columbia/whole": {
+            "hash": "2c8eaf85677e62bf",
+            "seconds": 17.92
+          },
           "lessons/moonPhases/always-half-lit": {
             "hash": "8091e85d5386bf02",
             "seconds": 22.72
