@@ -34,4 +34,6 @@ export interface LessonShot {
   fov?: number
   // How far the user may move the view's pivot about (scene units; the bounds' reach if not given).
   panReach?: number
+  // Whether the user walks through the scene (a cabin) instead of turning it about a point.
+  walk?: boolean
 }

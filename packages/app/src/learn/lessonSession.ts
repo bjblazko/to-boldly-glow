@@ -232,13 +232,19 @@ export class LessonSession implements ScenePlayer {
     this.arrangeLineup()
     this.borrowed = { camera: camera.takeOverForLesson(), display: display.clearForLesson() }
     modeController.enter(lesson.id)
-    camera.setScenePick((ndc) => this.lookAtPicked(ndc))
+    this.attachScene()
     this.seasons.start(this.chapter.seasonPhaseDegrees)
     this.stagedScene?.start(this.chapter)
     this.viewFixed = null
     this.frameCamera()
     panel.visible = true
     this.playFromHere(lesson)
+  }
+
+  // The staged scene answers double clicks and stops the camera walking through its walls.
+  private attachScene(): void {
+    this.parts.camera.setScenePick((ndc) => this.lookAtPicked(ndc))
+    this.parts.lessonCamera.setObstacle((origin, direction, within) => this.stagedScene?.obstacle?.(origin, direction, within, this.chapter) ?? null)
   }
 
   // A double click in a scene that lets the user look at a spot: the camera glides there.
@@ -262,6 +268,7 @@ export class LessonSession implements ScenePlayer {
     this.parts.voice.stop()
     modeController.exit()
     camera.setScenePick(null)
+    lessonCamera.setObstacle(null)
     if (this.borrowed) {
       camera.restoreAfterLesson(this.borrowed.camera)
       lessonCamera.release()

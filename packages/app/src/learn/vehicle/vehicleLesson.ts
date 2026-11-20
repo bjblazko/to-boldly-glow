@@ -110,9 +110,16 @@ export class VehicleLesson implements StagedLessonScene {
     const toFar = [far[0] / far[3] - origin[0], far[1] / far[3] - origin[1], far[2] / far[3] - origin[2]]
     const length = Math.hypot(toFar[0], toFar[1], toFar[2])
     const direction: Vec3 = [toFar[0] / length, toFar[1] / length, toFar[2] / length]
-    const hits = shown.scenes.map((scene) => scene.pick(origin, direction)).filter((hit): hit is Vec3 => hit !== null)
-    const distance = (hit: Vec3) => Math.hypot(hit[0] - origin[0], hit[1] - origin[1], hit[2] - origin[2])
-    return hits.sort((a, b) => distance(a) - distance(b))[0] ?? null
+    const distance = this.obstacle(origin, direction, undefined, chapter)
+    return distance === null ? null : [origin[0] + direction[0] * distance, origin[1] + direction[1] * distance, origin[2] + direction[2] * distance]
+  }
+
+  // How far along a ray (unit direction) the vehicle first stands in the way, within `within` if given.
+  obstacle(origin: Vec3, direction: Vec3, within: number | undefined, chapter: Chapter): number | null {
+    const shown = this.current(chapter)
+    if (!shown) return null
+    const hits = shown.scenes.map((scene) => scene.hitDistance(origin, direction, within)).filter((hit): hit is number => hit !== null)
+    return hits.length ? Math.min(...hits) : null
   }
 
   // A vehicle's lessons look like film: contact shadows at the vehicle's scale, a vignette, a fine

@@ -3,6 +3,7 @@ import { StageTween } from '../learn/stageTween'
 import { TOWARD_SUN, transformPoint, turntableMatrix } from '../learn/voyager/spacecraftStage'
 import type { Vec3 } from '../math/tuples'
 import type { ModelData, ModelDescription } from './modelFile'
+import { TriangleGrid } from './modelGrid'
 import { pickModel } from './modelPick'
 import type { Lamp, Material, ModelRenderer } from './modelRenderer'
 
@@ -38,6 +39,8 @@ const FACE_RATE = 2.5
 // the view themselves, or while it is cut open, its cut turned toward the camera. It eases from one
 // chapter's stage to the next.
 export class ModelScene<Part extends string> {
+  // The triangles sorted by place, made the first time a step needs them.
+  private grid: TriangleGrid | null = null
   private angle: number
   private readonly stage: StageTween<'explode' | 'highlight' | 'cut'>
   private readonly fades: StageTween<string>
@@ -115,15 +118,29 @@ export class ModelScene<Part extends string> {
 
   // Where a ray (world space) first meets what the picture shows of the model, or null.
   pick(origin: Vec3, direction: Vec3): Vec3 | null {
+    const distance = this.hitDistance(origin, direction)
+    if (distance === null) return null
+    return [origin[0] + direction[0] * distance, origin[1] + direction[1] * distance, origin[2] + direction[2] * distance]
+  }
+
+  // How far along a ray (world space, unit direction) the model first stands in the way, or null;
+  // `within` limits the look to a short stretch (a step), which then tests only nearby triangles.
+  hitDistance(origin: Vec3, direction: Vec3, within?: number): number | null {
     if (!this.geometry) return null
     // The turntable only turns about +Y (no move, no scale): its inverse turns back, and it turns
-    // directions as it turns points.
+    // directions as it turns points (and keeps distances).
     const toModel = turntableMatrix(-this.angle, 1)
     const from = transformPoint(toModel, origin)
     const along = transformPoint(toModel, direction)
-    const distance = pickModel(this.geometry, from, along, this.pickState())
-    if (distance === null) return null
-    return transformPoint(turntableMatrix(this.angle, 1), [from[0] + along[0] * distance, from[1] + along[1] * distance, from[2] + along[2] * distance])
+    const state = this.pickState()
+    const resting = state.moved.every((offset) => offset.every((value) => value === 0))
+    if (within === undefined || !resting) return pickModel(this.geometry, from, along, state)
+    const to = from.map((value, axis) => value + along[axis] * within) as Vec3
+    const lo = from.map((value, axis) => Math.min(value, to[axis])) as Vec3
+    const hi = from.map((value, axis) => Math.max(value, to[axis])) as Vec3
+    this.grid ??= new TriangleGrid(this.geometry)
+    const distance = pickModel(this.geometry, from, along, { ...state, triangles: this.grid.near(lo, hi) })
+    return distance !== null && distance <= within ? distance : null
   }
 
   // What the picture shows this frame, as pickModel tests it (the shader's rules: faded parts and

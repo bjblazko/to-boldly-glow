@@ -36,6 +36,9 @@ export interface StagedLessonScene {
   // What a double click on the scene points at (normalized device coordinates), for scenes that
   // let the user look at a spot (a cabin): the point it hits, or null.
   pick?(ndc: [number, number], chapter: Chapter): Vec3 | null
+  // How far along a ray (unit direction) the scene stands in the way, within `within` if given:
+  // what stops the camera walking through a cabin's walls.
+  obstacle?(origin: Vec3, direction: Vec3, within: number | undefined, chapter: Chapter): number | null
   // A film look over the finished picture, for scenes that want one.
   filmLook?(chapter: Chapter): FilmLook | null
   drawBehindBodies(pass: GPURenderPassEncoder, chapter: Chapter): void

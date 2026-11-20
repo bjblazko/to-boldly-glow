@@ -1,7 +1,8 @@
 import { vec3 } from 'gl-matrix'
 import { EasedTween } from '../math/easedTween'
 import { lerp, lerpVec3 } from '../math/easing'
-import { COMPACT_MIN_ORBIT_RADIUS, orbitBasisForUpAxis, type OrbitCamera } from '../camera/orbitCamera'
+import { COMPACT_MIN_ORBIT_RADIUS, WALK_RADIUS, type OrbitCamera } from '../camera/orbitCamera'
+import { circleSpot, startWalking, walkLimit, walkUpTo, type Obstacle } from './cabinWalk'
 import type { CameraLens } from '../camera/cameraLens'
 import { NO_LENS_SHIFT, VERTICAL_FOV_RADIANS, type LensShift } from '../camera/viewpoint'
 import { ECLIPTIC_NORTH } from '../solarSystem/poleOrientation'
@@ -227,6 +228,7 @@ export class LessonCamera {
   private freePanLimit: number | null = null
   private readonly watch = new ViewWatch()
   private glide: Glide | null = null
+  private obstacle: Obstacle | null = null
 
   constructor(
     private readonly orbit: OrbitCamera,
@@ -237,6 +239,7 @@ export class LessonCamera {
   // A view from the ground passes its shot; it never backs off, as its eye is the observer.
   frame(kind: ChapterKind, groundShot?: GroundShot | null, { focusPlanetId, lineupOrder, glide = false }: FramingOptions = {}): void {
     const from = glide ? this.currentView() : null
+    this.orbit.walk = null
     this.lens.fov = VERTICAL_FOV_RADIANS
     this.applyPreset(groundShot ? groundPreset(groundShot) : this.presetFor(kind, focusPlanetId, lineupOrder))
     // Lessons ignore the explore view's scale: the lineup is at true scale (the Sun's radius there is
@@ -260,6 +263,11 @@ export class LessonCamera {
     this.lens.setLessonZoomFloor(sceneFloor)
     this.fitAbovePanel(shot.bounds, shot.maxZoomOut)
     this.allowLookingAround(sceneFloor, shot)
+    this.orbit.walk = null
+    if (shot.walk && this.obstacle) {
+      startWalking(this.orbit, walkLimit(this.obstacle))
+      this.lens.setLessonZoomFloor(Math.min(sceneFloor, WALK_RADIUS))
+    }
     this.watch.framedAt(this.viewState())
     this.glide = from ? this.startGlide(from) : null
   }
@@ -288,8 +296,14 @@ export class LessonCamera {
     return this.glide !== null
   }
 
+  // What stops the camera walking through a staged room (see LessonShot.walk); null: nothing to walk in.
+  setObstacle(obstacle: Obstacle | null): void {
+    this.obstacle = obstacle
+  }
+
   release(): void {
     this.glide = null
+    this.orbit.walk = null
     this.orbit.viewLimits = null
     if (this.freeMaxRadius !== null) this.orbit.maxRadius = this.freeMaxRadius
     this.freeMaxRadius = null
@@ -342,18 +356,8 @@ export class LessonCamera {
   // a wall.
   lookAt(point: Vec3): void {
     const from = this.currentView()
-    const eye = this.orbit.getEyePosition()
-    const toEye = vec3.subtract(vec3.create(), eye, point)
-    const distance = vec3.length(toEye)
-    if (distance === 0) return
-    vec3.scale(toEye, toEye, 1 / distance)
-    const up: Vec3 = [this.orbit.upAxis[0], this.orbit.upAxis[1], this.orbit.upAxis[2]]
-    const { right, forward0 } = orbitBasisForUpAxis(up)
-    this.orbit.clearPan()
-    vec3.set(this.orbit.target, ...point)
-    this.orbit.radius = Math.max(this.orbit.minRadius, Math.min(distance, from.radius))
-    this.orbit.elevation = Math.asin(Math.max(-1, Math.min(1, vec3.dot(toEye, up))))
-    this.orbit.azimuth = Math.atan2(vec3.dot(toEye, right), vec3.dot(toEye, forward0))
+    if (this.orbit.walk) walkUpTo(this.orbit, point)
+    else circleSpot(this.orbit, point, from.radius)
     this.glide = this.startGlide(from)
   }
 

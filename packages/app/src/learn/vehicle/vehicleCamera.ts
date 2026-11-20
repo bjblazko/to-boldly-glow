@@ -31,6 +31,7 @@ export interface VehicleFrame {
   maxZoomOut?: number
   fov?: number
   panReach?: number
+  walk?: boolean
 }
 
 export function vehicleShot(key: string, frame: VehicleFrame): LessonShot {
@@ -44,5 +45,6 @@ export function vehicleShot(key: string, frame: VehicleFrame): LessonShot {
     freeLook: true,
     fov: frame.fov,
     panReach: frame.panReach,
+    walk: frame.walk,
   }
 }

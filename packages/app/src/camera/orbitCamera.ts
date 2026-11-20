@@ -122,6 +122,10 @@ export class OrbitCamera {
   // Where the user moved the pivot to, from the target; kept within panLimit of it.
   readonly panOffset = vec3.create()
   panLimit = DEFAULT_PAN_LIMIT
+  // Set while the user walks through a room (a cabin): the pivot sits just ahead of the eye, so
+  // turning looks about from where one stands, zooming steps forward or back, and every move of
+  // the eye is first asked how far it may go (walls stop it).
+  walk: WalkLimit | null = null
 
   constructor(options: OrbitCameraOptions = {}) {
     const settings = { ...DEFAULT_ORBIT_CAMERA, ...options }
@@ -138,9 +142,11 @@ export class OrbitCamera {
     return vec3.add(vec3.create(), this.target, this.panOffset)
   }
 
-  // Moves the pivot; past panLimit it stops at the limit, keeping the move's sideways share.
+  // Moves the pivot; past panLimit it stops at the limit, keeping the move's sideways share. While
+  // walking the eye moves with it, only as far as nothing stands in the way.
   shiftPivot(delta: ReadonlyVec3): void {
-    vec3.add(this.panOffset, this.panOffset, delta)
+    const move = this.walk ? this.walk(this.getEyePosition(), delta) : delta
+    vec3.add(this.panOffset, this.panOffset, move)
     const length = vec3.length(this.panOffset)
     if (length > this.panLimit) vec3.scale(this.panOffset, this.panOffset, this.panLimit / length)
   }
@@ -174,8 +180,10 @@ export class OrbitCamera {
   }
 
   applyDrag(deltaX: number, deltaY: number, sensitivity = 0.005): void {
-    this.azimuth -= deltaX * sensitivity
-    this.elevation = clamp(this.elevation + deltaY * sensitivity, -MAX_ELEVATION, MAX_ELEVATION)
+    // Walking, a drag takes hold of the room around one: the view turns against it.
+    const sign = this.walk ? -WALK_TURN_SHARE : 1
+    this.azimuth -= sign * deltaX * sensitivity
+    this.elevation = clamp(this.elevation + sign * deltaY * sensitivity, -MAX_ELEVATION, MAX_ELEVATION)
     if (!this.viewLimits) return
     this.azimuth = clamp(this.azimuth, ...this.viewLimits.azimuth)
     this.elevation = clamp(this.elevation, ...this.viewLimits.elevation)
@@ -186,8 +194,34 @@ export class OrbitCamera {
   }
 
   zoomBy(factor: number): void {
-    this.radius = clamp(this.radius * factor, this.minRadius, this.maxRadius)
+    if (this.walk) this.step(this.forward(), walkDistance(factor))
+    else this.radius = clamp(this.radius * factor, this.minRadius, this.maxRadius)
   }
+
+  // Where the eye looks (unit vector).
+  forward(): vec3 {
+    return vec3.normalize(vec3.create(), vec3.subtract(vec3.create(), this.pivot(), this.getEyePosition()))
+  }
+
+  // Walks `distance` along `direction` (a unit vector; negative goes back).
+  step(direction: ReadonlyVec3, distance: number): void {
+    this.shiftPivot(vec3.scale(vec3.create(), direction, distance))
+  }
+}
+
+// How far the eye may move from where it is by `delta` before something stands in the way: the
+// move, shortened.
+export type WalkLimit = (eye: ReadonlyVec3, delta: ReadonlyVec3) => vec3
+
+// While walking: how far the pivot sits ahead of the eye (metres), how far a zoom step by the
+// factor e goes (metres), and how much slower than orbiting a drag turns the view.
+export const WALK_RADIUS = 0.02
+const WALK_METRES_PER_ZOOM = 0.45
+const WALK_TURN_SHARE = 0.6
+
+// How far a zoom by `factor` walks (below 1: forward).
+export function walkDistance(factor: number): number {
+  return -Math.log(factor) * WALK_METRES_PER_ZOOM
 }
 
 // Everything a lesson or a mission tour changes on the orbit camera, kept to give back after.

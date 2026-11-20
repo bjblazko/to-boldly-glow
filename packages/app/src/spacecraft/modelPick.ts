@@ -12,25 +12,35 @@ export interface PickState {
   shown: (assembly: number) => boolean
   // Whether a point of a shell lies in the quarter cut away (and so isn't there to hit).
   cutAway: (assembly: number, point: Vec3) => boolean
+  // Only these triangles (the index of their first corner), if given: those near a short step.
+  triangles?: readonly number[]
 }
 
 // The distance along the ray to the nearest hit, or null.
-export function pickModel({ vertices, indices }: ModelData, origin: Vec3, direction: Vec3, state: PickState): number | null {
+export function pickModel(data: ModelData, origin: Vec3, direction: Vec3, state: PickState): number | null {
   let nearest: number | null = null
-  for (let t = 0; t < indices.length; t += 3) {
-    const assembly = vertices[indices[t] * MODEL_VERTEX_FLOATS + 8]
-    if (!state.shown(assembly)) continue
-    const corner = (k: number): Vec3 => {
-      const o = indices[t + k] * MODEL_VERTEX_FLOATS
-      const m = state.moved[assembly] ?? [0, 0, 0]
-      return [vertices[o] + m[0], vertices[o + 1] + m[1], vertices[o + 2] + m[2]]
-    }
-    const distance = hitTriangle([corner(0), corner(1), corner(2)], origin, direction)
-    if (distance === null || (nearest !== null && distance >= nearest)) continue
-    const point: Vec3 = [origin[0] + direction[0] * distance, origin[1] + direction[1] * distance, origin[2] + direction[2] * distance]
-    if (!state.cutAway(assembly, point)) nearest = distance
+  const count = state.triangles ? state.triangles.length : data.indices.length / 3
+  for (let n = 0; n < count; n++) {
+    const t = state.triangles ? state.triangles[n] : n * 3
+    const distance = hitOf(data, t, { origin, direction }, state)
+    if (distance !== null && (nearest === null || distance < nearest)) nearest = distance
   }
   return nearest
+}
+
+// Where the ray meets triangle t (the index of its first corner), if the picture shows it there.
+function hitOf({ vertices, indices }: ModelData, t: number, { origin, direction }: { origin: Vec3; direction: Vec3 }, state: PickState): number | null {
+  const assembly = vertices[indices[t] * MODEL_VERTEX_FLOATS + 8]
+  if (!state.shown(assembly)) return null
+  const m = state.moved[assembly] ?? [0, 0, 0]
+  const corner = (k: number): Vec3 => {
+    const o = indices[t + k] * MODEL_VERTEX_FLOATS
+    return [vertices[o] + m[0], vertices[o + 1] + m[1], vertices[o + 2] + m[2]]
+  }
+  const distance = hitTriangle([corner(0), corner(1), corner(2)], origin, direction)
+  if (distance === null) return null
+  const point: Vec3 = [origin[0] + direction[0] * distance, origin[1] + direction[1] * distance, origin[2] + direction[2] * distance]
+  return state.cutAway(assembly, point) ? null : distance
 }
 
 // Möller-Trumbore: the distance to the triangle (both faces), or null.
