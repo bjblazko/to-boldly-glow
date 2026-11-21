@@ -1,64 +1,189 @@
 {
- "vertexCount": 488,
- "indexCount": 906,
- "indexFormat": "uint16",
+ "vertexCount": 468775,
+ "indexCount": 1007187,
+ "indexFormat": "uint32",
  "draws": [
   {
-   "texture": "lm-palette.png",
+   "texture": "nassp/lm_aca.jpg",
    "firstIndex": 0,
-   "indexCount": 858
+   "indexCount": 13500
   },
   {
-   "texture": "lm-panel-1.jpg",
-   "firstIndex": 858,
-   "indexCount": 6
+   "texture": "nassp/lm_interior.jpg",
+   "firstIndex": 13500,
+   "indexCount": 36972
   },
   {
-   "texture": "lm-panel-2.jpg",
-   "firstIndex": 864,
-   "indexCount": 6
+   "texture": "nassp/lmvc_2.jpg",
+   "firstIndex": 50472,
+   "indexCount": 27888
   },
   {
-   "texture": "lm-panel-3.jpg",
-   "firstIndex": 870,
-   "indexCount": 6
+   "texture": "nassp/lmvc.jpg",
+   "firstIndex": 78360,
+   "indexCount": 141186
   },
   {
-   "texture": "lm-panel-8.jpg",
-   "firstIndex": 876,
-   "indexCount": 6
+   "texture": "nassp/armrest.jpg",
+   "firstIndex": 219546,
+   "indexCount": 7200
   },
   {
-   "texture": "lm-panel-11.jpg",
-   "firstIndex": 882,
-   "indexCount": 6
+   "texture": "nassp/zzzecs_frontparts.jpg",
+   "firstIndex": 226746,
+   "indexCount": 687
   },
   {
-   "texture": "lm-panel-14.jpg",
-   "firstIndex": 888,
-   "indexCount": 6
+   "texture": "nassp/zzzbags.jpg",
+   "firstIndex": 227433,
+   "indexCount": 1512
   },
   {
-   "texture": "lm-panel-16.jpg",
-   "firstIndex": 894,
-   "indexCount": 6
+   "texture": "nassp/coas.jpg",
+   "firstIndex": 228945,
+   "indexCount": 15960
   },
   {
-   "texture": "lm-panel-4.jpg",
-   "firstIndex": 900,
-   "indexCount": 6
+   "texture": "nassp/aditionalparts.jpg",
+   "firstIndex": 244905,
+   "indexCount": 7122
+  },
+  {
+   "texture": "nassp/zzzecsfrontconsole2.jpg",
+   "firstIndex": 252027,
+   "indexCount": 636
+  },
+  {
+   "texture": "nassp/zzzecs.jpg",
+   "firstIndex": 252663,
+   "indexCount": 13917
+  },
+  {
+   "texture": "nassp/zzzecsconnection.jpg",
+   "firstIndex": 266580,
+   "indexCount": 2310
+  },
+  {
+   "texture": "nassp/lmasc.jpg",
+   "firstIndex": 268890,
+   "indexCount": 1464
+  },
+  {
+   "texture": "nassp/upperhatch_vc.jpg",
+   "firstIndex": 270354,
+   "indexCount": 7968
+  },
+  {
+   "texture": "nassp/forwardhatch.jpg",
+   "firstIndex": 278322,
+   "indexCount": 2859
+  },
+  {
+   "texture": "nassp/palette.png",
+   "firstIndex": 281181,
+   "indexCount": 69939
+  },
+  {
+   "texture": "nassp/redfoil.jpg",
+   "firstIndex": 351120,
+   "indexCount": 96
+  },
+  {
+   "texture": "nassp/lm11.jpg",
+   "firstIndex": 351216,
+   "indexCount": 5244
+  },
+  {
+   "texture": "nassp/ordeal.jpg",
+   "firstIndex": 356460,
+   "indexCount": 1647
+  },
+  {
+   "texture": "nassp/rcs.jpg",
+   "firstIndex": 358107,
+   "indexCount": 7680
+  },
+  {
+   "texture": "nassp/ecs_rotary_lmvc.jpg",
+   "firstIndex": 365787,
+   "indexCount": 27312
+  },
+  {
+   "texture": "nassp/rotary_lm.jpg",
+   "firstIndex": 393099,
+   "indexCount": 26028
+  },
+  {
+   "texture": "nassp/zzzpiperegler.jpg",
+   "firstIndex": 419127,
+   "indexCount": 6420
+  },
+  {
+   "texture": "nassp/watercontrolmodule.jpg",
+   "firstIndex": 425547,
+   "indexCount": 8910
+  },
+  {
+   "texture": "nassp/colors.jpg",
+   "firstIndex": 434457,
+   "indexCount": 304632
+  },
+  {
+   "texture": "nassp/hose.jpg",
+   "firstIndex": 739089,
+   "indexCount": 4512
+  },
+  {
+   "texture": "nassp/ttca.jpg",
+   "firstIndex": 743601,
+   "indexCount": 25470
+  },
+  {
+   "texture": "nassp/upperhatch.jpg",
+   "firstIndex": 769071,
+   "indexCount": 1602
+  },
+  {
+   "texture": "nassp/zzzmetalmantel.jpg",
+   "firstIndex": 770673,
+   "indexCount": 4290
+  },
+  {
+   "texture": "nassp/zzznet.jpg",
+   "firstIndex": 774963,
+   "indexCount": 2148
+  },
+  {
+   "texture": "nassp/circuitbreakers.jpg",
+   "firstIndex": 777111,
+   "indexCount": 194880
+  },
+  {
+   "texture": "nassp/fdai_ball_lm.jpg",
+   "firstIndex": 971991,
+   "indexCount": 23808
+  },
+  {
+   "texture": "nassp/fdai_lm.jpg",
+   "firstIndex": 995799,
+   "indexCount": 6636
+  },
+  {
+   "texture": "nassp/cmvctex1.jpg",
+   "firstIndex": 1002435,
+   "indexCount": 4752
   }
  ],
  "bounds": {
   "min": [
-   -1.1283999681472778,
-   3.347399950027466,
-   -0.0868000015616417
+   -1.9428000450134277,
+   3.3213999271392822,
+   -0.6865000128746033
   ],
   "max": [
-   1.1283999681472778,
-   5.6041998863220215,
-   0.9200000166893005
+   1.9427000284194946,
+   6.227799892425537,
+   2.2832999229431152
   ]
  },
  "assemblies": [
@@ -101,24 +226,24 @@
  ],
  "anchors": {
   "cockpit": [
-   0,
-   4.475799918174744,
-   0.4166000075638294
+   -0.000050008296966552734,
+   4.77459990978241,
+   0.798399955034256
   ],
   "panels": [
-   0,
-   4.905800104141235,
-   0.5300000160932541
+   0.0073999762535095215,
+   5.024349927902222,
+   0.9653499908745289
   ],
   "dsky": [
-   0,
-   4.5157999992370605,
-   0.8800000250339508
+   0.001250002533197403,
+   4.706899881362915,
+   1.4933000206947327
   ],
   "windows": [
-   0,
-   5.20579981803894,
-   0.9129999876022339
+   0.00004997849464416504,
+   5.2855000495910645,
+   1.4014999866485596
   ]
  }
 }

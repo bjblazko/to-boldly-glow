@@ -116,6 +116,16 @@ documents (US government works or published by NASA). The flag and the lettering
 domain. The plaque text is used without the signatures. There are no NASA insignia. Run
 `huepattl-legal-check` before shipping.
 
+## Change of approach (2026-11-21, decided with the owner)
+
+Our own model looked like a diagram next to Columbia's scan. The project was relicensed to
+GPL-3.0-or-later so that Project Apollo - NASSP's lunar module (GPL-2.0-or-later) can be used: its
+descent and ascent stages for the outside and its virtual cockpit (335,000 triangles, every switch
+modelled) for the inside, converted by the pipeline (`apollo/nassp.ts`, `lmNassp.ts`,
+`lmNasspModel.ts`) at a pinned commit. Kept from our design: the hinged legs (now found on NASSP's
+struts), the cutaway's tanks and engines, the chapters, the lighting as in Columbia. Our own outside
+(tag `eagle-own-model-working`) is retired.
+
 ## Left to the builder
 
 - The exact facet layout of the ascent stage within the documented envelope.

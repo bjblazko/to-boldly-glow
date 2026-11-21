@@ -16,3 +16,6 @@ packages/data-pipeline/narration/work/
 packages/data-pipeline/narration/texts.json
 __pycache__/
 packages/app/scripts/supercut/out/
+
+# Sources the data pipeline downloads (Project Apollo - NASSP at a pinned commit)
+packages/data-pipeline/cache/

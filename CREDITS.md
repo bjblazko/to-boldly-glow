@@ -282,16 +282,23 @@ inside - the crew's notes on the walls - is part of the scanned object.
 
 ## Apollo: Eagle, the lunar module
 
-Eagle (`packages/app/public/models/eagle/`: `lm.*`, `cockpit.*` and their images) is our own model,
-built by `packages/data-pipeline/src/buildEagle.ts` from the dimensions and layout in Grumman's
-"Apollo Lunar Module News Reference" for NASA (1968, public domain,
-https://archive.org/details/apollo-lunar-module-news-reference-1968): the overall height and the
-span of the landing gear, both stages' sizes, the descent stage's structure, the footpads, probes and
-ladder, the crew compartment and midsection, the hatches and windows, the engines and tanks. Measures
-it does not settle are marked `APPROX` in `apollo/lmProfile.ts`. Its textures are drawn by our own
-code: the foil (procedural), the flag and "UNITED STATES" in our block letters, the plaque's words
-without the signatures, and the cockpit's panels - generic copies laid out after the handbook's panel
-drawings, no photographs. No NASA insignia.
+Eagle's outside and cockpit (`packages/app/public/models/eagle/`: `lm.*`, `cockpit.*` and
+`nassp/`) are converted from Project Apollo - NASSP's lunar module
+(https://github.com/orbiternassp/NASSP, the Apollo add-on for the Orbiter space flight simulator),
+GNU General Public License, version 2 or later (`packages/app/public/licenses/nassp.txt`), used here
+under version 3 or later with the rest of To Boldly Glow. Source files, at commit
+`ddba501d2e274367b8660d7050dee7b9f4153865`: `Meshes/ProjectApollo/LM_DescentStage.msh`,
+`LM_AscentStage.msh`, `LM_VC.msh` and the textures they name under `Textures/ProjectApollo/`.
+`packages/data-pipeline/src/buildEagle.ts` downloads them at that commit and converts them: into our
+frame (Orbiter's is left-handed), split into the lesson's parts with the legs' hinges, the ascent
+stage's rough cabin left out (the cockpit model replaces it), the DDS textures decoded, resized and
+saved as JPEG.
+
+What the cutaway shows inside the stages - the descent stage's four tanks and engine, the ascent
+stage's two tanks and engine - and the person for scale (`lm-palette.png`) are our own, built from
+the dimensions in Grumman's "Apollo Lunar Module News Reference" for NASA (1968, public domain,
+https://archive.org/details/apollo-lunar-module-news-reference-1968); measures it does not settle
+are marked `APPROX` in `apollo/lmProfile.ts`. The lesson's figures come from the same document.
 
 ## Tonemapping
 

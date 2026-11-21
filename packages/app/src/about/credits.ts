@@ -165,7 +165,16 @@ export const CREDIT_GROUPS: CreditGroup[] = [
         license: TEXT.licenses.publicDomain,
         home: 'https://archive.org/details/apollo-lunar-module-news-reference-1968',
         changes: TEXT.changes.lmModel,
-        files: ['models/eagle/'],
+        files: ['models/eagle/lm-palette.png'],
+      },
+      {
+        name: 'Project Apollo – NASSP (orbiternassp/NASSP, commit ddba501), lunar module meshes and textures',
+        use: TEXT.uses.nassp,
+        license: 'GPL-2.0-or-later',
+        home: 'https://github.com/orbiternassp/NASSP',
+        text: 'licenses/nassp.txt',
+        changes: TEXT.changes.nassp,
+        files: ['models/eagle/lm.bin', 'models/eagle/lm.json', 'models/eagle/cockpit.bin', 'models/eagle/cockpit.json', 'models/eagle/nassp/'],
       },
       {
         name: 'NASA/JPL Horizons (Giorgini & JPL Solar System Dynamics Group)',

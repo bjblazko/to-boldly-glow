@@ -1,44 +1,35 @@
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import type { Hinge } from '../../app/src/spacecraft/modelHinge'
 import type { ModelDescription } from '../../app/src/spacecraft/modelFile'
-import { cockpitParts, cockpitTextures } from './apollo/lmCockpit'
-import { COCKPIT_ASSEMBLIES, LM_ASSEMBLIES, LM_DECAL_TEXTURE, LM_PLAQUE_TEXTURE, type LmAssembly, lmAssemblyKind, lmExplodeOffset, lmHinge, lmParts, swatch } from './apollo/lmParts'
+import { NASSP_PALETTE_TEXTURE, nasspModels, nasspPalette, nasspTexture } from './apollo/lmNasspModel'
+import { COCKPIT_ASSEMBLIES, LM_ASSEMBLIES, type LmAssembly, lmAssemblyKind, lmExplodeOffset, lmInsides } from './apollo/lmParts'
 import { LM_HEIGHTS } from './apollo/lmProfile'
-import { flagLettering, foilTexture, LM_FOIL_TEXTURES, LM_PALETTE_TEXTURE, lmPalette, plaqueTexture, type FoilTint } from './apollo/lmTextures'
+import { LM_PALETTE_TEXTURE, lmPalette } from './apollo/lmTextures'
 import { assemblyAnchors, assignAssemblies } from './spacecraft/assemblies'
 import type { MeshPrimitive } from './spacecraft/glbMesh'
 import { packModel } from './spacecraft/modelWriter'
 
-// Builds Apollo 11's lunar module Eagle from its dimensions (apollo/lmProfile.ts): the outside and
-// the cockpit (a model of its own, lit by its lamps, as Columbia's cabin is) and their textures, all
-// our own. Writes packages/app/public/models/eagle/: lm.*, cockpit.* and the images.
+// Builds Apollo 11's lunar module Eagle: the outside and the cockpit from Project Apollo - NASSP's
+// meshes and textures (GPL-2.0-or-later, apollo/nassp.ts, downloaded at a pinned commit), turned
+// into our frame and model format; the cutaway's tanks and engines and a person for scale from the
+// dimensions (apollo/lmProfile.ts). Writes packages/app/public/models/eagle/: lm.* (outside),
+// cockpit.* (inside, a model of its own lit by its lamps, as Columbia's cabin) and the images.
 //
 // `npm run build-eagle`
 
-const COCKPIT_LOOKS = { wall: swatch('ascent'), floor: swatch('ascentDark'), dark: swatch('black'), glass: swatch('glass'), steel: swatch('steel') }
-
-function written(parts: Map<LmAssembly, MeshPrimitive[]>, order: readonly LmAssembly[], marks?: Record<string, number>): { description: ModelDescription; binary: Buffer } {
-  const { binary, description } = packModel(assignAssemblies(parts, order))
+function written(parts: Map<string, MeshPrimitive[]>, order: readonly LmAssembly[], extra: { hinges?: Record<string, Hinge>; marks?: Record<string, number> }): { description: ModelDescription; binary: Buffer } {
+  const present = new Map([...parts].filter(([part]) => order.includes(part as LmAssembly))) as Map<LmAssembly, MeshPrimitive[]>
+  const { binary, description } = packModel(assignAssemblies(present, order))
   const assemblies = order.map((id) => {
-    const hinge = lmHinge(id)
+    const hinge = extra.hinges?.[id]
     return { id, explode: lmExplodeOffset(id), kind: lmAssemblyKind(id), ...(hinge ? { hinge } : {}) }
   })
   // Labels point at the middle of each part; the stages' at their axis, inside them whichever way
   // the model has turned.
   const onAxis = (assembly: LmAssembly) => assembly === 'descent' || assembly === 'ascent'
-  return { description: { ...description, assemblies, anchors: assemblyAnchors(parts, onAxis), ...(marks ? { marks } : {}) }, binary }
-}
-
-async function textures(): Promise<Map<string, Buffer>> {
-  const foils = await Promise.all((Object.keys(LM_FOIL_TEXTURES) as FoilTint[]).map(async (tint, index) => [LM_FOIL_TEXTURES[tint], await foilTexture(index + 1, tint)] as [string, Buffer]))
-  return new Map([
-    ...foils,
-    [LM_PALETTE_TEXTURE, await lmPalette()],
-    [LM_PLAQUE_TEXTURE, await plaqueTexture()],
-    [LM_DECAL_TEXTURE, await flagLettering()],
-    ...(await cockpitTextures()),
-  ])
+  return { description: { ...description, assemblies, anchors: assemblyAnchors(present, onAxis), ...(extra.marks ? { marks: extra.marks } : {}) }, binary }
 }
 
 function write(out: string, name: string, { description, binary }: { description: ModelDescription; binary: Buffer }): number {
@@ -49,10 +40,14 @@ function write(out: string, name: string, { description, binary }: { description
 }
 
 export async function buildEagle(out: string): Promise<void> {
-  mkdirSync(out, { recursive: true })
-  let bytes = write(out, 'lm', written(lmParts(), LM_ASSEMBLIES, { descent: LM_HEIGHTS.interstage, ascent: LM_HEIGHTS.overall }))
-  bytes += write(out, 'cockpit', written(cockpitParts(COCKPIT_LOOKS), COCKPIT_ASSEMBLIES))
-  for (const [file, image] of await textures()) {
+  mkdirSync(join(out, 'nassp'), { recursive: true })
+  const nassp = await nasspModels()
+  const outside = new Map([...nassp.outside, ...lmInsides()])
+  let bytes = write(out, 'lm', written(outside, LM_ASSEMBLIES, { hinges: nassp.hinges, marks: { descent: LM_HEIGHTS.interstage, ascent: LM_HEIGHTS.overall } }))
+  bytes += write(out, 'cockpit', written(nassp.cockpit, COCKPIT_ASSEMBLIES, {}))
+  const images: [string, Buffer][] = [[LM_PALETTE_TEXTURE, await lmPalette()], [NASSP_PALETTE_TEXTURE, await nasspPalette(nassp.palette)]]
+  for (const [file, path] of nassp.textures) images.push([file, await nasspTexture(file, path)])
+  for (const [file, image] of images) {
     writeFileSync(join(out, file), image)
     bytes += image.length
   }

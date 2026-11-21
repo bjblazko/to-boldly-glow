@@ -4,9 +4,9 @@
 export const eagle = {
   title: 'Eagle, the Lunar Module',
   note:
-    'Eagle is built here from the lunar module’s published dimensions. The tanks, the engines and the ' +
-    'cockpit’s panels are drawn after the handbooks, simplified; the foil is a stand-in for the real ' +
-    'blankets.',
+    'Eagle’s outside and cockpit are Project Apollo – NASSP’s models of the lunar module (GPL), made ' +
+    'by its volunteers for the Orbiter space flight simulator; the tanks and engines in the cutaway ' +
+    'are ours, simplified, from the published dimensions.',
   chapters: {
     whole: {
       title: 'Eagle',
@@ -74,7 +74,6 @@ export const eagle = {
     leg3: 'Landing gear',
     deployed: 'Struts and probes',
     ascent: 'Ascent stage',
-    fairings: 'Tank fairings',
     ascentInside: 'Tanks and ascent engine',
     cockpit: 'Cabin',
     panels: 'Flight displays',

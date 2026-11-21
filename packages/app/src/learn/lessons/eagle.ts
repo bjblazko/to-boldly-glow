@@ -17,7 +17,7 @@ function fact(id: keyof typeof TEXT.facts, icon: ChapterFact['icon']): ChapterFa
 }
 
 // Inside, everything of the outside is gone and the cockpit shows (it is "inside": seen when cut).
-const OUTSIDE: EaglePart[] = ['descent', 'descentInside', 'leg0', 'leg1', 'leg2', 'leg3', 'deployed', 'ascent', 'fairings', 'ascentInside', 'person']
+const OUTSIDE: EaglePart[] = ['descent', 'descentInside', 'leg0', 'leg1', 'leg2', 'leg3', 'deployed', 'ascent', 'ascentInside', 'person']
 const INSIDE: EagleStage = { shot: 'inside', cut: 1, still: true, gone: OUTSIDE }
 
 const CHAPTERS: Chapter[] = [
@@ -26,8 +26,7 @@ const CHAPTERS: Chapter[] = [
   chapter('folded', { shot: 'folded', fold: 1, labels: ['leg0'], gone: ['deployed', 'person'] }),
   chapter('stages', { shot: 'stages', explode: 1, labels: ['descent', 'ascent'] }, { facts: [fact('mass', 'mass')] }),
   chapter('descent', { shot: 'descent', cut: 1, highlight: 'descentInside', labels: ['descentInside'] }, { facts: [fact('descentEngine', 'power')] }),
-  // The tanks' fairings go, so the tanks show whole.
-  chapter('ascent', { shot: 'ascent', cut: 1, highlight: 'ascentInside', labels: ['ascentInside'], gone: ['fairings'] }, { facts: [fact('ascentEngine', 'power')] }),
+  chapter('ascent', { shot: 'ascent', cut: 1, highlight: 'ascentInside', labels: ['ascentInside'] }, { facts: [fact('ascentEngine', 'power')] }),
   chapter('inside', { ...INSIDE, labels: ['windows', 'panels'] }, { facts: [fact('room', 'atmosphere')] }),
   chapter('panels', { ...INSIDE, shot: 'panels', labels: ['panels', 'dsky', 'windows'] }),
   chapter('liftoff', { shot: 'liftoff', explode: 1, highlight: 'ascent', labels: ['ascent', 'descent'], gone: ['person'] }),

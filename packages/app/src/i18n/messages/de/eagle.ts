@@ -3,9 +3,9 @@ import type { Messages } from '../en'
 export const eagle: Messages['lessons']['eagle'] = {
   title: 'Eagle, die Mondfähre',
   note:
-    'Eagle ist hier aus den veröffentlichten Maßen der Mondfähre gebaut. Tanks, Triebwerke und die ' +
-    'Instrumententafeln im Cockpit sind nach den Handbüchern vereinfacht gezeichnet; die Folie steht ' +
-    'für die echten Isoliermatten.',
+    'Außenseite und Cockpit von Eagle sind die Modelle der Mondfähre aus Project Apollo – NASSP (GPL), ' +
+    'gebaut von dessen Freiwilligen für den Raumflugsimulator Orbiter; Tanks und Triebwerke im ' +
+    'Schnitt sind unsere, vereinfacht nach den veröffentlichten Maßen.',
   chapters: {
     whole: {
       title: 'Eagle',
@@ -74,7 +74,6 @@ export const eagle: Messages['lessons']['eagle'] = {
     leg3: 'Landebein',
     deployed: 'Streben und Fühler',
     ascent: 'Aufstiegsstufe',
-    fairings: 'Tankverkleidungen',
     ascentInside: 'Tanks und Aufstiegstriebwerk',
     cockpit: 'Kabine',
     panels: 'Fluganzeigen',
