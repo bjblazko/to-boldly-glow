@@ -1,3 +1,5 @@
+import type { Vec3 } from '../math/tuples'
+import type { FilmLook } from '../bloom/filmLook'
 import type { Viewpoint } from '../camera/viewpoint'
 import type { SceneLayout } from '../scene/sceneLayout'
 import type { Ephemeris } from '../time/ephemeris'
@@ -27,8 +29,20 @@ export interface StagedLessonScene {
   groundShot(chapter: Chapter): GroundShot | null
   // The chapter's own camera shot, for scenes that frame each chapter differently.
   shot?(chapter: Chapter): LessonShot
+  // Where the camera moves once the lesson has been read out to its end, if anywhere.
+  closingShot?(chapter: Chapter): LessonShot | null
   updateOverlays(layout: SceneLayout, chapter: Chapter, frame: StagedOverlayFrame): void
   hideOverlays(): void
+  // Passes before the scene's own (a lamp's shadow map), for scenes that need them.
+  encodeBeforeScene?(encoder: GPUCommandEncoder, chapter: Chapter): void
+  // What a double click on the scene points at (normalized device coordinates), for scenes that
+  // let the user look at a spot (a cabin): the point it hits, or null.
+  pick?(ndc: [number, number], chapter: Chapter): Vec3 | null
+  // How far along a ray (unit direction) the scene stands in the way, within `within` if given:
+  // what stops the camera walking through a cabin's walls.
+  obstacle?(origin: Vec3, direction: Vec3, within: number | undefined, chapter: Chapter): number | null
+  // A film look over the finished picture, for scenes that want one.
+  filmLook?(chapter: Chapter): FilmLook | null
   drawBehindBodies(pass: GPURenderPassEncoder, chapter: Chapter): void
   drawInFrontOfBodies(pass: GPURenderPassEncoder, chapter: Chapter): void
   // Expects the line pipeline to be set on the pass.

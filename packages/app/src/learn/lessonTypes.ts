@@ -1,5 +1,5 @@
 import type { VoyagerStage } from './voyager/voyagerStage'
-import type { SaturnVStage } from './apollo/saturnVStage'
+import type { VehicleStage } from './vehicle/vehicleStage'
 
 // A chapter of a lesson. `kind` distinguishes the halves of the "seasons" lesson - 'orbit'
 // chapters show Earth's real position in its orbit (with its axis held in a single fixed
@@ -23,7 +23,7 @@ import type { SaturnVStage } from './apollo/saturnVStage'
 export interface Chapter {
   id: string
   title: string
-  kind: 'orbit' | 'staged' | 'sizes' | EclipseChapterKind | PhasesChapterKind | VoyagerChapterKind | 'saturnV'
+  kind: 'orbit' | 'staged' | 'sizes' | EclipseChapterKind | PhasesChapterKind | VoyagerChapterKind | 'vehicle'
   seasonPhaseDegrees: number
   text: string
   // The eclipse lesson's chapters: how the Sun, Moon and Earth stand (see EclipseStage).
@@ -37,8 +37,9 @@ export interface Chapter {
   focusPlanetId?: string
   // The Voyager lessons' chapters: what the probe, the record or the route shows (see VoyagerStage).
   voyager?: VoyagerStage
-  // The Saturn V lesson's chapters: how far it is taken apart and cut open (see SaturnVStage).
-  saturnV?: SaturnVStage
+  // The vehicle lessons' chapters (the Saturn V, Columbia): the vehicle and how far it is taken
+  // apart, cut open or looked into (see VehicleStage).
+  vehicle?: VehicleStage
   // Shown in the panel under the text: a photo with its credit, or a chart of real data.
   photo?: ChapterPhoto
   chart?: ChapterChart

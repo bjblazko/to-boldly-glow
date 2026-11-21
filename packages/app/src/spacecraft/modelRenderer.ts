@@ -1,10 +1,11 @@
-import type { mat4 } from 'gl-matrix'
+import { vec3, type mat4 } from 'gl-matrix'
 import type { Viewpoint } from '../camera/viewpoint'
 import { createScenePipeline } from '../gpu/scenePipeline'
 import type { TextureLoader } from '../gpu/textureLoader'
 import type { Vec3 } from '../math/tuples'
 import { MODEL_VERTEX_FLOATS, type ModelData } from './modelFile'
-import { ASSEMBLY_KIND_CODE, MAX_ASSEMBLIES, MODEL_UNIFORM_FLOAT_COUNT, modelShaderCode } from './modelShader'
+import { ASSEMBLY_KIND_CODE, MAX_ASSEMBLIES, MAX_LAMPS, MODEL_UNIFORM_FLOAT_COUNT, modelShaderCode } from './modelShader'
+import { createShadowPipeline, lampViewProjection, ModelShadowMap, SHADOW_FORMAT, SHADOW_MAP_SIZE } from './modelShadow'
 
 const MODEL_VERTEX_BUFFERS: GPUVertexBufferLayout[] = [
   {
@@ -35,35 +36,62 @@ export interface ModelPose {
   cut?: number
   // How visible each assembly is (0 to 1, by index; 1 where not given): parts thrown off fade.
   visibility?: readonly number[]
+  // Lamps lighting it from near by (a cabin's floodlights), in world space.
+  lamps?: readonly Lamp[]
+  // Each assembly's material, by index (a soft plastic sheen where not given).
+  materials?: readonly (Material | undefined)[]
+}
+
+// How a surface shines: how tight its highlight is and how strong.
+export interface Material {
+  shininess: number
+  shine: number
+}
+
+const PLAIN: Material = { shininess: 24, shine: 0.25 }
+
+// A lamp: where it is, how far its light reaches (metres) and its colour times its strength.
+export interface Lamp {
+  place: Vec3
+  reach: number
+  color: Vec3
 }
 
 // A spacecraft in sunlight: the shadowed side stays dark, as in space, with a faint fill.
 const SUNLIT = { sun: 1, fill: 0.07 }
-const SHININESS = 24
 const OFFSETS_AT = 48
 const PARTS_AT = OFFSETS_AT + MAX_ASSEMBLIES * 4
+const LAMPS_AT = PARTS_AT + MAX_ASSEMBLIES * 4
+const SHADOW_AT = LAMPS_AT + MAX_LAMPS * 8
 
-// What every model shares: the device, the scene's color format, the pipeline, the texture loader
-// and a sampler.
+// What every model shares: the device, the scene's color format, the pipelines (both faces of
+// every triangle drawn - a probe's thin sheets - or only the front - a scanned room, whose surfaces
+// are not meant to be seen from behind), the texture loader and a sampler, and for lamps' shadows
+// their depth-only pipeline, a comparing sampler and a map that shadows nothing (for models without).
 export interface ModelContext {
   device: GPUDevice
   format: GPUTextureFormat
-  pipeline: GPURenderPipeline
+  pipelines: Record<'bothSides' | 'frontOnly', GPURenderPipeline>
   textures: TextureLoader
   sampler: GPUSampler
+  shadows: { pipeline: GPURenderPipeline; sampler: GPUSampler; none: GPUTextureView }
 }
 
 export async function createModelContext(device: GPUDevice, format: GPUTextureFormat, textures: TextureLoader): Promise<ModelContext> {
-  const pipeline = await createScenePipeline(device, {
-    label: 'textured model',
-    code: modelShaderCode,
-    format,
-    primitive: { topology: 'triangle-list', cullMode: 'none' },
-    depth: { write: true, compare: 'less' },
-    buffers: MODEL_VERTEX_BUFFERS,
-  })
+  const pipeline = (cullMode: GPUCullMode) =>
+    createScenePipeline(device, {
+      label: `textured model (${cullMode === 'none' ? 'both sides' : 'front only'})`,
+      code: modelShaderCode,
+      format,
+      primitive: { topology: 'triangle-list', cullMode },
+      depth: { write: true, compare: 'less' },
+      buffers: MODEL_VERTEX_BUFFERS,
+    })
+  const [bothSides, frontOnly, shadowPipeline] = await Promise.all([pipeline('none'), pipeline('back'), createShadowPipeline(device)])
   const sampler = device.createSampler({ label: 'model sampler', magFilter: 'linear', minFilter: 'linear', mipmapFilter: 'linear', maxAnisotropy: 16 })
-  return { device, format, pipeline, textures, sampler }
+  const shadowSampler = device.createSampler({ label: 'model shadow sampler', compare: 'less-equal', magFilter: 'linear', minFilter: 'linear' })
+  const none = device.createTexture({ label: 'no shadow map', size: [1, 1], format: SHADOW_FORMAT, usage: GPUTextureUsage.TEXTURE_BINDING }).createView()
+  return { device, format, pipelines: { bothSides, frontOnly }, textures, sampler, shadows: { pipeline: shadowPipeline, sampler: shadowSampler, none } }
 }
 
 interface Draw {
@@ -79,23 +107,28 @@ export class ModelRenderer {
 
   private constructor(
     private readonly context: ModelContext,
-    private readonly mesh: { vertex: GPUBuffer; index: GPUBuffer; format: GPUIndexFormat; uniforms: GPUBuffer },
+    private readonly mesh: { pipeline: GPURenderPipeline; vertex: GPUBuffer; index: GPUBuffer; format: GPUIndexFormat; indexCount: number; uniforms: GPUBuffer },
     private readonly draws: Draw[],
-    private readonly cutaway: Cutaway,
+    private readonly shape: { cutaway: Cutaway; middle: Vec3; shadowMap: ModelShadowMap | null },
   ) {}
 
-  // The model's textures are loaded from next to it (`textureBaseUrl`/<file>).
-  static async create(context: ModelContext, model: ModelData, textureBaseUrl: string): Promise<ModelRenderer> {
+  // The model's textures are loaded from next to it (`textureBaseUrl`/<file>); `shadows`: lamps
+  // will light it and the first casts shadows (a shadow map of its own).
+  static async create(context: ModelContext, model: ModelData, textureBaseUrl: string, { shadows = false } = {}): Promise<ModelRenderer> {
     const { device } = context
+    const pipeline = model.description.oneSided ? context.pipelines.frontOnly : context.pipelines.bothSides
+    const shadowMap = shadows ? ModelShadowMap.create(device, context.shadows.pipeline) : null
     const uniforms = device.createBuffer({ label: 'model uniforms', size: MODEL_UNIFORM_FLOAT_COUNT * 4, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST })
     const draws = await Promise.all(
       model.description.draws.map(async ({ texture, firstIndex, indexCount }) => ({
-        bindGroup: bindTexture(context, uniforms, await context.textures.loadColor(`${textureBaseUrl}/${texture}`)),
+        bindGroup: bindTexture(context, { pipeline, uniforms, shadowMap: shadowMap?.view ?? context.shadows.none }, await context.textures.loadColor(`${textureBaseUrl}/${texture}`)),
         firstIndex,
         indexCount,
       })),
     )
-    return new ModelRenderer(context, { ...uploadMesh(device, model), uniforms }, draws, cutawayOf(model))
+    const { min, max } = model.description.bounds
+    const middle: Vec3 = [(min[0] + max[0]) / 2, (min[1] + max[1]) / 2, (min[2] + max[2]) / 2]
+    return new ModelRenderer(context, { pipeline, ...uploadMesh(device, model), indexCount: model.description.indexCount, uniforms }, draws, { cutaway: cutawayOf(model), middle, shadowMap })
   }
 
   // `offsets`: how far each assembly moves out when fully exploded (metres, model frame).
@@ -106,22 +139,62 @@ export class ModelRenderer {
     const light = pose.light ?? SUNLIT
     values.set([...pose.toSun, light.sun], 32)
     values.set([viewpoint.position[0], viewpoint.position[1], viewpoint.position[2], 1], 36)
-    values.set([light.fill, SHININESS, pose.explode, 0], 40)
+    values.set([light.fill, 0, pose.explode, 0], 40)
     const cut = pose.cut ?? 0
-    values.set([pose.highlight.assembly, pose.highlight.strength, cut > 0 ? 1 : 0, this.cutaway.bottom + cut * this.cutaway.reach], 44)
+    const { cutaway } = this.shape
+    values.set([pose.highlight.assembly, pose.highlight.strength, cut > 0 ? 1 : 0, cutaway.bottom + cut * cutaway.reach], 44)
     offsets.slice(0, MAX_ASSEMBLIES).forEach((offset, index) => values.set([...offset, 0], OFFSETS_AT + index * 4))
-    for (let index = 0; index < MAX_ASSEMBLIES; index++) values.set([this.cutaway.kinds[index], pose.visibility?.[index] ?? 1, 0, 0], PARTS_AT + index * 4)
+    writeParts(values, pose, cutaway.kinds)
+    writeLamps(values, pose.lamps ?? [])
+    this.updateShadow(pose, offsets)
     this.context.device.queue.writeBuffer(this.mesh.uniforms, 0, values)
   }
 
+  // Before the scene's pass: the first lamp's shadow map, for a model that has one and a lamp.
+  encodeShadow(encoder: GPUCommandEncoder): void {
+    if (this.shape.shadowMap && this.values[SHADOW_AT + 16] > 0) this.shape.shadowMap.encode(encoder, this.mesh)
+  }
+
+  // The first lamp looks at the model's middle; its projection goes to both shaders.
+  private updateShadow(pose: ModelPose, offsets: readonly Vec3[]): void {
+    const lamp = pose.lamps?.[0]
+    const { shadowMap, middle } = this.shape
+    if (!shadowMap || !lamp) {
+      this.values.set([0, 0, 0, 0], SHADOW_AT + 16)
+      return
+    }
+    const target = vec3.transformMat4(vec3.create(), middle, pose.world) as unknown as Vec3
+    const lightViewProjection = lampViewProjection(lamp.place, [target[0], target[1], target[2]], lamp.reach)
+    shadowMap.update(lightViewProjection, pose.world, { amount: pose.explode, offsets })
+    this.values.set(lightViewProjection, SHADOW_AT)
+    this.values.set([1, 1 / SHADOW_MAP_SIZE, 0, 0], SHADOW_AT + 16)
+  }
+
   draw(pass: GPURenderPassEncoder): void {
-    pass.setPipeline(this.context.pipeline)
+    pass.setPipeline(this.mesh.pipeline)
     pass.setVertexBuffer(0, this.mesh.vertex)
     pass.setIndexBuffer(this.mesh.index, this.mesh.format)
     for (const { bindGroup, firstIndex, indexCount } of this.draws) {
       pass.setBindGroup(0, bindGroup)
       pass.drawIndexed(indexCount, 1, firstIndex)
     }
+  }
+}
+
+// Each assembly's kind, how visible it is and its material.
+function writeParts(values: Float32Array, { visibility, materials }: ModelPose, kinds: readonly number[]): void {
+  for (let index = 0; index < MAX_ASSEMBLIES; index++) {
+    const { shininess, shine } = materials?.[index] ?? PLAIN
+    values.set([kinds[index], visibility?.[index] ?? 1, shininess, shine], PARTS_AT + index * 4)
+  }
+}
+
+// Each lamp's place and reach, then its colour; the slots left over stay dark (reach 0).
+function writeLamps(values: Float32Array, lamps: readonly Lamp[]): void {
+  for (let index = 0; index < MAX_LAMPS; index++) {
+    const lamp = lamps[index]
+    values.set(lamp ? [...lamp.place, lamp.reach] : [0, 0, 0, 0], LAMPS_AT + index * 4)
+    values.set(lamp ? [...lamp.color, 0] : [0, 0, 0, 0], LAMPS_AT + (MAX_LAMPS + index) * 4)
   }
 }
 
@@ -140,7 +213,7 @@ function cutawayOf({ description }: ModelData): Cutaway {
   return { kinds, bottom: min[1], reach: max[1] + highest - min[1] }
 }
 
-function bindTexture({ device, pipeline, sampler }: ModelContext, uniforms: GPUBuffer, texture: GPUTexture): GPUBindGroup {
+function bindTexture({ device, sampler, shadows }: ModelContext, { pipeline, uniforms, shadowMap }: { pipeline: GPURenderPipeline; uniforms: GPUBuffer; shadowMap: GPUTextureView }, texture: GPUTexture): GPUBindGroup {
   return device.createBindGroup({
     label: `model ${texture.label}`,
     layout: pipeline.getBindGroupLayout(0),
@@ -148,6 +221,8 @@ function bindTexture({ device, pipeline, sampler }: ModelContext, uniforms: GPUB
       { binding: 0, resource: { buffer: uniforms } },
       { binding: 1, resource: sampler },
       { binding: 2, resource: texture.createView() },
+      { binding: 3, resource: shadows.sampler },
+      { binding: 4, resource: shadowMap },
     ],
   })
 }

@@ -1,0 +1,29 @@
+import type { LessonShot } from '../lessonShot'
+import type { ModelSceneOptions } from '../../spacecraft/modelScene'
+import type { FilmLook } from '../../bloom/filmLook'
+import type { RoomShape } from './blueprintRoom'
+
+// One model of a vehicle: where it lives under public/ (`<url>/<name>.json`) and its light.
+export interface VehicleModel {
+  url: string
+  name: string
+  light?: ModelSceneOptions['light']
+  lamps?: ModelSceneOptions['lamps']
+  materials?: ModelSceneOptions['materials']
+}
+
+// What a vehicle lesson needs to know about one vehicle: its models (the outside first - its
+// marked heights are shown), how it turns, the room it stands in, its shots, and the words for its
+// parts and heights.
+export interface VehicleConfig {
+  models: VehicleModel[]
+  turntable: Omit<ModelSceneOptions, 'light' | 'lamps' | 'materials'>
+  room: RoomShape
+  shot(id: string): LessonShot
+  // How far the film look's contact shadows look around (metres): a cabin's creases, a rocket's joints.
+  occlusionReach: number
+  // The film look where it differs from the vehicle lessons' own.
+  filmLook?: Partial<FilmLook>
+  partName(part: string): string
+  mark(name: string): { label: string; note?: string }
+}

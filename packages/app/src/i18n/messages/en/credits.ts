@@ -26,7 +26,9 @@ export const credits = {
     horizons: 'The Voyagers’ trajectories, speeds and planet flybys',
     spdf: 'The Voyagers’ measurements at the heliopause, 2012 and 2018',
     saturnVModel: 'The Saturn V’s dimensions and figures, from which its model and the lesson’s numbers are made',
-    saturnVPhotos: 'The photos in the Saturn V lesson',
+    saturnVPhotos: 'The photos in the Saturn V and Columbia lessons',
+    csmModel: 'The command and service module’s dimensions and layout, from which its model is made',
+    columbiaCabin: 'Columbia’s cabin, inside: walls, instrument panels, couches and the crew’s notes',
   },
   changes: {
     solarSystemScope: 'Resized and renamed; the gas giants’ relief maps are derived from their color maps.',
@@ -34,6 +36,8 @@ export const credits = {
     cropped: 'Cropped to the record and resized.',
     resized: 'Resized.',
     saturnVModel: 'The model is our own, built from the measurements; its paint follows photos of the rocket.',
+    csmModel: 'The model is our own, built from the measurements.',
+    columbiaCabin: 'Simplified (about half of its triangles), its textures resized, placed in our command module.',
   },
   licenses: {
     publicDomain: 'Public domain',

@@ -24,9 +24,10 @@ export interface LensShift {
 
 export const NO_LENS_SHIFT: LensShift = { x: 0, y: 0 }
 
-export function perspectiveProjection(aspect: number, minOrbitRadius: number, lensShift: LensShift = NO_LENS_SHIFT): mat4 {
+// `fov`: the vertical field of view (a lesson's wide shot of a cabin opens it up).
+export function perspectiveProjection(aspect: number, minOrbitRadius: number, lensShift: LensShift = NO_LENS_SHIFT, fov = VERTICAL_FOV_RADIANS): mat4 {
   const near = minOrbitRadius * NEAR_PLANE_FRACTION_OF_MIN_RADIUS
-  const matrix = mat4.perspective(mat4.create(), VERTICAL_FOV_RADIANS, aspect, near, FAR_PLANE_DISTANCE)
+  const matrix = mat4.perspective(mat4.create(), fov, aspect, near, FAR_PLANE_DISTANCE)
   // Column-major: [8] and [9] multiply view-space z into clip x and y, and clip w = -z, so these
   // add the shift to every point's NDC x and y.
   matrix[8] = -lensShift.x

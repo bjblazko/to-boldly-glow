@@ -17,13 +17,17 @@
     "fetch-voyager-photos": "tsx src/fetchVoyagerPhotos.ts",
     "fetch-voyager-encounters": "tsx src/fetchVoyagerEncounters.ts",
     "build-saturn-v": "tsx src/buildSaturnV.ts",
-    "fetch-saturn-v-photos": "tsx src/fetchSaturnVPhotos.ts"
+    "fetch-saturn-v-photos": "tsx src/fetchSaturnVPhotos.ts",
+    "build-columbia": "tsx src/buildColumbia.ts",
+    "fetch-columbia-photos": "tsx src/fetchColumbiaPhotos.ts"
   },
   "devDependencies": {
     "@gltf-transform/core": "^4.5.1",
     "@gltf-transform/extensions": "^4.5.1",
+    "@gltf-transform/functions": "^4.5.1",
     "@types/node": "^24.0.0",
     "draco3dgltf": "^1.5.9",
+    "meshoptimizer": "^1.3.0",
     "sharp": "^0.35.5",
     "tsx": "^4.23.15",
     "typescript": "~6.0.3",

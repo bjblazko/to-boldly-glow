@@ -5,6 +5,7 @@ import { CameraFollowController } from './cameraFollow'
 import { FlyCamera } from './flyCamera'
 import type { FlightCommand } from './flyCamera'
 import type { Obstacle } from './input/flightSpeed'
+import { clientToNdc } from './input/orbitPan'
 import { CameraInputController, type CameraMode } from './inputController'
 import { borrowOrbitPose, OrbitCamera, restoreOrbitPose, type OrbitPose } from './orbitCamera'
 import { TourController, type TourRoute } from './tourController'
@@ -35,6 +36,8 @@ export class CameraDirector {
   private readonly tour = new TourController(ALL_ENTITIES.filter((entity) => entity.kind === 'planet'))
   private touring = false
   private pickEnabled = true
+  // A staged scene's own use of a double click (a lesson's cabin: look at what was clicked).
+  private scenePick: ((ndc: [number, number]) => void) | null = null
 
   constructor(
     canvas: HTMLCanvasElement,
@@ -42,7 +45,8 @@ export class CameraDirector {
   ) {
     this.input = new CameraInputController(canvas, this.orbit, this.fly, {
       onDoubleTap: (x, y) => {
-        if (this.pickEnabled) events.onPick(x, y)
+        if (this.scenePick) this.scenePick(clientToNdc(x, y, canvas.getBoundingClientRect()))
+        else if (this.pickEnabled) events.onPick(x, y)
       },
       onSpeedLevelChange: (level) => events.onSpeedLevelChange(level),
     })
@@ -125,11 +129,21 @@ export class CameraDirector {
     this.setMode(snapshot.mode, { syncFlyPose: false })
   }
 
+  // Stops the glide the user's last input left behind (see CameraInputController.stopMotion).
+  stopMotion(): void {
+    this.input.stopMotion()
+  }
+
   setInputEnabled(enabled: boolean): void {
     this.input.setEnabled(enabled)
   }
 
   // Lessons let the user look around their scene but not fly off to a double-clicked body.
+  // While set, a double click goes to the scene (in normalized device coordinates) instead.
+  setScenePick(pick: ((ndc: [number, number]) => void) | null): void {
+    this.scenePick = pick
+  }
+
   setPickEnabled(enabled: boolean): void {
     this.pickEnabled = enabled
   }
@@ -149,8 +163,8 @@ export class CameraDirector {
   }
 
   // Where the lens shift comes from (see CameraLens), so a zoom lands under the pointer.
-  setLensShiftSource(source: () => LensShift): void {
-    this.input.setLensShiftSource(source)
+  setLensSource(source: () => { lensShift: LensShift; fov: number }): void {
+    this.input.setLensSource(source)
   }
 
   // Keyboard flight first (it acts on the fly camera directly), then follow and tour, which need

@@ -39,7 +39,7 @@ test('the Saturn V lesson loads its model, marks the stage heights and reads eve
 
   for (const [index, id] of CHAPTERS.entries()) {
     await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-id', id)
-    await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-kind', 'saturnV')
+    await expect(page.locator('#lesson-panel')).toHaveAttribute('data-chapter-kind', 'vehicle')
     await expect.poll(() => clips).toContain(`/narration/lyra/en/lessons/saturnV/${id}.webm`)
     if (index < CHAPTERS.length - 1) await nextChapter(page)
   }

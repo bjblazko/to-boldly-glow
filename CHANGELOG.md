@@ -12,6 +12,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Apollo, first step: the lesson "The Saturn V, Taken Apart" - Apollo 11's rocket to scale in an
   open blueprint room, its stack taken apart, each stage cut open (tanks, engines), with photos and
   figures checked against NASA's flight reports; narrated in English and German.
+- Apollo, second step: the lesson "Columbia, Inside and Out" - the command and service module to
+  scale, the service module cut open sector by sector, and inside the Smithsonian's 3D scan of the
+  real capsule, lit by its floodlights with shadows; with NASA photos; narrated in English and German.
+- The vehicle lessons look like film: soft lamplight with shadows, materials that shine or don't,
+  contact shadows in creases, depth of field, a vignette, fine grain and a warm grade.
+- Inside Columbia one walks: the camera flies in through the side hatch and lies down as the crew
+  lay; a wide lens; drag (or two fingers) to look every way round, W/S or the wheel to move, Q/E to
+  tilt the head, a double click to go up to a spot - the walls stop you. After the last chapter the
+  camera settles on the middle couch, looking up at the main display console.
+- Vehicle lessons: a double click on the model glides the camera to that spot and circles it.
 
 ### Changed
 
@@ -19,6 +29,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   right, one piece with the bar - the scene gets the rest of the screen. Upright and narrow screens
   keep the panel above the bar.
 - A mission tour's bar works like a lesson's: back, the timeline, Next, then Pause/Play.
+
+### Fixed
+
+- Depth of field focuses on what the shot looks at, not the screen's middle: the Saturn V no longer
+  blurs beside the lesson panel.
 
 ### Security
 

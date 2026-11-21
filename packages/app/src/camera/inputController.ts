@@ -1,11 +1,11 @@
 import type { OrbitCamera } from './orbitCamera'
 import { NO_COMMAND, type FlightCommand, type FlyCamera } from './flyCamera'
-import { combineCommands, keyboardFlightCommand, keyboardOrbitTurn, ORBIT_KEY_TURN_PX_PER_SECOND, ORBIT_KEY_ZOOM_PER_SECOND } from './input/flightInput'
+import { combineCommands, keyboardFlightCommand, keyboardOrbitTurn, ORBIT_KEY_TURN_PX_PER_SECOND, ORBIT_KEY_ZOOM_PER_SECOND, WALK_ROLL_PER_SECOND } from './input/flightInput'
 import { clampSpeedLevel, cruiseSpeed, keepOutside, type Obstacle } from './input/flightSpeed'
 import { KeyboardState } from './input/keyboardState'
 import { OrbitMotion } from './input/orbitMotion'
 import { clientToNdc, panByPixels, type ScreenFrame } from './input/orbitPan'
-import { NO_LENS_SHIFT, type LensShift } from './viewpoint'
+import { NO_LENS_SHIFT, VERTICAL_FOV_RADIANS, type LensShift } from './viewpoint'
 import { PointerGestures } from './input/pointerGestures'
 import { WheelClassifier } from './input/wheelKind'
 
@@ -49,7 +49,7 @@ export class CameraInputController {
   private touchCommand: () => FlightCommand = () => NO_COMMAND
   private readonly wheelKind = new WheelClassifier()
   // The lens shift lessons apply (see CameraLens), so a zoom lands under the pointer there too.
-  private lensShift: () => LensShift = () => NO_LENS_SHIFT
+  private lens: () => { lensShift: LensShift; fov: number } = () => ({ lensShift: NO_LENS_SHIFT, fov: VERTICAL_FOV_RADIANS })
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
@@ -74,6 +74,13 @@ export class CameraInputController {
 
   setMode(mode: CameraMode): void {
     this.mode = mode
+    this.orbitMotion.stop()
+    this.flyCamera.stop()
+  }
+
+  // Drops what is still gliding (a wheel's zoom, a flick's turn): a lesson framing its shot anew must
+  // not be zoomed on by the user's last notch.
+  stopMotion(): void {
     this.orbitMotion.stop()
     this.flyCamera.stop()
   }
@@ -103,8 +110,8 @@ export class CameraInputController {
     this.touchCommand = command
   }
 
-  setLensShiftSource(source: () => LensShift): void {
-    this.lensShift = source
+  setLensSource(source: () => { lensShift: LensShift; fov: number }): void {
+    this.lens = source
   }
 
   getViewMatrix() {
@@ -118,7 +125,8 @@ export class CameraInputController {
   }
 
   private steerOrbit(deltaSeconds: number): void {
-    const { turn, zoom } = keyboardOrbitTurn(this.keys)
+    const { turn, zoom, roll } = keyboardOrbitTurn(this.keys)
+    if (roll !== 0) this.orbitCamera.roll(roll * WALK_ROLL_PER_SECOND * deltaSeconds)
     if (turn[0] !== 0 || turn[1] !== 0) this.orbitCamera.applyDrag(turn[0] * ORBIT_KEY_TURN_PX_PER_SECOND * deltaSeconds, turn[1] * ORBIT_KEY_TURN_PX_PER_SECOND * deltaSeconds)
     if (zoom !== 0) this.orbitCamera.zoomBy(Math.exp(zoom * ORBIT_KEY_ZOOM_PER_SECOND * deltaSeconds))
     this.orbitMotion.update(deltaSeconds)
@@ -164,7 +172,9 @@ export class CameraInputController {
     event.preventDefault()
     if (this.mode === 'fly') return this.wheelSpeed(event.deltaY)
     const action = this.wheelKind.classify(event)
-    // A trackpad's two-finger scroll pulls the scene along, as on a map.
+    // A trackpad's two-finger scroll pulls the scene along, as on a map - or, walking through a
+    // room, turns the view as a drag does (one looks about rather than sliding sideways).
+    if (action === 'pan' && this.orbitCamera.walk) return this.orbitCamera.applyDrag(-event.deltaX, -event.deltaY)
     if (action === 'pan') return panByPixels(this.orbitCamera, -event.deltaX, -event.deltaY, this.screen())
     // Trackpad pinch: browsers report it as a wheel event with ctrlKey set (not a real Ctrl press).
     const perUnit = action === 'pinch' ? WHEEL_ZOOM_PER_UNIT * 5 : WHEEL_ZOOM_PER_UNIT
@@ -173,7 +183,8 @@ export class CameraInputController {
 
   private screen(): ScreenFrame {
     const { clientWidth, clientHeight } = this.canvas
-    return { heightPx: clientHeight || 1, aspect: clientWidth / (clientHeight || 1), lensShift: this.lensShift() }
+    const { lensShift, fov } = this.lens()
+    return { heightPx: clientHeight || 1, aspect: clientWidth / (clientHeight || 1), lensShift, tanHalfFov: Math.tan(fov / 2) }
   }
 
   private pointerNdc(clientX: number, clientY: number): [number, number] {

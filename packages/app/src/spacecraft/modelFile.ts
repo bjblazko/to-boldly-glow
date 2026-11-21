@@ -20,6 +20,8 @@ export interface ModelDescription {
   // The points the lesson's labels point at, by name (metres, in the model's frame).
   anchors: Record<string, [number, number, number]>
   bounds: { min: [number, number, number]; max: [number, number, number] }
+  // Drawn from the front only (a scanned room): its surfaces are not meant to be seen from behind.
+  oneSided?: boolean
   // Heights worth marking beside the assembled model (metres, by name): the Saturn V's stage tops.
   marks?: Record<string, number>
 }

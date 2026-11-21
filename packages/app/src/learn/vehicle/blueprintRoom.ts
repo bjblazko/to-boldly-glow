@@ -4,28 +4,37 @@ import { createScenePipeline } from '../../gpu/scenePipeline'
 import type { Vec3 } from '../../math/tuples'
 import { BLUEPRINT_UNIFORM_FLOAT_COUNT, BLUEPRINT_VERTEX_FLOATS, blueprintRoomShaderCode } from './blueprintRoomShader'
 
-// The room's size (metres): the floor reaches this far from the rocket's axis each way, the walls
-// stand at its left and back edges, this tall.
-export const ROOM_HALF_WIDTH = 32
-const WALL_HEIGHT = 120
+// The room's size (metres): the floor reaches `halfWidth` from the vehicle's axis each way, the
+// walls stand at its left and back edges, `height` tall; the grid has a fine line every `minor`
+// metres and a strong one every `major`.
+export interface RoomSize {
+  halfWidth: number
+  height: number
+  minor: number
+  major: number
+}
 
-// Which way the room faces: `toward` points from the rocket toward the camera's usual place,
+// Which way the room faces: `toward` points from the vehicle toward the camera's usual place,
 // `right` to the camera's right; the walls stand behind and on the left.
 export interface RoomFacing {
   toward: Vec3
   right: Vec3
 }
 
+export interface RoomShape {
+  facing: RoomFacing
+  size: RoomSize
+}
+
 // The vehicle lessons' open blueprint box on black (see blueprintRoomShader.ts).
 export class BlueprintRoom {
   private constructor(
     private readonly device: GPUDevice,
-    private readonly pipelines: { black: GPURenderPipeline; room: GPURenderPipeline },
-    private readonly uniforms: UniformBinding,
-    private readonly mesh: { buffer: GPUBuffer; vertexCount: number },
+    private readonly gpu: { pipelines: { black: GPURenderPipeline; room: GPURenderPipeline }; uniforms: UniformBinding; mesh: { buffer: GPUBuffer; vertexCount: number } },
+    readonly shape: RoomShape,
   ) {}
 
-  static async create(device: GPUDevice, format: GPUTextureFormat, facing: RoomFacing): Promise<BlueprintRoom> {
+  static async create(device: GPUDevice, format: GPUTextureFormat, shape: RoomShape): Promise<BlueprintRoom> {
     const [black, room] = await Promise.all([
       createScenePipeline(device, { label: 'blueprint black', code: blueprintRoomShaderCode, format, primitive: { topology: 'triangle-list' }, depth: { write: false, compare: 'always' }, entryPoints: { vertex: 'vsBlack', fragment: 'fsBlack' } }),
       createScenePipeline(device, {
@@ -40,30 +49,32 @@ export class BlueprintRoom {
       }),
     ])
     const uniforms = createUniformBinding(device, room, { label: 'blueprint room', floatCount: BLUEPRINT_UNIFORM_FLOAT_COUNT })
-    const vertices = roomVertices(facing)
-    return new BlueprintRoom(device, { black, room }, uniforms, {
-      buffer: createVertexBuffer(device, 'blueprint room', vertices),
-      vertexCount: vertices.length / BLUEPRINT_VERTEX_FLOATS,
-    })
+    const vertices = roomVertices(shape)
+    const mesh = { buffer: createVertexBuffer(device, 'blueprint room', vertices), vertexCount: vertices.length / BLUEPRINT_VERTEX_FLOATS }
+    return new BlueprintRoom(device, { pipelines: { black, room }, uniforms, mesh }, shape)
   }
 
   // `marks`: up to four heights drawn on the walls (metres).
   update(viewpoint: Viewpoint, marks: readonly number[]): void {
     const values = new Float32Array(BLUEPRINT_UNIFORM_FLOAT_COUNT)
     values.set(viewpoint.viewProjection, 0)
-    values.set([viewpoint.position[0], viewpoint.position[1], viewpoint.position[2], ROOM_HALF_WIDTH], 16)
+    const { halfWidth, height, minor, major } = this.shape.size
+    values.set([viewpoint.position[0], viewpoint.position[1], viewpoint.position[2], halfWidth], 16)
     values.set([0, 1, 2, 3].map((index) => marks[index] ?? -1), 20)
-    writeUniforms(this.device, this.uniforms, values)
+    // The spotlight about a seventh of the walls' height up, reaching a third of it.
+    values.set([minor, major, height * 0.15, height * 0.35], 24)
+    writeUniforms(this.device, this.gpu.uniforms, values)
   }
 
   // Right after the sky: black over it, then the box.
   draw(pass: GPURenderPassEncoder): void {
-    pass.setPipeline(this.pipelines.black)
+    const { pipelines, uniforms, mesh } = this.gpu
+    pass.setPipeline(pipelines.black)
     pass.draw(3)
-    pass.setPipeline(this.pipelines.room)
-    pass.setBindGroup(0, this.uniforms.bindGroup)
-    pass.setVertexBuffer(0, this.mesh.buffer)
-    pass.draw(this.mesh.vertexCount)
+    pass.setPipeline(pipelines.room)
+    pass.setBindGroup(0, uniforms.bindGroup)
+    pass.setVertexBuffer(0, mesh.buffer)
+    pass.draw(mesh.vertexCount)
   }
 }
 
@@ -74,9 +85,9 @@ function at({ toward, right }: RoomFacing, along: number, aside: number, height:
 
 // The floor, the back wall and the left wall: two triangles each, wound counter-clockwise seen
 // from inside the box.
-export function roomVertices(facing: RoomFacing): Float32Array {
-  const w = ROOM_HALF_WIDTH
-  const h = WALL_HEIGHT
+export function roomVertices({ facing, size }: RoomShape): Float32Array {
+  const w = size.halfWidth
+  const h = size.height
   // Corners with their grid places (across, up).
   type Corner = [Vec3, number, number]
   const floor: Corner[] = [[at(facing, -w, -w, 0), -w, -w], [at(facing, w, -w, 0), w, -w], [at(facing, w, w, 0), w, w], [at(facing, -w, w, 0), -w, w]]

@@ -24,9 +24,14 @@ export function combineCommands(a: FlightCommand, b: FlightCommand): FlightComma
 export const ORBIT_KEY_TURN_PX_PER_SECOND = 420
 export const ORBIT_KEY_ZOOM_PER_SECOND = 1.2
 
-export function keyboardOrbitTurn(keys: KeyboardState): { turn: [number, number]; zoom: number } {
+export function keyboardOrbitTurn(keys: KeyboardState): { turn: [number, number]; zoom: number; roll: number } {
   return {
     turn: [keys.axis(['ArrowLeft'], ['ArrowRight']), keys.axis(['ArrowUp'], ['ArrowDown'])],
     zoom: keys.axis(['KeyS', 'Minus', 'NumpadSubtract'], ['KeyW', 'Equal', 'NumpadAdd']),
+    // Walking through a cabin, Q/E tilt the head (as they roll the ship in flight).
+    roll: keys.axis(['KeyE'], ['KeyQ']),
   }
 }
+
+// How fast Q/E tilt the head while walking (radians per second).
+export const WALK_ROLL_PER_SECOND = 1.2

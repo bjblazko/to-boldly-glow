@@ -257,7 +257,28 @@ The photos (`packages/app/public/images/apollo/`) are from NASA's Image and Vide
 by `packages/data-pipeline/src/fetchSaturnVPhotos.ts`, each caption checked for a non-NASA credit:
 6901000 (Apollo 11 launch), 9903405 (an F-1 engine), 6758331 (an S-II stacked, Apollo 6),
 6861994 (an S-IVB on its test stand, Apollo 10) and 0100806 (Instrument Unit chart), NASA/MSFC; and
-KSC-69P-372 (Apollo 11 rollout), NASA/KSC.
+KSC-69P-372 (Apollo 11 rollout), NASA/KSC. The Columbia lesson's photos, fetched the same way by
+`packages/data-pipeline/src/fetchColumbiaPhotos.ts`: 372772main_GPN-2000-001212_full (Columbia after
+splashdown, NASA), S69-40758 (Columbia aboard the USS Hornet) and S69-38317 (Michael Collins in the
+command module simulator), NASA/JSC.
+
+## Apollo: Columbia, the command and service module
+
+The spacecraft's outside (`packages/app/public/models/columbia/csm.*`, `csm-palette.png`) is our own
+model, built by `packages/data-pipeline/src/buildColumbia.ts` from the dimensions and layout in North
+American Rockwell's "Apollo Spacecraft News Reference" for NASA (1968, public domain,
+https://archive.org/details/apollo-spacecraft-news-reference-1968): the command and service
+modules' sizes, the service module's six sectors and what each holds, its tanks, fuel cells and
+engine. Measures it does not settle are marked `APPROX` in `apollo/csmProfile.ts`.
+
+The cabin (`packages/app/public/models/columbia/cabin.*`, `cabin-*.jpg`) is the Smithsonian
+National Air and Space Museum's 3D scan "Command Module Apollo 11: Interior"
+(https://3d.si.edu/object/3d/command-module-apollo-11:d8c63e8a-4ebc-11ea-b77f-2e728ce88125), released
+under CC0 1.0 (checked on the item page, 2026-11-20): the medium-resolution glb
+(`apollo_interior-medium_resolution.glb`, SHA-256
+`0041357eccea177fa28023a97ae400b6f45bddcf635b0ad57840315b71089b50`), simplified with meshoptimizer to
+about half its triangles, its textures resized, moved into our command module's frame. The writing
+inside - the crew's notes on the walls - is part of the scanned object.
 
 ## Tonemapping
 

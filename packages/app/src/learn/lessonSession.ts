@@ -1,3 +1,4 @@
+import type { FilmLook } from '../bloom/filmLook'
 import type { CameraDirector, CameraSnapshot } from '../camera/cameraDirector'
 import type { Viewpoint } from '../camera/viewpoint'
 import type { DisplaySettings, LessonDisplaySnapshot } from '../hud/displaySettings'
@@ -173,6 +174,14 @@ export class LessonSession implements ScenePlayer {
   }
 
   // Right after the sky's backdrop, before the Sun, planets and moons.
+  filmLook(): FilmLook | null {
+    return this.active ? (this.stagedScene?.filmLook?.(this.chapter) ?? null) : null
+  }
+
+  encodeBeforeScene(encoder: GPUCommandEncoder): void {
+    if (this.active) this.stagedScene?.encodeBeforeScene?.(encoder, this.chapter)
+  }
+
   drawBehindBodies(pass: GPURenderPassEncoder): void {
     this.stagedScene?.drawBehindBodies(pass, this.chapter)
   }
@@ -199,6 +208,7 @@ export class LessonSession implements ScenePlayer {
   // Frames the chapter's shot, or flies there (glide). The user may look around a shot from space; a
   // view from the ground is the observer's own eye and stands still, so camera input is off there.
   private frameCamera(glide = false): void {
+    this.parts.camera.stopMotion()
     const groundShot = this.stagedScene?.groundShot(this.chapter)
     const { kind, focusPlanetId } = this.chapter
     const shot = groundShot ? undefined : this.stagedScene?.shot?.(this.chapter)
@@ -222,12 +232,25 @@ export class LessonSession implements ScenePlayer {
     this.arrangeLineup()
     this.borrowed = { camera: camera.takeOverForLesson(), display: display.clearForLesson() }
     modeController.enter(lesson.id)
+    this.attachScene()
     this.seasons.start(this.chapter.seasonPhaseDegrees)
     this.stagedScene?.start(this.chapter)
     this.viewFixed = null
     this.frameCamera()
     panel.visible = true
     this.playFromHere(lesson)
+  }
+
+  // The staged scene answers double clicks and stops the camera walking through its walls.
+  private attachScene(): void {
+    this.parts.camera.setScenePick((ndc) => this.lookAtPicked(ndc))
+    this.parts.lessonCamera.setObstacle((origin, direction, within) => this.stagedScene?.obstacle?.(origin, direction, within, this.chapter) ?? null)
+  }
+
+  // A double click in a scene that lets the user look at a spot: the camera glides there.
+  private lookAtPicked(ndc: [number, number]): void {
+    const point = this.stagedScene?.pick?.(ndc, this.chapter)
+    if (point) this.parts.lessonCamera.lookAt(point)
   }
 
   // A lesson plays as it opens: the chapter shown and read, the next ones turned to by themselves.
@@ -244,6 +267,8 @@ export class LessonSession implements ScenePlayer {
     this.autoplay.setPlaying(false)
     this.parts.voice.stop()
     modeController.exit()
+    camera.setScenePick(null)
+    lessonCamera.setObstacle(null)
     if (this.borrowed) {
       camera.restoreAfterLesson(this.borrowed.camera)
       lessonCamera.release()
@@ -261,10 +286,13 @@ export class LessonSession implements ScenePlayer {
     if (next) this.parts.voice.prefetch(this.player.currentLesson.id, next)
   }
 
-  // Playing: the next chapter, or - after the last - stop.
+  // Playing: the next chapter, or - after the last - stop, the camera moving on to the lesson's
+  // closing shot if it has one.
   private turnPageByItself(): void {
-    if (this.player.hasNextChapter) this.goToChapter(() => this.player.nextChapter())
-    else this.autoplay.setPlaying(false)
+    if (this.player.hasNextChapter) return this.goToChapter(() => this.player.nextChapter())
+    this.autoplay.setPlaying(false)
+    const closing = this.stagedScene?.closingShot?.(this.chapter)
+    if (closing) this.parts.lessonCamera.frameShot(closing, true)
   }
 
   private arrangeLineup(options?: { animate: boolean; focusPlanetId?: string }): void {

@@ -1,6 +1,7 @@
 import sharp from 'sharp'
 import { SWATCHES } from './saturnVParts'
 import { LETTER_GRID, letterPath } from './blockLetters'
+import { paletteTexture, type Rgb } from './palette'
 import { HEIGHTS, SIVB_INTERSTAGE, STAGE_RADIUS, TANKS, TOTAL_HEIGHT } from './saturnVProfile'
 
 // The Saturn V's paint, drawn from its layout: white, the black-and-white roll pattern on the
@@ -81,7 +82,7 @@ export function paintTexture(): Promise<Buffer> {
 }
 
 // One flat swatch per material, in SWATCHES' order.
-const SWATCH_COLORS: Record<(typeof SWATCHES)[number], [number, number, number]> = {
+const SWATCH_COLORS: Record<(typeof SWATCHES)[number], Rgb> = {
   engine: [52, 50, 48], // the engines' dark bells
   lox: [120, 170, 225], // liquid oxygen, pale blue
   rp1: [205, 150, 70], // kerosene (RP-1)
@@ -92,14 +93,6 @@ const SWATCH_COLORS: Record<(typeof SWATCHES)[number], [number, number, number]>
   tower: [190, 60, 40], // the escape tower's truss
 }
 
-const SWATCH_SIZE = 8
-
-export function paletteTexture(): Promise<Buffer> {
-  const width = SWATCHES.length * SWATCH_SIZE
-  const pixels = Buffer.alloc(width * SWATCH_SIZE * 3)
-  for (let x = 0; x < width; x++) {
-    const color = SWATCH_COLORS[SWATCHES[Math.floor(x / SWATCH_SIZE)]]
-    for (let row = 0; row < SWATCH_SIZE; row++) pixels.set(color, (row * width + x) * 3)
-  }
-  return sharp(pixels, { raw: { width, height: SWATCH_SIZE, channels: 3 } }).png().toBuffer()
+export function saturnVPalette(): Promise<Buffer> {
+  return paletteTexture(SWATCHES.map((name) => SWATCH_COLORS[name]))
 }

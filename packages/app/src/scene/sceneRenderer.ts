@@ -1,3 +1,4 @@
+import { NO_FILM_LOOK } from '../bloom/filmLook'
 import type { Viewpoint } from '../camera/viewpoint'
 import type { BodyRenderer } from '../bodies/bodyRenderer'
 import type { AtmosphereShells } from '../atmosphereShell/atmosphereShell'
@@ -59,11 +60,15 @@ export class SceneRenderer {
     this.update(frame)
     const encoder = this.device.createCommandEncoder({ label: 'frame encoder' })
     if (this.settings.display.asteroids.on) this.parts.asteroids.placeOnOrbits(encoder)
+    this.parts.players.encodeBeforeScene?.(encoder)
     const pass = this.targets.beginScenePass(encoder)
     this.draw(pass, frame.layout)
     pass.end()
     this.drawCameraEffects(encoder)
-    this.targets.present(encoder)
+    const { viewpoint } = frame
+    // The projection's [5] is 1 / tan(half the vertical field of view).
+    const camera = { projection: viewpoint.projection, focalPixels: (viewpoint.pixels.height / 2) * viewpoint.projection[5] }
+    this.targets.present(encoder, { look: this.parts.players.filmLook?.() ?? NO_FILM_LOOK, seed: frame.nowSeconds, camera })
     this.device.queue.submit([encoder.finish()])
   }
 

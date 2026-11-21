@@ -1,4 +1,5 @@
 import { voyagerLesson } from './voyager'
+import { columbia } from './columbia'
 import { saturnV } from './saturnV'
 import { voyagerDeepDive } from './voyagerDeepDive'
 
@@ -238,4 +239,5 @@ export const lessons = {
   voyager: voyagerLesson,
   voyagerDeepDive,
   saturnV,
+  columbia,
 }

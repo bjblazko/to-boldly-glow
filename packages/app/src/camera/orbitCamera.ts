@@ -122,6 +122,10 @@ export class OrbitCamera {
   // Where the user moved the pivot to, from the target; kept within panLimit of it.
   readonly panOffset = vec3.create()
   panLimit = DEFAULT_PAN_LIMIT
+  // Set while the user walks through a room (a cabin): the pivot sits just ahead of the eye, so
+  // turning looks about from where one stands, zooming steps forward or back, and every move of
+  // the eye is first asked how far it may go (walls stop it).
+  walk: WalkLimit | null = null
 
   constructor(options: OrbitCameraOptions = {}) {
     const settings = { ...DEFAULT_ORBIT_CAMERA, ...options }
@@ -138,9 +142,11 @@ export class OrbitCamera {
     return vec3.add(vec3.create(), this.target, this.panOffset)
   }
 
-  // Moves the pivot; past panLimit it stops at the limit, keeping the move's sideways share.
+  // Moves the pivot; past panLimit it stops at the limit, keeping the move's sideways share. While
+  // walking the eye moves with it, only as far as nothing stands in the way.
   shiftPivot(delta: ReadonlyVec3): void {
-    vec3.add(this.panOffset, this.panOffset, delta)
+    const move = this.walk ? this.walk(this.getEyePosition(), delta) : delta
+    vec3.add(this.panOffset, this.panOffset, move)
     const length = vec3.length(this.panOffset)
     if (length > this.panLimit) vec3.scale(this.panOffset, this.panOffset, this.panLimit / length)
   }
@@ -174,6 +180,7 @@ export class OrbitCamera {
   }
 
   applyDrag(deltaX: number, deltaY: number, sensitivity = 0.005): void {
+    if (this.walk) return this.turnFreely(deltaX * sensitivity * WALK_TURN_SHARE, deltaY * sensitivity * WALK_TURN_SHARE)
     this.azimuth -= deltaX * sensitivity
     this.elevation = clamp(this.elevation + deltaY * sensitivity, -MAX_ELEVATION, MAX_ELEVATION)
     if (!this.viewLimits) return
@@ -186,8 +193,74 @@ export class OrbitCamera {
   }
 
   zoomBy(factor: number): void {
-    this.radius = clamp(this.radius * factor, this.minRadius, this.maxRadius)
+    if (this.walk) this.step(this.forward(), walkDistance(factor))
+    else this.radius = clamp(this.radius * factor, this.minRadius, this.maxRadius)
   }
+
+  // Walking, a drag takes hold of the room around one and the view turns against it - about the
+  // view's own up and right, so it turns all the way round in any direction (no pole to stop at,
+  // as one floats in weightlessness).
+  private turnFreely(left: number, up: number): void {
+    const eye = this.getEyePosition()
+    const axes = this.screenAxes()
+    const ahead = this.forward()
+    const turned = vec3.scale(vec3.create(), ahead, Math.cos(left))
+    vec3.scaleAndAdd(turned, turned, axes.right, -Math.sin(left))
+    const looking = vec3.scale(vec3.create(), turned, Math.cos(up))
+    vec3.scaleAndAdd(looking, looking, axes.up, Math.sin(up))
+    const head = vec3.scale(vec3.create(), axes.up, Math.cos(up))
+    vec3.scaleAndAdd(head, head, turned, -Math.sin(up))
+    this.lookFrom(eye, looking, head)
+  }
+
+  // Walking, tilts the head: the view turns about its look (positive: clockwise). Elsewhere nothing.
+  roll(angle: number): void {
+    if (!this.walk) return
+    const { right, up } = this.screenAxes()
+    const head = vec3.scale(vec3.create(), up, Math.cos(angle))
+    vec3.scaleAndAdd(head, head, right, Math.sin(angle))
+    this.lookFrom(this.getEyePosition(), this.forward(), head)
+  }
+
+  // Walking: puts the eye at `eye` looking along `ahead` (a unit vector), the top of the view
+  // toward `head` (as near as it can be, square to the look).
+  lookFrom(eye: ReadonlyVec3, ahead: ReadonlyVec3, head: ReadonlyVec3): void {
+    const up = vec3.scaleAndAdd(vec3.create(), head, ahead, -vec3.dot(head, ahead))
+    // Looking straight along `head`: any top square to the look will do.
+    if (vec3.length(up) < 1e-6) vec3.copy(up, orbitBasisForUpAxis([ahead[0], ahead[1], ahead[2]]).forward0)
+    vec3.normalize(up, up)
+    vec3.copy(this.upAxis, up)
+    vec3.scaleAndAdd(this.panOffset, eye, ahead, this.radius)
+    vec3.subtract(this.panOffset, this.panOffset, this.target)
+    const { right, forward0 } = orbitBasisForUpAxis([up[0], up[1], up[2]])
+    this.elevation = 0
+    this.azimuth = Math.atan2(-vec3.dot(ahead, right), -vec3.dot(ahead, forward0))
+  }
+
+  // Where the eye looks (unit vector).
+  forward(): vec3 {
+    return vec3.normalize(vec3.create(), vec3.subtract(vec3.create(), this.pivot(), this.getEyePosition()))
+  }
+
+  // Walks `distance` along `direction` (a unit vector; negative goes back).
+  step(direction: ReadonlyVec3, distance: number): void {
+    this.shiftPivot(vec3.scale(vec3.create(), direction, distance))
+  }
+}
+
+// How far the eye may move from where it is by `delta` before something stands in the way: the
+// move, shortened.
+export type WalkLimit = (eye: ReadonlyVec3, delta: ReadonlyVec3) => vec3
+
+// While walking: how far the pivot sits ahead of the eye (metres), how far a zoom step by the
+// factor e goes (metres), and how much slower than orbiting a drag turns the view.
+export const WALK_RADIUS = 0.02
+const WALK_METRES_PER_ZOOM = 0.45
+const WALK_TURN_SHARE = 0.6
+
+// How far a zoom by `factor` walks (below 1: forward).
+export function walkDistance(factor: number): number {
+  return -Math.log(factor) * WALK_METRES_PER_ZOOM
 }
 
 // Everything a lesson or a mission tour changes on the orbit camera, kept to give back after.

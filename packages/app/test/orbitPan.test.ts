@@ -4,7 +4,7 @@ import { clientToNdc, panByPixels, zoomToward, type ScreenFrame } from '../src/c
 import { OrbitCamera } from '../src/camera/orbitCamera'
 import { perspectiveProjection, VERTICAL_FOV_RADIANS } from '../src/camera/viewpoint'
 
-const screen: ScreenFrame = { heightPx: 800, aspect: 1.6, lensShift: { x: -0.3, y: 0.1 } }
+const screen: ScreenFrame = { heightPx: 800, aspect: 1.6, lensShift: { x: -0.3, y: 0.1 }, tanHalfFov: Math.tan(Math.PI / 8) }
 
 function camera(): OrbitCamera {
   return new OrbitCamera({ target: [1, 2, 3], radius: 20, azimuth: 0.6, elevation: 0.3, minRadius: 5 })

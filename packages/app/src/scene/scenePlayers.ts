@@ -1,3 +1,4 @@
+import type { FilmLook } from '../bloom/filmLook'
 import type { Viewpoint } from '../camera/viewpoint'
 import type { Ephemeris } from '../time/ephemeris'
 import type { SceneLayout } from './sceneLayout'
@@ -15,6 +16,10 @@ export interface ScenePlayer {
   update(deltaSeconds: number): void
   layout(ephemeris: Ephemeris): SceneLayout | null
   updateOverlays(layout: SceneLayout, viewpoint: Viewpoint, frame: ScenePlayerFrame): void
+  // Before the scene's own pass: passes of its own (a lamp's shadow map), if it needs any.
+  encodeBeforeScene?(encoder: GPUCommandEncoder): void
+  // The film look it wants over the finished picture, if any.
+  filmLook?(): FilmLook | null
   // Right after the sky's backdrop, before the Sun, planets and moons.
   drawBehindBodies(pass: GPURenderPassEncoder): void
   // After every body and what surrounds them, before the overlay lines.
@@ -41,6 +46,18 @@ export class ScenePlayers implements ScenePlayer {
 
   updateOverlays(layout: SceneLayout, viewpoint: Viewpoint, frame: ScenePlayerFrame): void {
     for (const player of this.players) player.updateOverlays(layout, viewpoint, frame)
+  }
+
+  encodeBeforeScene(encoder: GPUCommandEncoder): void {
+    for (const player of this.players) player.encodeBeforeScene?.(encoder)
+  }
+
+  filmLook(): FilmLook | null {
+    for (const player of this.players) {
+      const look = player.filmLook?.()
+      if (look) return look
+    }
+    return null
   }
 
   drawBehindBodies(pass: GPURenderPassEncoder): void {

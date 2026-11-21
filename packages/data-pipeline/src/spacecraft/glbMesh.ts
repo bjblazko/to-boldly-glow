@@ -1,4 +1,4 @@
-import { NodeIO, type Node, type Primitive } from '@gltf-transform/core'
+import { NodeIO, type Document, type Node, type Primitive } from '@gltf-transform/core'
 import { ALL_EXTENSIONS } from '@gltf-transform/extensions'
 import draco3d from 'draco3dgltf'
 
@@ -22,8 +22,18 @@ export interface GlbModel {
 // Reads a .glb file, Draco-compressed or not. Primitives without a base-color texture (helper
 // geometry such as an exporter's placeholder cube) are left out.
 export async function readGlb(path: string): Promise<GlbModel> {
+  return modelOf(await readGlbDocument(path))
+}
+
+// The .glb as a glTF-Transform document, for changing it (simplifying, say) before modelOf.
+export async function readGlbDocument(path: string): Promise<Document> {
   const io = new NodeIO().registerExtensions(ALL_EXTENSIONS).registerDependencies({ 'draco3d.decoder': await draco3d.createDecoderModule() })
-  const root = (await io.read(path)).getRoot()
+  return io.read(path)
+}
+
+// A document's textured primitives in one frame, and its images by name.
+export function modelOf(document: Document): GlbModel {
+  const root = document.getRoot()
   const primitives = root.listNodes().flatMap((node) => nodePrimitives(node))
   const images = new Map<string, Uint8Array>()
   // A texture may come twice (WebP and a PNG fallback); the PNG is kept, as it decodes everywhere.

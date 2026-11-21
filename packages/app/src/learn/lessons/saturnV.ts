@@ -1,11 +1,15 @@
 import { msg } from '../../i18n/i18n'
 import type { Chapter, ChapterFact, ChapterPhoto, Lesson } from '../lessonTypes'
-import type { SaturnVPart, SaturnVStage } from '../apollo/saturnVStage'
+import type { SaturnVPart } from '../apollo/saturnVVehicle'
+import type { VehicleStage } from '../vehicle/vehicleStage'
 
 const TEXT = msg.lessons.saturnV
 
-function chapter(id: keyof typeof TEXT.chapters, saturnV: SaturnVStage, extra: Partial<Chapter> = {}): Chapter {
-  return { id, ...TEXT.chapters[id], kind: 'saturnV', saturnV, seasonPhaseDegrees: 0, ...extra }
+// A chapter's stage: which parts are labelled, picked out and gone (Saturn V parts), the shot.
+type SaturnVStage = Omit<VehicleStage, 'vehicle' | 'labels' | 'highlight' | 'gone'> & { labels?: SaturnVPart[]; highlight?: SaturnVPart; gone?: SaturnVPart[] }
+
+function chapter(id: keyof typeof TEXT.chapters, stage: SaturnVStage, extra: Partial<Chapter> = {}): Chapter {
+  return { id, ...TEXT.chapters[id], kind: 'vehicle', vehicle: { vehicle: 'saturnV', ...stage }, seasonPhaseDegrees: 0, ...extra }
 }
 
 function fact(id: keyof typeof TEXT.facts, icon: ChapterFact['icon']): ChapterFact {
