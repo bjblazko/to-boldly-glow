@@ -213,6 +213,15 @@ export class OrbitCamera {
     this.lookFrom(eye, looking, head)
   }
 
+  // Walking, tilts the head: the view turns about its look (positive: clockwise). Elsewhere nothing.
+  roll(angle: number): void {
+    if (!this.walk) return
+    const { right, up } = this.screenAxes()
+    const head = vec3.scale(vec3.create(), up, Math.cos(angle))
+    vec3.scaleAndAdd(head, head, right, Math.sin(angle))
+    this.lookFrom(this.getEyePosition(), this.forward(), head)
+  }
+
   // Walking: puts the eye at `eye` looking along `ahead` (a unit vector), the top of the view
   // toward `head` (as near as it can be, square to the look).
   lookFrom(eye: ReadonlyVec3, ahead: ReadonlyVec3, head: ReadonlyVec3): void {

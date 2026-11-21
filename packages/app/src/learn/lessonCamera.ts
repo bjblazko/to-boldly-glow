@@ -2,6 +2,7 @@ import { vec3 } from 'gl-matrix'
 import { EasedTween } from '../math/easedTween'
 import { COMPACT_MIN_ORBIT_RADIUS, WALK_RADIUS, type OrbitCamera } from '../camera/orbitCamera'
 import { blendViews, cameraSnapshot, viewAbout, type CameraView, type Snapshot } from './lessonCameraViews'
+import { entryFrom, poseOf, WalkFlight, type Entry } from './walkFlight'
 import { circleSpot, startWalking, walkLimit, walkUpTo, type Obstacle } from './cabinWalk'
 import type { CameraLens } from '../camera/cameraLens'
 import { NO_LENS_SHIFT, VERTICAL_FOV_RADIANS } from '../camera/viewpoint'
@@ -209,6 +210,7 @@ export class LessonCamera {
   private freePanLimit: number | null = null
   private readonly watch = new ViewWatch()
   private glide: Glide | null = null
+  private flight: WalkFlight | null = null
   private obstacle: Obstacle | null = null
 
   constructor(
@@ -221,6 +223,7 @@ export class LessonCamera {
   frame(kind: ChapterKind, groundShot?: GroundShot | null, { focusPlanetId, lineupOrder, glide = false }: FramingOptions = {}): void {
     const from = glide ? cameraSnapshot(this.orbit, this.lens.lensShift) : null
     this.orbit.walk = null
+    this.flight = null
     this.lens.fov = VERTICAL_FOV_RADIANS
     this.applyPreset(groundShot ? groundPreset(groundShot) : this.presetFor(kind, focusPlanetId, lineupOrder))
     // Lessons ignore the explore view's scale: the lineup is at true scale (the Sun's radius there is
@@ -238,19 +241,34 @@ export class LessonCamera {
   // A staged scene's own shot for a chapter (see LessonShot), or a flight there (glide).
   frameShot(shot: LessonShot, glide = false): void {
     const from = glide ? cameraSnapshot(this.orbit, this.lens.lensShift) : null
+    const entry = glide ? entryFrom(this.orbit, shot.walk?.through) : null
     this.lens.fov = shot.fov ?? VERTICAL_FOV_RADIANS
     this.applyPreset(shot.preset)
     const sceneFloor = shot.zoomFloor ?? COMPACT_MIN_ORBIT_RADIUS
     this.lens.setLessonZoomFloor(sceneFloor)
     this.fitAbovePanel(shot.bounds, shot.maxZoomOut)
     this.allowLookingAround(sceneFloor, shot)
-    this.orbit.walk = null
-    if (shot.walk && this.obstacle) {
-      startWalking(this.orbit, walkLimit(this.obstacle), shot.walk.head)
-      this.lens.setLessonZoomFloor(Math.min(sceneFloor, WALK_RADIUS))
-    }
+    this.enterRoom(shot, sceneFloor)
     this.watch.framedAt(this.viewState())
-    this.glide = from ? this.startGlide(from) : null
+    this.setOff(from, entry)
+  }
+
+  // Flies to the shot just framed: into a room along its path, else by the usual glide.
+  private setOff(from: Snapshot | null, entry: Entry | null): void {
+    this.glide = null
+    this.flight = null
+    if (entry) {
+      this.flight = new WalkFlight(entry.from, entry.through, poseOf(this.orbit))
+      this.flight.update(0, this.orbit)
+    } else if (from) this.glide = this.startGlide(from)
+  }
+
+  // A shot one walks through: the camera turns walking, its near plane close enough for a room.
+  private enterRoom(shot: LessonShot, sceneFloor: number): void {
+    this.orbit.walk = null
+    if (!shot.walk || !this.obstacle) return
+    startWalking(this.orbit, walkLimit(this.obstacle), shot.walk.head)
+    this.lens.setLessonZoomFloor(Math.min(sceneFloor, WALK_RADIUS))
   }
 
   private fitShot(kind: ChapterKind, groundShot: GroundShot | null | undefined, { focusPlanetId, lineupOrder }: FramingOptions): void {
@@ -264,6 +282,7 @@ export class LessonCamera {
 
   // Moves a flight between two shots along (see frame's glide option).
   update(deltaSeconds: number): void {
+    if (this.flight && !this.flight.update(deltaSeconds, this.orbit)) this.flight = null
     const glide = this.glide
     if (!glide) return
     const t = glide.progress.update(deltaSeconds)
@@ -275,7 +294,7 @@ export class LessonCamera {
 
   // Whether the camera is still on its way to the shot.
   get isGliding(): boolean {
-    return this.glide !== null
+    return this.glide !== null || this.flight !== null
   }
 
   // What stops the camera walking through a staged room (see LessonShot.walk); null: nothing to walk in.
@@ -285,6 +304,7 @@ export class LessonCamera {
 
   release(): void {
     this.glide = null
+    this.flight = null
     this.orbit.walk = null
     this.orbit.viewLimits = null
     if (this.freeMaxRadius !== null) this.orbit.maxRadius = this.freeMaxRadius
@@ -299,7 +319,7 @@ export class LessonCamera {
 
   // Whether the user has moved the view since the shot was framed (see ViewWatch).
   get viewLeft(): boolean {
-    return this.watch.hasLeft(this.viewState(), this.glide !== null)
+    return this.watch.hasLeft(this.viewState(), this.isGliding)
   }
 
   private viewState(): ViewState {
@@ -338,6 +358,7 @@ export class LessonCamera {
   // a wall.
   lookAt(point: Vec3): void {
     const from = cameraSnapshot(this.orbit, this.lens.lensShift)
+    this.flight = null
     if (this.orbit.walk) walkUpTo(this.orbit, point)
     else circleSpot(this.orbit, point, from.radius)
     this.glide = this.startGlide(from)

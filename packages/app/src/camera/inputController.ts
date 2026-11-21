@@ -1,6 +1,6 @@
 import type { OrbitCamera } from './orbitCamera'
 import { NO_COMMAND, type FlightCommand, type FlyCamera } from './flyCamera'
-import { combineCommands, keyboardFlightCommand, keyboardOrbitTurn, ORBIT_KEY_TURN_PX_PER_SECOND, ORBIT_KEY_ZOOM_PER_SECOND } from './input/flightInput'
+import { combineCommands, keyboardFlightCommand, keyboardOrbitTurn, ORBIT_KEY_TURN_PX_PER_SECOND, ORBIT_KEY_ZOOM_PER_SECOND, WALK_ROLL_PER_SECOND } from './input/flightInput'
 import { clampSpeedLevel, cruiseSpeed, keepOutside, type Obstacle } from './input/flightSpeed'
 import { KeyboardState } from './input/keyboardState'
 import { OrbitMotion } from './input/orbitMotion'
@@ -125,7 +125,8 @@ export class CameraInputController {
   }
 
   private steerOrbit(deltaSeconds: number): void {
-    const { turn, zoom } = keyboardOrbitTurn(this.keys)
+    const { turn, zoom, roll } = keyboardOrbitTurn(this.keys)
+    if (roll !== 0) this.orbitCamera.roll(roll * WALK_ROLL_PER_SECOND * deltaSeconds)
     if (turn[0] !== 0 || turn[1] !== 0) this.orbitCamera.applyDrag(turn[0] * ORBIT_KEY_TURN_PX_PER_SECOND * deltaSeconds, turn[1] * ORBIT_KEY_TURN_PX_PER_SECOND * deltaSeconds)
     if (zoom !== 0) this.orbitCamera.zoomBy(Math.exp(zoom * ORBIT_KEY_ZOOM_PER_SECOND * deltaSeconds))
     this.orbitMotion.update(deltaSeconds)

@@ -1,3 +1,4 @@
+import type { Vec3 } from '../../math/tuples'
 import { msg } from '../../i18n/i18n'
 import type { VehicleConfig } from '../vehicle/vehicleConfig'
 import { VEHICLE_ROOM_FACING, vehicleShot, type VehicleFrame } from '../vehicle/vehicleCamera'
@@ -16,7 +17,12 @@ export type ColumbiaPart = 'cm' | 'sm' | 'smInside' | 'sps' | 'rcs' | 'antenna' 
 // The crew lay on their backs facing the main display console (toward the apex, +Y), heads toward
 // the side hatch (+Z), legs raised toward the console - as the couches in the scan show (their
 // raised foot ends lie toward -Z). Inside, the view is turned that way: one enters lying, as they did.
-const CREW_LYING = { head: [0, 0, 1] as [number, number, number] }
+// Coming in from outside, the camera flies up to the side hatch (its middle 1.3 m above the heat
+// shield's bottom on the cone at +Z, see the pipeline's csmProfile.ts: about (0, 8.47, 1.50), the
+// cone's outward normal there (0, 0.48, 0.88)), through it, and turns to lie.
+const HATCH_OUTSIDE: Vec3 = [0, 8.95, 2.38]
+const HATCH_INSIDE: Vec3 = [0, 8.3, 1.19]
+const CREW_LYING = { head: [0, 0, 1] as Vec3, through: [HATCH_OUTSIDE, HATCH_INSIDE] }
 
 // A wide lens (75 degrees) for the cramped cabin, and walking through the whole of it.
 const INSIDE = { zoomFloor: 0.05, maxZoomOut: 1.2, reach: 0.15, halfWidth: 0.2, height: 0, fov: (75 * Math.PI) / 180, panReach: 1.2, walk: CREW_LYING }
