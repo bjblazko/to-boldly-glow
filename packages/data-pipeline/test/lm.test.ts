@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { letterPath } from '../src/apollo/blockLetters'
 import { flagLettering, foilTexture, plaqueTexture, PLAQUE_TEXT } from '../src/apollo/lmTextures'
 import { applyHinge, hingeMatrix } from '../../app/src/spacecraft/modelHinge'
+import { LM_ASSEMBLIES, lmAssemblyKind, lmHinge, lmParts } from '../src/apollo/lmParts'
 import { ASCENT_STAGE, DESCENT_STAGE, FOOTPAD, LEGS, legHinge, LM_HEIGHTS, PROBE_LENGTH } from '../src/apollo/lmProfile'
 
 const FT = 0.3048
@@ -66,4 +67,36 @@ describe("Eagle's textures", () => {
     expect(width).toBeGreaterThan(0)
     expect(height).toBeGreaterThan(width ?? 0)
   }, 30000)
+})
+
+describe("Eagle's parts", () => {
+  const parts = lmParts()
+  const points = (assembly: (typeof LM_ASSEMBLIES)[number]) => (parts.get(assembly) ?? []).flatMap(({ positions }) => Array.from({ length: positions.length / 3 }, (_, i) => [positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]] as [number, number, number]))
+
+  it('builds every assembly but the cockpit, at most 16 in all', () => {
+    expect(LM_ASSEMBLIES.length).toBeLessThanOrEqual(16)
+    expect([...parts.keys()].sort()).toEqual(LM_ASSEMBLIES.filter((assembly) => assembly !== 'cockpit').sort())
+    expect(LM_ASSEMBLIES.filter((assembly) => lmAssemblyKind(assembly) === 'shell')).toEqual(['descent', 'ascent'])
+  })
+
+  it('stands 22 ft 11 in to the tip of its VHF antenna, its probes reaching 5 ft below the footpads', () => {
+    const heights = [...parts.keys()].flatMap(points).map(([, y]) => y)
+    expect(Math.max(...heights)).toBeCloseTo(LM_HEIGHTS.overall, 1)
+    expect(Math.min(...points('deployed').map(([, y]) => y))).toBeCloseTo(-PROBE_LENGTH, 2)
+    expect(Math.min(...points('descent').map(([, y]) => y))).toBeGreaterThan(0.5)
+  })
+
+  it('keeps the ascent stage above the interstage', () => {
+    expect(Math.min(...points('ascent').map(([, y]) => y))).toBeGreaterThan(LM_HEIGHTS.interstage - 0.05)
+  })
+
+  it('folds every leg, ladder and all, inside the adapter', () => {
+    for (const leg of ['leg0', 'leg1', 'leg2', 'leg3'] as const) {
+      const hinge = lmHinge(leg)
+      expect(hinge, leg).toBeDefined()
+      const folded = hingeMatrix(hinge, 1)
+      for (const point of points(leg)) expect(Math.hypot(...[applyHinge(folded, point)[0], applyHinge(folded, point)[2]]), leg).toBeLessThan(3.3)
+    }
+    expect(lmHinge('descent')).toBeUndefined()
+  })
 })
