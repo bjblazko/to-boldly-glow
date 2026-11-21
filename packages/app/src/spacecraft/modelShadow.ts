@@ -1,6 +1,7 @@
 import { mat4 } from 'gl-matrix'
 import type { Vec3 } from '../math/tuples'
 import { MODEL_VERTEX_FLOATS } from './modelFile'
+import { HINGE_WGSL, packHinges } from './modelHinge'
 import { MAX_ASSEMBLIES } from './modelShader'
 
 // A lamp's shadow map: the model drawn from the lamp, depth only, so the model's own shader can tell
@@ -13,22 +14,27 @@ export const SHADOW_FORMAT: GPUTextureFormat = 'depth32float'
 const CONE_RADIANS = (120 * Math.PI) / 180
 const NEAR = 0.05
 
-// lightViewProjection, world, look (z: how far taken apart), then each assembly's offset.
-const SHADOW_UNIFORM_FLOAT_COUNT = 16 + 16 + 4 + MAX_ASSEMBLIES * 4
+// lightViewProjection, world, look (z: how far taken apart), then each assembly's offset and its
+// fold about its hinge (three rows).
+const SHADOW_UNIFORM_FLOAT_COUNT = 16 + 16 + 4 + MAX_ASSEMBLIES * 4 + MAX_ASSEMBLIES * 12
+const HINGES_AT = 36 + MAX_ASSEMBLIES * 4
 
-const shadowShaderCode = /* wgsl */ `
+export const shadowShaderCode = /* wgsl */ `
 struct Uniforms {
   lightViewProjection: mat4x4f,
   world: mat4x4f,
   look: vec4f,
   offsets: array<vec4f, ${MAX_ASSEMBLIES}>,
+  hinges: array<vec4f, ${MAX_ASSEMBLIES * 3}>,
 }
+${HINGE_WGSL}
 
 @group(0) @binding(0) var<uniform> uni: Uniforms;
 
 @vertex
 fn vs(@location(0) position: vec3f, @location(3) assembly: f32) -> @builtin(position) vec4f {
-  let moved = position + uni.offsets[i32(round(assembly))].xyz * uni.look.z;
+  let index = i32(round(assembly));
+  let moved = hinged(index, position, 1.0) + uni.offsets[index].xyz * uni.look.z;
   return uni.lightViewProjection * uni.world * vec4f(moved, 1.0);
 }
 `
@@ -83,12 +89,13 @@ export class ModelShadowMap {
     return new ModelShadowMap(device, { pipeline, uniforms, bindGroup, texture })
   }
 
-  update(lightViewProjection: mat4, world: mat4, explode: { amount: number; offsets: readonly Vec3[] }): void {
+  update(lightViewProjection: mat4, world: mat4, explode: { amount: number; offsets: readonly Vec3[]; hinges?: readonly Float32Array[] }): void {
     const { values } = this
     values.set(lightViewProjection, 0)
     values.set(world, 16)
     values.set([0, 0, explode.amount, 0], 32)
     explode.offsets.slice(0, MAX_ASSEMBLIES).forEach((offset, index) => values.set([...offset, 0], 36 + index * 4))
+    packHinges(values, HINGES_AT, explode.hinges, MAX_ASSEMBLIES)
     this.device.queue.writeBuffer(this.gpu.uniforms, 0, values)
   }
 

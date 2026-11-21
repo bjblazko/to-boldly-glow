@@ -4,6 +4,7 @@ import { TOWARD_SUN, transformPoint, turntableMatrix } from '../learn/voyager/sp
 import type { Vec3 } from '../math/tuples'
 import type { ModelData, ModelDescription } from './modelFile'
 import { TriangleGrid } from './modelGrid'
+import { applyHinge, hingeMatrix } from './modelHinge'
 import { pickModel } from './modelPick'
 import type { Lamp, Material, ModelRenderer } from './modelRenderer'
 
@@ -14,6 +15,8 @@ export interface ModelStage<Part extends string> {
   highlight?: Part
   cut?: number
   gone?: readonly Part[]
+  // How far its hinged parts are folded (0: out, 1: folded; the lunar module's legs).
+  fold?: number
   // Held at its starting angle, not turning (a cabin seen from inside).
   still?: boolean
 }
@@ -42,7 +45,7 @@ export class ModelScene<Part extends string> {
   // The triangles sorted by place, made the first time a step needs them.
   private grid: TriangleGrid | null = null
   private angle: number
-  private readonly stage: StageTween<'explode' | 'highlight' | 'cut'>
+  private readonly stage: StageTween<'explode' | 'highlight' | 'cut' | 'fold'>
   private readonly fades: StageTween<string>
   // Stays set while the glow fades out after the chapter that picked it.
   private highlighted: Part | undefined
@@ -60,7 +63,7 @@ export class ModelScene<Part extends string> {
     private readonly geometry: ModelData | null = null,
   ) {
     this.angle = options.startAngle
-    this.stage = new StageTween(['explode', 'highlight', 'cut'], options.stageSeconds)
+    this.stage = new StageTween(['explode', 'highlight', 'cut', 'fold'], options.stageSeconds)
     this.fades = new StageTween(model.assemblies.map((assembly) => assembly.id), options.stageSeconds)
     this.fades.moveTo(this.visibility([]), true)
   }
@@ -73,7 +76,7 @@ export class ModelScene<Part extends string> {
   show(stage: ModelStage<Part>, snap: boolean): void {
     this.still = stage.still ?? false
     if (stage.highlight) this.highlighted = stage.highlight
-    this.stage.moveTo({ explode: stage.explode ?? 0, highlight: stage.highlight ? 1 : 0, cut: stage.cut ?? 0 }, snap)
+    this.stage.moveTo({ explode: stage.explode ?? 0, highlight: stage.highlight ? 1 : 0, cut: stage.cut ?? 0, fold: stage.fold ?? 0 }, snap)
     this.fades.moveTo(this.visibility(stage.gone ?? []), snap)
   }
 
@@ -87,8 +90,10 @@ export class ModelScene<Part extends string> {
 
   // Where a part's label points, in the scene (metres; the model stands at the origin).
   anchor(part: Part): Vec3 {
-    const offset = this.model.assemblies[this.assemblyIndex(part)].explode
-    const point = this.model.anchors[part].map((value, axis) => value + offset[axis] * this.stage.current.explode)
+    const index = this.assemblyIndex(part)
+    const offset = this.model.assemblies[index].explode
+    const folded = applyHinge(this.hinges()[index], this.model.anchors[part])
+    const point = folded.map((value, axis) => value + offset[axis] * this.stage.current.explode)
     return transformPoint(turntableMatrix(this.angle, 1), point)
   }
 
@@ -111,7 +116,7 @@ export class ModelScene<Part extends string> {
     const lamps = this.options.lamps?.map(({ fixedTo, ...lamp }) => ({ ...lamp, place: transformPoint(world, this.moved(lamp.place, fixedTo)) }))
     this.lampsNow = lamps ?? []
     const materials = this.model.assemblies.map((assembly) => this.options.materials?.[assembly.id])
-    const pose = { world, toSun: TOWARD_SUN, explode, highlight, cut, visibility, light: this.options.light, lamps, materials }
+    const pose = { world, toSun: TOWARD_SUN, explode, highlight, cut, visibility, light: this.options.light, lamps, materials, hinges: this.hinges() }
     this.renderer.update(viewpoint, pose, this.model.assemblies.map((assembly) => assembly.explode))
     this.cameraAngle = Math.atan2(viewpoint.position[0], viewpoint.position[2])
   }
@@ -133,7 +138,8 @@ export class ModelScene<Part extends string> {
     const from = transformPoint(toModel, origin)
     const along = transformPoint(toModel, direction)
     const state = this.pickState()
-    const resting = state.moved.every((offset) => offset.every((value) => value === 0))
+    // The grid sorts the triangles where they lie at rest: nothing moved out, nothing folded.
+    const resting = state.moved.every((offset) => offset.every((value) => value === 0)) && this.stage.current.fold === 0
     if (within === undefined || !resting) return pickModel(this.geometry, from, along, state)
     const to = from.map((value, axis) => value + along[axis] * within) as Vec3
     const lo = from.map((value, axis) => Math.min(value, to[axis])) as Vec3
@@ -153,6 +159,7 @@ export class ModelScene<Part extends string> {
     const kind = (index: number) => this.model.assemblies[index]?.kind ?? 'solid'
     return {
       moved: this.model.assemblies.map((assembly) => assembly.explode.map((value) => value * explode) as Vec3),
+      hinges: this.hinges(),
       shown: (index: number) => (this.fades.current[this.model.assemblies[index]?.id] ?? 1) > 0.5 && !(kind(index) === 'inside' && cut <= 0),
       cutAway: (index: number, [x, y, z]: Vec3) => kind(index) === 'shell' && cut > 0 && x > 0 && z > 0 && y < cutHeight,
     }
@@ -185,6 +192,11 @@ export class ModelScene<Part extends string> {
     const offset = this.model.assemblies.find((candidate) => candidate.id === assembly)?.explode ?? [0, 0, 0]
     const amount = this.stage.current.explode
     return [point[0] + offset[0] * amount, point[1] + offset[1] * amount, point[2] + offset[2] * amount]
+  }
+
+  // Each assembly's fold this frame (see modelHinge.ts).
+  private hinges(): Float32Array[] {
+    return this.model.assemblies.map((assembly) => hingeMatrix(assembly.hinge, this.stage.current.fold))
   }
 
   private visibility(gone: readonly Part[]): Record<string, number> {

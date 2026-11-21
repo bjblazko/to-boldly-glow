@@ -1,3 +1,5 @@
+import { HINGE_WGSL } from './modelHinge'
+
 // A textured model lit by the Sun: Lambert with a soft highlight, a faint fill so the shadowed side
 // keeps its shape, and both faces of every triangle drawn (the model's thin sheets - the dish, the
 // booms' struts - are single-sided). Each vertex belongs to an assembly that can move out (the
@@ -13,7 +15,8 @@ export const MAX_LAMPS = 3
 // viewProjection, world, toLight, cameraPosition, look, highlight, per assembly its offset and its
 // part, per lamp its place and range and its colour and strength, then the first lamp's shadow map
 // projection and its settings.
-export const MODEL_UNIFORM_FLOAT_COUNT = 16 + 16 + 4 + 4 + 4 + 4 + MAX_ASSEMBLIES * 4 * 2 + MAX_LAMPS * 4 * 2 + 16 + 4
+// and each assembly's fold about its hinge (three rows).
+export const MODEL_UNIFORM_FLOAT_COUNT = 16 + 16 + 4 + 4 + 4 + 4 + MAX_ASSEMBLIES * 4 * 2 + MAX_LAMPS * 4 * 2 + 16 + 4 + MAX_ASSEMBLIES * 12
 
 // The kinds as the shader counts them (part.x).
 export const ASSEMBLY_KIND_CODE = { solid: 0, shell: 1, inside: 2 } as const
@@ -42,7 +45,10 @@ struct Uniforms {
   // y: one texel of the map (in texture coordinates).
   shadowViewProjection: mat4x4f,
   shadow: vec4f,
+  // Each assembly's fold about its hinge (see modelHinge.ts).
+  hinges: array<vec4f, ${MAX_ASSEMBLIES * 3}>,
 }
+${HINGE_WGSL}
 
 @group(0) @binding(0) var<uniform> uni: Uniforms;
 @group(0) @binding(1) var modelSampler: sampler;
@@ -70,12 +76,12 @@ struct VertexOutput {
 @vertex
 fn vs(vert: VertexInput) -> VertexOutput {
   let assembly = i32(round(vert.assembly));
-  let moved = vert.position + uni.offsets[assembly].xyz * uni.look.z;
+  let moved = hinged(assembly, vert.position, 1.0) + uni.offsets[assembly].xyz * uni.look.z;
   let world = uni.world * vec4f(moved, 1.0);
   var out: VertexOutput;
   out.clip = uni.viewProjection * world;
   out.worldPosition = world.xyz;
-  out.normal = (uni.world * vec4f(vert.normal, 0.0)).xyz;
+  out.normal = (uni.world * vec4f(hinged(assembly, vert.normal, 0.0), 0.0)).xyz;
   out.uv = vert.uv;
   out.assembly = assembly;
   out.local = moved;

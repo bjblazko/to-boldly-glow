@@ -2,6 +2,8 @@
 // `<name>.json` describes `<name>.bin`, which holds the vertices - interleaved float32 position
 // (metres), normal, texture coordinate and assembly index - followed by the triangle indices.
 
+import type { Hinge } from './modelHinge'
+
 export const MODEL_VERTEX_FLOATS = 9
 
 export type AssemblyKind = 'shell' | 'inside' | 'solid'
@@ -13,8 +15,9 @@ export interface ModelDescription {
   // The parts it can be taken apart into, in the order the vertices' assembly index counts them,
   // with how far each moves out in the exploded view (metres), and what the cutaway does to it:
   // a shell is cut open, what is inside shows only while it is open, a solid part stays as it is
-  // (the default).
-  assemblies: { id: string; explode: [number, number, number]; kind?: AssemblyKind }[]
+  // (the default). An assembly with a hinge folds about it as far as the chapter folds the model
+  // (the lunar module's legs), before it is moved out.
+  assemblies: { id: string; explode: [number, number, number]; kind?: AssemblyKind; hinge?: Hinge }[]
   // One draw per texture: a run of the index list and the image (next to the .json) it samples.
   draws: { texture: string; firstIndex: number; indexCount: number }[]
   // The points the lesson's labels point at, by name (metres, in the model's frame).
