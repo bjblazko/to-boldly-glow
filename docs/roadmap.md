@@ -143,7 +143,7 @@ moon systems that doesn't zigzag.
 TLE data fetched periodically online when available, with a bundled last-known-good snapshot for
 offline use.
 **Data needed**: TLE data from Celestrak (freely republishable) or space-track.org; SGP4 propagator
-(public algorithm, needs a clean-room or openly-licensed implementation to keep to MIT).
+(public algorithm, needs a clean-room or openly-licensed implementation compatible with GPL-3.0-or-later).
 
 ## Probes and comets
 **What**: Positions of interplanetary probes (Voyager 1/2, etc.) and notable comets. (Done: seven

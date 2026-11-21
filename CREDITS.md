@@ -290,7 +290,11 @@ Eagle's outside and cockpit (`packages/app/public/models/eagle/`: `lm.*`, `cockp
 `nassp/`) are converted from Project Apollo - NASSP's lunar module
 (https://github.com/orbiternassp/NASSP, the Apollo add-on for the Orbiter space flight simulator),
 GNU General Public License, version 2 or later (`packages/app/public/licenses/nassp.txt`), used here
-under version 3 or later with the rest of To Boldly Glow. Source files, at commit
+under version 3 or later with the rest of To Boldly Glow. "Or later": NASSP's source files say so in
+their notices ("either version 2 of the License, or (at your option) any later version", e.g.
+`Orbitersdk/samples/ProjectApollo/src_lm/lemmesh.cpp`); its mesh and texture files carry no notice
+of their own, and where no version is stated GPLv2 section 9 lets the recipient choose any. Converted
+in November 2026 by To Boldly Glow. Source files, at commit
 `ddba501d2e274367b8660d7050dee7b9f4153865`: `Meshes/ProjectApollo/LM_DescentStage.msh`,
 `LM_AscentStage.msh`, `LM_VC.msh` and the textures they name under `Textures/ProjectApollo/`.
 `packages/data-pipeline/src/buildEagle.ts` downloads them at that commit and converts them: into our

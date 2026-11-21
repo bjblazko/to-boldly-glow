@@ -42,7 +42,7 @@ export const credits: Messages['credits'] = {
     csmModel: 'Das Modell ist unser eigenes, aus den Maßen gebaut.',
     columbiaCabin: 'Vereinfacht (etwa die Hälfte der Dreiecke), Texturen verkleinert, in unser Kommandomodul gesetzt.',
     lmModel: 'Tanks und Triebwerke sind unsere eigenen, aus den Maßen gebaut.',
-    nassp: 'Von packages/data-pipeline/src/buildEagle.ts ins Format der App umgewandelt: in unser Koordinatensystem gebracht, in die Teile der Lektion zerlegt (die Beine klappen), die grobe Kabine der Außenansicht weggelassen, die Texturen als JPEG und verkleinert.',
+    nassp: 'Im November 2026 von packages/data-pipeline/src/buildEagle.ts ins Format der App umgewandelt: in unser Koordinatensystem gebracht, in die Teile der Lektion zerlegt (die Beine klappen), die grobe Kabine der Außenansicht weggelassen, die Texturen als JPEG und verkleinert.',
   },
   licenses: {
     publicDomain: 'Gemeinfrei',

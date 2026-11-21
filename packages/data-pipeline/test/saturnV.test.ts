@@ -113,6 +113,6 @@ describe('the block letters', () => {
   it('draw every letter of the lettering, and refuse one they lack', () => {
     for (const letter of 'UNITEDSTATES') expect(letterPath(letter)).toMatch(/^M/)
     expect(letterPath(' ')).toBe('')
-    expect(() => letterPath('#')).toThrow()
+    expect(() => letterPath('Q')).toThrow()
   })
 })

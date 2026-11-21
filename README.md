@@ -248,17 +248,17 @@ texts are in [CREDITS.md](CREDITS.md)):
 | Moon orbits | Published orbital elements (JPL/IAU) | Published facts |
 | Stars: positions, brightness, colors (B−V) | [Yale Bright Star Catalogue, 5th ed.](https://cdsarc.cds.unistra.fr/ftp/V/50/) (Hoffleit & Warren, via CDS) | Public domain |
 | Star colors from B−V | Formulas of Ballesteros (2012) and Kang et al. (2002) | Published formulas |
-| Milky Way, nebulae, nearby galaxies | Painted procedurally for this project (`npm run paint-sky`); object positions from the NGC/IC, Sharpless and Lynds catalogs | Original, MIT |
+| Milky Way, nebulae, nearby galaxies | Painted procedurally for this project (`npm run paint-sky`); object positions from the NGC/IC, Sharpless and Lynds catalogs | Original, GPL-3.0-or-later |
 | The Sun's limb darkening (per color) and granulation size and lifetime | Allen's Astrophysical Quantities; solar physics literature | Published facts |
 | Comets, Ceres, Vesta, Pallas, Pluto | Orbital elements as published by the JPL Small-Body Database and the Minor Planet Center | Published facts |
-| Asteroid and Kuiper belt populations | Generated from the populations' published statistics (no individual catalogued objects) | Original, MIT |
-| Earth's clouds | Procedural, made for this project | Original, MIT |
+| Asteroid and Kuiper belt populations | Generated from the populations' published statistics (no individual catalogued objects) | Original, GPL-3.0-or-later |
+| Earth's clouds | Procedural, made for this project | Original, GPL-3.0-or-later |
 | Earth's city lights | NASA Earth Observatory's "Earth at Night" 2012 (Black Marble; Suomi NPP VIIRS data, NOAA NGDC), from NASA WorldWind's npm package; lights extracted by `packages/data-pipeline` | Public domain |
 | The Voyager spacecraft | NASA's "Voyager Probe (B)" model from [NASA 3D Resources](https://github.com/nasa/NASA-3D-Resources), converted by `packages/data-pipeline` (NASA's logotype painted over) | NASA media, no copyright |
 | The Golden Record and the Voyager photos | NASA/JPL and NASA/JPL-Caltech, from NASA's Image and Video Library and Wikimedia Commons (the record's own pictures and music are not in the app) | Public domain |
 | Voyager's paths, flybys and heliopause measurements | JPL Horizons; NASA's Space Physics Data Facility | Published data |
-| Earth's aurora | Procedural; the ovals' place around the IGRF-14 geomagnetic poles and their published geomagnetic latitudes and heights | Original, MIT |
-| The Sun's corona, chromosphere and prominences | Procedural; brightness profile from Baumbach's K-corona fit, heights from solar physics literature | Original, MIT |
+| Earth's aurora | Procedural; the ovals' place around the IGRF-14 geomagnetic poles and their published geomagnetic latitudes and heights | Original, GPL-3.0-or-later |
+| The Sun's corona, chromosphere and prominences | Procedural; brightness profile from Baumbach's K-corona fit, heights from solar physics literature | Original, GPL-3.0-or-later |
 
 ## For developers
 

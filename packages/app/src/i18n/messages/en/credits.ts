@@ -41,7 +41,7 @@ export const credits = {
     csmModel: 'The model is our own, built from the measurements.',
     columbiaCabin: 'Simplified (about half of its triangles), its textures resized, placed in our command module.',
     lmModel: 'The tanks and engines are our own, built from the measurements.',
-    nassp: 'Converted to the app’s format by packages/data-pipeline/src/buildEagle.ts: turned into our frame, split into the lesson’s parts (the legs fold), the rough cabin of the outside left out, the textures turned into JPEG and resized.',
+    nassp: 'Converted to the app’s format in November 2026 by packages/data-pipeline/src/buildEagle.ts: turned into our frame, split into the lesson’s parts (the legs fold), the rough cabin of the outside left out, the textures turned into JPEG and resized.',
   },
   licenses: {
     publicDomain: 'Public domain',

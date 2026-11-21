@@ -1,5 +1,5 @@
 // Eagle: Apollo 11's lunar module, outside and in. Figures from Grumman's "Apollo Lunar Module News
-// Reference" for NASA (1968); the model is built from its dimensions.
+// Reference" for NASA (1968); the model is Project Apollo - NASSP's.
 
 export const eagle = {
   title: 'Eagle, the Lunar Module',
