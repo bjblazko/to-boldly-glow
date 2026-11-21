@@ -37,6 +37,38 @@
             "hash": "8f47d8e527bccbcb",
             "seconds": 18.0
           },
+          "lessons/eagle/ascent": {
+            "hash": "22340f2e29a317f9",
+            "seconds": 17.36
+          },
+          "lessons/eagle/descent": {
+            "hash": "1fd6acabe46f1f61",
+            "seconds": 19.36
+          },
+          "lessons/eagle/folded": {
+            "hash": "0a6986a2fb9baad9",
+            "seconds": 17.36
+          },
+          "lessons/eagle/inside": {
+            "hash": "9a1e5c18f38b1075",
+            "seconds": 17.92
+          },
+          "lessons/eagle/liftoff": {
+            "hash": "96d1f54ee845c1ac",
+            "seconds": 14.24
+          },
+          "lessons/eagle/panels": {
+            "hash": "f8d5a685e235535a",
+            "seconds": 20.64
+          },
+          "lessons/eagle/stages": {
+            "hash": "051308aed2e69bc1",
+            "seconds": 16.88
+          },
+          "lessons/eagle/whole": {
+            "hash": "8abe3277f604b004",
+            "seconds": 22.08
+          },
           "lessons/moonPhases/always-half-lit": {
             "hash": "02183f3a5a6b704c",
             "seconds": 26.56
@@ -458,6 +490,38 @@
           "lessons/columbia/whole": {
             "hash": "1fe43e0f299bd80f",
             "seconds": 17.28
+          },
+          "lessons/eagle/ascent": {
+            "hash": "548b00a104dcf742",
+            "seconds": 16.64
+          },
+          "lessons/eagle/descent": {
+            "hash": "418b28ebda7e9802",
+            "seconds": 17.84
+          },
+          "lessons/eagle/folded": {
+            "hash": "0d74abf7d4dddc00",
+            "seconds": 15.52
+          },
+          "lessons/eagle/inside": {
+            "hash": "9e1c8b51c9bf1183",
+            "seconds": 16.48
+          },
+          "lessons/eagle/liftoff": {
+            "hash": "1487f4be405d85ae",
+            "seconds": 15.44
+          },
+          "lessons/eagle/panels": {
+            "hash": "2978bbadd4be40cb",
+            "seconds": 19.6
+          },
+          "lessons/eagle/stages": {
+            "hash": "82ebe0f8218b9d73",
+            "seconds": 15.52
+          },
+          "lessons/eagle/whole": {
+            "hash": "75574d83aef36f89",
+            "seconds": 16.96
           },
           "lessons/moonPhases/always-half-lit": {
             "hash": "d71540260dc4167d",
@@ -889,6 +953,38 @@
             "hash": "7c1b938af5683204",
             "seconds": 21.6
           },
+          "lessons/eagle/ascent": {
+            "hash": "f8bae08dbddd9cb2",
+            "seconds": 17.84
+          },
+          "lessons/eagle/descent": {
+            "hash": "0b6616a073de45ad",
+            "seconds": 22.0
+          },
+          "lessons/eagle/folded": {
+            "hash": "e29ecc0691b37b87",
+            "seconds": 16.72
+          },
+          "lessons/eagle/inside": {
+            "hash": "31e2ada11a724eab",
+            "seconds": 18.08
+          },
+          "lessons/eagle/liftoff": {
+            "hash": "ed0a7ddd21cbfaf7",
+            "seconds": 16.32
+          },
+          "lessons/eagle/panels": {
+            "hash": "fe99c0cd39eb7512",
+            "seconds": 23.84
+          },
+          "lessons/eagle/stages": {
+            "hash": "bddea0fa5fed0aa9",
+            "seconds": 18.56
+          },
+          "lessons/eagle/whole": {
+            "hash": "09424000f13be345",
+            "seconds": 21.84
+          },
           "lessons/moonPhases/always-half-lit": {
             "hash": "f27118cb55407307",
             "seconds": 27.6
@@ -1310,6 +1406,38 @@
           "lessons/columbia/whole": {
             "hash": "2c8eaf85677e62bf",
             "seconds": 17.92
+          },
+          "lessons/eagle/ascent": {
+            "hash": "c1ea4e3b1edbe93b",
+            "seconds": 16.08
+          },
+          "lessons/eagle/descent": {
+            "hash": "7e2d2c8aa4f6be70",
+            "seconds": 19.36
+          },
+          "lessons/eagle/folded": {
+            "hash": "c619043d5ced991f",
+            "seconds": 15.04
+          },
+          "lessons/eagle/inside": {
+            "hash": "a475da426d4ca1b6",
+            "seconds": 17.04
+          },
+          "lessons/eagle/liftoff": {
+            "hash": "b564c5ebafa388c7",
+            "seconds": 16.0
+          },
+          "lessons/eagle/panels": {
+            "hash": "62c5618239232858",
+            "seconds": 19.36
+          },
+          "lessons/eagle/stages": {
+            "hash": "ccf664c695b2020f",
+            "seconds": 18.08
+          },
+          "lessons/eagle/whole": {
+            "hash": "ab347a4c8652487b",
+            "seconds": 19.36
           },
           "lessons/moonPhases/always-half-lit": {
             "hash": "8091e85d5386bf02",

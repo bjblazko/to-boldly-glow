@@ -50,8 +50,8 @@ from the Mission Report / Apollo Flight Journal state vectors, the real Moon, ev
    lay, free look); open: sharper textures from the full-resolution scan.
 3. Eagle (LM): outside, our own cockpit, the stages separating, legs folded and deployed - spec
    `superpowers/specs/2026-11-21-apollo-eagle-design.md`. Built 2026-11-21 (model from the LM News
-   Reference, hinged legs, standing walk-in, cabin light as in Columbia); open: narration, photos,
-   the user's look at it.
+   Reference, hinged legs, standing walk-in, cabin light as in Columbia); narrated; open: photos, the
+   user's look at it, NASSP's models (GPL) for a more realistic outside and cockpit.
 4. Pad 39A: umbilical tower, crawler, pad; a ground scene on Earth.
 5. Mission data: event timeline in GET, trajectory reconstruction in the Earth-Moon system,
    tested against documented values.

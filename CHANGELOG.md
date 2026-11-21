@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   stages come apart and the ascent stage lifts off its descent stage, both cut open (tanks,
   engines); inside one crawls in through the front hatch and stands where Armstrong and Aldrin
   stood, before panels drawn after the handbook (flight displays, the guidance computer's keyboard),
-  lit by cabin floodlights with shadows. English and German; not narrated yet.
+  lit by cabin floodlights with shadows; narrated in English and German.
 - Models can fold parts about a hinge (the lunar module's legs), in the picture, its shadows, double
   clicks and walking alike.
 - The vehicle lessons look like film: soft lamplight with shadows, materials that shine or don't,
