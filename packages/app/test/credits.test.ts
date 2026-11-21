@@ -59,6 +59,14 @@ describe('the licenses and thanks list', () => {
     expect(readFileSync(join(PUBLIC, 'licenses/to-boldly-glow.txt'), 'utf8')).toBe(readFileSync(join(REPO, 'LICENSE'), 'utf8'))
   })
 
+  it('names one license for the project everywhere: GPL-3.0-or-later, its text in LICENSE', () => {
+    expect(readFileSync(join(REPO, 'LICENSE'), 'utf8')).toMatch(/^\s*GNU GENERAL PUBLIC LICENSE\s+Version 3, 29 June 2007/)
+    for (const manifest of ['package.json', 'packages/app/package.json', 'packages/engine/package.json', 'packages/data-pipeline/package.json']) {
+      expect((JSON.parse(readFileSync(join(REPO, manifest), 'utf8')) as { license?: string }).license, manifest).toBe('GPL-3.0-or-later')
+    }
+    expect(credits.find((entry) => entry.name === 'To Boldly Glow')?.license).toBe('GPL-3.0-or-later')
+  })
+
   it('names a license and a website for every entry', () => {
     expect(credits.filter((credit) => !credit.license || !credit.home.startsWith('https://'))).toEqual([])
   })

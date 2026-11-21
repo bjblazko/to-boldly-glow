@@ -125,9 +125,16 @@ in your browser.
 - [Changelog](CHANGELOG.md) — what's shipped so far.
 - [Credits](CREDITS.md) — third-party data and library attributions.
 
-The code is licensed under the [MIT License](LICENSE). Third-party images, data and fonts keep their
-own licenses (CC BY 4.0, public domain, SIL OFL 1.1 and others) - see [CREDITS.md](CREDITS.md). The
-app's About dialog (the info button at the top right) lists them too, with their license texts.
+To Boldly Glow is free software: you can redistribute it and/or modify it under the terms of the
+[GNU General Public License](LICENSE) as published by the Free Software Foundation, either version 3
+of the License, or (at your option) any later version. It is distributed in the hope that it will
+be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. Releases up to 0.6.0 were published under the MIT License and stay
+available under it.
+
+Third-party images, data and fonts keep their own licenses (CC BY 4.0, public domain, CC0, SIL OFL
+1.1 and others) - see [CREDITS.md](CREDITS.md). The app's About dialog (the info button at the top
+right) lists them too, with their license texts and a link to this source code.
 
 ## For users
 

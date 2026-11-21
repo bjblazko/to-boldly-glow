@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- To Boldly Glow is now licensed under the GNU General Public License, version 3 or later
+  (GPL-3.0-or-later), so that GPL-licensed work - such as Project Apollo - NASSP's lunar module
+  models - can become part of it. Releases up to 0.6.0 stay available under the MIT License.
+
 ### Added
 
 - Apollo, first step: the lesson "The Saturn V, Taken Apart" - Apollo 11's rocket to scale in an
