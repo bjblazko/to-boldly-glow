@@ -136,7 +136,7 @@ export const CREDIT_GROUPS: CreditGroup[] = [
         files: ['models/saturnV/'],
       },
       {
-        name: 'NASA (HQ, MSFC, KSC, JSC), Apollo photos (NASA Image and Video Library: 6901000, KSC-69P-372, 9903405, 6758331, 6861994, 0100806, 372772main_GPN-2000-001212_full, S69-40758, S69-38317)',
+        name: 'NASA (HQ, MSFC, KSC, JSC), Apollo photos (NASA Image and Video Library: 6901000, KSC-69P-372, 9903405, 6758331, 6861994, 0100806, 372772main_GPN-2000-001212_full, S69-40758, S69-38317, as11-40-5927, as11-44-6581, as11-40-5863, as11-44-6642)',
         use: TEXT.uses.saturnVPhotos,
         license: TEXT.licenses.publicDomain,
         home: 'https://images.nasa.gov/',
@@ -158,6 +158,23 @@ export const CREDIT_GROUPS: CreditGroup[] = [
         home: 'https://3d.si.edu/object/3d/command-module-apollo-11:d8c63e8a-4ebc-11ea-b77f-2e728ce88125',
         changes: TEXT.changes.columbiaCabin,
         files: ['models/columbia/cabin.bin', 'models/columbia/cabin.json', 'models/columbia/cabin-hull.jpg', 'models/columbia/cabin-panels.jpg', 'models/columbia/cabin-seats.jpg', 'models/columbia/cabin-notes.jpg'],
+      },
+      {
+        name: 'Grumman Aircraft Engineering Corporation for NASA, “Apollo Lunar Module News Reference” (1968)',
+        use: TEXT.uses.lmModel,
+        license: TEXT.licenses.publicDomain,
+        home: 'https://archive.org/details/apollo-lunar-module-news-reference-1968',
+        changes: TEXT.changes.lmModel,
+        files: ['models/eagle/lm-palette.png'],
+      },
+      {
+        name: 'Project Apollo – NASSP (orbiternassp/NASSP, commit ddba501), lunar module meshes and textures',
+        use: TEXT.uses.nassp,
+        license: 'GPL-2.0-or-later',
+        home: 'https://github.com/orbiternassp/NASSP',
+        text: 'licenses/nassp.txt',
+        changes: TEXT.changes.nassp,
+        files: ['models/eagle/lm.bin', 'models/eagle/lm.json', 'models/eagle/cockpit.bin', 'models/eagle/cockpit.json', 'models/eagle/nassp/'],
       },
       {
         name: 'NASA/JPL Horizons (Giorgini & JPL Solar System Dynamics Group)',
@@ -215,7 +232,7 @@ export const CREDIT_GROUPS: CreditGroup[] = [
       {
         name: 'To Boldly Glow',
         use: TEXT.uses.toBoldlyGlow,
-        license: 'MIT',
+        license: 'GPL-3.0-or-later',
         home: 'https://github.com/bjblazko/to-boldly-glow',
         text: 'licenses/to-boldly-glow.txt',
         files: ['logo.svg', 'sky/milkyWay.jpg', 'licenses/'],

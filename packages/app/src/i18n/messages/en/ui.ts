@@ -235,7 +235,7 @@ export const ui = {
       'The app loads only its own files, from this site or the folder you unzipped it to. Nothing you do in it is sent anywhere: no tracking, no update check. ' +
       'Your settings (language, narrator, subtitles, music and its volume), whether you closed the browser hint, whether the start page has opened by itself once, and where you left each lesson are remembered in this browser only.',
     license: 'License',
-    licenseText: 'MIT License: free to use, change and share. Provided as is, without any warranty, as far as the law allows. ',
+    licenseText: 'GNU General Public License, version 3 or later: free to use, study, change and share - changed versions must stay under the same license, with their source. Provided as is, without any warranty, as far as the law allows. ',
     licenseLink: 'License text',
     thanks: 'Licenses and thanks',
     thanksText: 'To Boldly Glow builds on the work of others. Thank you.',

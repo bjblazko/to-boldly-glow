@@ -1,0 +1,284 @@
+{
+ "vertexCount": 49801,
+ "indexCount": 132966,
+ "indexFormat": "uint16",
+ "draws": [
+  {
+   "texture": "nassp/redfoil.jpg",
+   "firstIndex": 0,
+   "indexCount": 1980
+  },
+  {
+   "texture": "nassp/palette.png",
+   "firstIndex": 1980,
+   "indexCount": 39195
+  },
+  {
+   "texture": "nassp/silverfo.jpg",
+   "firstIndex": 41175,
+   "indexCount": 1071
+  },
+  {
+   "texture": "nassp/goldfoil.jpg",
+   "firstIndex": 42246,
+   "indexCount": 3624
+  },
+  {
+   "texture": "nassp/lmdcs.jpg",
+   "firstIndex": 45870,
+   "indexCount": 25497
+  },
+  {
+   "texture": "nassp/quads.jpg",
+   "firstIndex": 71367,
+   "indexCount": 14172
+  },
+  {
+   "texture": "nassp/sps.jpg",
+   "firstIndex": 85539,
+   "indexCount": 3744
+  },
+  {
+   "texture": "nassp/plaque.jpg",
+   "firstIndex": 89283,
+   "indexCount": 36
+  },
+  {
+   "texture": "nassp/lmasc.jpg",
+   "firstIndex": 89319,
+   "indexCount": 5235
+  },
+  {
+   "texture": "nassp/rcs.jpg",
+   "firstIndex": 94554,
+   "indexCount": 15360
+  },
+  {
+   "texture": "nassp/silverfokapton.jpg",
+   "firstIndex": 109914,
+   "indexCount": 708
+  },
+  {
+   "texture": "nassp/aes_rad.jpg",
+   "firstIndex": 110622,
+   "indexCount": 96
+  },
+  {
+   "texture": "lm-palette.png",
+   "firstIndex": 110718,
+   "indexCount": 22248
+  }
+ ],
+ "bounds": {
+  "min": [
+   -4.837200164794922,
+   -1.6002001762390137,
+   -4.837200164794922
+  ],
+  "max": [
+   4.837200164794922,
+   7.068299770355225,
+   4.837200164794922
+  ]
+ },
+ "assemblies": [
+  {
+   "id": "descent",
+   "explode": [
+    0,
+    0,
+    0
+   ],
+   "kind": "shell"
+  },
+  {
+   "id": "descentInside",
+   "explode": [
+    0,
+    0,
+    0
+   ],
+   "kind": "inside"
+  },
+  {
+   "id": "leg0",
+   "explode": [
+    0,
+    0,
+    0
+   ],
+   "kind": "solid",
+   "hinge": {
+    "pivot": [
+     -0.0052999998442828655,
+     3,
+     2.950900077819824
+    ],
+    "axis": [
+     -1,
+     0,
+     0
+    ],
+    "angle": 2.874690937353054
+   }
+  },
+  {
+   "id": "leg1",
+   "explode": [
+    0,
+    0,
+    0
+   ],
+   "kind": "solid",
+   "hinge": {
+    "pivot": [
+     2.950900077819824,
+     3,
+     0.005200000014156103
+    ],
+    "axis": [
+     -6.123233995736766e-17,
+     0,
+     1
+    ],
+    "angle": 2.874690937353054
+   }
+  },
+  {
+   "id": "leg2",
+   "explode": [
+    0,
+    0,
+    0
+   ],
+   "kind": "solid",
+   "hinge": {
+    "pivot": [
+     0.005200000014156103,
+     3,
+     -2.950900077819824
+    ],
+    "axis": [
+     1,
+     0,
+     1.2246467991473532e-16
+    ],
+    "angle": 2.874690937353054
+   }
+  },
+  {
+   "id": "leg3",
+   "explode": [
+    0,
+    0,
+    0
+   ],
+   "kind": "solid",
+   "hinge": {
+    "pivot": [
+     -2.9509999752044678,
+     3,
+     -0.005200000014156103
+    ],
+    "axis": [
+     1.8369701987210297e-16,
+     0,
+     -1
+    ],
+    "angle": 2.874690937353054
+   }
+  },
+  {
+   "id": "deployed",
+   "explode": [
+    0,
+    0,
+    0
+   ],
+   "kind": "solid"
+  },
+  {
+   "id": "ascent",
+   "explode": [
+    0,
+    2.5,
+    0
+   ],
+   "kind": "shell"
+  },
+  {
+   "id": "ascentInside",
+   "explode": [
+    0,
+    2.5,
+    0
+   ],
+   "kind": "inside"
+  },
+  {
+   "id": "person",
+   "explode": [
+    0,
+    0,
+    0
+   ],
+   "kind": "solid"
+  }
+ ],
+ "anchors": {
+  "descent": [
+   0,
+   2.4283000230789185,
+   0
+  ],
+  "deployed": [
+   -0.00004982948303222656,
+   0.1276998519897461,
+   0
+  ],
+  "leg0": [
+   -0.007100000977516174,
+   1.5,
+   3.8745501041412354
+  ],
+  "leg2": [
+   0.007100000977516174,
+   1.5,
+   -3.874500036239624
+  ],
+  "leg1": [
+   3.874500036239624,
+   1.5,
+   0.007100000977516174
+  ],
+  "leg3": [
+   -3.8745501041412354,
+   1.5,
+   -0.007100000977516174
+  ],
+  "ascent": [
+   0,
+   5.138599872589111,
+   0
+  ],
+  "descentInside": [
+   0,
+   2.4192999601364136,
+   0
+  ],
+  "ascentInside": [
+   0,
+   3.9257999658584595,
+   -0.37814998626708984
+  ],
+  "person": [
+   2.200000047683716,
+   0.8999999761581421,
+   3.399999976158142
+  ]
+ },
+ "marks": {
+  "descent": 3.2258,
+  "ascent": 6.985
+ }
+}

@@ -48,7 +48,10 @@ from the Mission Report / Apollo Flight Journal state vectors, the real Moon, ev
    light - spec `superpowers/specs/2026-11-20-apollo-columbia-design.md`. Done 2026-11-21, narrated, the
    hatch and windows outside, walking through the cabin (in through the hatch, lying as the crew
    lay, free look); open: sharper textures from the full-resolution scan.
-3. Eagle (LM): outside, our own cockpit, the stages separating, legs folded and deployed.
+3. Eagle (LM): outside, our own cockpit, the stages separating, legs folded and deployed - spec
+   `superpowers/specs/2026-11-21-apollo-eagle-design.md`. Built 2026-11-21 (model from the LM News
+   Reference, hinged legs, standing walk-in, cabin light as in Columbia); narrated; open: photos, the
+   user's look at it, NASSP's models (GPL) for a more realistic outside and cockpit.
 4. Pad 39A: umbilical tower, crawler, pad; a ground scene on Earth.
 5. Mission data: event timeline in GET, trajectory reconstruction in the Earth-Moon system,
    tested against documented values.
@@ -140,7 +143,7 @@ moon systems that doesn't zigzag.
 TLE data fetched periodically online when available, with a bundled last-known-good snapshot for
 offline use.
 **Data needed**: TLE data from Celestrak (freely republishable) or space-track.org; SGP4 propagator
-(public algorithm, needs a clean-room or openly-licensed implementation to keep to MIT).
+(public algorithm, needs a clean-room or openly-licensed implementation compatible with GPL-3.0-or-later).
 
 ## Probes and comets
 **What**: Positions of interplanetary probes (Voyager 1/2, etc.) and notable comets. (Done: seven

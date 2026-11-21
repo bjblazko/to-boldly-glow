@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-11-21
+
+### Changed
+
+- To Boldly Glow is now licensed under the GNU General Public License, version 3 or later
+  (GPL-3.0-or-later), so that GPL-licensed work - such as Project Apollo - NASSP's lunar module
+  models - can become part of it. Releases up to 0.6.0 stay available under the MIT License.
+
 ### Added
 
 - Apollo, first step: the lesson "The Saturn V, Taken Apart" - Apollo 11's rocket to scale in an
@@ -15,6 +23,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Apollo, second step: the lesson "Columbia, Inside and Out" - the command and service module to
   scale, the service module cut open sector by sector, and inside the Smithsonian's 3D scan of the
   real capsule, lit by its floodlights with shadows; with NASA photos; narrated in English and German.
+- Apollo, third step: the lesson "Eagle, the Lunar Module" - Project Apollo - NASSP's detailed
+  lunar module and cockpit (GPL): the legs fold up as for the ride in the Saturn V and unfold, the
+  stages come apart and the ascent stage lifts off its descent stage, both cut open (tanks and
+  engines from Grumman's LM News Reference); inside one crawls in through the front hatch and stands
+  where Armstrong and Aldrin stood, before every switch, breaker and meter of the real panels, lit by
+  cabin floodlights with shadows; narrated in English and German.
+- Models can fold parts about a hinge (the lunar module's legs), in the picture, its shadows, double
+  clicks and walking alike.
 - The vehicle lessons look like film: soft lamplight with shadows, materials that shine or don't,
   contact shadows in creases, depth of field, a vignette, fine grain and a warm grade.
 - Inside Columbia one walks: the camera flies in through the side hatch and lies down as the crew
@@ -529,6 +545,7 @@ background music, and a download that runs from the disk without a web server.
   across all workspace packages, including a critical arbitrary-file-read alert in vitest's UI
   server. All dev-only tooling, never shipped to users.
 
-[Unreleased]: https://github.com/bjblazko/to-boldly-glow/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/bjblazko/to-boldly-glow/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/bjblazko/to-boldly-glow/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/bjblazko/to-boldly-glow/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/bjblazko/to-boldly-glow/releases/tag/v0.5.0

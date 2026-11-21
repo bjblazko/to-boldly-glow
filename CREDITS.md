@@ -261,6 +261,10 @@ KSC-69P-372 (Apollo 11 rollout), NASA/KSC. The Columbia lesson's photos, fetched
 `packages/data-pipeline/src/fetchColumbiaPhotos.ts`: 372772main_GPN-2000-001212_full (Columbia after
 splashdown, NASA), S69-40758 (Columbia aboard the USS Hornet) and S69-38317 (Michael Collins in the
 command module simulator), NASA/JSC.
+The Eagle lesson's photos, fetched the same way by `packages/data-pipeline/src/fetchEaglePhotos.ts`,
+NASA/JSC, public domain (captions checked: no other credit): as11-40-5927 (Eagle on the Moon, Aldrin
+beside it), as11-44-6581 (Eagle in lunar orbit), as11-40-5863 (Aldrin leaving through the hatch) and
+as11-44-6642 (the ascent stage at rendezvous).
 
 ## Apollo: Columbia, the command and service module
 
@@ -279,6 +283,30 @@ under CC0 1.0 (checked on the item page, 2026-11-20): the medium-resolution glb
 `0041357eccea177fa28023a97ae400b6f45bddcf635b0ad57840315b71089b50`), simplified with meshoptimizer to
 about half its triangles, its textures resized, moved into our command module's frame. The writing
 inside - the crew's notes on the walls - is part of the scanned object.
+
+## Apollo: Eagle, the lunar module
+
+Eagle's outside and cockpit (`packages/app/public/models/eagle/`: `lm.*`, `cockpit.*` and
+`nassp/`) are converted from Project Apollo - NASSP's lunar module
+(https://github.com/orbiternassp/NASSP, the Apollo add-on for the Orbiter space flight simulator),
+GNU General Public License, version 2 or later (`packages/app/public/licenses/nassp.txt`), used here
+under version 3 or later with the rest of To Boldly Glow. "Or later": NASSP's source files say so in
+their notices ("either version 2 of the License, or (at your option) any later version", e.g.
+`Orbitersdk/samples/ProjectApollo/src_lm/lemmesh.cpp`); its mesh and texture files carry no notice
+of their own, and where no version is stated GPLv2 section 9 lets the recipient choose any. Converted
+in November 2026 by To Boldly Glow. Source files, at commit
+`ddba501d2e274367b8660d7050dee7b9f4153865`: `Meshes/ProjectApollo/LM_DescentStage.msh`,
+`LM_AscentStage.msh`, `LM_VC.msh` and the textures they name under `Textures/ProjectApollo/`.
+`packages/data-pipeline/src/buildEagle.ts` downloads them at that commit and converts them: into our
+frame (Orbiter's is left-handed), split into the lesson's parts with the legs' hinges, the ascent
+stage's rough cabin left out (the cockpit model replaces it), the DDS textures decoded, resized and
+saved as JPEG.
+
+What the cutaway shows inside the stages - the descent stage's four tanks and engine, the ascent
+stage's two tanks and engine - and the person for scale (`lm-palette.png`) are our own, built from
+the dimensions in Grumman's "Apollo Lunar Module News Reference" for NASA (1968, public domain,
+https://archive.org/details/apollo-lunar-module-news-reference-1968); measures it does not settle
+are marked `APPROX` in `apollo/lmProfile.ts`. The lesson's figures come from the same document.
 
 ## Tonemapping
 

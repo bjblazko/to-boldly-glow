@@ -4,6 +4,7 @@ import { createScenePipeline } from '../gpu/scenePipeline'
 import type { TextureLoader } from '../gpu/textureLoader'
 import type { Vec3 } from '../math/tuples'
 import { MODEL_VERTEX_FLOATS, type ModelData } from './modelFile'
+import { packHinges } from './modelHinge'
 import { ASSEMBLY_KIND_CODE, MAX_ASSEMBLIES, MAX_LAMPS, MODEL_UNIFORM_FLOAT_COUNT, modelShaderCode } from './modelShader'
 import { createShadowPipeline, lampViewProjection, ModelShadowMap, SHADOW_FORMAT, SHADOW_MAP_SIZE } from './modelShadow'
 
@@ -40,6 +41,8 @@ export interface ModelPose {
   lamps?: readonly Lamp[]
   // Each assembly's material, by index (a soft plastic sheen where not given).
   materials?: readonly (Material | undefined)[]
+  // Each assembly's fold about its hinge, by index (see modelHinge.ts; none: nothing folds).
+  hinges?: readonly Float32Array[]
 }
 
 // How a surface shines: how tight its highlight is and how strong.
@@ -63,6 +66,7 @@ const OFFSETS_AT = 48
 const PARTS_AT = OFFSETS_AT + MAX_ASSEMBLIES * 4
 const LAMPS_AT = PARTS_AT + MAX_ASSEMBLIES * 4
 const SHADOW_AT = LAMPS_AT + MAX_LAMPS * 8
+const HINGES_AT = SHADOW_AT + 20
 
 // What every model shares: the device, the scene's color format, the pipelines (both faces of
 // every triangle drawn - a probe's thin sheets - or only the front - a scanned room, whose surfaces
@@ -88,7 +92,8 @@ export async function createModelContext(device: GPUDevice, format: GPUTextureFo
       buffers: MODEL_VERTEX_BUFFERS,
     })
   const [bothSides, frontOnly, shadowPipeline] = await Promise.all([pipeline('none'), pipeline('back'), createShadowPipeline(device)])
-  const sampler = device.createSampler({ label: 'model sampler', magFilter: 'linear', minFilter: 'linear', mipmapFilter: 'linear', maxAnisotropy: 16 })
+  // Repeating: some models tile a texture across a part (NASSP's lunar module's spars and radiator).
+  const sampler = device.createSampler({ label: 'model sampler', addressModeU: 'repeat', addressModeV: 'repeat', magFilter: 'linear', minFilter: 'linear', mipmapFilter: 'linear', maxAnisotropy: 16 })
   const shadowSampler = device.createSampler({ label: 'model shadow sampler', compare: 'less-equal', magFilter: 'linear', minFilter: 'linear' })
   const none = device.createTexture({ label: 'no shadow map', size: [1, 1], format: SHADOW_FORMAT, usage: GPUTextureUsage.TEXTURE_BINDING }).createView()
   return { device, format, pipelines: { bothSides, frontOnly }, textures, sampler, shadows: { pipeline: shadowPipeline, sampler: shadowSampler, none } }
@@ -143,8 +148,7 @@ export class ModelRenderer {
     const cut = pose.cut ?? 0
     const { cutaway } = this.shape
     values.set([pose.highlight.assembly, pose.highlight.strength, cut > 0 ? 1 : 0, cutaway.bottom + cut * cutaway.reach], 44)
-    offsets.slice(0, MAX_ASSEMBLIES).forEach((offset, index) => values.set([...offset, 0], OFFSETS_AT + index * 4))
-    writeParts(values, pose, cutaway.kinds)
+    writeAssemblies(values, pose, cutaway.kinds, offsets)
     writeLamps(values, pose.lamps ?? [])
     this.updateShadow(pose, offsets)
     this.context.device.queue.writeBuffer(this.mesh.uniforms, 0, values)
@@ -165,7 +169,7 @@ export class ModelRenderer {
     }
     const target = vec3.transformMat4(vec3.create(), middle, pose.world) as unknown as Vec3
     const lightViewProjection = lampViewProjection(lamp.place, [target[0], target[1], target[2]], lamp.reach)
-    shadowMap.update(lightViewProjection, pose.world, { amount: pose.explode, offsets })
+    shadowMap.update(lightViewProjection, pose.world, { amount: pose.explode, offsets, hinges: pose.hinges })
     this.values.set(lightViewProjection, SHADOW_AT)
     this.values.set([1, 1 / SHADOW_MAP_SIZE, 0, 0], SHADOW_AT + 16)
   }
@@ -181,7 +185,13 @@ export class ModelRenderer {
   }
 }
 
-// Each assembly's kind, how visible it is and its material.
+// Each assembly's offset, its kind, how visible it is, its material and its fold.
+function writeAssemblies(values: Float32Array, pose: ModelPose, kinds: readonly number[], offsets: readonly Vec3[]): void {
+  offsets.slice(0, MAX_ASSEMBLIES).forEach((offset, index) => values.set([...offset, 0], OFFSETS_AT + index * 4))
+  writeParts(values, pose, kinds)
+  packHinges(values, HINGES_AT, pose.hinges, MAX_ASSEMBLIES)
+}
+
 function writeParts(values: Float32Array, { visibility, materials }: ModelPose, kinds: readonly number[]): void {
   for (let index = 0; index < MAX_ASSEMBLIES; index++) {
     const { shininess, shine } = materials?.[index] ?? PLAIN

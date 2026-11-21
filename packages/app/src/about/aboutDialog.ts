@@ -2,6 +2,7 @@ import { CREDIT_GROUPS, type Credit, type CreditGroup } from './credits'
 import { msg } from '../i18n/i18n'
 import { renderControlsHelp } from './controlsHelp'
 import { version } from '../../package.json'
+import { sourceUrl } from './aboutSource'
 
 // The About dialog behind the top right info button: who makes the app, where it lives, how to steer
 // it, what (not) leaves the browser, its license, and the licenses and thanks for everything it ships. A native
@@ -14,6 +15,8 @@ export class AboutDialog {
     elements.credits.replaceChildren(...CREDIT_GROUPS.map(renderGroup))
     elements.controls.replaceChildren(renderControlsHelp())
     elements.version.textContent = msg.ui.about.version(version)
+    // The source code link leads to this version's own source (its release tag).
+    dialog.querySelector<HTMLAnchorElement>('[data-i18n="ui.about.sourceCode"]')?.setAttribute('href', sourceUrl(version))
     elements.openButton.addEventListener('click', () => this.open())
     elements.closeButton.addEventListener('click', () => dialog.close())
     // A press on the backdrop (outside the dialog's box) closes it too.

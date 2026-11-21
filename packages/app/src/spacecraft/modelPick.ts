@@ -1,5 +1,6 @@
 import type { Vec3 } from '../math/tuples'
 import { MODEL_VERTEX_FLOATS, type ModelData } from './modelFile'
+import { applyHinge } from './modelHinge'
 
 // Where a ray first meets a model, in the model's own frame (metres): every triangle tested (a
 // model has a few hundred thousand at most, and this runs on a double click), each assembly moved
@@ -12,6 +13,9 @@ export interface PickState {
   shown: (assembly: number) => boolean
   // Whether a point of a shell lies in the quarter cut away (and so isn't there to hit).
   cutAway: (assembly: number, point: Vec3) => boolean
+  // How each assembly is folded about its hinge (see modelHinge.ts), before it is moved out; none:
+  // nothing is folded.
+  hinges?: readonly Float32Array[]
   // Only these triangles (the index of their first corner), if given: those near a short step.
   triangles?: readonly number[]
 }
@@ -35,7 +39,9 @@ function hitOf({ vertices, indices }: ModelData, t: number, { origin, direction 
   const m = state.moved[assembly] ?? [0, 0, 0]
   const corner = (k: number): Vec3 => {
     const o = indices[t + k] * MODEL_VERTEX_FLOATS
-    return [vertices[o] + m[0], vertices[o + 1] + m[1], vertices[o + 2] + m[2]]
+    const hinge = state.hinges?.[assembly]
+    const p: Vec3 = hinge ? applyHinge(hinge, [vertices[o], vertices[o + 1], vertices[o + 2]]) : [vertices[o], vertices[o + 1], vertices[o + 2]]
+    return [p[0] + m[0], p[1] + m[1], p[2] + m[2]]
   }
   const distance = hitTriangle([corner(0), corner(1), corner(2)], origin, direction)
   if (distance === null) return null

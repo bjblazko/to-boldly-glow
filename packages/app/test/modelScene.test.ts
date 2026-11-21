@@ -48,3 +48,26 @@ describe('ModelScene', () => {
     expect(model.isShown('bus')).toBe(true)
   })
 })
+
+describe('ModelScene with a hinged part', () => {
+  // The dish folds a quarter turn about the vertical line through the origin.
+  const hinged = {
+    assemblies: [{ id: 'dish', explode: [0, 0, 0], hinge: { pivot: [0, 0, 0], axis: [0, 1, 0], angle: Math.PI / 2 } }, { id: 'bus', explode: [0, 0, 0] }],
+    anchors: { dish: [3, 0, 0], bus: [0, 0, 0] },
+  } as unknown as ModelDescription
+  const still = { ...OPTIONS, startAngle: 0 }
+
+  it('eases the fold to the chapter, and back out when the next chapter does not fold', () => {
+    const model = new ModelScene<Part>(renderer, hinged, still)
+    model.start({ still: true })
+    model.show({ fold: 1, still: true }, false)
+    model.update(2, false)
+    // Turned a quarter about +Y, the point on +X goes to -Z, and its label with it.
+    const [x, , z] = model.anchor('dish')
+    expect(x).toBeCloseTo(0, 6)
+    expect(z).toBeCloseTo(-3, 6)
+    model.show({ still: true }, false)
+    model.update(2, false)
+    expect(model.anchor('dish')[0]).toBeCloseTo(3, 6)
+  })
+})

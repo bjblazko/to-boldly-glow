@@ -125,9 +125,16 @@ in your browser.
 - [Changelog](CHANGELOG.md) — what's shipped so far.
 - [Credits](CREDITS.md) — third-party data and library attributions.
 
-The code is licensed under the [MIT License](LICENSE). Third-party images, data and fonts keep their
-own licenses (CC BY 4.0, public domain, SIL OFL 1.1 and others) - see [CREDITS.md](CREDITS.md). The
-app's About dialog (the info button at the top right) lists them too, with their license texts.
+To Boldly Glow is free software: you can redistribute it and/or modify it under the terms of the
+[GNU General Public License](LICENSE) as published by the Free Software Foundation, either version 3
+of the License, or (at your option) any later version. It is distributed in the hope that it will
+be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. Releases up to 0.6.0 were published under the MIT License and stay
+available under it.
+
+Third-party images, data and fonts keep their own licenses (CC BY 4.0, public domain, CC0, SIL OFL
+1.1 and others) - see [CREDITS.md](CREDITS.md). The app's About dialog (the info button at the top
+right) lists them too, with their license texts and a link to this source code.
 
 ## For users
 
@@ -241,17 +248,17 @@ texts are in [CREDITS.md](CREDITS.md)):
 | Moon orbits | Published orbital elements (JPL/IAU) | Published facts |
 | Stars: positions, brightness, colors (B−V) | [Yale Bright Star Catalogue, 5th ed.](https://cdsarc.cds.unistra.fr/ftp/V/50/) (Hoffleit & Warren, via CDS) | Public domain |
 | Star colors from B−V | Formulas of Ballesteros (2012) and Kang et al. (2002) | Published formulas |
-| Milky Way, nebulae, nearby galaxies | Painted procedurally for this project (`npm run paint-sky`); object positions from the NGC/IC, Sharpless and Lynds catalogs | Original, MIT |
+| Milky Way, nebulae, nearby galaxies | Painted procedurally for this project (`npm run paint-sky`); object positions from the NGC/IC, Sharpless and Lynds catalogs | Original, GPL-3.0-or-later |
 | The Sun's limb darkening (per color) and granulation size and lifetime | Allen's Astrophysical Quantities; solar physics literature | Published facts |
 | Comets, Ceres, Vesta, Pallas, Pluto | Orbital elements as published by the JPL Small-Body Database and the Minor Planet Center | Published facts |
-| Asteroid and Kuiper belt populations | Generated from the populations' published statistics (no individual catalogued objects) | Original, MIT |
-| Earth's clouds | Procedural, made for this project | Original, MIT |
+| Asteroid and Kuiper belt populations | Generated from the populations' published statistics (no individual catalogued objects) | Original, GPL-3.0-or-later |
+| Earth's clouds | Procedural, made for this project | Original, GPL-3.0-or-later |
 | Earth's city lights | NASA Earth Observatory's "Earth at Night" 2012 (Black Marble; Suomi NPP VIIRS data, NOAA NGDC), from NASA WorldWind's npm package; lights extracted by `packages/data-pipeline` | Public domain |
 | The Voyager spacecraft | NASA's "Voyager Probe (B)" model from [NASA 3D Resources](https://github.com/nasa/NASA-3D-Resources), converted by `packages/data-pipeline` (NASA's logotype painted over) | NASA media, no copyright |
 | The Golden Record and the Voyager photos | NASA/JPL and NASA/JPL-Caltech, from NASA's Image and Video Library and Wikimedia Commons (the record's own pictures and music are not in the app) | Public domain |
 | Voyager's paths, flybys and heliopause measurements | JPL Horizons; NASA's Space Physics Data Facility | Published data |
-| Earth's aurora | Procedural; the ovals' place around the IGRF-14 geomagnetic poles and their published geomagnetic latitudes and heights | Original, MIT |
-| The Sun's corona, chromosphere and prominences | Procedural; brightness profile from Baumbach's K-corona fit, heights from solar physics literature | Original, MIT |
+| Earth's aurora | Procedural; the ovals' place around the IGRF-14 geomagnetic poles and their published geomagnetic latitudes and heights | Original, GPL-3.0-or-later |
+| The Sun's corona, chromosphere and prominences | Procedural; brightness profile from Baumbach's K-corona fit, heights from solar physics literature | Original, GPL-3.0-or-later |
 
 ## For developers
 

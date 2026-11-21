@@ -1,6 +1,7 @@
 {
   "name": "@toboldlyglow/data-pipeline",
-  "version": "0.6.0",
+  "version": "0.7.0",
+  "license": "GPL-3.0-or-later",
   "private": true,
   "type": "module",
   "scripts": {
@@ -19,6 +20,8 @@
     "build-saturn-v": "tsx src/buildSaturnV.ts",
     "fetch-saturn-v-photos": "tsx src/fetchSaturnVPhotos.ts",
     "build-columbia": "tsx src/buildColumbia.ts",
+    "build-eagle": "tsx src/buildEagle.ts",
+    "fetch-eagle-photos": "tsx src/fetchEaglePhotos.ts",
     "fetch-columbia-photos": "tsx src/fetchColumbiaPhotos.ts"
   },
   "devDependencies": {

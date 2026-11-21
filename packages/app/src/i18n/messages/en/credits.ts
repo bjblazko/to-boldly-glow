@@ -26,9 +26,11 @@ export const credits = {
     horizons: 'The Voyagers’ trajectories, speeds and planet flybys',
     spdf: 'The Voyagers’ measurements at the heliopause, 2012 and 2018',
     saturnVModel: 'The Saturn V’s dimensions and figures, from which its model and the lesson’s numbers are made',
-    saturnVPhotos: 'The photos in the Saturn V and Columbia lessons',
+    saturnVPhotos: 'The photos in the Saturn V, Columbia and Eagle lessons',
     csmModel: 'The command and service module’s dimensions and layout, from which its model is made',
     columbiaCabin: 'Columbia’s cabin, inside: walls, instrument panels, couches and the crew’s notes',
+    lmModel: 'The lunar module’s dimensions, from which the cutaway’s tanks and engines and the lesson’s numbers are made',
+    nassp: 'Eagle’s outside and cockpit: the lunar module’s 3D models and their textures',
   },
   changes: {
     solarSystemScope: 'Resized and renamed; the gas giants’ relief maps are derived from their color maps.',
@@ -38,6 +40,8 @@ export const credits = {
     saturnVModel: 'The model is our own, built from the measurements; its paint follows photos of the rocket.',
     csmModel: 'The model is our own, built from the measurements.',
     columbiaCabin: 'Simplified (about half of its triangles), its textures resized, placed in our command module.',
+    lmModel: 'The tanks and engines are our own, built from the measurements.',
+    nassp: 'Converted to the app’s format in November 2026 by packages/data-pipeline/src/buildEagle.ts: turned into our frame, split into the lesson’s parts (the legs fold), the rough cabin of the outside left out, the textures turned into JPEG and resized.',
   },
   licenses: {
     publicDomain: 'Public domain',

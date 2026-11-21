@@ -25,7 +25,7 @@ advice. Re-check a source's terms when you actually take a file from it, and rec
 5. **Never** a file whose license forbids modification (CC ...-ND): converting a model to our format
    is a modification. NonCommercial (CC ...-NC) only if the project stays non-commercial - avoid it
    so the option stays open. ShareAlike (CC BY-SA) is fine for an asset file; the converted file
-   then carries BY-SA too, the MIT code is unaffected.
+   then carries BY-SA too, the GPL code is unaffected.
 6. **Text in our own textures** is drawn with our own shapes (e.g.
    `packages/data-pipeline/src/apollo/blockLetters.ts`), not rendered from a system font: no
    font's glyphs ship with the app, and the textures come out the same on every machine.
