@@ -81,92 +81,97 @@
   {
    "texture": "nassp/palette.png",
    "firstIndex": 281181,
-   "indexCount": 69939
+   "indexCount": 37179
   },
   {
    "texture": "nassp/redfoil.jpg",
-   "firstIndex": 351120,
+   "firstIndex": 318360,
    "indexCount": 96
   },
   {
    "texture": "nassp/lm11.jpg",
-   "firstIndex": 351216,
+   "firstIndex": 318456,
    "indexCount": 5244
   },
   {
    "texture": "nassp/ordeal.jpg",
-   "firstIndex": 356460,
+   "firstIndex": 323700,
    "indexCount": 1647
   },
   {
    "texture": "nassp/rcs.jpg",
-   "firstIndex": 358107,
+   "firstIndex": 325347,
    "indexCount": 7680
   },
   {
    "texture": "nassp/ecs_rotary_lmvc.jpg",
-   "firstIndex": 365787,
+   "firstIndex": 333027,
    "indexCount": 27312
   },
   {
    "texture": "nassp/rotary_lm.jpg",
-   "firstIndex": 393099,
+   "firstIndex": 360339,
    "indexCount": 26028
   },
   {
    "texture": "nassp/zzzpiperegler.jpg",
-   "firstIndex": 419127,
+   "firstIndex": 386367,
    "indexCount": 6420
   },
   {
    "texture": "nassp/watercontrolmodule.jpg",
-   "firstIndex": 425547,
+   "firstIndex": 392787,
    "indexCount": 8910
   },
   {
    "texture": "nassp/colors.jpg",
-   "firstIndex": 434457,
+   "firstIndex": 401697,
    "indexCount": 304632
   },
   {
    "texture": "nassp/hose.jpg",
-   "firstIndex": 739089,
+   "firstIndex": 706329,
    "indexCount": 4512
   },
   {
    "texture": "nassp/ttca.jpg",
-   "firstIndex": 743601,
+   "firstIndex": 710841,
    "indexCount": 25470
   },
   {
    "texture": "nassp/upperhatch.jpg",
-   "firstIndex": 769071,
+   "firstIndex": 736311,
    "indexCount": 1602
   },
   {
    "texture": "nassp/zzzmetalmantel.jpg",
-   "firstIndex": 770673,
+   "firstIndex": 737913,
    "indexCount": 4290
   },
   {
    "texture": "nassp/zzznet.jpg",
-   "firstIndex": 774963,
+   "firstIndex": 742203,
    "indexCount": 2148
   },
   {
    "texture": "nassp/circuitbreakers.jpg",
-   "firstIndex": 777111,
+   "firstIndex": 744351,
    "indexCount": 194880
   },
   {
    "texture": "nassp/fdai_ball_lm.jpg",
-   "firstIndex": 971991,
+   "firstIndex": 939231,
    "indexCount": 23808
   },
   {
    "texture": "nassp/fdai_lm.jpg",
-   "firstIndex": 995799,
+   "firstIndex": 963039,
    "indexCount": 6636
+  },
+  {
+   "texture": "nassp/holderrahmen.jpg",
+   "firstIndex": 969675,
+   "indexCount": 32760
   },
   {
    "texture": "nassp/cmvctex1.jpg",

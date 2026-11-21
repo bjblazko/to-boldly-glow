@@ -47,6 +47,25 @@ describe('readOrbiterMesh', () => {
     expect(mesh.groups[1].uvs).toBeNull()
   })
 
+  it('reads a group whose rows differ (some without normals or texture coordinates) row by row', () => {
+    const mixed = readOrbiterMesh(`MSHX1
+GROUPS 1
+LABEL Mixed
+TEXTURE 1
+GEOM 3 1
+0 0 0 0 1 0 0.25 0.5
+1 0 0
+0 0 1 0 1 0
+0 1 2
+TEXTURES 1
+foil.dds
+`).groups[0]
+    expect(Array.from(mixed.positions)).toEqual([0, 0, 0, 1, 0, 0, 0, 0, 1])
+    expect(Array.from(mixed.uvs ?? [])).toEqual([0.25, 0.5, 0, 0, 0, 0])
+    // Not every row has a normal: the group's normals are made from its triangles instead.
+    expect(mixed.normals).toBeNull()
+  })
+
   it('reads the materials\' diffuse colours', () => {
     expect(mesh.materials.map((material) => material.diffuse)).toEqual([[0.8, 0.8, 0.8, 1], [1, 0.5, 0, 1]])
   })

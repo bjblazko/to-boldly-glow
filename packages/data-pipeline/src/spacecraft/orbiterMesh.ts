@@ -66,16 +66,18 @@ function groupHeader(header: GroupHeader, line: string, key: string | undefined,
 function readGroup(lines: string[], at: number, { label, material, texture }: GroupHeader, textures: string[]): OrbiterGroup {
   const [, nv, nt] = words(lines[at]).map(Number)
   const rows = lines.slice(at + 1, at + 1 + nv).map((line) => words(line).map(Number))
-  const { normals, uvs } = columns(rows[0]?.length ?? 3)
-  const column = (from: number | null, count: number) => (from === null ? null : Float32Array.from(rows.flatMap((row) => row.slice(from, from + count))))
+  // Rows are read one by one: some meshes leave a row's normal or texture coordinates out.
+  const layouts = rows.map((row) => columns(row.length))
+  const normals = layouts.every((layout) => layout.normals !== null) ? Float32Array.from(rows.flatMap((row) => row.slice(3, 6))) : null
+  const uvs = layouts.some((layout) => layout.uvs !== null) ? Float32Array.from(rows.flatMap((row, i) => (layouts[i].uvs === null ? [0, 0] : row.slice(layouts[i].uvs ?? 0, (layouts[i].uvs ?? 0) + 2)))) : null
   const indices = Uint32Array.from(lines.slice(at + 1 + nv, at + 1 + nv + nt).flatMap((line) => words(line).slice(0, 3).map(Number)))
   return {
     label,
     material: material > 0 ? material - 1 : null,
     texture: texture > 0 ? (textures[texture - 1] ?? null) : null,
-    positions: column(0, 3) ?? new Float32Array(),
-    normals: column(normals, 3),
-    uvs: column(uvs, 2),
+    positions: Float32Array.from(rows.flatMap((row) => row.slice(0, 3))),
+    normals,
+    uvs,
     indices,
   }
 }

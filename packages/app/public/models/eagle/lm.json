@@ -1,5 +1,5 @@
 {
- "vertexCount": 45621,
+ "vertexCount": 49801,
  "indexCount": 132966,
  "indexFormat": "uint16",
  "draws": [
@@ -11,32 +11,32 @@
   {
    "texture": "nassp/palette.png",
    "firstIndex": 1980,
-   "indexCount": 41217
+   "indexCount": 39195
   },
   {
    "texture": "nassp/silverfo.jpg",
-   "firstIndex": 43197,
+   "firstIndex": 41175,
    "indexCount": 1071
   },
   {
+   "texture": "nassp/goldfoil.jpg",
+   "firstIndex": 42246,
+   "indexCount": 3624
+  },
+  {
    "texture": "nassp/lmdcs.jpg",
-   "firstIndex": 44268,
+   "firstIndex": 45870,
    "indexCount": 25497
   },
   {
    "texture": "nassp/quads.jpg",
-   "firstIndex": 69765,
+   "firstIndex": 71367,
    "indexCount": 14172
   },
   {
    "texture": "nassp/sps.jpg",
-   "firstIndex": 83937,
+   "firstIndex": 85539,
    "indexCount": 3744
-  },
-  {
-   "texture": "nassp/goldfoil.jpg",
-   "firstIndex": 87681,
-   "indexCount": 1602
   },
   {
    "texture": "nassp/plaque.jpg",

@@ -90,3 +90,36 @@ export function foldingHinge(strut: readonly [number, number, number][], azimuth
   const below = Math.atan2(top[1] - foot[1], out)
   return { pivot: [top[0], top[1], top[2]], axis: [-z, 0, x], angle: below + Math.PI / 2 + FOLDED_PAST_UPRIGHT }
 }
+
+// The foils NASSP stretches one image over a whole band of the stage with, which smears their
+// creases.
+export const FOILS = /(redfoil|goldfoil|silverfo|silverfoKapton)\.dds$/i
+const FOIL_METRES = 1.5
+
+// A foil group with its texture laid flat over each triangle - projected along the axis its face
+// turns to, one image every 1.5 m (the texture repeats) - every triangle with corners of its own,
+// so the projections don't fight at shared corners.
+export function foilMapped(group: LmGroup): LmGroup {
+  const { positions: p, normals: n, indices } = group
+  const count = indices.length
+  const positions = new Float32Array(count * 3)
+  const normals = new Float32Array(count * 3)
+  const uvs = new Float32Array(count * 2)
+  for (let t = 0; t < count; t += 3) {
+    const corners = [indices[t], indices[t + 1], indices[t + 2]]
+    const axis = dominantAxis(corners.map((i) => [n[i * 3], n[i * 3 + 1], n[i * 3 + 2]]))
+    const [a, b] = axis === 0 ? [2, 1] : axis === 1 ? [0, 2] : [0, 1]
+    corners.forEach((vertex, k) => {
+      positions.set(p.subarray(vertex * 3, vertex * 3 + 3), (t + k) * 3)
+      normals.set(n.subarray(vertex * 3, vertex * 3 + 3), (t + k) * 3)
+      uvs.set([p[vertex * 3 + a] / FOIL_METRES, p[vertex * 3 + b] / FOIL_METRES], (t + k) * 2)
+    })
+  }
+  return { ...group, positions, normals, uvs, indices: Uint32Array.from({ length: count }, (_, i) => i) }
+}
+
+// The axis (0 x, 1 y, 2 z) a triangle's corners' normals point along most.
+function dominantAxis(normals: number[][]): number {
+  const sum = [0, 1, 2].map((k) => Math.abs(normals.reduce((total, normal) => total + normal[k], 0)))
+  return sum.indexOf(Math.max(...sum))
+}

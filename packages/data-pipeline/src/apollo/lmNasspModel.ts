@@ -6,7 +6,7 @@ import type { MeshPrimitive } from '../spacecraft/glbMesh'
 import { readOrbiterMesh, type OrbiterMaterial } from '../spacecraft/orbiterMesh'
 import { mergePrimitives } from './latheMesh'
 import { NASSP_MESHES, nasspFile, nasspTexturePath } from './nassp'
-import { ascentAssembly, cockpitAssembly, descentAssembly, foldingHinge, type LmGroup, toLmFrame } from './lmNassp'
+import { ascentAssembly, cockpitAssembly, descentAssembly, foilMapped, FOILS, foldingHinge, type LmGroup, toLmFrame } from './lmNassp'
 import { paletteTexture, type Rgb } from './palette'
 
 // Eagle's outside and cockpit from Project Apollo - NASSP's meshes (lmNassp.ts): each assembly's
@@ -41,15 +41,20 @@ export async function nasspModels(): Promise<NasspModels> {
   const soles = Math.min(...descent.groups.filter((group) => group.label.startsWith('Footpad')).flatMap((group) => Array.from(group.positions).filter((_, i) => i % 3 === 1)))
   const lift = -(DESCENT_AT + soles)
   const builder = new PartsBuilder()
-  descent.groups.forEach((group) => builder.add(descentAssembly(group.label), toLmFrame(group, DESCENT_AT + lift), descent.materials))
+  descent.groups.forEach((group) => builder.add(descentAssembly(group.label), flatFoil(toLmFrame(group, DESCENT_AT + lift)), descent.materials))
   ascent.groups.forEach((group) => {
     const part = ascentAssembly(group.label)
-    if (part) builder.add(part, toLmFrame(group, ASCENT_AT + lift), ascent.materials)
+    if (part) builder.add(part, flatFoil(toLmFrame(group, ASCENT_AT + lift)), ascent.materials)
   })
   const outside = builder.parts()
   const inside = new PartsBuilder(builder)
   cockpit.groups.forEach((group) => inside.add(cockpitAssembly(group.label), toLmFrame(group, ASCENT_AT + lift), cockpit.materials))
   return { outside, cockpit: inside.parts(), hinges: legHinges(builder), textures: inside.textures, palette: inside.palette }
+}
+
+// The outside's foil laid flat at its own scale (lmNassp.ts); the rest as NASSP maps it.
+function flatFoil(group: LmGroup): LmGroup {
+  return group.texture && FOILS.test(group.texture) ? foilMapped(group) : group
 }
 
 // Each leg's hinge, found on its primary strut.

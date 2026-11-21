@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { applyHinge, hingeMatrix } from '../../app/src/spacecraft/modelHinge'
-import { ascentAssembly, cockpitAssembly, descentAssembly, foldingHinge, toLmFrame } from '../src/apollo/lmNassp'
+import { ascentAssembly, cockpitAssembly, descentAssembly, foldingHinge, foilMapped, toLmFrame } from '../src/apollo/lmNassp'
 import type { OrbiterGroup } from '../src/spacecraft/orbiterMesh'
 
 describe("NASSP's lunar module, sorted into Eagle's parts", () => {
@@ -51,5 +51,26 @@ describe('foldingHinge', () => {
     const foot = applyHinge(hingeMatrix(hinge, 1), [0, 0.2, 4.3])
     expect(foot[1]).toBeGreaterThan(3)
     expect(Math.hypot(foot[0], foot[2])).toBeLessThan(2.85)
+  })
+})
+
+describe('foilMapped', () => {
+  // A square 3 m across standing upright, facing +Z (two triangles sharing two corners), its
+  // texture stretched once across it.
+  const square = {
+    label: 'BodyBottom', material: null, texture: 'ProjectApollo\\redfoil.dds',
+    positions: Float32Array.of(0, 0, 0, 3, 0, 0, 3, 3, 0, 0, 3, 0),
+    normals: Float32Array.of(0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1),
+    uvs: Float32Array.of(0, 0, 1, 0, 1, 1, 0, 1),
+    indices: Uint32Array.of(0, 1, 2, 0, 2, 3),
+  }
+
+  it('lays the foil flat over each face at one image per 1.5 m, every triangle its own corners', () => {
+    const mapped = foilMapped(square)
+    expect(mapped.indices.length).toBe(6)
+    expect(mapped.positions.length).toBe(18)
+    // The corner at x 3, y 3 lies two images across and two up.
+    const corner = [...Array(6).keys()].find((i) => mapped.positions[i * 3] === 3 && mapped.positions[i * 3 + 1] === 3) ?? -1
+    expect([mapped.uvs?.[corner * 2], mapped.uvs?.[corner * 2 + 1]].map((value) => Math.abs(value ?? 0))).toEqual([2, 2])
   })
 })
