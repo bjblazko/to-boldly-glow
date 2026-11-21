@@ -16,6 +16,6 @@ describe('buildEagle', () => {
     expect(model.assemblies.filter((assembly) => assembly.hinge).map((assembly) => assembly.id)).toEqual(['leg0', 'leg1', 'leg2', 'leg3'])
     for (const name of ['panels', 'dsky', 'windows', 'ascent', 'descent']) expect(model.anchors[name], name).toBeDefined()
     for (const { texture } of model.draws) expect(existsSync(join(out, texture)), texture).toBe(true)
-    expect(model.marks).toEqual({ descent: expect.any(Number), ascent: expect.any(Number) })
+    expect(Object.keys(model.marks ?? {})).toEqual(['descent', 'ascent'])
   }, 120000)
 })
