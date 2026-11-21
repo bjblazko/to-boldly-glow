@@ -13,7 +13,7 @@ describe('buildEagle', () => {
     await buildEagle(out)
     const read = (name: string) => JSON.parse(readFileSync(join(out, `${name}.json`), 'utf8')) as ModelDescription
     const [outside, cockpit] = [read('lm'), read('cockpit')]
-    expect(outside.assemblies).toHaveLength(10)
+    expect(outside.assemblies).toHaveLength(11)
     expect(outside.assemblies.filter((assembly) => assembly.hinge).map((assembly) => assembly.id)).toEqual(['leg0', 'leg1', 'leg2', 'leg3'])
     expect(Object.keys(outside.marks ?? {})).toEqual(['descent', 'ascent'])
     expect(cockpit.assemblies.map((assembly) => [assembly.id, assembly.kind, assembly.explode[1]])).toEqual(['cockpit', 'panels', 'dsky', 'windows'].map((id) => [id, 'inside', 2.5]))

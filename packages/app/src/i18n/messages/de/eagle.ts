@@ -74,6 +74,7 @@ export const eagle: Messages['lessons']['eagle'] = {
     leg3: 'Landebein',
     deployed: 'Streben und Fühler',
     ascent: 'Aufstiegsstufe',
+    fairings: 'Tankverkleidungen',
     ascentInside: 'Tanks und Aufstiegstriebwerk',
     cockpit: 'Kabine',
     panels: 'Fluganzeigen',

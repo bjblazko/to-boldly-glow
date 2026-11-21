@@ -8,7 +8,7 @@ import type { ModelData } from '../../app/src/spacecraft/modelFile'
 import { ASCENT_FRAME } from '../src/apollo/lmAscent'
 import { COCKPIT, cockpitParts, cockpitTextures } from '../src/apollo/lmCockpit'
 import { swatch } from '../src/apollo/lmParts'
-import { COCKPIT_ASSEMBLIES, LM_ASSEMBLIES, type LmAssembly, lmAssemblyKind, lmHinge, lmParts } from '../src/apollo/lmParts'
+import { COCKPIT_ASSEMBLIES, LM_ASSEMBLIES, type LmAssembly, lmAssemblyKind, lmExplodeOffset, lmHinge, lmParts } from '../src/apollo/lmParts'
 import { ASCENT_STAGE, DESCENT_STAGE, FOOTPAD, LEGS, legHinge, LM_HEIGHTS, PROBE_LENGTH } from '../src/apollo/lmProfile'
 
 const FT = 0.3048
@@ -90,6 +90,11 @@ describe("Eagle's parts", () => {
     expect(Math.max(...heights)).toBeCloseTo(LM_HEIGHTS.overall, 1)
     expect(Math.min(...points('deployed').map(([, y]) => y))).toBeCloseTo(-PROBE_LENGTH, 2)
     expect(Math.min(...points('descent').map(([, y]) => y))).toBeGreaterThan(0.5)
+  })
+
+  it('keeps the tanks\' fairings a part of their own, so a chapter can take them away whole', () => {
+    expect(parts.get('fairings')).toHaveLength(2)
+    expect(lmExplodeOffset('fairings')).toEqual(lmExplodeOffset('ascent'))
   })
 
   it('keeps the ascent stage above the interstage', () => {

@@ -177,6 +177,15 @@
    "kind": "shell"
   },
   {
+   "id": "fairings",
+   "explode": [
+    0,
+    2.5,
+    0
+   ],
+   "kind": "solid"
+  },
+  {
    "id": "ascentInside",
    "explode": [
     0,
@@ -235,6 +244,11 @@
    0,
    5.147238612174988,
    0
+  ],
+  "fairings": [
+   0,
+   4.075800061225891,
+   -0.5500000230967999
   ],
   "ascentInside": [
    0,

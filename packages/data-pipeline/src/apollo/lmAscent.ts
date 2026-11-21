@@ -30,7 +30,7 @@ const TUNNEL = { at: [0, -0.6] as [number, number], top: MIDSECTION_TOP + 0.55 }
 const lathed = (look: Swatch, segments: number) => ({ texture: look.texture, uv: () => look.uv, segments })
 
 export function ascentShell(looks: AscentLooks): MeshPrimitive[] {
-  return [cabin(looks), front(looks), midsection(looks), ...fairings(looks), tunnel(looks), ...rcsQuads(looks), ...antennas(looks)]
+  return [cabin(looks), front(looks), midsection(looks), tunnel(looks), ...rcsQuads(looks), ...antennas(looks)]
 }
 
 // The crew compartment: an eight-sided cylinder, 92 in across and 42 in deep.
@@ -65,8 +65,9 @@ function midsection({ dark, black }: AscentLooks): MeshPrimitive {
   return mergePrimitives([body, bay])
 }
 
-// The tanks' fairings bulging out either side of the midsection.
-function fairings({ panel }: AscentLooks): MeshPrimitive[] {
+// The tanks' fairings bulging out either side of the midsection: a part of their own, so the
+// cutaway can take them away whole rather than cut a sphere open.
+export function fairings({ panel }: AscentLooks): MeshPrimitive[] {
   return ASCENT_TANKS.map((tank) => sphere({ ...tank, radius: tank.radius + 0.05, bottom: tank.bottom - 0.05 }, panel, 20))
 }
 

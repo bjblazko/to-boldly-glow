@@ -2,7 +2,7 @@ import type { AssemblyKind } from '../../../app/src/spacecraft/modelFile'
 import type { Hinge } from '../../../app/src/spacecraft/modelHinge'
 import type { MeshPrimitive } from '../spacecraft/glbMesh'
 import { mergePrimitives } from './latheMesh'
-import { ascentInside, ascentShell, type AscentLooks } from './lmAscent'
+import { ascentInside, ascentShell, type AscentLooks, fairings } from './lmAscent'
 import { deployedParts, legParts, outriggerParts } from './lmLegs'
 import { DESCENT_STAGE, DESCENT_TANKS, DPS, legHinge, LEGS, LM_HEIGHTS, type LmTank, PERSON_PLACE } from './lmProfile'
 import { facesMesh, plate, polygon, prism, type Look, type Point3, type Swatch } from './lmShapes'
@@ -13,9 +13,9 @@ import { placedLathe, tankProfile } from './shapes'
 
 // The assemblies Eagle is shown in: the descent stage's shell (cut open) and what is inside it,
 // each leg (they fold), what is there only with them out (the secondary struts, the probes), the ascent stage's
-// shell and what is inside it, and a person for scale; the cockpit with its panels, DSKY and windows
+// shell, its tanks' fairings and what is inside it, and a person for scale; the cockpit with its panels, DSKY and windows
 // (lmCockpit.ts) apart.
-export const LM_ASSEMBLIES = ['descent', 'descentInside', 'leg0', 'leg1', 'leg2', 'leg3', 'deployed', 'ascent', 'ascentInside', 'person'] as const
+export const LM_ASSEMBLIES = ['descent', 'descentInside', 'leg0', 'leg1', 'leg2', 'leg3', 'deployed', 'ascent', 'fairings', 'ascentInside', 'person'] as const
 // The cockpit is a model of its own (lit by its lamps), rising with the ascent stage.
 export const COCKPIT_ASSEMBLIES = ['cockpit', 'panels', 'dsky', 'windows'] as const
 export type LmAssembly = (typeof LM_ASSEMBLIES)[number] | (typeof COCKPIT_ASSEMBLIES)[number]
@@ -26,7 +26,7 @@ export function lmAssemblyKind(assembly: LmAssembly): AssemblyKind {
 }
 
 const INSIDE: readonly LmAssembly[] = ['descentInside', 'ascentInside', ...COCKPIT_ASSEMBLIES]
-const ASCENT: readonly LmAssembly[] = ['ascent', 'ascentInside', ...COCKPIT_ASSEMBLIES]
+const ASCENT: readonly LmAssembly[] = ['ascent', 'fairings', 'ascentInside', ...COCKPIT_ASSEMBLIES]
 
 // Taken apart, the ascent stage (with what is in it) lifts off the descent stage.
 export function lmExplodeOffset(assembly: LmAssembly): [number, number, number] {
@@ -65,6 +65,7 @@ export function lmParts(): Map<LmAssembly, MeshPrimitive[]> {
     ...LEGS.map((leg, index) => [`leg${index}` as LmAssembly, legParts(leg, legLooks)] as [LmAssembly, MeshPrimitive[]]),
     ['deployed', [deployedParts(swatch('strut'), swatch('steel'))]],
     ['ascent', ascentShell(ASCENT_LOOKS)],
+    ['fairings', fairings(ASCENT_LOOKS)],
     ['ascentInside', ascentInside(ASCENT_LOOKS)],
     ['person', [placedLathe(PERSON.profile, PERSON_PLACE, 0, { texture: LM_PALETTE_TEXTURE, uv: () => swatchUv(LM_SWATCHES, 'person'), segments: 12 })]],
   ])

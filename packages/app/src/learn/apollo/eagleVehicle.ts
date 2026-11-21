@@ -6,7 +6,7 @@ import { eyeLookingAt, VEHICLE_ROOM_FACING, vehicleShot, type VehicleFrame } fro
 // The assemblies of Eagle's two models (see the data pipeline's apollo/lmParts.ts and
 // apollo/lmCockpit.ts): the outside, and the cockpit with its own lamps.
 export type EaglePart =
-  | 'descent' | 'descentInside' | 'leg0' | 'leg1' | 'leg2' | 'leg3' | 'deployed' | 'ascent' | 'ascentInside' | 'person'
+  | 'descent' | 'descentInside' | 'leg0' | 'leg1' | 'leg2' | 'leg3' | 'deployed' | 'ascent' | 'fairings' | 'ascentInside' | 'person'
   | 'cockpit' | 'panels' | 'dsky' | 'windows'
 
 // Eagle stands on its footpads (y 0), +Z forward - the hatch, the ladder - and the Commander's side
@@ -70,6 +70,7 @@ const OUTSIDE_MATERIALS = {
   leg2: { shininess: 30, shine: 0.35 },
   leg3: { shininess: 30, shine: 0.35 },
   ascent: { shininess: 20, shine: 0.2 },
+  fairings: { shininess: 20, shine: 0.2 },
 }
 
 export const EAGLE: VehicleConfig = {

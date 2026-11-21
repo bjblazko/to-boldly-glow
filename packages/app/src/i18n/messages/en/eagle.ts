@@ -74,6 +74,7 @@ export const eagle = {
     leg3: 'Landing gear',
     deployed: 'Struts and probes',
     ascent: 'Ascent stage',
+    fairings: 'Tank fairings',
     ascentInside: 'Tanks and ascent engine',
     cockpit: 'Cabin',
     panels: 'Flight displays',
