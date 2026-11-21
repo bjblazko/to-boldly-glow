@@ -180,10 +180,9 @@ export class OrbitCamera {
   }
 
   applyDrag(deltaX: number, deltaY: number, sensitivity = 0.005): void {
-    // Walking, a drag takes hold of the room around one: the view turns against it.
-    const sign = this.walk ? -WALK_TURN_SHARE : 1
-    this.azimuth -= sign * deltaX * sensitivity
-    this.elevation = clamp(this.elevation + sign * deltaY * sensitivity, -MAX_ELEVATION, MAX_ELEVATION)
+    if (this.walk) return this.turnFreely(deltaX * sensitivity * WALK_TURN_SHARE, deltaY * sensitivity * WALK_TURN_SHARE)
+    this.azimuth -= deltaX * sensitivity
+    this.elevation = clamp(this.elevation + deltaY * sensitivity, -MAX_ELEVATION, MAX_ELEVATION)
     if (!this.viewLimits) return
     this.azimuth = clamp(this.azimuth, ...this.viewLimits.azimuth)
     this.elevation = clamp(this.elevation, ...this.viewLimits.elevation)
@@ -196,6 +195,37 @@ export class OrbitCamera {
   zoomBy(factor: number): void {
     if (this.walk) this.step(this.forward(), walkDistance(factor))
     else this.radius = clamp(this.radius * factor, this.minRadius, this.maxRadius)
+  }
+
+  // Walking, a drag takes hold of the room around one and the view turns against it - about the
+  // view's own up and right, so it turns all the way round in any direction (no pole to stop at,
+  // as one floats in weightlessness).
+  private turnFreely(left: number, up: number): void {
+    const eye = this.getEyePosition()
+    const axes = this.screenAxes()
+    const ahead = this.forward()
+    const turned = vec3.scale(vec3.create(), ahead, Math.cos(left))
+    vec3.scaleAndAdd(turned, turned, axes.right, -Math.sin(left))
+    const looking = vec3.scale(vec3.create(), turned, Math.cos(up))
+    vec3.scaleAndAdd(looking, looking, axes.up, Math.sin(up))
+    const head = vec3.scale(vec3.create(), axes.up, Math.cos(up))
+    vec3.scaleAndAdd(head, head, turned, -Math.sin(up))
+    this.lookFrom(eye, looking, head)
+  }
+
+  // Walking: puts the eye at `eye` looking along `ahead` (a unit vector), the top of the view
+  // toward `head` (as near as it can be, square to the look).
+  lookFrom(eye: ReadonlyVec3, ahead: ReadonlyVec3, head: ReadonlyVec3): void {
+    const up = vec3.scaleAndAdd(vec3.create(), head, ahead, -vec3.dot(head, ahead))
+    // Looking straight along `head`: any top square to the look will do.
+    if (vec3.length(up) < 1e-6) vec3.copy(up, orbitBasisForUpAxis([ahead[0], ahead[1], ahead[2]]).forward0)
+    vec3.normalize(up, up)
+    vec3.copy(this.upAxis, up)
+    vec3.scaleAndAdd(this.panOffset, eye, ahead, this.radius)
+    vec3.subtract(this.panOffset, this.panOffset, this.target)
+    const { right, forward0 } = orbitBasisForUpAxis([up[0], up[1], up[2]])
+    this.elevation = 0
+    this.azimuth = Math.atan2(-vec3.dot(ahead, right), -vec3.dot(ahead, forward0))
   }
 
   // Where the eye looks (unit vector).

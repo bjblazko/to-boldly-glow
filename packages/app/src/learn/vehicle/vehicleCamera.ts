@@ -31,7 +31,7 @@ export interface VehicleFrame {
   maxZoomOut?: number
   fov?: number
   panReach?: number
-  walk?: boolean
+  walk?: { head: Vec3 }
 }
 
 export function vehicleShot(key: string, frame: VehicleFrame): LessonShot {

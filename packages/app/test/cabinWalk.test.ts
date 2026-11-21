@@ -18,7 +18,7 @@ function walker(): OrbitCamera {
   // Move the pivot so the eye sits at the origin, whatever way the basis looks.
   camera.target = vec3.scale(vec3.create(), toEye, -2)
   camera.panLimit = 10
-  startWalking(camera, walkLimit(wallAtX1))
+  startWalking(camera, walkLimit(wallAtX1), [0, 1, 0])
   return camera
 }
 
@@ -48,6 +48,21 @@ describe('walking through a cabin', () => {
     camera.applyDrag(100, 0)
     expect(vec3.length(camera.getEyePosition())).toBeLessThan(2 * WALK_RADIUS)
     expect(vec3.dot(before, camera.forward())).toBeLessThan(0.999)
+  })
+
+  it('turns all the way over the top - no pole to stop at', () => {
+    const camera = walker()
+    const before = camera.forward()
+    // Half a turn upward, in drag pixels (0.005 rad per pixel, 0.6 of it while walking).
+    camera.applyDrag(0, Math.PI / (0.005 * 0.6))
+    expect(vec3.dot(before, camera.forward())).toBeCloseTo(-1, 4)
+  })
+
+  it('enters with the top of the view toward where the crew have their heads', () => {
+    const camera = walker()
+    const ahead = camera.forward()
+    const head = vec3.normalize(vec3.create(), vec3.scaleAndAdd(vec3.create(), [0, 1, 0], ahead, -ahead[1]))
+    expect(vec3.dot(camera.screenAxes().up, head)).toBeCloseTo(1, 4)
   })
 
   it('walks up to a spot and looks at it from a little way off', () => {

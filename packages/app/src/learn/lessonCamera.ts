@@ -1,10 +1,10 @@
 import { vec3 } from 'gl-matrix'
 import { EasedTween } from '../math/easedTween'
-import { lerp, lerpVec3 } from '../math/easing'
 import { COMPACT_MIN_ORBIT_RADIUS, WALK_RADIUS, type OrbitCamera } from '../camera/orbitCamera'
+import { blendViews, cameraSnapshot, viewAbout, type CameraView, type Snapshot } from './lessonCameraViews'
 import { circleSpot, startWalking, walkLimit, walkUpTo, type Obstacle } from './cabinWalk'
 import type { CameraLens } from '../camera/cameraLens'
-import { NO_LENS_SHIFT, VERTICAL_FOV_RADIANS, type LensShift } from '../camera/viewpoint'
+import { NO_LENS_SHIFT, VERTICAL_FOV_RADIANS } from '../camera/viewpoint'
 import { ECLIPTIC_NORTH } from '../solarSystem/poleOrientation'
 import type { Vec3 } from '../math/tuples'
 import { RING_OUTER_RADIUS_FACTOR } from '../saturnRing/ringMesh'
@@ -159,25 +159,6 @@ function focusBounds(planetId: string): ContentBounds {
 }
 
 // Everything a shot sets on the camera, so a flight can ease between two of them.
-interface CameraView {
-  target: Vec3
-  radius: number
-  azimuth: number
-  elevation: number
-  lensShift: LensShift
-}
-
-// The target and angles ease along evenly; the distance by the same factor each step, so a flight
-// from the whole lineup down to little Mercury doesn't rush through the close-up end.
-function blendViews(from: CameraView, to: CameraView, t: number): CameraView {
-  return {
-    target: lerpVec3(from.target, to.target, t),
-    radius: Math.exp(lerp(Math.log(from.radius), Math.log(to.radius), t)),
-    azimuth: lerp(from.azimuth, to.azimuth, t),
-    elevation: lerp(from.elevation, to.elevation, t),
-    lensShift: { x: lerp(from.lensShift.x, to.lensShift.x, t), y: lerp(from.lensShift.y, to.lensShift.y, t) },
-  }
-}
 
 export interface FramingOptions {
   // 'sizes' chapters: the planet to close in on (see Chapter.focusPlanetId).
@@ -238,7 +219,7 @@ export class LessonCamera {
 
   // A view from the ground passes its shot; it never backs off, as its eye is the observer.
   frame(kind: ChapterKind, groundShot?: GroundShot | null, { focusPlanetId, lineupOrder, glide = false }: FramingOptions = {}): void {
-    const from = glide ? this.currentView() : null
+    const from = glide ? cameraSnapshot(this.orbit, this.lens.lensShift) : null
     this.orbit.walk = null
     this.lens.fov = VERTICAL_FOV_RADIANS
     this.applyPreset(groundShot ? groundPreset(groundShot) : this.presetFor(kind, focusPlanetId, lineupOrder))
@@ -256,7 +237,7 @@ export class LessonCamera {
 
   // A staged scene's own shot for a chapter (see LessonShot), or a flight there (glide).
   frameShot(shot: LessonShot, glide = false): void {
-    const from = glide ? this.currentView() : null
+    const from = glide ? cameraSnapshot(this.orbit, this.lens.lensShift) : null
     this.lens.fov = shot.fov ?? VERTICAL_FOV_RADIANS
     this.applyPreset(shot.preset)
     const sceneFloor = shot.zoomFloor ?? COMPACT_MIN_ORBIT_RADIUS
@@ -265,7 +246,7 @@ export class LessonCamera {
     this.allowLookingAround(sceneFloor, shot)
     this.orbit.walk = null
     if (shot.walk && this.obstacle) {
-      startWalking(this.orbit, walkLimit(this.obstacle))
+      startWalking(this.orbit, walkLimit(this.obstacle), shot.walk.head)
       this.lens.setLessonZoomFloor(Math.min(sceneFloor, WALK_RADIUS))
     }
     this.watch.framedAt(this.viewState())
@@ -285,7 +266,8 @@ export class LessonCamera {
   update(deltaSeconds: number): void {
     const glide = this.glide
     if (!glide) return
-    this.showView(blendViews(glide.from, glide.to, glide.progress.update(deltaSeconds)))
+    const t = glide.progress.update(deltaSeconds)
+    this.showView(glide.progress.isAnimating ? blendViews(glide.from, glide.to, t) : glide.to)
     if (glide.progress.isAnimating) return
     this.glide = null
     this.lens.setLessonZoomFloor(glide.zoomFloor)
@@ -355,7 +337,7 @@ export class LessonCamera {
   // the same side of the point, no farther than now - so inside a cabin it never backs out through
   // a wall.
   lookAt(point: Vec3): void {
-    const from = this.currentView()
+    const from = cameraSnapshot(this.orbit, this.lens.lensShift)
     if (this.orbit.walk) walkUpTo(this.orbit, point)
     else circleSpot(this.orbit, point, from.radius)
     this.glide = this.startGlide(from)
@@ -363,8 +345,11 @@ export class LessonCamera {
 
   // Starts the flight from where the camera was to the shot just framed, which becomes its end. On
   // the way, the zoom floor (and with it the near plane) stays low enough for both ends.
-  private startGlide(from: CameraView): Glide {
+  private startGlide(before: Snapshot): Glide {
     const to = this.currentView()
+    const from = viewAbout(before, this.orbit.upAxis)
+    // The short way round, whichever turn the angles were counted from.
+    from.azimuth += Math.round((to.azimuth - from.azimuth) / (2 * Math.PI)) * 2 * Math.PI
     const zoomFloor = this.orbit.minRadius
     const progress = new EasedTween(0, GLIDE_SECONDS)
     progress.retarget(1, 0)

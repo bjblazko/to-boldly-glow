@@ -24,18 +24,21 @@ export function walkLimit(obstacle: Obstacle): WalkLimit {
   }
 }
 
-// Turns the framed view into a walk: the eye stays where the shot put it, looking the same way.
-export function startWalking(orbit: OrbitCamera, limit: WalkLimit): void {
+// Turns the framed view into a walk: the eye stays where the shot put it, looking the same way,
+// the top of the view turned toward `head` - where the crew's heads lie, so a cabin built to be
+// lain in reads as one sits in it.
+export function startWalking(orbit: OrbitCamera, limit: WalkLimit, head: Vec3): void {
   const eye = orbit.getEyePosition()
   const ahead = orbit.forward()
   orbit.clearPan()
-  vec3.scaleAndAdd(orbit.target, eye, ahead, WALK_RADIUS)
+  vec3.copy(orbit.target, eye)
   orbit.radius = WALK_RADIUS
   orbit.walk = limit
+  orbit.lookFrom(eye, ahead, head)
 }
 
 // Walks up to a point (what a double click found): the eye goes along the clear line toward it and
-// stops a little way off, looking at it.
+// stops a little way off, looking at it, the view's top kept as near as it was.
 export function walkUpTo(orbit: OrbitCamera, point: Vec3): void {
   const eye = orbit.getEyePosition()
   const toPoint = vec3.subtract(vec3.create(), point, eye)
@@ -43,11 +46,10 @@ export function walkUpTo(orbit: OrbitCamera, point: Vec3): void {
   if (distance === 0) return
   vec3.scale(toPoint, toPoint, 1 / distance)
   const standAt = vec3.scaleAndAdd(vec3.create(), eye, toPoint, Math.max(0, distance - STAND_OFF))
+  const head = orbit.screenAxes().up
   orbit.clearPan()
-  vec3.scaleAndAdd(orbit.target, standAt, toPoint, WALK_RADIUS)
-  orbit.radius = WALK_RADIUS
-  // The eye sits behind the pivot: from the pivot toward the eye is against the look.
-  faceAlong(orbit, vec3.negate(vec3.create(), toPoint))
+  vec3.copy(orbit.target, standAt)
+  orbit.lookFrom(standAt, toPoint, head)
 }
 
 // Outside a room: circles a point from the side the camera is on, no farther than `maxRadius` - so
