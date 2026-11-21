@@ -69,6 +69,34 @@
             "hash": "8abe3277f604b004",
             "seconds": 22.08
           },
+          "lessons/launcher/arms": {
+            "hash": "37b1f28e079a8b03",
+            "seconds": 18.4
+          },
+          "lessons/launcher/crawler": {
+            "hash": "970d15fbb3381d33",
+            "seconds": 26.0
+          },
+          "lessons/launcher/crewArm": {
+            "hash": "69d56bf1b5413e24",
+            "seconds": 17.28
+          },
+          "lessons/launcher/holddown": {
+            "hash": "d247398db3144767",
+            "seconds": 16.24
+          },
+          "lessons/launcher/liftoff": {
+            "hash": "4f3c3f8d9f4da58a",
+            "seconds": 15.28
+          },
+          "lessons/launcher/tower": {
+            "hash": "605509b0967fec19",
+            "seconds": 16.64
+          },
+          "lessons/launcher/whole": {
+            "hash": "80a4b839c7836374",
+            "seconds": 22.4
+          },
           "lessons/moonPhases/always-half-lit": {
             "hash": "02183f3a5a6b704c",
             "seconds": 26.56
@@ -522,6 +550,34 @@
           "lessons/eagle/whole": {
             "hash": "75574d83aef36f89",
             "seconds": 16.96
+          },
+          "lessons/launcher/arms": {
+            "hash": "d9639075fff8f448",
+            "seconds": 18.48
+          },
+          "lessons/launcher/crawler": {
+            "hash": "79d54279cdbcde17",
+            "seconds": 25.28
+          },
+          "lessons/launcher/crewArm": {
+            "hash": "e688180f81fb211b",
+            "seconds": 16.0
+          },
+          "lessons/launcher/holddown": {
+            "hash": "67b75bade6f13876",
+            "seconds": 17.28
+          },
+          "lessons/launcher/liftoff": {
+            "hash": "697c4e7025531036",
+            "seconds": 12.72
+          },
+          "lessons/launcher/tower": {
+            "hash": "4bd47e6e92c4015d",
+            "seconds": 17.84
+          },
+          "lessons/launcher/whole": {
+            "hash": "60aa59dc47af6f02",
+            "seconds": 20.64
           },
           "lessons/moonPhases/always-half-lit": {
             "hash": "d71540260dc4167d",
@@ -985,6 +1041,34 @@
             "hash": "09424000f13be345",
             "seconds": 21.84
           },
+          "lessons/launcher/arms": {
+            "hash": "d4e4b87d0cae9c6f",
+            "seconds": 20.4
+          },
+          "lessons/launcher/crawler": {
+            "hash": "8483d34f4d4e268f",
+            "seconds": 27.28
+          },
+          "lessons/launcher/crewArm": {
+            "hash": "7e61d74dd1b55d00",
+            "seconds": 17.52
+          },
+          "lessons/launcher/holddown": {
+            "hash": "30d0c349ecbb0cd5",
+            "seconds": 18.8
+          },
+          "lessons/launcher/liftoff": {
+            "hash": "3d70369fedc13e4b",
+            "seconds": 15.76
+          },
+          "lessons/launcher/tower": {
+            "hash": "3269022ebf8cd52b",
+            "seconds": 17.6
+          },
+          "lessons/launcher/whole": {
+            "hash": "4fa193ded06accf7",
+            "seconds": 21.6
+          },
           "lessons/moonPhases/always-half-lit": {
             "hash": "f27118cb55407307",
             "seconds": 27.6
@@ -1438,6 +1522,34 @@
           "lessons/eagle/whole": {
             "hash": "ab347a4c8652487b",
             "seconds": 19.36
+          },
+          "lessons/launcher/arms": {
+            "hash": "73649d4cc8f2b28d",
+            "seconds": 17.44
+          },
+          "lessons/launcher/crawler": {
+            "hash": "d5aa03af2bce3a93",
+            "seconds": 25.6
+          },
+          "lessons/launcher/crewArm": {
+            "hash": "c57ce1e4b45c11ef",
+            "seconds": 16.32
+          },
+          "lessons/launcher/holddown": {
+            "hash": "f8f81f922370cd53",
+            "seconds": 16.48
+          },
+          "lessons/launcher/liftoff": {
+            "hash": "86f60c80b8c319d4",
+            "seconds": 13.92
+          },
+          "lessons/launcher/tower": {
+            "hash": "aae08f3d8f655d72",
+            "seconds": 16.08
+          },
+          "lessons/launcher/whole": {
+            "hash": "a149a3241776fb79",
+            "seconds": 20.88
           },
           "lessons/moonPhases/always-half-lit": {
             "hash": "8091e85d5386bf02",
