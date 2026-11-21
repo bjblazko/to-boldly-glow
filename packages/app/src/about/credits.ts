@@ -160,6 +160,14 @@ export const CREDIT_GROUPS: CreditGroup[] = [
         files: ['models/columbia/cabin.bin', 'models/columbia/cabin.json', 'models/columbia/cabin-hull.jpg', 'models/columbia/cabin-panels.jpg', 'models/columbia/cabin-seats.jpg', 'models/columbia/cabin-notes.jpg'],
       },
       {
+        name: 'Grumman Aircraft Engineering Corporation for NASA, “Apollo Lunar Module News Reference” (1968)',
+        use: TEXT.uses.lmModel,
+        license: TEXT.licenses.publicDomain,
+        home: 'https://archive.org/details/apollo-lunar-module-news-reference-1968',
+        changes: TEXT.changes.lmModel,
+        files: ['models/eagle/'],
+      },
+      {
         name: 'NASA/JPL Horizons (Giorgini & JPL Solar System Dynamics Group)',
         use: TEXT.uses.horizons,
         license: TEXT.licenses.publicDomain,

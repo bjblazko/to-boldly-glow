@@ -280,6 +280,19 @@ under CC0 1.0 (checked on the item page, 2026-11-20): the medium-resolution glb
 about half its triangles, its textures resized, moved into our command module's frame. The writing
 inside - the crew's notes on the walls - is part of the scanned object.
 
+## Apollo: Eagle, the lunar module
+
+Eagle (`packages/app/public/models/eagle/`: `lm.*`, `cockpit.*` and their images) is our own model,
+built by `packages/data-pipeline/src/buildEagle.ts` from the dimensions and layout in Grumman's
+"Apollo Lunar Module News Reference" for NASA (1968, public domain,
+https://archive.org/details/apollo-lunar-module-news-reference-1968): the overall height and the
+span of the landing gear, both stages' sizes, the descent stage's structure, the footpads, probes and
+ladder, the crew compartment and midsection, the hatches and windows, the engines and tanks. Measures
+it does not settle are marked `APPROX` in `apollo/lmProfile.ts`. Its textures are drawn by our own
+code: the foil (procedural), the flag and "UNITED STATES" in our block letters, the plaque's words
+without the signatures, and the cockpit's panels - generic copies laid out after the handbook's panel
+drawings, no photographs. No NASA insignia.
+
 ## Tonemapping
 
 The tonemapping (`packages/app/src/bloom/tonemapWgsl.ts`) follows Troy Sobotka's AgX view

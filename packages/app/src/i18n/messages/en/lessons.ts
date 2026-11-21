@@ -1,5 +1,6 @@
 import { voyagerLesson } from './voyager'
 import { columbia } from './columbia'
+import { eagle } from './eagle'
 import { saturnV } from './saturnV'
 import { voyagerDeepDive } from './voyagerDeepDive'
 
@@ -240,4 +241,5 @@ export const lessons = {
   voyagerDeepDive,
   saturnV,
   columbia,
+  eagle,
 }

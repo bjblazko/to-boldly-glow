@@ -28,6 +28,7 @@ export const credits: Messages['credits'] = {
     saturnVPhotos: 'Die Fotos der Lektionen zu Saturn V und Columbia',
     csmModel: 'Maße und Aufbau von Kommando- und Versorgungsmodul, aus denen ihr Modell entsteht',
     columbiaCabin: 'Die Kabine der Columbia von innen: Wände, Instrumententafeln, Liegen und die Notizen der Crew',
+    lmModel: 'Maße und Aufbau der Mondfähre, aus denen das Modell von Eagle, sein Cockpit und die Zahlen der Lektion entstehen',
     horizons: 'Flugbahnen, Geschwindigkeiten und Planeten-Vorbeiflüge der Voyager-Sonden',
     spdf: 'Die Messwerte der Voyager-Sonden an der Heliopause, 2012 und 2018',
   },
@@ -39,6 +40,7 @@ export const credits: Messages['credits'] = {
     saturnVModel: 'Das Modell ist unser eigenes, aus den Maßen gebaut; die Lackierung folgt Fotos der Rakete.',
     csmModel: 'Das Modell ist unser eigenes, aus den Maßen gebaut.',
     columbiaCabin: 'Vereinfacht (etwa die Hälfte der Dreiecke), Texturen verkleinert, in unser Kommandomodul gesetzt.',
+    lmModel: 'Modell, Folie, Instrumententafeln und Plakette (nur ihr Text) sind unsere eigenen, aus den Maßen und den Zeichnungen des Handbuchs gebaut und gezeichnet.',
   },
   licenses: {
     publicDomain: 'Gemeinfrei',
