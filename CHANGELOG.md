@@ -15,6 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Apollo, second step: the lesson "Columbia, Inside and Out" - the command and service module to
   scale, the service module cut open sector by sector, and inside the Smithsonian's 3D scan of the
   real capsule, lit by its floodlights with shadows; with NASA photos; narrated in English and German.
+- Apollo, third step: the lesson "Eagle, the Lunar Module" - our own to-scale model built from
+  Grumman's LM News Reference: the legs fold up as for the ride in the Saturn V and unfold, the
+  stages come apart and the ascent stage lifts off its descent stage, both cut open (tanks,
+  engines); inside one crawls in through the front hatch and stands where Armstrong and Aldrin
+  stood, before panels drawn after the handbook (flight displays, the guidance computer's keyboard),
+  lit by cabin floodlights with shadows. English and German; not narrated yet.
+- Models can fold parts about a hinge (the lunar module's legs), in the picture, its shadows, double
+  clicks and walking alike.
 - The vehicle lessons look like film: soft lamplight with shadows, materials that shine or don't,
   contact shadows in creases, depth of field, a vignette, fine grain and a warm grade.
 - Inside Columbia one walks: the camera flies in through the side hatch and lies down as the crew
