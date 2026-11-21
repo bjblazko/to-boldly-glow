@@ -171,7 +171,9 @@ export class CameraInputController {
     event.preventDefault()
     if (this.mode === 'fly') return this.wheelSpeed(event.deltaY)
     const action = this.wheelKind.classify(event)
-    // A trackpad's two-finger scroll pulls the scene along, as on a map.
+    // A trackpad's two-finger scroll pulls the scene along, as on a map - or, walking through a
+    // room, turns the view as a drag does (one looks about rather than sliding sideways).
+    if (action === 'pan' && this.orbitCamera.walk) return this.orbitCamera.applyDrag(-event.deltaX, -event.deltaY)
     if (action === 'pan') return panByPixels(this.orbitCamera, -event.deltaX, -event.deltaY, this.screen())
     // Trackpad pinch: browsers report it as a wheel event with ctrlKey set (not a real Ctrl press).
     const perUnit = action === 'pinch' ? WHEEL_ZOOM_PER_UNIT * 5 : WHEEL_ZOOM_PER_UNIT
