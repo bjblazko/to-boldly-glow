@@ -1,0 +1,124 @@
+{
+ "vertexCount": 488,
+ "indexCount": 906,
+ "indexFormat": "uint16",
+ "draws": [
+  {
+   "texture": "lm-palette.png",
+   "firstIndex": 0,
+   "indexCount": 858
+  },
+  {
+   "texture": "lm-panel-1.jpg",
+   "firstIndex": 858,
+   "indexCount": 6
+  },
+  {
+   "texture": "lm-panel-2.jpg",
+   "firstIndex": 864,
+   "indexCount": 6
+  },
+  {
+   "texture": "lm-panel-3.jpg",
+   "firstIndex": 870,
+   "indexCount": 6
+  },
+  {
+   "texture": "lm-panel-8.jpg",
+   "firstIndex": 876,
+   "indexCount": 6
+  },
+  {
+   "texture": "lm-panel-11.jpg",
+   "firstIndex": 882,
+   "indexCount": 6
+  },
+  {
+   "texture": "lm-panel-14.jpg",
+   "firstIndex": 888,
+   "indexCount": 6
+  },
+  {
+   "texture": "lm-panel-16.jpg",
+   "firstIndex": 894,
+   "indexCount": 6
+  },
+  {
+   "texture": "lm-panel-4.jpg",
+   "firstIndex": 900,
+   "indexCount": 6
+  }
+ ],
+ "bounds": {
+  "min": [
+   -1.1283999681472778,
+   3.347399950027466,
+   -0.0868000015616417
+  ],
+  "max": [
+   1.1283999681472778,
+   5.6041998863220215,
+   0.9200000166893005
+  ]
+ },
+ "assemblies": [
+  {
+   "id": "cockpit",
+   "explode": [
+    0,
+    2.5,
+    0
+   ],
+   "kind": "inside"
+  },
+  {
+   "id": "panels",
+   "explode": [
+    0,
+    2.5,
+    0
+   ],
+   "kind": "inside"
+  },
+  {
+   "id": "dsky",
+   "explode": [
+    0,
+    2.5,
+    0
+   ],
+   "kind": "inside"
+  },
+  {
+   "id": "windows",
+   "explode": [
+    0,
+    2.5,
+    0
+   ],
+   "kind": "inside"
+  }
+ ],
+ "anchors": {
+  "cockpit": [
+   0,
+   4.475799918174744,
+   0.4166000075638294
+  ],
+  "panels": [
+   0,
+   4.905800104141235,
+   0.5300000160932541
+  ],
+  "dsky": [
+   0,
+   4.5157999992370605,
+   0.8800000250339508
+  ],
+  "windows": [
+   0,
+   5.20579981803894,
+   0.9129999876022339
+  ]
+ }
+}

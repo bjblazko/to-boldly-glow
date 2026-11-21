@@ -8,7 +8,7 @@ import type { ModelData } from '../../app/src/spacecraft/modelFile'
 import { ASCENT_FRAME } from '../src/apollo/lmAscent'
 import { COCKPIT, cockpitParts, cockpitTextures } from '../src/apollo/lmCockpit'
 import { swatch } from '../src/apollo/lmParts'
-import { COCKPIT_ASSEMBLIES, LM_ASSEMBLIES, lmAssemblyKind, lmHinge, lmParts } from '../src/apollo/lmParts'
+import { COCKPIT_ASSEMBLIES, LM_ASSEMBLIES, type LmAssembly, lmAssemblyKind, lmHinge, lmParts } from '../src/apollo/lmParts'
 import { ASCENT_STAGE, DESCENT_STAGE, FOOTPAD, LEGS, legHinge, LM_HEIGHTS, PROBE_LENGTH } from '../src/apollo/lmProfile'
 
 const FT = 0.3048
@@ -76,11 +76,12 @@ describe("Eagle's textures", () => {
 
 describe("Eagle's parts", () => {
   const parts = lmParts()
-  const points = (assembly: (typeof LM_ASSEMBLIES)[number]) => (parts.get(assembly) ?? []).flatMap(({ positions }) => Array.from({ length: positions.length / 3 }, (_, i) => [positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]] as [number, number, number]))
+  const points = (assembly: LmAssembly) => (parts.get(assembly) ?? []).flatMap(({ positions }) => Array.from({ length: positions.length / 3 }, (_, i) => [positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]] as [number, number, number]))
 
   it('builds every assembly but the cockpit\'s, at most 16 in all', () => {
     expect(LM_ASSEMBLIES.length).toBeLessThanOrEqual(16)
-    expect([...parts.keys()].sort()).toEqual(LM_ASSEMBLIES.filter((assembly) => !(COCKPIT_ASSEMBLIES as readonly string[]).includes(assembly)).sort())
+    expect([...parts.keys()].sort()).toEqual([...LM_ASSEMBLIES].sort())
+    expect(LM_ASSEMBLIES.length + COCKPIT_ASSEMBLIES.length).toBeLessThanOrEqual(16)
     expect(LM_ASSEMBLIES.filter((assembly) => lmAssemblyKind(assembly) === 'shell')).toEqual(['descent', 'ascent'])
   })
 
@@ -127,6 +128,7 @@ describe("Eagle's cockpit", () => {
   })
 
   // Every triangle of the cockpit and the ascent stage, as the app's picking sees them.
+  const cockpitTriangles = cockpit.reduce((sum, { indices }) => sum + indices.length / 3, 0)
   const model = ((): ModelData => {
     const all = [...cockpit, ...(lmParts().get('ascent') ?? [])]
     const vertices: number[] = []
@@ -147,6 +149,15 @@ describe("Eagle's cockpit", () => {
     expect(Math.min(...clearance(COCKPIT.hatchInside))).toBeGreaterThanOrEqual(0.3)
     expect(Math.min(...clearance(COCKPIT.commander))).toBeGreaterThanOrEqual(0.25)
     expect(Math.min(...clearance(COCKPIT.pilot))).toBeGreaterThanOrEqual(0.25)
+  })
+
+  it('leaves the hatch open to come in through', () => {
+    const only = { ...model, indices: model.indices.slice(0, cockpitTriangles * 3) }
+    const [from, to] = [COCKPIT.hatchOutside, COCKPIT.hatchInside]
+    const length = Math.hypot(to[0] - from[0], to[1] - from[1], to[2] - from[2])
+    const direction = [(to[0] - from[0]) / length, (to[1] - from[1]) / length, (to[2] - from[2]) / length] as [number, number, number]
+    const hit = pickModel(only, from as [number, number, number], direction, { moved: [[0, 0, 0]], shown: () => true, cutAway: () => false })
+    expect(hit === null || hit > length).toBe(true)
   })
 
   it('draws every panel at about 3,000 pixels per metre', async () => {

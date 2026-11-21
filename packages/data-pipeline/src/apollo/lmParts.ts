@@ -13,11 +13,12 @@ import { placedLathe, tankProfile } from './shapes'
 
 // The assemblies Eagle is shown in: the descent stage's shell (cut open) and what is inside it,
 // each leg (they fold), what is there only with them out (the secondary struts, the probes), the ascent stage's
-// shell and what is inside it, the cockpit with its panels, DSKY and windows (lmCockpit.ts) and a
-// person for scale.
-export const LM_ASSEMBLIES = ['descent', 'descentInside', 'leg0', 'leg1', 'leg2', 'leg3', 'deployed', 'ascent', 'ascentInside', 'cockpit', 'panels', 'dsky', 'windows', 'person'] as const
-export type LmAssembly = (typeof LM_ASSEMBLIES)[number]
+// shell and what is inside it, and a person for scale; the cockpit with its panels, DSKY and windows
+// (lmCockpit.ts) apart.
+export const LM_ASSEMBLIES = ['descent', 'descentInside', 'leg0', 'leg1', 'leg2', 'leg3', 'deployed', 'ascent', 'ascentInside', 'person'] as const
+// The cockpit is a model of its own (lit by its lamps), rising with the ascent stage.
 export const COCKPIT_ASSEMBLIES = ['cockpit', 'panels', 'dsky', 'windows'] as const
+export type LmAssembly = (typeof LM_ASSEMBLIES)[number] | (typeof COCKPIT_ASSEMBLIES)[number]
 
 export function lmAssemblyKind(assembly: LmAssembly): AssemblyKind {
   if (assembly === 'descent' || assembly === 'ascent') return 'shell'
@@ -55,7 +56,7 @@ const ASCENT_LOOKS: AscentLooks = {
   oxidizer: swatch('oxidizer'),
 }
 
-// Every assembly's triangles but the cockpit's (lmCockpit.ts).
+// Every assembly's triangles (the outside).
 export function lmParts(): Map<LmAssembly, MeshPrimitive[]> {
   const legLooks = { strut: swatch('strut'), steel: swatch('steel'), plaque: { texture: LM_PLAQUE_TEXTURE, decal: true } as Look }
   return new Map<LmAssembly, MeshPrimitive[]>([

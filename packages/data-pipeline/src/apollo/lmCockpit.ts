@@ -2,7 +2,7 @@ import type { MeshPrimitive } from '../spacecraft/glbMesh'
 import { mergePrimitives } from './latheMesh'
 import { ASCENT_FRAME, WINDOWS } from './lmAscent'
 import { ASCENT_STAGE, HATCH } from './lmProfile'
-import { box, laidAlongZ, plate, polygon, prism, type Look, type Point3, type Swatch } from './lmShapes'
+import { box, clipConvex, laidAlongZ, plate, polygon, walls, type Look, type Point3, type Swatch } from './lmShapes'
 import { panelTexture, type PanelDrawing } from './lmPanels'
 import { strutMesh } from './shapes'
 
@@ -110,16 +110,17 @@ export function cockpitParts(looks: CockpitLooks): Map<CockpitPart, MeshPrimitiv
   ])
 }
 
-// The compartment's inner walls, floor and roof, the hatch seen from inside, the way back into the
-// midsection.
+// The compartment's inner walls, floor and roof, the front wall round the open hatch (it swung in,
+// out of the way), the way back into the midsection.
 function shell({ wall, floor: deck, dark }: CockpitLooks): MeshPrimitive {
-  const inner = laidAlongZ(prism(polygon(8, WALL / Math.cos(Math.PI / 8), [0, 0], 22.5), cabinBack + 0.03, FRONT - 0.03, wall), [0, cabinMiddle, 0])
+  const outline = polygon(8, WALL / Math.cos(Math.PI / 8), [0, 0], 22.5)
+  const inner = laidAlongZ(walls(outline, cabinBack + 0.03, FRONT - 0.03, wall), [0, cabinMiddle, 0])
+  const endWall = (points: [number, number][], z: number) => plate(points.map(([x, y]) => [x, cabinMiddle + y, z] as Point3), wall)
+  const back = endWall(outline, cabinBack + 0.03)
+  const fronts = frontWall(outline).map((piece) => endWall(piece, FRONT - 0.03))
   const deckPlate = box([-0.95, floor - 0.02, cabinBack + 0.05], [0.95, floor, FRONT - 0.05], deck)
-  const z = FRONT - 0.035
-  const half = HATCH.size / 2
-  const hatch = plate([[half, HATCH.bottom, z], [-half, HATCH.bottom, z], [-half, HATCH.bottom + HATCH.size, z], [half, HATCH.bottom + HATCH.size, z]], dark)
   const opening = plate([[0.6, floor + ASCENT_STAGE.stepUp, cabinBack + 0.04], [-0.6, floor + ASCENT_STAGE.stepUp, cabinBack + 0.04], [-0.6, floor + 1.95, cabinBack + 0.04], [0.6, floor + 1.95, cabinBack + 0.04]], dark)
-  return mergePrimitives([inner, deckPlate, hatch, opening])
+  return mergePrimitives([inner, back, ...fronts, deckPlate, opening])
 }
 
 // At each station: the armrests, the attitude controller (right hand) and the thrust/translation
@@ -137,6 +138,20 @@ function stations({ dark, steel }: CockpitLooks): MeshPrimitive[] {
 function telescope({ dark }: CockpitLooks): MeshPrimitive {
   const roof = cabinMiddle + WALL
   return mergePrimitives([strutMesh([0, roof, FRONT - 0.42], [0, floor + 1.82, FRONT - 0.42], { radius: 0.07, ...dark, sides: 12 }), box([-0.06, floor + 1.74, FRONT - 0.5], [0.06, floor + 1.82, FRONT - 0.36], dark)])
+}
+
+// The front wall (its outline across, x and height from the cabin's axis) in the pieces round the
+// hatch's opening: either side of it, above it and below it.
+function frontWall(outline: [number, number][]): [number, number][][] {
+  const half = HATCH.size / 2
+  const [low, high] = [HATCH.bottom - cabinMiddle, HATCH.bottom + HATCH.size - cabinMiddle]
+  const middle = clipConvex(clipConvex(outline, ([x]) => half - x), ([x]) => x + half)
+  return [
+    clipConvex(outline, ([x]) => x - half),
+    clipConvex(outline, ([x]) => -half - x),
+    clipConvex(middle, ([, y]) => y - high),
+    clipConvex(middle, ([, y]) => low - y),
+  ].filter((piece) => piece.length >= 3)
 }
 
 // Every panel's picture, by file name.

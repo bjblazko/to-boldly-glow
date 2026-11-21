@@ -69,14 +69,37 @@ export function plate(corners: readonly Point3[], look: Look): MeshPrimitive {
 // An upright prism: a convex outline (x, z) from `bottom` to `top`, walls facing out, both ends
 // closed.
 export function prism(outline: readonly (readonly [number, number])[], bottom: number, top: number, look: Look): MeshPrimitive {
+  const cap = (y: number, normal: Point3): Face => ({ corners: outline.map(([x, z]) => [x, y, z] as Point3), normal })
+  return facesMesh([...wallFaces(outline, bottom, top), cap(top, [0, 1, 0]), cap(bottom, [0, -1, 0])], look)
+}
+
+// The same prism's walls only, its ends left open (a room's walls, its end walls built apart).
+export function walls(outline: readonly (readonly [number, number])[], bottom: number, top: number, look: Look): MeshPrimitive {
+  return facesMesh(wallFaces(outline, bottom, top), look)
+}
+
+function wallFaces(outline: readonly (readonly [number, number])[], bottom: number, top: number): Face[] {
   const [cx, cz] = centroid(outline)
-  const walls: Face[] = outline.map(([x0, z0], index) => {
+  return outline.map(([x0, z0], index) => {
     const [x1, z1] = outline[(index + 1) % outline.length]
     const normal = outwardNormal([x0, z0], [x1, z1], [cx, cz])
     return { corners: [[x0, bottom, z0], [x1, bottom, z1], [x1, top, z1], [x0, top, z0]], normal }
   })
-  const cap = (y: number, normal: Point3): Face => ({ corners: outline.map(([x, z]) => [x, y, z] as Point3), normal })
-  return facesMesh([...walls, cap(top, [0, 1, 0]), cap(bottom, [0, -1, 0])], look)
+}
+
+// The part of a convex polygon where `side(point)` is zero or more (a straight cut across it).
+export function clipConvex(points: readonly (readonly [number, number])[], side: (point: readonly [number, number]) => number): [number, number][] {
+  const result: [number, number][] = []
+  points.forEach((point, index) => {
+    const next = points[(index + 1) % points.length]
+    const [a, b] = [side(point), side(next)]
+    if (a >= 0) result.push([point[0], point[1]])
+    if ((a >= 0) !== (b >= 0)) {
+      const t = a / (a - b)
+      result.push([point[0] + (next[0] - point[0]) * t, point[1] + (next[1] - point[1]) * t])
+    }
+  })
+  return result
 }
 
 // A box between two corners, its sides along the axes.

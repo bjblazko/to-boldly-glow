@@ -9,13 +9,15 @@ describe('buildEagle', () => {
   const out = mkdtempSync(join(tmpdir(), 'eagle-'))
   afterAll(() => rmSync(out, { recursive: true, force: true }))
 
-  it('writes the model with its folding legs, its labelled parts and every texture it draws with', async () => {
+  it('writes the outside with its folding legs, and the cockpit apart, each with every texture it draws with', async () => {
     await buildEagle(out)
-    const model = JSON.parse(readFileSync(join(out, 'lm.json'), 'utf8')) as ModelDescription
-    expect(model.assemblies).toHaveLength(14)
-    expect(model.assemblies.filter((assembly) => assembly.hinge).map((assembly) => assembly.id)).toEqual(['leg0', 'leg1', 'leg2', 'leg3'])
-    for (const name of ['panels', 'dsky', 'windows', 'ascent', 'descent']) expect(model.anchors[name], name).toBeDefined()
-    for (const { texture } of model.draws) expect(existsSync(join(out, texture)), texture).toBe(true)
-    expect(Object.keys(model.marks ?? {})).toEqual(['descent', 'ascent'])
+    const read = (name: string) => JSON.parse(readFileSync(join(out, `${name}.json`), 'utf8')) as ModelDescription
+    const [outside, cockpit] = [read('lm'), read('cockpit')]
+    expect(outside.assemblies).toHaveLength(10)
+    expect(outside.assemblies.filter((assembly) => assembly.hinge).map((assembly) => assembly.id)).toEqual(['leg0', 'leg1', 'leg2', 'leg3'])
+    expect(Object.keys(outside.marks ?? {})).toEqual(['descent', 'ascent'])
+    expect(cockpit.assemblies.map((assembly) => [assembly.id, assembly.kind, assembly.explode[1]])).toEqual(['cockpit', 'panels', 'dsky', 'windows'].map((id) => [id, 'inside', 2.5]))
+    for (const name of ['panels', 'dsky', 'windows']) expect(cockpit.anchors[name], name).toBeDefined()
+    for (const { texture } of [...outside.draws, ...cockpit.draws]) expect(existsSync(join(out, texture)), texture).toBe(true)
   }, 120000)
 })
