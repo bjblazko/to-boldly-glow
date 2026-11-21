@@ -133,7 +133,7 @@ export const CREDIT_GROUPS: CreditGroup[] = [
         license: TEXT.licenses.publicDomain,
         home: 'https://archive.org/details/saturn-v-news-reference',
         changes: TEXT.changes.saturnVModel,
-        files: ['models/saturnV/'],
+        files: ['models/saturnV/', 'models/launcher/saturnV-paint.jpg', 'models/launcher/saturnV-palette.png'],
       },
       {
         name: 'NASA (HQ, MSFC, KSC, JSC), Apollo photos (NASA Image and Video Library: 6901000, KSC-69P-372, 9903405, 6758331, 6861994, 0100806, 372772main_GPN-2000-001212_full, S69-40758, S69-38317, as11-40-5927, as11-44-6581, as11-40-5863, as11-44-6642)',
@@ -174,7 +174,7 @@ export const CREDIT_GROUPS: CreditGroup[] = [
         home: 'https://github.com/orbiternassp/NASSP',
         text: 'licenses/nassp.txt',
         changes: TEXT.changes.nassp,
-        files: ['models/eagle/lm.bin', 'models/eagle/lm.json', 'models/eagle/cockpit.bin', 'models/eagle/cockpit.json', 'models/eagle/nassp/'],
+        files: ['models/eagle/lm.bin', 'models/eagle/lm.json', 'models/eagle/cockpit.bin', 'models/eagle/cockpit.json', 'models/eagle/nassp/', 'models/launcher/launcher.bin', 'models/launcher/launcher.json', 'models/launcher/crawler.bin', 'models/launcher/crawler.json', 'models/launcher/nassp/'],
       },
       {
         name: 'NASA/JPL Horizons (Giorgini & JPL Solar System Dynamics Group)',

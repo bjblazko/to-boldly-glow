@@ -52,7 +52,9 @@ from the Mission Report / Apollo Flight Journal state vectors, the real Moon, ev
    `superpowers/specs/2026-11-21-apollo-eagle-design.md`. Built 2026-11-21 (model from the LM News
    Reference, hinged legs, standing walk-in, cabin light as in Columbia); narrated; open: photos, the
    user's look at it, NASSP's models (GPL) for a more realistic outside and cockpit.
-4. Pad 39A: umbilical tower, crawler, pad; a ground scene on Earth.
+4. Pad 39A: umbilical tower, crawler, pad; a ground scene on Earth. First part built 2026-11-21: the
+   launch tower and the crawler in the blueprint room (NASSP's models) - spec
+   `superpowers/specs/2026-11-21-apollo-launcher-design.md`; open: pad 39A with the outdoor scene.
 5. Mission data: event timeline in GET, trajectory reconstruction in the Earth-Moon system,
    tested against documented values.
 6. Lesson Apollo 11, part 1: launch to lunar orbit (a cislunar scene, metre pass for the craft).
