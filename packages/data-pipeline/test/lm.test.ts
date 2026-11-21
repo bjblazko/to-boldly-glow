@@ -1,4 +1,7 @@
+import sharp from 'sharp'
 import { describe, expect, it } from 'vitest'
+import { letterPath } from '../src/apollo/blockLetters'
+import { flagLettering, foilTexture, plaqueTexture, PLAQUE_TEXT } from '../src/apollo/lmTextures'
 import { applyHinge, hingeMatrix } from '../../app/src/spacecraft/modelHinge'
 import { ASCENT_STAGE, DESCENT_STAGE, FOOTPAD, LEGS, legHinge, LM_HEIGHTS, PROBE_LENGTH } from '../src/apollo/lmProfile'
 
@@ -37,4 +40,30 @@ describe('the lunar module', () => {
       expect(folded[1]).toBeLessThan(LM_HEIGHTS.overall)
     }
   })
+})
+
+describe("Eagle's textures", () => {
+  it('crinkles its foil the same way every time, gold where gold', async () => {
+    const foil = await foilTexture(1, 'gold')
+    const { width, height } = await sharp(foil).metadata()
+    expect([width, height]).toEqual([2048, 2048])
+    expect((await foilTexture(1, 'gold')).equals(foil)).toBe(true)
+    const [r, g, b] = (await sharp(foil).stats()).channels.map((channel) => channel.mean)
+    expect(r).toBeGreaterThan(130)
+    expect(r).toBeGreaterThan(g)
+    expect(g).toBeGreaterThan(b)
+  }, 30000)
+
+  it('writes the plaque in our own block letters, wider than tall, without signatures', async () => {
+    for (const letter of PLAQUE_TEXT.join(' ')) expect(() => letterPath(letter)).not.toThrow()
+    expect(PLAQUE_TEXT.join(' ')).toContain('WE CAME IN PEACE FOR ALL MANKIND')
+    const { width, height } = await sharp(await plaqueTexture()).metadata()
+    expect(width).toBeGreaterThan(height ?? 0)
+  })
+
+  it('puts the flag and "UNITED STATES" on the foil', async () => {
+    const { width, height } = await sharp(await flagLettering()).metadata()
+    expect(width).toBeGreaterThan(0)
+    expect(height).toBeGreaterThan(width ?? 0)
+  }, 30000)
 })
