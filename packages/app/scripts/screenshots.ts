@@ -114,6 +114,10 @@ const SHOTS: Record<string, Shot> = {
   'lesson-record': (page, base) => lessonAt(page, base, 'voyager', 2),
   'lesson-jupiter': (page, base) => lessonAt(page, base, 'voyager', 5),
   'lesson-taken-apart': (page, base) => lessonAt(page, base, 'voyagerDeepDive', 0),
+  'lesson-saturn-v': (page, base) => lessonAt(page, base, 'saturnV', 2),
+  'lesson-columbia': (page, base) => lessonAt(page, base, 'columbia', 5),
+  'lesson-eagle': (page, base) => lessonAt(page, base, 'eagle', 0),
+  'lesson-eagle-cockpit': (page, base) => lessonAt(page, base, 'eagle', 6),
   // More, on its Audio tab: the narrator, subtitles and the music.
   more: async (page, base) => {
     await boot(page, base)

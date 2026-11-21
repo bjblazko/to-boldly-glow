@@ -102,6 +102,17 @@ themselves. Look around each scene: the Voyager probe and its record from all si
 | ![The Voyager lesson: the probe with its antenna, booms and Golden Record named](docs/images/lesson-voyager.jpg) | ![The Golden Record, with what is on it](docs/images/lesson-record.jpg) |
 | ![The Voyager lesson at Jupiter, 1979: both probes on their real paths, Voyager 1's photo of the Great Red Spot](docs/images/lesson-jupiter.jpg) | ![Voyager in detail: the probe taken apart, each part named](docs/images/lesson-taken-apart.jpg) |
 
+And Apollo: *The Saturn V, taken apart* (the rocket to scale, its stack taken apart, each stage
+cut open), *Columbia, inside and out* (the command and service module; inside, the Smithsonian's
+3D scan of the real capsule, to walk through as the crew lay) and *Eagle, the lunar module*
+(Project Apollo - NASSP's detailed model: the legs fold, the stages part, and inside you stand
+where Armstrong and Aldrin stood, before every switch of the real panels).
+
+| | |
+| --- | --- |
+| ![The Saturn V lesson: the first stage cut open, its tanks and five F-1 engines](docs/images/lesson-saturn-v.jpg) | ![Columbia's cabin, the Smithsonian's scan: the main display console over the couches](docs/images/lesson-columbia.jpg) |
+| ![Eagle, the lunar module, in the blueprint room with a person for scale](docs/images/lesson-eagle.jpg) | ![Inside Eagle: the Commander's flight displays and the window](docs/images/lesson-eagle-cockpit.jpg) |
+
 ### Music
 
 Three lo-fi tracks, played live by a synthesizer in the page (nothing recorded, nothing
@@ -259,6 +270,10 @@ texts are in [CREDITS.md](CREDITS.md)):
 | Voyager's paths, flybys and heliopause measurements | JPL Horizons; NASA's Space Physics Data Facility | Published data |
 | Earth's aurora | Procedural; the ovals' place around the IGRF-14 geomagnetic poles and their published geomagnetic latitudes and heights | Original, GPL-3.0-or-later |
 | The Sun's corona, chromosphere and prominences | Procedural; brightness profile from Baumbach's K-corona fit, heights from solar physics literature | Original, GPL-3.0-or-later |
+| Apollo photos | NASA (HQ, MSFC, KSC, JSC), NASA Image and Video Library | Public domain |
+| Saturn V, Columbia's outside, the cutaways | Our own models from NASA's and Grumman's published dimensions | Original, GPL-3.0-or-later |
+| Columbia's cabin | Smithsonian National Air and Space Museum, 3D scan "Command Module Apollo 11: Interior" | CC0 |
+| Eagle's outside and cockpit | [Project Apollo - NASSP](https://github.com/orbiternassp/NASSP) (the Apollo add-on for Orbiter) | GPL-2.0-or-later |
 
 ## For developers
 
