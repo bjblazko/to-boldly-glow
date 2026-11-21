@@ -5,7 +5,7 @@ import { mergePrimitives } from './latheMesh'
 import { ascentInside, ascentShell, type AscentLooks, fairings } from './lmAscent'
 import { deployedParts, legParts, outriggerParts } from './lmLegs'
 import { DESCENT_STAGE, DESCENT_TANKS, DPS, legHinge, LEGS, LM_HEIGHTS, type LmTank, PERSON_PLACE } from './lmProfile'
-import { facesMesh, plate, polygon, prism, type Look, type Point3, type Swatch } from './lmShapes'
+import { facesMesh, facingNormals, plate, polygon, prism, type Look, type Point3, type Swatch } from './lmShapes'
 import { LM_FOIL_TEXTURES, LM_PALETTE_TEXTURE, LM_SWATCHES, type LmSwatch } from './lmTextures'
 import { swatchUv } from './palette'
 import { PERSON } from './saturnVProfile'
@@ -58,6 +58,10 @@ const ASCENT_LOOKS: AscentLooks = {
 
 // Every assembly's triangles (the outside).
 export function lmParts(): Map<LmAssembly, MeshPrimitive[]> {
+  return new Map([...builtParts()].map(([assembly, primitives]) => [assembly, primitives.map(facingNormals)]))
+}
+
+function builtParts(): Map<LmAssembly, MeshPrimitive[]> {
   const legLooks = { strut: swatch('strut'), steel: swatch('steel'), plaque: { texture: LM_PLAQUE_TEXTURE, decal: true } as Look }
   return new Map<LmAssembly, MeshPrimitive[]>([
     ['descent', [...descentShell(), ...outriggerParts(swatch('strut'), swatch('steel'))]],

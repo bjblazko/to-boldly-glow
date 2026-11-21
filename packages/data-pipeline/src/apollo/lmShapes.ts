@@ -38,7 +38,9 @@ export function facesMesh(faces: readonly Face[], look: Look): MeshPrimitive {
       normals.push(...normal)
       uvs.push(...(foilUvs ? foilUvs[k] : 'decal' in look ? DECAL_UV[k % 4] : (look as Swatch).uv))
     })
-    for (let k = 1; k < corners.length - 1; k++) indices.push(first, first + k, first + k + 1)
+    // The fan runs counter-clockwise seen from where the face looks (the renderer's front face).
+    const turned = dot(polygonNormal(corners), normal) < 0
+    for (let k = 1; k < corners.length - 1; k++) indices.push(...(turned ? [first, first + k + 1, first + k] : [first, first + k, first + k + 1]))
   })
   return { texture: look.texture, positions: Float32Array.from(positions), normals: Float32Array.from(normals), uvs: Float32Array.from(uvs), indices: Uint32Array.from(indices) }
 }
@@ -153,5 +155,23 @@ export function laidAlongZ(primitive: MeshPrimitive, offset: Point3): MeshPrimit
     for (let i = 0; i < values.length; i += 3) result.set([values[i] + add[0], values[i + 2] + add[1], values[i + 1] + add[2]], i)
     return result
   }
-  return { ...primitive, positions: swap(primitive.positions, offset), normals: swap(primitive.normals, [0, 0, 0]) }
+  // Swapping two axes mirrors the shape: each triangle's corners are put back in front-face order.
+  const indices = new Uint32Array(primitive.indices.length)
+  for (let t = 0; t < indices.length; t += 3) indices.set([primitive.indices[t], primitive.indices[t + 2], primitive.indices[t + 1]], t)
+  return { ...primitive, positions: swap(primitive.positions, offset), normals: swap(primitive.normals, [0, 0, 0]), indices }
+}
+
+// Every triangle put in front-face order for the way its normal points (a lathe's profile running
+// downward, as a dish's inner face does, otherwise leaves its faces turned the wrong way round, and
+// the renderer draws a shell seen from behind dark).
+export function facingNormals(primitive: MeshPrimitive): MeshPrimitive {
+  const { positions: p, normals: n, indices } = primitive
+  const turned = new Uint32Array(indices)
+  for (let t = 0; t < turned.length; t += 3) {
+    const [a, b, c] = [turned[t] * 3, turned[t + 1] * 3, turned[t + 2] * 3]
+    const u: Point3 = [p[b] - p[a], p[b + 1] - p[a + 1], p[b + 2] - p[a + 2]]
+    const v: Point3 = [p[c] - p[a], p[c + 1] - p[a + 1], p[c + 2] - p[a + 2]]
+    if (dot(cross(u, v), [n[a], n[a + 1], n[a + 2]]) < 0) turned.set([turned[t], turned[t + 2], turned[t + 1]], t)
+  }
+  return { ...primitive, indices: turned }
 }

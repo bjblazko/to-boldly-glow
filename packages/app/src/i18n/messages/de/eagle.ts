@@ -39,7 +39,7 @@ export const eagle: Messages['lessons']['eagle'] = {
     ascent: {
       title: 'Die Aufstiegsstufe',
       text:
-        'Die Kabine der Besatzung, zwei Tanks an den Seiten und darunter ein Triebwerk – ohne Drossel und ' +
+        'Die Kabine der Besatzung, links und rechts je ein Tank und darunter ein Triebwerk – ohne Drossel und ' +
         'ohne Schwenklager, so einfach wie ein Triebwerk nur sein kann, denn es musste funktionieren. ' +
         'Sechzehn kleine Düsen in vier Gruppen an den Ecken steuerten die Fähre.',
     },

@@ -39,7 +39,7 @@ export const eagle = {
     ascent: {
       title: 'The Ascent Stage',
       text:
-        'The crew’s cabin, two tanks either side and one engine underneath - with no throttle and no ' +
+        'The crew’s cabin, a tank on either side and one engine underneath - with no throttle and no ' +
         'gimbal, as simple as an engine can be, because it had to work. Sixteen small thrusters in four ' +
         'clusters at the corners steered the craft.',
     },

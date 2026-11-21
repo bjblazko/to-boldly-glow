@@ -2,7 +2,7 @@ import type { MeshPrimitive } from '../spacecraft/glbMesh'
 import { mergePrimitives } from './latheMesh'
 import { ASCENT_FRAME, WINDOWS } from './lmAscent'
 import { ASCENT_STAGE, HATCH } from './lmProfile'
-import { box, clipConvex, laidAlongZ, plate, polygon, walls, type Look, type Point3, type Swatch } from './lmShapes'
+import { box, clipConvex, facingNormals, laidAlongZ, plate, polygon, walls, type Look, type Point3, type Swatch } from './lmShapes'
 import { panelTexture, type PanelDrawing } from './lmPanels'
 import { strutMesh } from './shapes'
 
@@ -102,12 +102,13 @@ export type CockpitPart = 'cockpit' | 'panels' | 'dsky' | 'windows'
 
 export function cockpitParts(looks: CockpitLooks): Map<CockpitPart, MeshPrimitive[]> {
   const [dsky, ...main] = [PANELS[3], ...PANELS.slice(0, 3)]
-  return new Map<CockpitPart, MeshPrimitive[]>([
+  const parts = new Map<CockpitPart, MeshPrimitive[]>([
     ['cockpit', [shell(looks), ...stations(looks), telescope(looks)]],
     ['panels', [...main.map(panelPlate), ...SIDE_PANELS.map(sidePlate)]],
     ['dsky', [panelPlate(dsky)]],
     ['windows', [1, -1].map((side) => plate(WINDOWS(side).map(([x, y]) => [x, y, FRONT - 0.037] as Point3), looks.glass))],
   ])
+  return new Map([...parts].map(([part, primitives]) => [part, primitives.map(facingNormals)]))
 }
 
 // The compartment's inner walls, floor and roof, the front wall round the open hatch (it swung in,
