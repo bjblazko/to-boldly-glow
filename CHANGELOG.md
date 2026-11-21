@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-11-21
+
 ### Changed
 
 - To Boldly Glow is now licensed under the GNU General Public License, version 3 or later
@@ -543,6 +545,7 @@ background music, and a download that runs from the disk without a web server.
   across all workspace packages, including a critical arbitrary-file-read alert in vitest's UI
   server. All dev-only tooling, never shipped to users.
 
-[Unreleased]: https://github.com/bjblazko/to-boldly-glow/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/bjblazko/to-boldly-glow/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/bjblazko/to-boldly-glow/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/bjblazko/to-boldly-glow/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/bjblazko/to-boldly-glow/releases/tag/v0.5.0
