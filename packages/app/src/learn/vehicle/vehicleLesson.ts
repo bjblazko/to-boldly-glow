@@ -83,6 +83,11 @@ export class VehicleLesson implements StagedLessonScene {
     return this.vehicles[stage.vehicle].shot(stage.shot)
   }
 
+  closingShot(chapter: Chapter): LessonShot | null {
+    const stage = stageOf(chapter)
+    return stage.closingShot ? this.vehicles[stage.vehicle].shot(stage.closingShot) : null
+  }
+
   updateOverlays(_layout: SceneLayout, chapter: Chapter, { viewpoint }: StagedOverlayFrame): void {
     const shown = this.current(chapter)
     if (!shown) return

@@ -41,7 +41,7 @@ const CHAPTERS: Chapter[] = [
   chapter('inside', { ...INSIDE, labels: ['panels', 'seats'] }, { facts: [fact('room', 'atmosphere')] }),
   chapter('panels', { ...INSIDE, shot: 'panels', labels: ['panels'] }, { photo: photo('S69-38317', 'simulator', 'NASA/JSC') }),
   chapter('seats', { ...INSIDE, shot: 'seats', labels: ['seats'] }),
-  chapter('notes', { ...INSIDE, shot: 'notes', labels: ['notes'] }),
+  chapter('notes', { ...INSIDE, shot: 'notes', closingShot: 'centerCouch', labels: ['notes'] }),
 ]
 
 export const COLUMBIA_LESSON: Lesson = {

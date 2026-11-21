@@ -1,6 +1,7 @@
 import { vec3, type ReadonlyVec3 } from 'gl-matrix'
 import { orbitBasisForUpAxis, WALK_RADIUS, type OrbitCamera, type WalkLimit } from '../camera/orbitCamera'
 import type { Vec3 } from '../math/tuples'
+import type { LessonShot } from './lessonShot'
 
 // Walking through a staged room (a cabin), and looking at a spot double-clicked: the orbit camera's pivot just ahead of the eye, every
 // move of the eye stopped short of what stands in its way.
@@ -35,6 +36,16 @@ export function startWalking(orbit: OrbitCamera, limit: WalkLimit, head: Vec3): 
   orbit.radius = WALK_RADIUS
   orbit.walk = limit
   orbit.lookFrom(eye, ahead, head)
+}
+
+// A shot one walks through (see LessonShot.walk): the camera turns walking, the eye where the shot
+// puts it (whatever fitting it above the panel made of its distance). False if it isn't one.
+export function walkInto(orbit: OrbitCamera, shot: LessonShot, obstacle: Obstacle | null): boolean {
+  orbit.walk = null
+  if (!shot.walk || !obstacle) return false
+  orbit.radius = shot.preset.radius
+  startWalking(orbit, walkLimit(obstacle), shot.walk.head)
+  return true
 }
 
 // Walks up to a point (what a double click found): the eye goes along the clear line toward it and

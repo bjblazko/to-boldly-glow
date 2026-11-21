@@ -29,6 +29,8 @@ export interface StagedLessonScene {
   groundShot(chapter: Chapter): GroundShot | null
   // The chapter's own camera shot, for scenes that frame each chapter differently.
   shot?(chapter: Chapter): LessonShot
+  // Where the camera moves once the lesson has been read out to its end, if anywhere.
+  closingShot?(chapter: Chapter): LessonShot | null
   updateOverlays(layout: SceneLayout, chapter: Chapter, frame: StagedOverlayFrame): void
   hideOverlays(): void
   // Passes before the scene's own (a lamp's shadow map), for scenes that need them.

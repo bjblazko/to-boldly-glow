@@ -3,7 +3,7 @@ import { EasedTween } from '../math/easedTween'
 import { COMPACT_MIN_ORBIT_RADIUS, WALK_RADIUS, type OrbitCamera } from '../camera/orbitCamera'
 import { blendViews, cameraSnapshot, viewAbout, type CameraView, type Snapshot } from './lessonCameraViews'
 import { entryFrom, poseOf, WalkFlight, type Entry } from './walkFlight'
-import { circleSpot, startWalking, walkLimit, walkUpTo, type Obstacle } from './cabinWalk'
+import { circleSpot, walkInto, walkUpTo, type Obstacle } from './cabinWalk'
 import type { CameraLens } from '../camera/cameraLens'
 import { NO_LENS_SHIFT, VERTICAL_FOV_RADIANS } from '../camera/viewpoint'
 import { ECLIPTIC_NORTH } from '../solarSystem/poleOrientation'
@@ -265,10 +265,7 @@ export class LessonCamera {
 
   // A shot one walks through: the camera turns walking, its near plane close enough for a room.
   private enterRoom(shot: LessonShot, sceneFloor: number): void {
-    this.orbit.walk = null
-    if (!shot.walk || !this.obstacle) return
-    startWalking(this.orbit, walkLimit(this.obstacle), shot.walk.head)
-    this.lens.setLessonZoomFloor(Math.min(sceneFloor, WALK_RADIUS))
+    if (walkInto(this.orbit, shot, this.obstacle)) this.lens.setLessonZoomFloor(Math.min(sceneFloor, WALK_RADIUS))
   }
 
   private fitShot(kind: ChapterKind, groundShot: GroundShot | null | undefined, { focusPlanetId, lineupOrder }: FramingOptions): void {
@@ -432,5 +429,4 @@ export class LessonCamera {
     this.orbit.radius = radius
     this.lens.lensShift = lensShift
   }
-
 }

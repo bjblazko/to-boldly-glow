@@ -286,10 +286,13 @@ export class LessonSession implements ScenePlayer {
     if (next) this.parts.voice.prefetch(this.player.currentLesson.id, next)
   }
 
-  // Playing: the next chapter, or - after the last - stop.
+  // Playing: the next chapter, or - after the last - stop, the camera moving on to the lesson's
+  // closing shot if it has one.
   private turnPageByItself(): void {
-    if (this.player.hasNextChapter) this.goToChapter(() => this.player.nextChapter())
-    else this.autoplay.setPlaying(false)
+    if (this.player.hasNextChapter) return this.goToChapter(() => this.player.nextChapter())
+    this.autoplay.setPlaying(false)
+    const closing = this.stagedScene?.closingShot?.(this.chapter)
+    if (closing) this.parts.lessonCamera.frameShot(closing, true)
   }
 
   private arrangeLineup(options?: { animate: boolean; focusPlanetId?: string }): void {

@@ -1,3 +1,4 @@
+import { orbitBasisForUpAxis } from '../../camera/orbitCamera'
 import type { Vec3 } from '../../math/tuples'
 import type { LessonShot } from '../lessonShot'
 import { TOWARD_SUN } from '../voyager/spacecraftStage'
@@ -32,6 +33,15 @@ export interface VehicleFrame {
   fov?: number
   panReach?: number
   walk?: { head: Vec3; through?: Vec3[] }
+}
+
+// A shot's target, distance and angles for an eye at `eye` looking at `at` (+Y up).
+export function eyeLookingAt(eye: Vec3, at: Vec3): Pick<VehicleFrame, 'target' | 'radius' | 'azimuth' | 'elevation'> {
+  const back = [eye[0] - at[0], eye[1] - at[1], eye[2] - at[2]]
+  const radius = Math.hypot(back[0], back[1], back[2])
+  const { right, forward0 } = orbitBasisForUpAxis(UP)
+  const along = (axis: Vec3) => (back[0] * axis[0] + back[1] * axis[1] + back[2] * axis[2]) / radius
+  return { target: at, radius, azimuth: Math.atan2(along(right), along(forward0)), elevation: Math.asin(along(UP)) }
 }
 
 export function vehicleShot(key: string, frame: VehicleFrame): LessonShot {

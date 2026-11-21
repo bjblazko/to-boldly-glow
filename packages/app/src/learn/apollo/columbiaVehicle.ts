@@ -1,7 +1,7 @@
 import type { Vec3 } from '../../math/tuples'
 import { msg } from '../../i18n/i18n'
 import type { VehicleConfig } from '../vehicle/vehicleConfig'
-import { VEHICLE_ROOM_FACING, vehicleShot, type VehicleFrame } from '../vehicle/vehicleCamera'
+import { eyeLookingAt, VEHICLE_ROOM_FACING, vehicleShot, type VehicleFrame } from '../vehicle/vehicleCamera'
 
 // The assemblies of Columbia's two models (see the data pipeline's apollo/csmParts.ts and
 // apollo/columbiaInterior.ts): the outside, built from its dimensions, and the scanned cabin.
@@ -36,7 +36,12 @@ const FRAMES: Record<string, VehicleFrame> = {
   inside: { ...INSIDE, target: [0.09, 8.98, 0.18], radius: 0.64, elevation: -0.36, azimuth: -0.56 },
   panels: { ...INSIDE, target: [0.09, 8.98, 0.18], radius: 0.47, elevation: -0.4, azimuth: -1.78 },
   seats: { ...INSIDE, target: [0, 8.49, 0.25], radius: 0.7, elevation: 0.38, azimuth: -0.39 },
-  notes: { ...INSIDE, target: [-0.1, 8.8, -0.87], radius: 0.54, elevation: 0.48, azimuth: -1.36 },
+  // Close before the wall of the lower equipment bay (the notes are spread over it, 2 m across; this
+  // looks at their middle, 0.6 m off), sitting up - the console overhead - through a longer lens.
+  notes: { ...INSIDE, ...eyeLookingAt([0, 8.9, -0.45], [-0.29, 8.85, -0.95]), fov: (50 * Math.PI) / 180, walk: { ...CREW_LYING, head: [0, 1, 0] } },
+  // Where the command module pilot lay: the middle couch, the head 28 cm above its back (the
+  // couch's back at y 8.4), looking up at the main display console (at y 9.0-9.2 over the couches).
+  centerCouch: { ...INSIDE, ...eyeLookingAt([0, 8.68, 0.72], [0, 9.2, 0.45]) },
 }
 
 // The cabin's light: its floodlights - two on the underside of the main display console over the
