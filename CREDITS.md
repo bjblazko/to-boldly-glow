@@ -261,6 +261,10 @@ KSC-69P-372 (Apollo 11 rollout), NASA/KSC. The Columbia lesson's photos, fetched
 `packages/data-pipeline/src/fetchColumbiaPhotos.ts`: 372772main_GPN-2000-001212_full (Columbia after
 splashdown, NASA), S69-40758 (Columbia aboard the USS Hornet) and S69-38317 (Michael Collins in the
 command module simulator), NASA/JSC.
+The Eagle lesson's photos, fetched the same way by `packages/data-pipeline/src/fetchEaglePhotos.ts`,
+NASA/JSC, public domain (captions checked: no other credit): as11-40-5927 (Eagle on the Moon, Aldrin
+beside it), as11-44-6581 (Eagle in lunar orbit), as11-40-5863 (Aldrin leaving through the hatch) and
+as11-44-6642 (the ascent stage at rendezvous).
 
 ## Apollo: Columbia, the command and service module
 

@@ -21,6 +21,7 @@
     "fetch-saturn-v-photos": "tsx src/fetchSaturnVPhotos.ts",
     "build-columbia": "tsx src/buildColumbia.ts",
     "build-eagle": "tsx src/buildEagle.ts",
+    "fetch-eagle-photos": "tsx src/fetchEaglePhotos.ts",
     "fetch-columbia-photos": "tsx src/fetchColumbiaPhotos.ts"
   },
   "devDependencies": {

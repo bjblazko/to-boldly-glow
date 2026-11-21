@@ -85,6 +85,12 @@ export const eagle = {
     descent: { label: 'Top of the descent stage' },
     ascent: { label: 'Top of the ascent stage' },
   } as Record<string, { label: string; note?: string }>,
+  captions: {
+    surface: 'Eagle in the Sea of Tranquility, 20 July 1969; Buzz Aldrin unpacks the experiments from the descent stage.',
+    orbit: 'Eagle in lunar orbit after undocking, its legs out and its probes reaching down, photographed by Michael Collins.',
+    hatch: 'Buzz Aldrin backs out of the hatch onto the porch, feet first, before climbing down the ladder.',
+    rendezvous: 'The ascent stage, with Armstrong and Aldrin aboard, comes back up to Columbia; the Earth beyond.',
+  },
   facts: {
     height: { label: 'Height', value: 'about 7 m' },
     width: { label: 'Across the legs', value: 'about 9.4 m' },

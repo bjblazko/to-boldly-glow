@@ -25,7 +25,7 @@ export const credits: Messages['credits'] = {
     goldenRecord: 'Hülle und Platte der Goldenen Schallplatte (Fotos)',
     voyagerPhotos: 'Die Fotos der Voyager-Lektionen und -Touren, aufgenommen von den Sonden (und von den Starts)',
     saturnVModel: 'Maße und Zahlen der Saturn V, aus denen ihr Modell und die Zahlen der Lektion stammen',
-    saturnVPhotos: 'Die Fotos der Lektionen zu Saturn V und Columbia',
+    saturnVPhotos: 'Die Fotos der Lektionen zu Saturn V, Columbia und Eagle',
     csmModel: 'Maße und Aufbau von Kommando- und Versorgungsmodul, aus denen ihr Modell entsteht',
     columbiaCabin: 'Die Kabine der Columbia von innen: Wände, Instrumententafeln, Liegen und die Notizen der Crew',
     lmModel: 'Maße der Mondfähre, aus denen Tanks und Triebwerke im Schnitt und die Zahlen der Lektion entstehen',

@@ -85,6 +85,12 @@ export const eagle: Messages['lessons']['eagle'] = {
     descent: { label: 'Oberkante der Abstiegsstufe' },
     ascent: { label: 'Oberkante der Aufstiegsstufe' },
   },
+  captions: {
+    surface: 'Eagle im Meer der Ruhe, 20. Juli 1969; Buzz Aldrin packt die Experimente aus der Abstiegsstufe aus.',
+    orbit: 'Eagle im Mondorbit nach dem Abkoppeln, die Beine ausgeklappt, die Fühler nach unten – fotografiert von Michael Collins.',
+    hatch: 'Buzz Aldrin kriecht rückwärts aus der Luke auf die Plattform, die Füße voran, bevor er die Leiter hinabsteigt.',
+    rendezvous: 'Die Aufstiegsstufe mit Armstrong und Aldrin an Bord kehrt zu Columbia zurück; dahinter die Erde.',
+  },
   facts: {
     height: { label: 'Höhe', value: 'etwa 7 m' },
     width: { label: 'Über die Beine', value: 'etwa 9,4 m' },
