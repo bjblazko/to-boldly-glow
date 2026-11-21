@@ -47,8 +47,9 @@ function front({ dark, glass, black }: AscentLooks): MeshPrimitive {
   const half = HATCH.size / 2
   const hatch = plate([[-half, HATCH.bottom, z], [half, HATCH.bottom, z], [half, HATCH.bottom + HATCH.size, z], [-half, HATCH.bottom + HATCH.size, z]], dark)
   const window = (side: number) => {
-    const [inner, outer, low, high] = [0.12 * side, 0.86 * side, floor + 1.3, floor + 1.95]
-    return [plate([[inner, low - 0.04, z], [outer + 0.05 * side, high + 0.04, z], [inner, high + 0.04, z]], black), plate([[inner, low, z + 0.004], [outer, high, z + 0.004], [inner, high, z + 0.004]], glass)]
+    const [low, top, outer] = WINDOWS(side)
+    const frame: Point3[] = [[low[0], low[1] - 0.04, z], [outer[0] + 0.05 * side, outer[1] + 0.04, z], [top[0], top[1] + 0.04, z]]
+    return [plate(frame, black), plate([low, outer, top].map(([x, y]) => [x, y, z + 0.004] as Point3), glass)]
   }
   const roof = CABIN_MIDDLE + cabinRadius + 0.012
   const docking = plate([[0.35, roof, 0.35], [0.7, roof, 0.35], [0.7, roof, 0.65], [0.35, roof, 0.65]], glass)
@@ -116,6 +117,14 @@ function dishProfile(radius: number): ProfilePoint[] {
 export function ascentInside(looks: AscentLooks): MeshPrimitive[] {
   const tanks = ASCENT_TANKS.map((tank) => sphere(tank, tank.contents === 'fuel' ? looks.fuel : looks.oxidizer, 24))
   return [...tanks, placedLathe(APS.profile, TUNNEL.at, APS.exitHeight, lathed(looks.engine, 32))]
+}
+
+// A triangular window (+1 the Commander's, -1 the LM Pilot's) on the front face, at the standing
+// crew's eye height: its inner edge upright, its top edge level, the third side running down and in.
+// Corners (x, y): inner low, inner top, outer top.
+export function WINDOWS(side: number): [number, number][] {
+  const [inner, outer, low, high] = [0.12 * side, 0.7 * side, floor + 1.48, floor + 1.88]
+  return [[inner, low], [inner, high], [outer, high]]
 }
 
 // Where things are, for the cockpit (lmCockpit.ts) and the camera.

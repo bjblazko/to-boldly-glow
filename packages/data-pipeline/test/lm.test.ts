@@ -3,6 +3,11 @@ import { describe, expect, it } from 'vitest'
 import { letterPath } from '../src/apollo/blockLetters'
 import { flagLettering, foilTexture, plaqueTexture, PLAQUE_TEXT } from '../src/apollo/lmTextures'
 import { applyHinge, hingeMatrix } from '../../app/src/spacecraft/modelHinge'
+import { pickModel } from '../../app/src/spacecraft/modelPick'
+import type { ModelData } from '../../app/src/spacecraft/modelFile'
+import { ASCENT_FRAME } from '../src/apollo/lmAscent'
+import { COCKPIT, cockpitParts, cockpitTextures } from '../src/apollo/lmCockpit'
+import { swatch } from '../src/apollo/lmParts'
 import { LM_ASSEMBLIES, lmAssemblyKind, lmHinge, lmParts } from '../src/apollo/lmParts'
 import { ASCENT_STAGE, DESCENT_STAGE, FOOTPAD, LEGS, legHinge, LM_HEIGHTS, PROBE_LENGTH } from '../src/apollo/lmProfile'
 
@@ -99,4 +104,54 @@ describe("Eagle's parts", () => {
     }
     expect(lmHinge('descent')).toBeUndefined()
   })
+})
+
+describe("Eagle's cockpit", () => {
+  const looks = { wall: swatch('ascent'), floor: swatch('ascentDark'), dark: swatch('black'), glass: swatch('glass'), steel: swatch('steel') }
+  const cockpit = cockpitParts(looks)
+  const corners = cockpit.flatMap(({ positions }) => Array.from({ length: positions.length / 3 }, (_, i) => [positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]]))
+
+  it('lies inside the crew compartment', () => {
+    for (const [x, y, z] of corners) {
+      expect(Math.abs(x)).toBeLessThanOrEqual(ASCENT_STAGE.cabinRadius / Math.cos(Math.PI / 8))
+      expect(y).toBeGreaterThanOrEqual(ASCENT_STAGE.floor - 0.25)
+      expect(y).toBeLessThanOrEqual(ASCENT_FRAME.cabinMiddle + ASCENT_STAGE.cabinRadius)
+      expect(z).toBeGreaterThanOrEqual(ASCENT_FRAME.cabinBack - 0.01)
+      expect(z).toBeLessThanOrEqual(ASCENT_STAGE.cabinFront + 0.01)
+    }
+  })
+
+  it('puts a standing crew member\'s eyes about 1.65 m above the floor', () => {
+    expect(COCKPIT.eye - COCKPIT.floor).toBeGreaterThanOrEqual(1.55)
+    expect(COCKPIT.eye - COCKPIT.floor).toBeLessThanOrEqual(1.75)
+  })
+
+  // Every triangle of the cockpit and the ascent stage, as the app's picking sees them.
+  const model = ((): ModelData => {
+    const all = [...cockpit, ...(lmParts().get('ascent') ?? [])]
+    const vertices: number[] = []
+    const indices: number[] = []
+    for (const { positions, indices: own } of all) {
+      const first = vertices.length / 9
+      for (let i = 0; i < positions.length; i += 3) vertices.push(positions[i], positions[i + 1], positions[i + 2], 0, 1, 0, 0, 0, 0)
+      for (const index of own) indices.push(first + index)
+    }
+    return { description: {} as ModelData['description'], vertices: Float32Array.from(vertices), indices: Uint32Array.from(indices) }
+  })()
+  const clearance = (from: number[]) => Array.from({ length: 8 }, (_, k) => {
+    const angle = (k * Math.PI) / 4
+    return pickModel(model, from as [number, number, number], [Math.sin(angle), 0, Math.cos(angle)], { moved: [[0, 0, 0]], shown: () => true, cutAway: () => false }) ?? Infinity
+  })
+
+  it('leaves room to turn just inside the hatch, and where each of the crew stood', () => {
+    expect(Math.min(...clearance(COCKPIT.hatchInside))).toBeGreaterThanOrEqual(0.3)
+    expect(Math.min(...clearance(COCKPIT.commander))).toBeGreaterThanOrEqual(0.25)
+    expect(Math.min(...clearance(COCKPIT.pilot))).toBeGreaterThanOrEqual(0.25)
+  })
+
+  it('draws every panel at about 3,000 pixels per metre', async () => {
+    const textures = await cockpitTextures()
+    expect([...textures.keys()].sort()).toEqual(['lm-panel-1.jpg', 'lm-panel-11.jpg', 'lm-panel-14.jpg', 'lm-panel-16.jpg', 'lm-panel-2.jpg', 'lm-panel-3.jpg', 'lm-panel-4.jpg', 'lm-panel-8.jpg'])
+    expect((await sharp(textures.get('lm-panel-1.jpg')).metadata()).width).toBe(1920)
+  }, 60000)
 })
