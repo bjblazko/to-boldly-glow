@@ -25,7 +25,7 @@ export interface FilmCamera {
 
 // The uniform block's floats (see FILM_LOOK_WGSL).
 export function filmLookValues(look: FilmLook, seed: number, camera: FilmCamera): Float32Array<ArrayBuffer> {
-  return Float32Array.from([look.vignette, look.grain, look.grade, seed % 1000, look.occlusion, look.reach, camera.projection[10], camera.projection[14], camera.focalPixels, look.blur, 0, 0])
+  return Float32Array.from([look.vignette, look.grain, look.grade, seed % 1000, look.occlusion, look.reach, camera.projection[10], camera.projection[14], camera.focalPixels, look.blur, camera.projection[8], camera.projection[9]])
 }
 
 export const FILM_LOOK_WGSL = /* wgsl */ `
@@ -34,7 +34,8 @@ struct FilmLook {
   strength: vec4f,
   // x: occlusion's strength, y: its reach (metres), z and w: the projection's z terms.
   occlusion: vec4f,
-  // x: pixels per metre at one metre's distance, y: the depth of field's largest blur (pixels).
+  // x: pixels per metre at one metre's distance, y: the depth of field's largest blur (pixels),
+  // z and w: the projection's lens shift terms (minus where the view's pivot lies on screen, in NDC).
   screen: vec4f,
 }
 
@@ -84,14 +85,16 @@ fn filmLook(color: vec3f, uv: vec2f, look: FilmLook) -> vec3f {
   return clamp(result, vec3f(0.0), vec3f(1.0));
 }
 
-// The scene's colour with depth of field: focused on the distance at the middle of the picture, a
+// The scene's colour with depth of field: focused on the distance at the view's pivot (the middle
+// of the picture, moved by the lens shift - a lesson's scene stands beside its panel), a
 // pixel blurred over a disc as wide as its circle of confusion (|1 - focus / distance|, so the
 // near blurs more than the far), up to the look's largest blur.
 fn focused(hdr: texture_2d<f32>, hdrSampler: sampler, depthMap: texture_depth_multisampled_2d, uv: vec2f, look: FilmLook) -> vec3f {
   let sharp = textureSampleLevel(hdr, hdrSampler, uv, 0.0).rgb;
   if (look.screen.y <= 0.0) { return sharp; }
   let size = vec2f(textureDimensions(depthMap));
-  let focus = distanceAt(depthMap, vec2i(size * 0.5), look);
+  let pivot = vec2f(0.5 - look.screen.z * 0.5, 0.5 + look.screen.w * 0.5);
+  let focus = distanceAt(depthMap, vec2i(clamp(pivot, vec2f(0.0), vec2f(1.0)) * (size - 1.0)), look);
   let here = distanceAt(depthMap, vec2i(uv * size), look);
   let blur = min(abs(1.0 - focus / min(here, 1000.0)) * look.screen.y, look.screen.y);
   if (blur < 0.5) { return sharp; }

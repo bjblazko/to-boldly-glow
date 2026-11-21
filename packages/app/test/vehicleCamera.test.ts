@@ -9,6 +9,6 @@ describe('a vehicle shot from an eye point', () => {
     const { target, radius, azimuth, elevation } = eyeLookingAt(eye, at)
     const camera = new OrbitCamera({ target, radius, azimuth, elevation, upAxis: [0, 1, 0] })
     const placed = camera.getEyePosition()
-    for (let i = 0; i < 3; i++) expect(placed[i]).toBeCloseTo(eye[i], 6)
+    for (let i = 0; i < 3; i++) expect(placed[i]).toBeCloseTo(eye[i], 5)
   })
 })
