@@ -96,20 +96,30 @@ export interface CockpitLooks {
   steel: Swatch
 }
 
-export function cockpitParts(looks: CockpitLooks): MeshPrimitive[] {
-  return [shell(looks), ...PANELS.map(panelPlate), ...SIDE_PANELS.map(sidePlate), ...stations(looks), telescope(looks)]
+// The cockpit's parts by what the lesson labels: the panels, the DSKY's panel, the windows, and the
+// rest (walls, floor, hatch, controls).
+export type CockpitPart = 'cockpit' | 'panels' | 'dsky' | 'windows'
+
+export function cockpitParts(looks: CockpitLooks): Map<CockpitPart, MeshPrimitive[]> {
+  const [dsky, ...main] = [PANELS[3], ...PANELS.slice(0, 3)]
+  return new Map<CockpitPart, MeshPrimitive[]>([
+    ['cockpit', [shell(looks), ...stations(looks), telescope(looks)]],
+    ['panels', [...main.map(panelPlate), ...SIDE_PANELS.map(sidePlate)]],
+    ['dsky', [panelPlate(dsky)]],
+    ['windows', [1, -1].map((side) => plate(WINDOWS(side).map(([x, y]) => [x, y, FRONT - 0.037] as Point3), looks.glass))],
+  ])
 }
 
-// The compartment's inner walls, floor and roof; the front's windows and hatch seen from inside.
-function shell({ wall, floor: deck, dark, glass }: CockpitLooks): MeshPrimitive {
+// The compartment's inner walls, floor and roof, the hatch seen from inside, the way back into the
+// midsection.
+function shell({ wall, floor: deck, dark }: CockpitLooks): MeshPrimitive {
   const inner = laidAlongZ(prism(polygon(8, WALL / Math.cos(Math.PI / 8), [0, 0], 22.5), cabinBack + 0.03, FRONT - 0.03, wall), [0, cabinMiddle, 0])
   const deckPlate = box([-0.95, floor - 0.02, cabinBack + 0.05], [0.95, floor, FRONT - 0.05], deck)
   const z = FRONT - 0.035
   const half = HATCH.size / 2
   const hatch = plate([[half, HATCH.bottom, z], [-half, HATCH.bottom, z], [-half, HATCH.bottom + HATCH.size, z], [half, HATCH.bottom + HATCH.size, z]], dark)
-  const windows = [1, -1].map((side) => plate(WINDOWS(side).map(([x, y]) => [x, y, z - 0.002] as Point3), glass))
   const opening = plate([[0.6, floor + ASCENT_STAGE.stepUp, cabinBack + 0.04], [-0.6, floor + ASCENT_STAGE.stepUp, cabinBack + 0.04], [-0.6, floor + 1.95, cabinBack + 0.04], [0.6, floor + 1.95, cabinBack + 0.04]], dark)
-  return mergePrimitives([inner, deckPlate, hatch, ...windows, opening])
+  return mergePrimitives([inner, deckPlate, hatch, opening])
 }
 
 // At each station: the armrests, the attitude controller (right hand) and the thrust/translation

@@ -1,0 +1,350 @@
+{
+ "vertexCount": 7903,
+ "indexCount": 34830,
+ "indexFormat": "uint16",
+ "draws": [
+  {
+   "texture": "lm-foil-gold.jpg",
+   "firstIndex": 0,
+   "indexCount": 84
+  },
+  {
+   "texture": "lm-foil-amber.jpg",
+   "firstIndex": 84,
+   "indexCount": 24
+  },
+  {
+   "texture": "lm-foil-black.jpg",
+   "firstIndex": 108,
+   "indexCount": 18
+  },
+  {
+   "texture": "lm-palette.png",
+   "firstIndex": 126,
+   "indexCount": 34638
+  },
+  {
+   "texture": "lm-flag.jpg",
+   "firstIndex": 34764,
+   "indexCount": 6
+  },
+  {
+   "texture": "lm-foil-silver.jpg",
+   "firstIndex": 34770,
+   "indexCount": 6
+  },
+  {
+   "texture": "lm-plaque.jpg",
+   "firstIndex": 34776,
+   "indexCount": 6
+  },
+  {
+   "texture": "lm-panel-1.jpg",
+   "firstIndex": 34782,
+   "indexCount": 6
+  },
+  {
+   "texture": "lm-panel-2.jpg",
+   "firstIndex": 34788,
+   "indexCount": 6
+  },
+  {
+   "texture": "lm-panel-3.jpg",
+   "firstIndex": 34794,
+   "indexCount": 6
+  },
+  {
+   "texture": "lm-panel-8.jpg",
+   "firstIndex": 34800,
+   "indexCount": 6
+  },
+  {
+   "texture": "lm-panel-11.jpg",
+   "firstIndex": 34806,
+   "indexCount": 6
+  },
+  {
+   "texture": "lm-panel-14.jpg",
+   "firstIndex": 34812,
+   "indexCount": 6
+  },
+  {
+   "texture": "lm-panel-16.jpg",
+   "firstIndex": 34818,
+   "indexCount": 6
+  },
+  {
+   "texture": "lm-panel-4.jpg",
+   "firstIndex": 34824,
+   "indexCount": 6
+  }
+ ],
+ "bounds": {
+  "min": [
+   -4.724400043487549,
+   -1.5240000486373901,
+   -4.724400043487549
+  ],
+  "max": [
+   4.724400043487549,
+   6.987077236175537,
+   4.724400043487549
+  ]
+ },
+ "assemblies": [
+  {
+   "id": "descent",
+   "explode": [
+    0,
+    0,
+    0
+   ],
+   "kind": "shell"
+  },
+  {
+   "id": "descentInside",
+   "explode": [
+    0,
+    0,
+    0
+   ],
+   "kind": "inside"
+  },
+  {
+   "id": "leg0",
+   "explode": [
+    0,
+    0,
+    0
+   ],
+   "kind": "solid",
+   "hinge": {
+    "pivot": [
+     0,
+     2.9758,
+     2.35
+    ],
+    "axis": [
+     -1,
+     0,
+     0
+    ],
+    "angle": 2.5307274153917776
+   }
+  },
+  {
+   "id": "leg1",
+   "explode": [
+    0,
+    0,
+    0
+   ],
+   "kind": "solid",
+   "hinge": {
+    "pivot": [
+     2.35,
+     2.9758,
+     1.4389599889981402e-16
+    ],
+    "axis": [
+     -6.123233995736766e-17,
+     0,
+     1
+    ],
+    "angle": 2.5307274153917776
+   }
+  },
+  {
+   "id": "leg2",
+   "explode": [
+    0,
+    0,
+    0
+   ],
+   "kind": "solid",
+   "hinge": {
+    "pivot": [
+     2.8779199779962803e-16,
+     2.9758,
+     -2.35
+    ],
+    "axis": [
+     1,
+     0,
+     1.2246467991473532e-16
+    ],
+    "angle": 2.5307274153917776
+   }
+  },
+  {
+   "id": "leg3",
+   "explode": [
+    0,
+    0,
+    0
+   ],
+   "kind": "solid",
+   "hinge": {
+    "pivot": [
+     -2.35,
+     2.9758,
+     -4.31687996699442e-16
+    ],
+    "axis": [
+     1.8369701987210297e-16,
+     0,
+     -1
+    ],
+    "angle": 2.5307274153917776
+   }
+  },
+  {
+   "id": "deployed",
+   "explode": [
+    0,
+    0,
+    0
+   ],
+   "kind": "solid"
+  },
+  {
+   "id": "ascent",
+   "explode": [
+    0,
+    2.5,
+    0
+   ],
+   "kind": "shell"
+  },
+  {
+   "id": "ascentInside",
+   "explode": [
+    0,
+    2.5,
+    0
+   ],
+   "kind": "inside"
+  },
+  {
+   "id": "cockpit",
+   "explode": [
+    0,
+    2.5,
+    0
+   ],
+   "kind": "inside"
+  },
+  {
+   "id": "panels",
+   "explode": [
+    0,
+    2.5,
+    0
+   ],
+   "kind": "inside"
+  },
+  {
+   "id": "dsky",
+   "explode": [
+    0,
+    2.5,
+    0
+   ],
+   "kind": "inside"
+  },
+  {
+   "id": "windows",
+   "explode": [
+    0,
+    2.5,
+    0
+   ],
+   "kind": "inside"
+  },
+  {
+   "id": "person",
+   "explode": [
+    0,
+    0,
+    0
+   ],
+   "kind": "solid"
+  }
+ ],
+ "anchors": {
+  "descent": [
+   0,
+   2.1653000116348267,
+   0
+  ],
+  "descentInside": [
+   0,
+   2.4192999601364136,
+   0
+  ],
+  "leg0": [
+   0,
+   1.5108799934387207,
+   3.5039480924606323
+  ],
+  "leg1": [
+   3.5039480924606323,
+   1.5108799934387207,
+   0
+  ],
+  "leg2": [
+   0,
+   1.5108799934387207,
+   -3.5039480924606323
+  ],
+  "leg3": [
+   -3.5039480924606323,
+   1.5108799934387207,
+   0
+  ],
+  "deployed": [
+   0,
+   0.4016560912132263,
+   -0.37168943881988525
+  ],
+  "ascent": [
+   0,
+   5.147238612174988,
+   0
+  ],
+  "ascentInside": [
+   0,
+   3.9257999658584595,
+   -0.549999987706542
+  ],
+  "person": [
+   2.200000047683716,
+   0.8999999761581421,
+   3.399999976158142
+  ],
+  "cockpit": [
+   0,
+   4.475799918174744,
+   0.4166000075638294
+  ],
+  "panels": [
+   0,
+   4.905800104141235,
+   0.5300000160932541
+  ],
+  "dsky": [
+   0,
+   4.5157999992370605,
+   0.8800000250339508
+  ],
+  "windows": [
+   0,
+   5.20579981803894,
+   0.9129999876022339
+  ]
+ },
+ "marks": {
+  "descent": 3.2258,
+  "ascent": 6.985
+ }
+}

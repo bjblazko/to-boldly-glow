@@ -13,18 +13,23 @@ import { placedLathe, tankProfile } from './shapes'
 
 // The assemblies Eagle is shown in: the descent stage's shell (cut open) and what is inside it,
 // each leg (they fold), what is there only with them out (the secondary struts, the probes), the ascent stage's
-// shell and what is inside it, the cockpit (lmCockpit.ts) and a person for scale.
-export const LM_ASSEMBLIES = ['descent', 'descentInside', 'leg0', 'leg1', 'leg2', 'leg3', 'deployed', 'ascent', 'ascentInside', 'cockpit', 'person'] as const
+// shell and what is inside it, the cockpit with its panels, DSKY and windows (lmCockpit.ts) and a
+// person for scale.
+export const LM_ASSEMBLIES = ['descent', 'descentInside', 'leg0', 'leg1', 'leg2', 'leg3', 'deployed', 'ascent', 'ascentInside', 'cockpit', 'panels', 'dsky', 'windows', 'person'] as const
 export type LmAssembly = (typeof LM_ASSEMBLIES)[number]
+export const COCKPIT_ASSEMBLIES = ['cockpit', 'panels', 'dsky', 'windows'] as const
 
 export function lmAssemblyKind(assembly: LmAssembly): AssemblyKind {
   if (assembly === 'descent' || assembly === 'ascent') return 'shell'
-  return assembly === 'descentInside' || assembly === 'ascentInside' || assembly === 'cockpit' ? 'inside' : 'solid'
+  return INSIDE.includes(assembly) ? 'inside' : 'solid'
 }
+
+const INSIDE: readonly LmAssembly[] = ['descentInside', 'ascentInside', ...COCKPIT_ASSEMBLIES]
+const ASCENT: readonly LmAssembly[] = ['ascent', 'ascentInside', ...COCKPIT_ASSEMBLIES]
 
 // Taken apart, the ascent stage (with what is in it) lifts off the descent stage.
 export function lmExplodeOffset(assembly: LmAssembly): [number, number, number] {
-  return [0, assembly === 'ascent' || assembly === 'ascentInside' || assembly === 'cockpit' ? 2.5 : 0, 0]
+  return [0, ASCENT.includes(assembly) ? 2.5 : 0, 0]
 }
 
 // The legs fold about their hinges; nothing else does.
@@ -50,7 +55,7 @@ const ASCENT_LOOKS: AscentLooks = {
   oxidizer: swatch('oxidizer'),
 }
 
-// Every assembly's triangles but the cockpit's.
+// Every assembly's triangles but the cockpit's (lmCockpit.ts).
 export function lmParts(): Map<LmAssembly, MeshPrimitive[]> {
   const legLooks = { strut: swatch('strut'), steel: swatch('steel'), plaque: { texture: LM_PLAQUE_TEXTURE, decal: true } as Look }
   return new Map<LmAssembly, MeshPrimitive[]>([

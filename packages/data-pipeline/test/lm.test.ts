@@ -8,7 +8,7 @@ import type { ModelData } from '../../app/src/spacecraft/modelFile'
 import { ASCENT_FRAME } from '../src/apollo/lmAscent'
 import { COCKPIT, cockpitParts, cockpitTextures } from '../src/apollo/lmCockpit'
 import { swatch } from '../src/apollo/lmParts'
-import { LM_ASSEMBLIES, lmAssemblyKind, lmHinge, lmParts } from '../src/apollo/lmParts'
+import { COCKPIT_ASSEMBLIES, LM_ASSEMBLIES, lmAssemblyKind, lmHinge, lmParts } from '../src/apollo/lmParts'
 import { ASCENT_STAGE, DESCENT_STAGE, FOOTPAD, LEGS, legHinge, LM_HEIGHTS, PROBE_LENGTH } from '../src/apollo/lmProfile'
 
 const FT = 0.3048
@@ -78,9 +78,9 @@ describe("Eagle's parts", () => {
   const parts = lmParts()
   const points = (assembly: (typeof LM_ASSEMBLIES)[number]) => (parts.get(assembly) ?? []).flatMap(({ positions }) => Array.from({ length: positions.length / 3 }, (_, i) => [positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]] as [number, number, number]))
 
-  it('builds every assembly but the cockpit, at most 16 in all', () => {
+  it('builds every assembly but the cockpit\'s, at most 16 in all', () => {
     expect(LM_ASSEMBLIES.length).toBeLessThanOrEqual(16)
-    expect([...parts.keys()].sort()).toEqual(LM_ASSEMBLIES.filter((assembly) => assembly !== 'cockpit').sort())
+    expect([...parts.keys()].sort()).toEqual(LM_ASSEMBLIES.filter((assembly) => !(COCKPIT_ASSEMBLIES as readonly string[]).includes(assembly)).sort())
     expect(LM_ASSEMBLIES.filter((assembly) => lmAssemblyKind(assembly) === 'shell')).toEqual(['descent', 'ascent'])
   })
 
@@ -108,7 +108,7 @@ describe("Eagle's parts", () => {
 
 describe("Eagle's cockpit", () => {
   const looks = { wall: swatch('ascent'), floor: swatch('ascentDark'), dark: swatch('black'), glass: swatch('glass'), steel: swatch('steel') }
-  const cockpit = cockpitParts(looks)
+  const cockpit = [...cockpitParts(looks).values()].flat()
   const corners = cockpit.flatMap(({ positions }) => Array.from({ length: positions.length / 3 }, (_, i) => [positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]]))
 
   it('lies inside the crew compartment', () => {
