@@ -35,12 +35,16 @@ describe('the Apollo 11 close-ups', () => {
     const lmEnd = actorPoint(actor('transposition', CLOSEUPS.transposition.seconds, 'lm'), LM_TOP, 'ascent')
     expect(lmEnd[1] - lmStart[1]).toBeGreaterThan(10)
     expect(actor('transposition', 3, 'saturnV').visibility.sla).toBe(0)
+    // Folded, Eagle's struts and probes are tucked away (as in the Eagle lesson).
+    for (const t of [0, 11, CLOSEUPS.transposition.seconds]) expect(actor('transposition', t, 'lm').visibility.deployed).toBe(0)
   })
 
   it('undocking: docked at first, the legs unfold, then Eagle drifts off and turns round once', () => {
     expect(gap('undocking', 0)).toBeLessThan(0.05)
     expect(actor('undocking', 0, 'lm').fold).toBe(1)
     expect(actor('undocking', CLOSEUPS.undocking.seconds, 'lm').fold).toBe(0)
+    expect(actor('undocking', 0, 'lm').visibility.deployed).toBe(0)
+    expect(actor('undocking', CLOSEUPS.undocking.seconds, 'lm').visibility.deployed).toBe(1)
     expect(gap('undocking', CLOSEUPS.undocking.seconds)).toBeGreaterThan(8)
   })
 
@@ -73,5 +77,18 @@ describe('the Apollo 11 close-ups', () => {
     expect(actor('entry', 7, 'csm').visibility.sm).toBe(0)
     const end = CLOSEUPS.entry.seconds
     expect(shield(end)[1]).toBeGreaterThan(apex(end)[1])
+  })
+})
+
+describe('the ground under Eagle', () => {
+  it("is the Moon's own surface: the flat facet of its drawn sphere right under the landing site", async () => {
+    const { groundUnderSite } = await import('../src/learn/apolloRoute/closeupFrames')
+    const { ROUTE_MOON, ROUTE_MOON_RADIUS, LANDING_SITE } = await import('../src/learn/apolloRoute/routeGeometry')
+    const ground = groundUnderSite()
+    const fromCentre = distance(ground.point, ROUTE_MOON)
+    expect(fromCentre).toBeLessThanOrEqual(ROUTE_MOON_RADIUS * (1 + 1e-6))
+    expect(fromCentre).toBeGreaterThan(ROUTE_MOON_RADIUS * 0.997)
+    const radial = [0, 1, 2].map((k) => (LANDING_SITE[k] - ROUTE_MOON[k]) / ROUTE_MOON_RADIUS)
+    expect(ground.normal[0] * radial[0] + ground.normal[1] * radial[1] + ground.normal[2] * radial[2]).toBeGreaterThan(0.998)
   })
 })

@@ -62,16 +62,17 @@ function transposition(t: number): ActorPose[] {
   const csmY = 7 + 18 * phase(t, 0, 4) - 18.52 * phase(t, 7.5, 11) + extraction
   return [
     pose('saturnV', { translation: [0, -IU_TOP, 0], visibility: { ...only(SATURN_V_PARTS, SATURN_V_SHOWN), sla: 1 - phase(t, 0, 1.5) } }),
-    pose('lm', { translation: [0, -LM_DESCENT_BOTTOM + extraction, 0], fold: 1 }),
+    pose('lm', { translation: [0, -LM_DESCENT_BOTTOM + extraction, 0], fold: 1, visibility: { person: 0, deployed: 0 } }),
     pose('csm', { translation: [0, csmY, 0], rotation: { x: Math.PI * phase(t, 4, 7.5), y: 0 }, pivot: CSM_MIDDLE }),
   ]
 }
 
-// In lunar orbit Eagle unfolds its legs, lets go and turns round once in front of Columbia.
+// In lunar orbit Eagle unfolds its legs (their struts and probes showing as they come out), lets go
+// and turns round once in front of Columbia.
 function undocking(t: number): ActorPose[] {
   return [
     pose('csm', {}),
-    pose('lm', { translation: [0, DOCKED_LM_Y + 12 * phase(t, 3.5, 8), 0], rotation: { x: Math.PI, y: 2 * Math.PI * phase(t, 8, 14) }, fold: 1 - phase(t, 0, 3.5) }),
+    pose('lm', { translation: [0, DOCKED_LM_Y + 12 * phase(t, 3.5, 8), 0], rotation: { x: Math.PI, y: 2 * Math.PI * phase(t, 8, 14) }, fold: 1 - phase(t, 0, 3.5), visibility: { person: 0, deployed: phase(t, 0, 3.5) } }),
   ]
 }
 

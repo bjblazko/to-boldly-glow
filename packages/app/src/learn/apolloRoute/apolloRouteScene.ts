@@ -21,6 +21,9 @@ const EARTH_TILT = axisAlignmentRotation(EARTH_POLE)
 const EARTH_SPIN_RADIANS_PER_SECOND = (2 * Math.PI) / 60
 // How long the craft takes over a chapter's stretch of the route.
 const PLAY_SECONDS = 9
+// Earth's air drawn to scale here, where Earth fills the picture: about 100 km (the Kármán line)
+// of its 6,371 km radius.
+const EARTH_AIR = 1 + 100 / 6371
 
 // A value eased from one end of a chapter's stretch to the other, then held.
 class Travel {
@@ -85,13 +88,18 @@ export class ApolloRouteScene {
   }
 
   layout(ephemeris: Ephemeris): SceneLayout {
-    const earth: PlanetPose = { definition: EARTH, position: ROUTE_EARTH, radius: ROUTE_EARTH_RADIUS, poleDirection: EARTH_POLE, tilt: EARTH_TILT, spinRadians: this.earthSpin }
+    const earth: PlanetPose = { definition: EARTH, position: ROUTE_EARTH, radius: ROUTE_EARTH_RADIUS, poleDirection: EARTH_POLE, tilt: EARTH_TILT, spinRadians: this.earthSpin, atmosphereRadiusFactor: EARTH_AIR }
     return { sun: sunPose(ephemeris, 1), planets: [earth], moons: [moonPose(earth)], alwaysShowBodyLabels: this.current?.view !== 'closeup' }
   }
 }
 
 // The Moon as in the Moon phases lesson, its near side to Earth; Earth casts no shadow on it here
 // (its parent is passed without a radius) but lights its night side.
+// The Moon as the scene draws it (its pose does not change with time).
+export function routeMoonPose(): MoonPose {
+  return moonPose({ definition: EARTH, position: ROUTE_EARTH, radius: ROUTE_EARTH_RADIUS, poleDirection: EARTH_POLE, tilt: EARTH_TILT, spinRadians: 0 })
+}
+
 function moonPose(earth: PlanetPose): MoonPose {
   const orbitAngle = ((newMoonOrbitAngleDegrees(PHASES_NODE_DEGREES) + ROUTE_MOON_AGE_DEGREES) * Math.PI) / 180
   return {

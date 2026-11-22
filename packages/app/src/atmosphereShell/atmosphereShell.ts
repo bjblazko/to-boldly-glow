@@ -61,7 +61,7 @@ export class AtmosphereShells {
     for (const planet of this.shelledPlanets(layout)) {
       const { atmosphereColor, atmosphereIntensity, id } = planet.definition
       const profile = SHELLS[id]
-      const world = bodyWorldMatrix(planet, planet.radius * profile.radiusFactor)
+      const world = bodyWorldMatrix(planet, planet.radius * (planet.atmosphereRadiusFactor ?? profile.radiusFactor))
       const uniforms = new Float32Array(ATMOSPHERE_SHELL_UNIFORM_FLOAT_COUNT)
       uniforms.set(worldViewProjection(viewpoint, world), 0)
       uniforms.set(world, 16)
