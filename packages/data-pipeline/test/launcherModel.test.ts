@@ -77,3 +77,16 @@ describe('the shipped launcher, its parts in place', () => {
     expect(crawler.bounds.max[2]).toBeLessThan(baseZ[1] + 0.5)
   })
 })
+
+describe('the slide wire', () => {
+  it('runs from the tower’s 98-metre level on its far side from the rocket, some 760 m down and out to the bunker', async () => {
+    const { slidewireLine } = await import('../src/apollo/launcherModel')
+    // A tower 12 m square standing at x 20 (the rocket on the axis), its foot on a deck 14 m up.
+    const { from, to } = slidewireLine({ min: [14, 0, -6], max: [26, 140, 6] }, 14)
+    expect(from[1]).toBeCloseTo(14 + 320 * 0.3048, 3)
+    expect(from[0]).toBeCloseTo(26, 3)
+    expect(Math.hypot(to[0] - from[0], to[2] - from[2])).toBeCloseTo(763, 0)
+    expect(to[0]).toBeGreaterThan(from[0])
+    expect(to[1]).toBeLessThan(5)
+  })
+})

@@ -18,7 +18,7 @@ import { packModel } from './spacecraft/modelWriter'
 //
 // `npm run build-launcher`
 
-export const LAUNCHER_ASSEMBLIES = [...LAUNCHER_PARTS, 'rocket', 'person'] as const
+export const LAUNCHER_ASSEMBLIES = [...LAUNCHER_PARTS, 'rocket', 'person', 'slidewire'] as const
 
 const APP = join(dirname(fileURLToPath(import.meta.url)), '../../app/public/models')
 

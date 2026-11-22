@@ -111,6 +111,7 @@ export const launcher: Messages['lessons']['launcher'] = {
     rocket: 'Saturn V',
     person: 'Ein Mensch (1,8 m)',
     crawler: 'Crawler-Transporter',
+    slidewire: 'Seilbahn mit Kabine',
   },
   marks: {
     deck: { label: 'Deck der Startplattform' },

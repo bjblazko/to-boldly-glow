@@ -7,7 +7,7 @@ import { VEHICLE_ROOM_FACING, vehicleShot, type VehicleFrame } from '../vehicle/
 // Saturn V on it, and its crawler-transporter.
 export type LauncherPart =
   | 'launcher' | 'holddown' | 'mast1' | 'mast2' | 'mast3' | 'cover1' | 'cover2' | 'cover3' | 'tower' | 'damperArm' | 'crewArm' | 'serviceArms' | 'intertankArm' | 'rocket' | 'person'
-  | 'crawler'
+  | 'crawler' | 'slidewire'
 
 // The rocket's axis on the origin, the launcher's bottom on the floor, its deck 8.4 m up; the tower
 // stands behind the rocket (+Z, 17 to 33 m out); its steel reaches 123 m, its crane 141 m. The arms

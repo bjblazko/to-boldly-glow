@@ -111,6 +111,7 @@ export const launcher = {
     rocket: 'Saturn V',
     person: 'A person (1.8 m)',
     crawler: 'Crawler-transporter',
+    slidewire: 'Slide wire and cab',
   },
   marks: {
     deck: { label: 'Launcher deck' },

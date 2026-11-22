@@ -30,7 +30,7 @@ const CHAPTERS: Chapter[] = [
   chapter('arms', { shot: 'arms', highlight: 'serviceArms', labels: ['serviceArms', 'intertankArm', 'crewArm'], gone: NO_CRAWLER }, { facts: [fact('arms', 'power')] }),
   chapter('crewArm', { shot: 'crewArm', highlight: 'crewArm', labels: ['crewArm', 'damperArm'], gone: NO_CRAWLER }, { photo: photo('KSC-69PC-399', 'crewWalk', 'NASA/KSC') }),
   chapter('whiteRoom', { shot: 'crewArm', highlight: 'crewArm', labels: ['crewArm'], gone: NO_CRAWLER }, { photo: photo('s69-35316', 'whiteRoom', 'NASA/JSC') }),
-  chapter('escape', { shot: 'tower', highlight: 'tower', labels: ['tower', 'crewArm'], gone: NO_CRAWLER }, { photo: photo('KSC-72PC-0610', 'egress', 'NASA/KSC') }),
+  chapter('escape', { shot: 'tower', highlight: 'slidewire', labels: ['slidewire', 'crewArm'], gone: NO_CRAWLER }, { photo: photo('KSC-72PC-0610', 'egress', 'NASA/KSC') }),
   chapter('platform', { shot: 'base', highlight: 'launcher', labels: ['launcher', 'mast1'], gone: NO_CRAWLER }, { photo: photo('KSC-69P-168', 'stacking', 'NASA/KSC') }),
   chapter('holddown', { shot: 'base', highlight: 'holddown', labels: ['holddown', 'mast1'], gone: NO_CRAWLER }, { photo: photo('S69-39961', 'liftoffFromTower', 'NASA/JSC'), facts: [fact('holddown', 'clock')] }),
   chapter('crawler', { shot: 'crawler', explode: 1, highlight: 'crawler', labels: ['crawler', 'launcher'] }, {
