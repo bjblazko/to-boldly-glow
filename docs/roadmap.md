@@ -66,7 +66,8 @@ from the Mission Report / Apollo Flight Journal state vectors, the real Moon, ev
    mission in detail is the tour's). Built 2026-11-22 (spec
    `superpowers/specs/2026-11-22-apollo11-route-lesson-design.md`).
 7. Original audio and photo pipeline (each file's rights checked), subtitles, data charts. First
-   part (2026-11-22): six NASA clips in the Apollo 11 lesson, after the narrator, subtitled - spec
+   part (2026-11-22): five NASA clips in the Apollo 11 lesson, after the narrator, subtitled (the
+   splashdown's tape is too crowded to quote surely: open, for listening) - spec
    `superpowers/specs/2026-11-22-apollo11-original-audio-design.md`. Next, decided 2026-11-22:
    Columbia's cockpit from NASSP (`CM-VC.msh`) for the chapters inside, the panels and the couches;
    the Smithsonian scan for the notes on the walls and a new closing chapter "Columbia today" (the

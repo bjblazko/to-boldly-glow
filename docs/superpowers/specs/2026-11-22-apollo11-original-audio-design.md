@@ -94,3 +94,13 @@ the clip. Lint, typecheck, the full suite; a listening check by the owner on loc
 
 After this step, automatically: Columbia's cockpit from Project Apollo - NASSP (`CM-VC.msh`), as
 Eagle's; the Smithsonian scan stays for what it is best at (see the Columbia lesson's spec).
+
+## Result (2026-11-22)
+
+Five clips, found with a speech recogniser (Whisper small.en on the AI PC) over NASA's tapes and cut
+where the words are: the launch, the landing and the first step from NASA's "Historical Sounds"; "go
+for TLI" from JSC tape 155-AAA (10,068.7-10,079.3 s); the liftoff from the Moon from NASA's onboard
+highlight clip 5 (78.4-96.4 s). The splashdown is left out: on tape 313-AAA the recovery forces'
+radio, Houston and the commentary overlap, and its words could not be made out surely enough to
+quote. The clips follow the narrator's voice switch (off: no recording either); the panel's button
+plays one regardless.

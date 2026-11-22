@@ -21,7 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   close-ups play the moments the route can only name with the vehicle lessons' models - the
   transposition and docking, Eagle letting go, the landing (with its long shadow), the liftoff from
   the Moon, docking again, the service module cast off before entry - with NASA's photos and
-  sketches of them.
+  sketches of them. At five moments the people who were there speak after the narrator - the
+  launch, "You are go for TLI", "The Eagle has landed", the first step, the liftoff from the Moon -
+  NASA's own recordings, subtitled in English and German.
 
 ### Changed
 
