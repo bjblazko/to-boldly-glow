@@ -12,7 +12,10 @@ export const saturnV: Messages['lessons']['saturnV'] = {
       text:
         'Am 16. Juli 1969 trug diese Rakete Apollo 11 auf den Weg zum Mond. Die Saturn V war 110,6 m ' +
         'hoch – höher als die Freiheitsstatue samt Sockel – und wog beim Start 2.938 t, fast alles davon ' +
-        'Treibstoff. Die kleine orange Figur an ihrem Fuß ist ein Mensch, im selben Maßstab.',
+        'Treibstoff. Die kleine orange Figur an ihrem Fuß ist ein Mensch, im selben Maßstab. Das ' +
+        'Schwarz-Weiß-Muster war für Kameras: Auf Filmen vom Boden ließ sich ablesen, wie weit sich die ' +
+        'Rakete beim Aufstieg um ihre Längsachse drehte. Sonst ist sie weiß, damit die Sonne ihre eiskalten ' +
+        'Tanks nicht aufheizt.',
     },
     stack: {
       title: 'Der Stapel',

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { letterPath } from '../src/apollo/blockLetters'
 import { latheMesh, mergePrimitives } from '../src/apollo/latheMesh'
 import { assemblyKind, explodeOffset, SATURN_V_ASSEMBLIES, saturnVParts } from '../src/apollo/saturnVParts'
-import { ENGINES, HEIGHTS, SII_INTERSTAGE, SIVB_INTERSTAGE, STAGE_RADIUS, TOTAL_HEIGHT, UPPER_RADIUS } from '../src/apollo/saturnVProfile'
+import { ENGINES, HEIGHTS, LES, SII_INTERSTAGE, SIVB_INTERSTAGE, STAGE_RADIUS, TOTAL_HEIGHT, UPPER_RADIUS } from '../src/apollo/saturnVProfile'
 import { tankProfile } from '../src/apollo/shapes'
 
 const uv = (): [number, number] => [0, 0]
@@ -106,6 +106,23 @@ describe('the Saturn V', () => {
     const order = ['sic', 'sii', 'sivb', 'iu', 'sla', 'lm', 'sm', 'cm', 'les'] as const
     const rises = order.map((assembly) => explodeOffset(assembly)[1])
     expect(rises).toEqual([...rises].sort((a, b) => a - b))
+  })
+})
+
+describe('the launch escape tower', () => {
+  // The boost protective cover's radius at a height, read off its profile.
+  const coverRadius = (height: number) => {
+    const points = LES.cover
+    for (let i = 1; i < points.length; i++) {
+      const [[r0, h0], [r1, h1]] = [points[i - 1], points[i]]
+      if (height >= Math.min(h0, h1) && height <= Math.max(h0, h1) && h1 !== h0) return r0 + ((r1 - r0) * (height - h0)) / (h1 - h0)
+    }
+    return NaN
+  }
+
+  it('stands its legs on the cover over the capsule, not in the air beside it', () => {
+    const { bottom, bottomHalfWidth } = LES.tower
+    expect(Math.SQRT2 * bottomHalfWidth).toBeCloseTo(coverRadius(bottom), 1)
   })
 })
 

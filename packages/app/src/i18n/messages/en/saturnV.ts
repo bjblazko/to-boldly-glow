@@ -16,7 +16,9 @@ export const saturnV = {
       text:
         'On 16 July 1969 this rocket carried Apollo 11 toward the Moon. The Saturn V stood 110.6 m tall - ' +
         'taller than the Statue of Liberty with its pedestal - and weighed 2,938 t at liftoff, almost all ' +
-        'of it propellant. The small orange figure at its foot is a person, to scale.',
+        'of it propellant. The small orange figure at its foot is a person, to scale. The black-and-white ' +
+        'pattern was for cameras: on films shot from the ground, engineers could read how far the rocket ' +
+        'rolled about its long axis as it climbed. The rest is white, to keep the sun off its ice-cold tanks.',
     },
     stack: {
       title: 'The Stack',

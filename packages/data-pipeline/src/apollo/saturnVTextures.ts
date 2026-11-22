@@ -2,6 +2,7 @@ import sharp from 'sharp'
 import { SWATCHES } from './saturnVParts'
 import { LETTER_GRID, letterPath } from './blockLetters'
 import { paletteTexture, type Rgb } from './palette'
+import { weather } from './weathering'
 import { HEIGHTS, SIVB_INTERSTAGE, STAGE_RADIUS, TANKS, TOTAL_HEIGHT } from './saturnVProfile'
 
 // The Saturn V's paint, drawn from its layout: white, the black-and-white roll pattern on the
@@ -77,8 +78,11 @@ function paintSvg(): string {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}">${parts.join('')}</svg>`
 }
 
-export function paintTexture(): Promise<Buffer> {
-  return sharp(Buffer.from(paintSvg())).flatten({ background: WHITE }).jpeg({ quality: 88, mozjpeg: true }).toBuffer()
+// The paint, then its wear (weathering.ts).
+export async function paintTexture(): Promise<Buffer> {
+  const { data, info } = await sharp(Buffer.from(paintSvg())).flatten({ background: WHITE }).removeAlpha().raw().toBuffer({ resolveWithObject: true })
+  const worn = weather(new Uint8Array(data), info.width, info.height)
+  return sharp(Buffer.from(worn), { raw: { width: info.width, height: info.height, channels: 3 } }).jpeg({ quality: 88, mozjpeg: true }).toBuffer()
 }
 
 // One flat swatch per material, in SWATCHES' order.

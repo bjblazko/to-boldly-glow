@@ -122,10 +122,24 @@ export const FAIRING: ProfilePoint[] = [[1.95, 0.6], [2.25, HEIGHTS.sicBase + 0.
 // APPROX: the launch escape system on top of the command module: the boost protective cover over
 // the capsule, a truss tower, the escape motor, the pitch-control motor and canards, the nose.
 const LES_BASE = HEIGHTS.cmTop
+const COVER: ProfilePoint[] = [[2.0, HEIGHTS.smTop], [2.0, HEIGHTS.smTop + 0.15], [0.5, HEIGHTS.cmTop - 0.2], [0.5, HEIGHTS.cmTop + 0.1], [0, HEIGHTS.cmTop + 0.1]]
 export const LES = {
-  cover: [[2.0, HEIGHTS.smTop], [2.0, HEIGHTS.smTop + 0.15], [0.5, HEIGHTS.cmTop - 0.2], [0.5, HEIGHTS.cmTop + 0.1], [0, HEIGHTS.cmTop + 0.1]] as ProfilePoint[],
-  tower: { bottom: LES_BASE, top: LES_BASE + 2.4, bottomHalfWidth: 0.6, topHalfWidth: 0.33 },
+  cover: COVER,
+  tower: towerOnCover({ top: LES_BASE + 2.4, topHalfWidth: 0.33, halfWidthAtBase: 0.6 }),
   motor: [[0, LES_BASE + 2.2], [0.42, LES_BASE + 2.2], [0.33, LES_BASE + 2.6], [0.33, LES_BASE + 6.9], [0.25, LES_BASE + 7.8], [0.2, LES_BASE + 8.3], [0.04, TOTAL_HEIGHT - 0.15], [0, TOTAL_HEIGHT]] as ProfilePoint[],
+}
+
+// The truss's legs run on down, as they lean, to where they meet the cone of the cover: they stand
+// on it (on the capsule's tower wells beneath it), they don't end in the air beside it.
+function towerOnCover({ top, topHalfWidth, halfWidthAtBase }: { top: number; topHalfWidth: number; halfWidthAtBase: number }) {
+  const [[coneBottomRadius, coneBottom], [coneTopRadius, coneTop]] = [COVER[1], COVER[2]]
+  // Out from the axis per metre down: the legs' corners (on the diagonals), and the cone.
+  const legSpread = (Math.SQRT2 * (halfWidthAtBase - topHalfWidth)) / (top - LES_BASE)
+  const coneSpread = (coneBottomRadius - coneTopRadius) / (coneTop - coneBottom)
+  // The legs' corners at the cone's top, and how far below it the two meet.
+  const legAtConeTop = Math.SQRT2 * topHalfWidth + legSpread * (top - coneTop)
+  const bottom = coneTop - (legAtConeTop - coneTopRadius) / (coneSpread - legSpread)
+  return { bottom, top, bottomHalfWidth: topHalfWidth + (legSpread / Math.SQRT2) * (top - bottom), topHalfWidth }
 }
 
 // APPROX: the lunar module folded inside the SLA - its descent stage an octagon, the ascent stage
