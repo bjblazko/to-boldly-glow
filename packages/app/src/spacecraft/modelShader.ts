@@ -131,13 +131,16 @@ fn wearAt(local: vec3f) -> f32 {
   return mottle * 0.14 + smoothstep(0.6, 0.92, streaks) * 0.16;
 }
 
-// What a mirror-like surface sees in a direction: below, the room's dark blue floor; a bright band
-// at the horizon; above, a sky that brightens toward the top - contrast, as polished foil shows.
+// What a mirror-like surface sees in a direction: a dark room, lit by a few soft light panels - a
+// broad one overhead, two tall ones at the sides - and a faint band at the horizon. Fixed in the
+// world, so the lights slide over the surface as the model turns: contrast, as polished foil shows.
 fn surroundings(direction: vec3f) -> vec3f {
-  let floor = vec3f(0.02, 0.05, 0.09);
-  let sky = mix(vec3f(0.35, 0.38, 0.42), vec3f(0.95, 0.96, 0.98), smoothstep(0.05, 0.8, direction.y));
-  let horizon = exp(-abs(direction.y - 0.02) * 14.0) * 0.9;
-  return mix(floor, sky, smoothstep(-0.06, 0.06, direction.y)) + vec3f(horizon);
+  let dark = mix(vec3f(0.015, 0.03, 0.05), vec3f(0.05, 0.07, 0.1), smoothstep(-0.4, 0.4, direction.y));
+  let overhead = smoothstep(0.75, 0.92, direction.y) * 0.9;
+  let around = atan2(direction.z, direction.x);
+  let panels = (smoothstep(0.22, 0.08, abs(around - 0.9)) + smoothstep(0.16, 0.05, abs(around + 2.3)) * 0.7) * smoothstep(-0.25, 0.05, direction.y) * smoothstep(0.7, 0.45, direction.y);
+  let horizon = exp(-abs(direction.y) * 18.0) * 0.12;
+  return dark + vec3f(overhead + panels * 0.85 + horizon);
 }
 
 // The fill as light from all round: brighter from above (the sky, the room's ceiling) than from

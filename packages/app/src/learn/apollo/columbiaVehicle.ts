@@ -104,7 +104,7 @@ const CABIN_MATERIALS = {
 const CSM_MATERIALS = {
   '*': { shininess: 10, shine: 0.06 },
   cm: { shininess: 120, shine: 0.95, mirror: true },
-  sm: { shininess: 30, shine: 0.22 },
+  sm: { shininess: 60, shine: 0.5, mirror: true },
   sps: { shininess: 20, shine: 0.15 },
 }
 

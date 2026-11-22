@@ -27,6 +27,7 @@
     "build-apollo11-trajectory": "tsx src/buildApollo11Trajectory.ts",
     "fetch-eagle-photos": "tsx src/fetchEaglePhotos.ts",
     "fetch-apollo11-audio": "tsx src/fetchApollo11Audio.ts",
+    "fetch-launcher-photos": "tsx src/fetchLauncherPhotos.ts",
     "fetch-apollo11-photos": "tsx src/fetchApollo11Photos.ts",
     "fetch-columbia-photos": "tsx src/fetchColumbiaPhotos.ts"
   },

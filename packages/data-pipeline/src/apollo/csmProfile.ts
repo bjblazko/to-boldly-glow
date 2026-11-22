@@ -78,8 +78,9 @@ export const CM_OPENINGS: ConeOpening[] = [
 ]
 
 // The service module, and its forward fairing round the heat shield (APPROX its height): up to
-// the command module's shoulder, so the two meet without a gap.
-const FAIRING_TOP = CSM_HEIGHTS.cmBase + HEAT_SHIELD_DEPTH + SHOULDER - 0.01
+// where the command module's own rim (its short cylinder at the shoulder) begins, so the two meet
+// without a gap - and without two surfaces in one place, which flicker.
+const FAIRING_TOP = CSM_HEIGHTS.cmBase + HEAT_SHIELD_DEPTH - 0.005
 export const SERVICE_MODULE: ProfilePoint[] = [
   [0, CSM_HEIGHTS.aftBulkhead],
   [CSM_RADIUS, CSM_HEIGHTS.aftBulkhead],
