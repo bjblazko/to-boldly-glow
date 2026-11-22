@@ -58,14 +58,18 @@ from the Mission Report / Apollo Flight Journal state vectors, the real Moon, ev
    the way out to lunar orbit and the way home, each within a fraction of a percent of the record -
    spec `superpowers/specs/2026-11-22-apollo-mission-data-design.md`; open: the 55 h in lunar orbit
    (needs the Moon's gravity field).
-6. Lesson Apollo 11, part 1: launch to lunar orbit (a cislunar scene, metre pass for the craft).
-7. Tranquility Base: terrain from the LRO NAC DTM, the descent (P63/P64/P66, 1202 alarm, fuel);
-   lesson part 2.
-8. Lesson part 3: ascent, rendezvous, TEI, re-entry, splashdown, quarantine.
-9. Original audio and photo pipeline (each file's rights checked), subtitles, data charts.
-10. Camera language for the tour (cuts, tracking, onboard and tower cameras, auto direction).
-11. Launch and ascent (exhaust, staging).
-12. The full "Apollo 11" tour.
+6. Lesson "Apollo 11: the way to the Moon and back" - schematic, as the Moon phases lesson: Earth
+   and Moon not to scale, the free-return figure eight drawn plainly, the craft moving chapter by
+   chapter from launch to splashdown (decided 2026-11-22: the lessons explain schematically; the full
+   mission in detail is the tour's).
+7. Original audio and photo pipeline (each file's rights checked), subtitles, data charts.
+8. The tour's lunar orbit and descent: the Moon's gravity field for the 55 h in lunar orbit (step 5's
+   open end), Tranquility Base's terrain from the LRO NAC DTM, the descent (P63/P64/P66, 1202 alarm,
+   fuel), the ascent and rendezvous.
+9. Camera language for the tour (cuts, tracking, onboard and tower cameras, auto direction).
+10. Launch and ascent (exhaust, staging), pad 39A and the ground scene.
+11. The full "Apollo 11" tour: the whole mission at true scale on the reconstructed path, with the
+    vehicles, the original audio and the photos.
 **Risks**: depth precision for metres beside Earth and Moon (a metre pass, as in the Voyager
 encounters), interior light and shadow (the model shader has none), download size (load per
 lesson), rights of every photo and audio clip (`huepattl-legal-check` before shipping).
