@@ -87,6 +87,21 @@ describe('a set route', () => {
     expect(internals(controller).loop).not.toBeNull()
   })
 
+  it('at Realistic scale with the clock run fast, still comes home: it never gives up on the last stop, and ends once', () => {
+    const events: string[] = []
+    const controller = new TourController(PLANETS)
+    const day = (seconds: number): Ephemeris => ephemerisAt(new Date(TOUR_START + seconds * 86_400_000))
+    controller.start({ position: [0, 25, 60] }, day(0), 0, {
+      itinerary: new RouteItinerary(ROUTE),
+      pacing: { pace: () => ({ transitSeconds: 20, lapSeconds: 20 }), mayDepart: () => true },
+      listener: { onLoopEnter: (target) => events.push(`loop ${target.id}`), onFinished: () => events.push('finished') },
+    })
+    for (let frame = 1; frame <= 1200 * 60; frame++) controller.update(FRAME, day(frame * FRAME), 0)
+    expect(events.filter((event) => event === 'finished')).toHaveLength(1)
+    expect(events.at(-2)).toBe('loop earth')
+    expect(internals(controller).leg!.target.id).toBe('earth')
+  })
+
   it('leaves the Sun soon after it may - Mercury lies far above or below the Sun’s wide loop, which held the ship for another lap', () => {
     let mayLeaveAt = Infinity
     let flown = 0

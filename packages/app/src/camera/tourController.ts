@@ -201,8 +201,15 @@ export class TourController {
       this.announce(leg)
       this.route.listener?.onLoopEnter?.(leg.target)
     } else if (this.cruiseSeconds >= this.patienceSeconds(leg)) {
-      this.beginLeg(leg.target, this.nextStop(leg.target, moment), moment)
+      this.giveUpOn(leg, moment)
     }
+  }
+
+  // A stop that takes too long to reach is skipped - but not the route's last (home): the ship
+  // flies on until it gets there.
+  private giveUpOn(leg: Leg, moment: Moment): void {
+    if (leg.next === undefined) leg.next = this.nextStop(leg.target, moment)
+    if (leg.next) this.beginLeg(leg.target, leg.next, moment)
   }
 
   private announce(leg: Leg): void {
@@ -404,6 +411,7 @@ export class TourController {
   }
 
   private finish(): void {
+    if (this.finished) return
     this.finished = true
     this.route.listener?.onFinished?.()
   }

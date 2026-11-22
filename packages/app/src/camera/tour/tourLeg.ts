@@ -46,6 +46,8 @@ export interface Leg {
   // The loop is entered at the planet's side (seen along the leg), so the ship arrives tangentially.
   side: vec3
   loopRadius: number
+  // The stop after this one, once asked for on giving up on reaching it (null: none, the route's last).
+  next?: SolarSystemEntity | null
   cruiseSpeed: number
   // How fast distances grow and shrink (per second, as a natural log): see TRANSIT_SECONDS.
   logRate: number

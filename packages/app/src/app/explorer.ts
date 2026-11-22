@@ -4,6 +4,7 @@ import { pickTarget, type PickTarget } from '../camera/entityPicking'
 import { grandTourRoute } from '../camera/tour/grandTour'
 import type { TourRoute } from '../camera/tourController'
 import { NarratedTour } from '../narration/narratedTour'
+import { setTourTime } from '../camera/tour/tourTime'
 import type { VoiceSignals } from '../narration/audioClipPlayer'
 import type { NarrationManifest } from '../narration/narrationManifest'
 import type { Obstacle } from '../camera/input/flightSpeed'
@@ -27,7 +28,7 @@ import { SPACECRAFT, spacecraftAuPosition, spacecraftInFlight } from '../spacecr
 import { ALL_ENTITIES, type SolarSystemEntity } from '../solarSystem/entities'
 import { scaledPosition } from '../solarSystem/sceneScale'
 import { ephemerisAt, type Ephemeris } from '../time/ephemeris'
-import { SimulationClock, TIME_SCALE_PRESETS } from '../time/simulationClock'
+import { SimulationClock } from '../time/simulationClock'
 import { TimeControlUI } from '../time/timeControlUI'
 import { requireElement } from './dom'
 
@@ -184,14 +185,9 @@ export function shownSmallBodies(display: DisplaySettings, ephemeris: Ephemeris,
   return [...bodies, ...craft]
 }
 
-// A paused or real-time clock shows no visible spin or moon motion during a flyby, so the tour
-// speeds it up to 1 hr/s - unless the user already picked a rate of their own.
 function startTour(camera: CameraDirector, clock: SimulationClock, now: () => SimulationMoment, route: TourRoute): void {
   if (camera.isTouring) return
-  if (clock.isPaused() || clock.getTimeScale() === 1) {
-    clock.play()
-    clock.setTimeScale(TIME_SCALE_PRESETS[2].secondsPerSecond)
-  }
+  setTourTime(clock, { narrated: route.pacing !== undefined })
   const { ephemeris, scaleBlend } = now()
   camera.startTour(ephemeris, scaleBlend, route)
 }

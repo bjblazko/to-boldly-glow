@@ -36,4 +36,8 @@ describe('texts made fit to be spoken', () => {
   it('says the names and the units in every text, not only in the lessons they were tried on', () => {
     expect(spokenText('Eagle, 13 t', 'de')).toBe('Igel, 13 Tonnen')
   })
+
+  it('spells TLI in German as an English speaker says it, in the quote too', () => {
+    expect(spokenText('kurz TLI. „You are go for TLI.“', 'de')).toBe('kurz Ti Äl Ei. „Ju ar gou for Ti Äl Ei.“')
+  })
 })
