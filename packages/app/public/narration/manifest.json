@@ -157,9 +157,17 @@
             "hash": "970d15fbb3381d33",
             "seconds": 26.0
           },
+          "lessons/launcher/crawlerParts": {
+            "hash": "1340f23b6f9d20c1",
+            "seconds": 31.36
+          },
           "lessons/launcher/crewArm": {
             "hash": "7099ebc3ab76af29",
             "seconds": 17.76
+          },
+          "lessons/launcher/escape": {
+            "hash": "0f6aae42c5a9cc24",
+            "seconds": 33.52
           },
           "lessons/launcher/holddown": {
             "hash": "73c839c5cd476f3a",
@@ -169,13 +177,21 @@
             "hash": "4f3c3f8d9f4da58a",
             "seconds": 15.28
           },
+          "lessons/launcher/platform": {
+            "hash": "68094d4c372114a0",
+            "seconds": 24.88
+          },
           "lessons/launcher/tower": {
             "hash": "605509b0967fec19",
             "seconds": 16.64
           },
-          "lessons/launcher/whole": {
-            "hash": "41280e8697244da9",
+          "lessons/launcher/whiteRoom": {
+            "hash": "810849b06e847825",
             "seconds": 21.68
+          },
+          "lessons/launcher/whole": {
+            "hash": "8cf44cc753b53396",
+            "seconds": 20.08
           },
           "lessons/moonPhases/always-half-lit": {
             "hash": "02183f3a5a6b704c",
@@ -719,9 +735,17 @@
             "hash": "79d54279cdbcde17",
             "seconds": 25.28
           },
+          "lessons/launcher/crawlerParts": {
+            "hash": "8ab8cd621db1ebff",
+            "seconds": 30.32
+          },
           "lessons/launcher/crewArm": {
             "hash": "e688180f81fb211b",
             "seconds": 16.0
+          },
+          "lessons/launcher/escape": {
+            "hash": "33d112b44dfdc8de",
+            "seconds": 29.68
           },
           "lessons/launcher/holddown": {
             "hash": "784fb93c87cb4c1f",
@@ -731,9 +755,17 @@
             "hash": "697c4e7025531036",
             "seconds": 12.72
           },
+          "lessons/launcher/platform": {
+            "hash": "5ec377941ea2cdc8",
+            "seconds": 23.2
+          },
           "lessons/launcher/tower": {
             "hash": "4bd47e6e92c4015d",
             "seconds": 17.84
+          },
+          "lessons/launcher/whiteRoom": {
+            "hash": "25dcaf6b2f59da8f",
+            "seconds": 21.44
           },
           "lessons/launcher/whole": {
             "hash": "5b4f62099069f528",
@@ -1289,9 +1321,17 @@
             "hash": "8483d34f4d4e268f",
             "seconds": 27.28
           },
+          "lessons/launcher/crawlerParts": {
+            "hash": "79cc28e73818d306",
+            "seconds": 34.32
+          },
           "lessons/launcher/crewArm": {
             "hash": "a32ea3d3d67ace00",
             "seconds": 18.96
+          },
+          "lessons/launcher/escape": {
+            "hash": "24abd0e4bff99e2c",
+            "seconds": 35.52
           },
           "lessons/launcher/holddown": {
             "hash": "437afe620a914257",
@@ -1301,13 +1341,21 @@
             "hash": "3d70369fedc13e4b",
             "seconds": 15.76
           },
+          "lessons/launcher/platform": {
+            "hash": "c650f608e1239a81",
+            "seconds": 25.76
+          },
           "lessons/launcher/tower": {
             "hash": "3269022ebf8cd52b",
             "seconds": 17.6
           },
+          "lessons/launcher/whiteRoom": {
+            "hash": "2223569d8428622f",
+            "seconds": 24.0
+          },
           "lessons/launcher/whole": {
-            "hash": "b016cd10d77cb672",
-            "seconds": 20.96
+            "hash": "93023544a6313afd",
+            "seconds": 21.6
           },
           "lessons/moonPhases/always-half-lit": {
             "hash": "f27118cb55407307",
@@ -1851,9 +1899,17 @@
             "hash": "d5aa03af2bce3a93",
             "seconds": 25.6
           },
+          "lessons/launcher/crawlerParts": {
+            "hash": "5d81fbc4b6245f74",
+            "seconds": 29.68
+          },
           "lessons/launcher/crewArm": {
             "hash": "c57ce1e4b45c11ef",
             "seconds": 16.32
+          },
+          "lessons/launcher/escape": {
+            "hash": "9028318adbe54c33",
+            "seconds": 30.24
           },
           "lessons/launcher/holddown": {
             "hash": "8132c48f816ecebb",
@@ -1863,9 +1919,17 @@
             "hash": "86f60c80b8c319d4",
             "seconds": 13.92
           },
+          "lessons/launcher/platform": {
+            "hash": "90d91f9cbb259e6c",
+            "seconds": 23.92
+          },
           "lessons/launcher/tower": {
             "hash": "aae08f3d8f655d72",
             "seconds": 16.08
+          },
+          "lessons/launcher/whiteRoom": {
+            "hash": "e1b2f7f3ec09fa38",
+            "seconds": 21.76
           },
           "lessons/launcher/whole": {
             "hash": "483727547aabcaae",
