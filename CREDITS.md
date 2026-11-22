@@ -308,6 +308,17 @@ the dimensions in Grumman's "Apollo Lunar Module News Reference" for NASA (1968,
 https://archive.org/details/apollo-lunar-module-news-reference-1968); measures it does not settle
 are marked `APPROX` in `apollo/lmProfile.ts`. The lesson's figures come from the same document.
 
+## Apollo 11: the timeline and the path to the Moon
+
+Apollo 11's events in mission time (`packages/app/src/missions/apollo11/apollo11Events.ts`) and the
+documented states its path is reconstructed from and checked against come from Richard W. Orloff's
+"Apollo by the Numbers" (NASA SP-4029, 2000; https://archive.org/details/apollo-by-the-numbers) and
+NASA's "Apollo 11 Mission Report" (MSC-00171, 1969; https://archive.org/details/apollo-11-mission-report),
+both public domain. The path (`packages/app/public/data/apollo11/translunar.bin`) is our own
+reconstruction by `packages/data-pipeline/src/buildApollo11Trajectory.ts`; the Moon's and the Sun's
+positions it is integrated in (`data/apollo11-ephemeris.json`, and `public/data/apollo11/moon.bin`)
+are from NASA/JPL Horizons (DE441).
+
 ## Tonemapping
 
 The tonemapping (`packages/app/src/bloom/tonemapWgsl.ts`) follows Troy Sobotka's AgX view

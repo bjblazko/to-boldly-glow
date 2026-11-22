@@ -181,7 +181,15 @@ export const CREDIT_GROUPS: CreditGroup[] = [
         use: TEXT.uses.horizons,
         license: TEXT.licenses.publicDomain,
         home: 'https://ssd.jpl.nasa.gov/horizons/',
-        files: ['data/voyager/voyager1.trajectory.bin', 'data/voyager/voyager2.trajectory.bin', 'data/voyager/speeds.json', 'data/voyager/encounters/'],
+        files: ['data/voyager/voyager1.trajectory.bin', 'data/voyager/voyager2.trajectory.bin', 'data/voyager/speeds.json', 'data/voyager/encounters/', 'data/apollo11/moon.bin'],
+      },
+      {
+        name: 'Richard W. Orloff, “Apollo by the Numbers” (NASA SP-4029, 2000), and NASA, “Apollo 11 Mission Report” (MSC-00171, 1969)',
+        use: TEXT.uses.apollo11Trajectory,
+        license: TEXT.licenses.publicDomain,
+        home: 'https://archive.org/details/apollo-by-the-numbers',
+        changes: TEXT.changes.apollo11Trajectory,
+        files: ['data/apollo11/translunar.bin'],
       },
       {
         name: 'NASA Space Physics Data Facility, Voyager 1 and 2 merged data (CRS, MAG)',
