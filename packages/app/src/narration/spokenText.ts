@@ -52,9 +52,8 @@ const UNITS: Record<Locale, [RegExp, string][]> = {
 }
 
 // Names said in their own language: an English name in a German text is written as a German
-// reader would say it in English ("Eagle" as "Igel", not "Ä-ga-le"). Tried on the segments in
-// REFINED_SEGMENTS first; once heard and found right, they go to every text (and its clips are
-// spoken again).
+// reader would say it in English ("Eagle" as "Igel", not "Ä-ga-le"). Heard and found right on the
+// Apollo 11 and Saturn V lessons (2026-11-22); a change here makes every clip it touches stale.
 const NAMES: Record<Locale, [RegExp, string][]> = {
   // Roman numerals said as numbers (a voice may read them as letters): the Saturn V as "Saturn
   // Five", its stages S-IC, S-II, S-IVB as "S one C", "S two", "S four B".
@@ -91,10 +90,7 @@ const NAMES: Record<Locale, [RegExp, string][]> = {
   ],
 }
 
-// The segments (by id prefix) the names are tried on.
-export const REFINED_SEGMENTS: readonly string[] = ['lessons/apollo11/', 'lessons/saturnV/']
-
-export function spokenText(text: string, locale: Locale, refined = false): string {
-  const rules = [...(refined ? NAMES[locale] : []), ...UNITS[locale], ...SPOKEN[locale]]
+export function spokenText(text: string, locale: Locale): string {
+  const rules = [...NAMES[locale], ...UNITS[locale], ...SPOKEN[locale]]
   return rules.reduce((spoken, [pattern, replacement]) => spoken.replace(pattern, replacement), text)
 }
