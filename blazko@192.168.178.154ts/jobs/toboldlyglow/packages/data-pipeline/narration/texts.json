@@ -1,0 +1,1490 @@
+[
+  {
+    "locale": "en",
+    "id": "tours/grand/sun-approach",
+    "text": "Space: the final frontier. Welcome aboard. Our journey begins where everything in this system begins: at the Sun. Sit back - we will visit every planet, in order, from the inside out.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/grand/sun-orbit",
+    "text": "The Sun holds more than 99.8 percent of all the mass in the Solar System. More than a million Earths would fit inside it. Deep in its core, at 15 million degrees, it fuses hydrogen into helium and turns four million tonnes of matter into light, every second. The sunlight on your face left the Sun just over eight minutes ago.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/grand/mercury-approach",
+    "text": "First stop: Mercury, the smallest planet, and the closest to the Sun. It races around it in just 88 days - faster than any other planet.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/grand/mercury-orbit",
+    "text": "With almost no air to hold the heat, Mercury bakes at 430 degrees by day and freezes at minus 180 at night. And its days are long: from one sunrise to the next takes two of its years. Strangely, this scorched world has ice - hidden in craters at its poles that never see the Sun. And Mercury is shrinking: as its huge iron core cools, the whole planet contracts, wrinkling its surface into cliffs.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/grand/venus-approach",
+    "text": "Next comes Venus - almost Earth’s twin in size, and after the Moon the brightest thing in our night sky. But up close, this twin is a nightmare.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/grand/venus-orbit",
+    "text": "Beneath its clouds of sulfuric acid, Venus is the hottest planet of all: about 465 degrees, hot enough to melt lead - hotter even than Mercury. Its thick carbon dioxide air traps the heat, and presses down 90 times harder than Earth’s, as if you were almost a kilometre under the sea. Venus also spins backwards, and so slowly that its day lasts longer than its year. The landers that reached its surface survived for two hours at most.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/grand/earth-approach",
+    "text": "And here is a planet you know. Earth - the third from the Sun, and the only world we know of that has life.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/grand/earth-orbit",
+    "text": "71 percent of Earth’s surface is covered by liquid water - the only planet with oceans on its surface. It is also the densest planet in the Solar System. Right now, you are racing around the Sun at 30 kilometres per second, more than 100,000 kilometres an hour, without feeling a thing. And the air we breathe? If Earth were an apple, its atmosphere would be thinner than the skin.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/grand/mars-approach",
+    "text": "Now we head out to Mars, the red planet. Its colour comes from rust: iron in its dust, slowly oxidised over billions of years.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/grand/mars-orbit",
+    "text": "Mars is a world of extremes. Olympus Mons, the largest volcano in the Solar System, rises more than twice as high as Mount Everest. Valles Marineris, a canyon 4,000 kilometres long, reaches about as far as from Lisbon to Moscow. Its day is only 40 minutes longer than ours - but its sunsets are blue. Mars has two tiny moons, and the larger one, Phobos, is slowly spiralling inward. In some tens of millions of years, it will break apart.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/grand/jupiter-approach",
+    "text": "Past the asteroid belt, the giants begin. Jupiter is so large that all the other planets together would fit inside it - with room to spare.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/grand/jupiter-orbit",
+    "text": "More than 1,300 Earths would fit inside Jupiter, and it outweighs all the other planets combined more than twice over. It has no solid surface - only ever denser gas. The Great Red Spot is a storm wider than Earth, which has been raging for well over 150 years. Despite its size, Jupiter spins faster than any other planet: a day lasts less than 10 hours. And among its many moons is Ganymede - larger than the planet Mercury.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/grand/saturn-approach",
+    "text": "Now the jewel of the Solar System: Saturn, and its rings. They span almost 300,000 kilometres - and yet they are paper thin.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/grand/saturn-orbit",
+    "text": "In most places Saturn’s rings are only about 10 metres thick. They are made of countless pieces of ice, from specks of dust to boulders as big as a house. Saturn itself is so light that, in a bathtub large enough, it would float. At its north pole spins a storm shaped like a perfect hexagon. And its largest moon, Titan, has a thick orange sky, and lakes and rivers - not of water, but of liquid methane.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/grand/uranus-approach",
+    "text": "Further out lies Uranus, the first planet ever discovered with a telescope - by William Herschel, in 1781.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/grand/uranus-orbit",
+    "text": "Uranus rolls around the Sun on its side: its axis is tipped over by 98 degrees. Since one trip around the Sun takes 84 years, each pole has 42 years of daylight, followed by 42 years of night. Its blue-green colour comes from methane gas. And though Neptune is farther out, Uranus holds the record for the coldest air of any planet: minus 224 degrees.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/grand/neptune-approach",
+    "text": "The last planet: Neptune. It was found with pen and paper: predicted from the way it tugged on Uranus, and then spotted right where the math said it would be.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/grand/neptune-orbit",
+    "text": "Sunlight needs more than four hours to reach Neptune. Here, the winds are the fastest in the Solar System - up to 2,000 kilometres an hour. One orbit takes 165 years: since its discovery in 1846, Neptune has gone around the Sun just once. Its largest moon, Triton, circles it backwards, and has geysers of nitrogen ice. Only one spacecraft has ever been here: Voyager 2, in 1989.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/grand/home-approach",
+    "text": "That was the last of the planets. It is time to head home - back across the Solar System, to the small blue world where we started.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/grand/home-orbit",
+    "text": "From the edge of the Solar System, Voyager 1 once looked back and saw Earth as a pale blue dot, smaller than a single pixel. Everything we know lies on that dot. Thank you for flying with us. The controls are now yours: explore on your own, or learn why there are seasons, Moon phases and eclipses.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/seasons/orbit",
+    "text": "Real Orbit: Earth Around the Sun. Watch Earth actually orbit the Sun. Its axis always points the same fixed direction in space - it never tips toward the Sun and never straightens up to face it. But because Earth's position keeps changing, the angle between that fixed axis and the Sun keeps changing too: sometimes leaning toward the Sun, sometimes away from it, and twice a lap exactly side-on. That changing angle - not the axis itself moving - is the real reason Earth has seasons. The number shows how much of the 23.4 degrees tilt points toward or away from the Sun right now. (Earth briefly passes behind the Sun from this camera's angle once per lap - that's just this viewpoint, not anything unusual happening in space.)",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/seasons/intro",
+    "text": "Intro: A Tilted World. Earth's axis is tilted 23.4 degrees relative to its orbit around the Sun, all year round. This tilt - not Earth's distance from the Sun, which barely changes over a year - is what causes the seasons: what changes is which way the tilt points relative to the Sun. Watch Location A (north) and Location B (south) as you step through the chapters below.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/seasons/march-equinox",
+    "text": "March Equinox. Around the March equinox, Earth's axis is still tilted 23.4 degrees, but sideways: neither toward nor away from the Sun (from this viewpoint it leans away from you). So the Sun sits directly over Earth's equator, and Location A and Location B get close to equal day and night length.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/seasons/june-solstice",
+    "text": "June Solstice. The June solstice: the north pole tilts toward the Sun. Location A (north) gets longer days and more direct sunlight - summer. Location B (south) gets shorter days and more oblique sunlight - winter.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/seasons/september-equinox",
+    "text": "September Equinox. Around the September equinox, the tilt points sideways again - this time leaning toward you. The Sun is back over the equator, and Location A and Location B get close to equal day and night again - the reverse trend from March.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/seasons/december-solstice",
+    "text": "December Solstice. The December solstice: the south pole tilts toward the Sun. Location B (south) gets longer days and more direct sunlight - summer. Location A (north) gets shorter days and more oblique sunlight - winter.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/moonPhases/always-half-lit",
+    "text": "Always Half Lit. The Sun always lights exactly half of the Moon - the half facing it, just as it lights half of Earth. What changes over a month is how much of that lit half faces us. At new moon it faces away; at full moon it faces us; at first and last quarter we see half of it. The card in the corner shows the Moon as seen from Earth right now.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/moonPhases/not-earths-shadow",
+    "text": "Not Earth's Shadow. A common mix-up: the phases are not Earth's shadow on the Moon. Earth's shadow points straight away from the Sun, so the Moon could only be in it at full moon - just when we see it fully lit. And because the Moon's orbit is tilted, the full Moon nearly always passes a little above or below the shadow. When it does pass through, that is a lunar eclipse - a rare event, not the monthly phases.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/moonPhases/same-face",
+    "text": "Always the Same Face. The Moon turns once around itself in exactly the time it takes to go once around Earth, so it always shows us the same side - the marker points at its middle. The far side is not dark, though: at new moon it is the far side that lies in full sunlight. And from one new moon to the next takes 29.5 days, about two days more than the Moon's 27.3-day trip around Earth: meanwhile Earth has moved on along its orbit, so the Moon needs a little longer to line up with the Sun again.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/moonPhases/evening-crescent",
+    "text": "From the Ground: Evening Crescent. About three days after new moon, look west just after sunset: a thin crescent hangs low over the glow where the Sun went down, its lit side turned toward it. The rest of the Moon glows faintly too: that's earthshine, sunlight reflected by Earth's day side - which, seen from the Moon, is nearly full. Each evening the Moon stands about 12 degrees farther from the Sun, and its crescent grows.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/moonPhases/first-quarter",
+    "text": "First Quarter. A week after new moon, the Moon has gone a quarter of the way around Earth and stands 90 degrees from the Sun. At sunset it is in the south, its right half lit (seen from the southern hemisphere, its left). It is called a quarter for where the Moon is in its orbit, not for its shape.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/moonPhases/full-moon",
+    "text": "Full Moon Rising. Two weeks after new moon, the Moon stands opposite the Sun: as the Sun sets in the west, the full Moon rises in the east, and it stays up all night. Above the eastern horizon at dusk, look for a pink band - the Belt of Venus, sunlight still reaching the high air - over the darker blue of Earth's own shadow.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/moonPhases/last-quarter",
+    "text": "Last Quarter. Three weeks in, the Moon has gone three quarters of the way around. It rises around midnight and is still in the southern sky at sunrise, now lit on its left. Over the next week it shrinks back to a thin crescent in the dawn - and then to new moon, when it passes between the Sun and Earth and can cause a solar eclipse.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/solarEclipse/new-moon",
+    "text": "New Moon: Sun, Moon and Earth in a Row. The Moon goes around Earth every 29.5 days. At new moon it passes between the Sun and Earth - and if the three line up exactly, the Moon blocks the sunlight and its shadow falls on Earth: a solar eclipse. The shadow has two parts. Inside the umbra (between the red lines) the Moon hides all of the Sun; it narrows to a point just behind Earth's surface, so it touches Earth only as a small spot. Inside the much wider penumbra (between the blue lines) the Moon hides only part of the Sun.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/solarEclipse/tilted-orbit",
+    "text": "Why Not Every Month? The Moon's orbit is tilted by about 5 degrees against Earth's orbit around the Sun. So at most new moons the Moon passes a little above or below the Sun, and its shadow misses Earth. Only when new moon falls near one of the two points where the Moon crosses the plane of Earth's orbit do Sun, Moon and Earth line up. As Earth travels around the Sun, that happens in two short \"eclipse seasons\" a year - which is why there are only two to five solar eclipses a year.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/solarEclipse/shadow-on-earth",
+    "text": "The Moon's Shadow on Earth. Seen from space, the Moon's shadow is a dark smudge sweeping across Earth's day side - satellites photograph it during every eclipse. Everyone inside the penumbra (blue), a region thousands of kilometers wide, sees a partial eclipse. Only inside the umbra (red), at most about 270 kilometres wide, does the Sun disappear completely. The umbra races across Earth at 1,700 kilometres an hour or more and draws a narrow \"path of totality\", so at any one place totality lasts only a few minutes - never more than about 7.5.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/solarEclipse/first-contact",
+    "text": "From the Ground: Just a Sunny Day? Now we stand on Earth, in the path of totality. The Moon has already started to cover the Sun from its western edge - but nobody would notice: the sky stays bright blue, and the Sun still dazzles, far too bright to look at. Never look straight at the Sun, not even for a moment and not even when most of it is covered: it can burn the retina for good, without any pain.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/solarEclipse/partial",
+    "text": "Through Eclipse Glasses: A Bite out of the Sun. Eclipse glasses (made to the I S O 12312 part 2 standard; sunglasses are not nearly enough) let through only about a hundred-thousandth of the sunlight. Everything else goes black, and the Sun shows as what it has become: a crescent, growing thinner for about an hour as the Moon slides across it. The daylight hardly changes until almost all of the Sun is covered.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/solarEclipse/diamond-ring",
+    "text": "The Diamond Ring. Seconds before totality, the last rays of sunlight shine through valleys on the Moon's edge and the Sun's glowing outer atmosphere starts to show around the dark Moon: the diamond ring. The light now fades within seconds, and the sky darkens. Keep the eclipse glasses on until the diamond has gone out.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/solarEclipse/totality",
+    "text": "Totality. The Moon covers all of the Sun - now, and only now, it is safe to look without glasses. The corona appears, the Sun's outer atmosphere, over a million degrees hot, with red prominences at the Moon's edge. The sky turns deep blue, a sunset glow rings the whole horizon, the brightest stars and planets come out, and it gets noticeably cooler. A perfect fit: the Sun is about 400 times wider than the Moon, but also about 400 times farther away. The next total eclipse, on 2 August 2027, crosses southern Spain, North Africa and Egypt.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/solarEclipse/annular",
+    "text": "Ring of Fire. The Moon's orbit is not a perfect circle. When an eclipse comes while the Moon is near its farthest point from Earth, it looks slightly smaller than the Sun and cannot cover it: its umbra ends before it reaches Earth, and a ring of fire stays around the Moon. This annular eclipse never gets dark and the corona stays hidden - the eclipse glasses stay on the whole time.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/voyager/two-probes",
+    "text": "Two Probes, 1977. In late summer 1977 NASA launched two identical spacecraft: Voyager 2 on 20 August, Voyager 1 on 5 September. Each weighs as much as a small car - 722 kilograms - and carries a dish antenna 3.7 metres across. They were built to last five years and to visit Jupiter and Saturn. Almost half a century later both are still working, and Voyager 1 is the most distant object people have ever made.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/voyager/on-board",
+    "text": "What’s on Board. The big dish always points back at Earth: through it Voyager sends its pictures and measurements home. The boom on one side carries the cameras and the other instruments that look at planets. On the opposite boom, three plutonium batteries make electricity from heat - out there sunlight is far too weak for solar panels. The long, thin boom holds a magnetometer far from the spacecraft’s own electronics, so it can measure faint magnetic fields. And on the side of the body: the Golden Record.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/voyager/golden-record",
+    "text": "The Golden Record. Each Voyager carries a gold-plated copper record, 30 centimetres across - a message for anyone who might find it, perhaps millions of years from now. A team led by Carl Sagan put on it 115 pictures, greetings in 55 languages, sounds of Earth - wind, rain, surf, birds, a heartbeat, a kiss - and 90 minutes of music from many cultures, from Bach and Beethoven to Chuck Berry, Peruvian panpipes and a Navajo night chant. The pictures and the music belong to their creators, so they are not part of this app; NASA presents them on its website.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/voyager/instructions",
+    "text": "Instructions for Finding Us. The record travels in an aluminium cover engraved with instructions, written without words: in pictures and binary numbers. Top left: how to play it, with the stylus that flies along - and below, seen from the side, to start at the edge. Top right: how the pictures are stored as sound, line by line, and a first test picture, a circle, to check the decoding. Bottom left: a map of 14 pulsars - stars that flash at very steady rates - showing where the Sun is in our galaxy. Bottom right: the hydrogen atom, the most common atom in the universe; the time it takes to flip between two states is the unit every other number on the cover is counted in.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/voyager/alignment",
+    "text": "A Rare Alignment. In the late 1970s Jupiter, Saturn, Uranus and Neptune stood along one side of the Sun - an arrangement that comes round only about every 175 years. A spacecraft could swing from one giant planet to the next, using each one’s gravity to speed up and turn toward the next, without the fuel it would otherwise need. Voyager 2 left first, on a slower path; Voyager 1 followed two weeks later on a faster one and overtook it in December 1977, in the asteroid belt.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/voyager/jupiter",
+    "text": "Jupiter, 1979. Voyager 1 passed Jupiter on 5 March 1979, Voyager 2 on 9 July. They filmed the Great Red Spot - a storm bigger than Earth - turning, found a thin ring around the planet, and discovered active volcanoes on its moon Io: the first ever seen beyond Earth.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/voyager/saturn",
+    "text": "Saturn, 1980 and 1981. Voyager 1 reached Saturn in November 1980, Voyager 2 in August 1981. They showed the rings to be thousands of narrow ringlets. Voyager 1 then swung close past Titan, Saturn’s big moon wrapped in haze - a detour that bent its path up and out of the planets’ plane, so it could visit no other planet. Voyager 2 flew on.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/voyager/ice-giants",
+    "text": "Uranus and Neptune. Voyager 2 is still the only spacecraft ever to visit Uranus (January 1986) and Neptune (August 1989). At Neptune, 4.5 billion km from the Sun, it found the Great Dark Spot, the fastest winds in the solar system - over 2,000 kilometres an hour - and geysers on the moon Triton. Its signals took more than four hours to reach Earth.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/voyager/pale-blue-dot",
+    "text": "The Pale Blue Dot. On 14 February 1990, six billion kilometres from home, Voyager 1 turned its cameras back and took the first portrait of the solar system from outside. In it, Earth is smaller than a pixel: a pale blue dot in a band of scattered sunlight. Minutes later the cameras were switched off for good, to save power for the long journey ahead.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/voyager/interstellar",
+    "text": "Into Interstellar Space. The Sun blows a wind of charged particles that inflates a bubble around the solar system, the heliosphere. On 25 August 2012 Voyager 1 left it, 121.6 astronomical units from the Sun - the first human-made object in interstellar space. Voyager 2 followed on 5 November 2018. Today Voyager 1 is more than 170 times as far from the Sun as Earth, and its signal takes about a day to reach us. How Voyager works and what it measured: the lesson “Voyager in depth”.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/voyagerDeepDive/taken-apart",
+    "text": "Taken Apart. Voyager’s body is a ten-sided ring of electronics boxes, 1.8 metres across, around a tank of fuel for its small steering thrusters. On it sit the 3.7 metres dish; two booms, one for the power supply and one for the science platform; and the magnetometer boom, 13 metres of thin fibreglass rods that were folded into a canister for launch. The Golden Record is fixed to the outside of the body.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/voyagerDeepDive/power",
+    "text": "Power from Plutonium. Three radioisotope thermoelectric generators (RTGs) turn the heat of decaying plutonium-238 into electricity - no sunlight needed. At launch they gave about 470 watts. As the plutonium decays and the thermocouples age, the output falls by about 4 watts a year, so the team has been switching off heaters and instruments one by one to keep the rest running.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/voyagerDeepDive/communication",
+    "text": "A Whisper Across the Solar System. Voyager talks to Earth with a transmitter of about 23 watts - a fridge light bulb - through its 3.7 metres dish. By the time the signal arrives it is so faint that only the 70-metre dishes of NASA’s Deep Space Network, in California, Spain and Australia, can pick it up. Data trickle home at 160 bits per second. Voyager 2, far south of the planets’ plane, can only be reached from Australia.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/voyagerDeepDive/instruments",
+    "text": "Eleven Instruments. Each Voyager carries eleven science instruments. On the scan platform at the end of the science boom: a wide-angle and a narrow-angle camera, spectrometers for infrared and ultraviolet light and a photopolarimeter, all turned together toward a target. On the body and the booms: instruments for plasma, charged particles and cosmic rays, magnetometers, and two 10 metres wire antennas listening to radio and plasma waves; the radio link itself is the eleventh. In interstellar space only the fields and particles matter - and only a few instruments are still switched on.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/voyagerDeepDive/gravity-assist",
+    "text": "Gravity Assists. The chart shows Voyager 2’s real speed around the Sun, from its JPL trajectory, against the speed it would need to escape the Sun at its distance. Leaving Earth, it was too slow - on its own it would have fallen back. Jupiter, Saturn and Uranus each lent it some of their own motion around the Sun: after Jupiter it was already fast enough to leave the solar system for good. Neptune, which bent its path southward, slowed it a little.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/voyagerDeepDive/out-of-plane",
+    "text": "Leaving the Plane. Seen edge-on, the planets all orbit in nearly one plane. Voyager 1’s close pass by Titan in 1980 flung it northward out of that plane, about 35 degrees. Voyager 2’s pass over Neptune’s north pole in 1989 sent it southward, below the plane. The two now travel in very different directions.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/voyagerDeepDive/heliopause",
+    "text": "Crossing the Heliopause. Voyager 1’s own measurements, day by day in 2012. Within days around 25 August, the particles that fill the solar wind’s bubble all but vanished - protons of 3 to 4.6 mega-electronvolts dropped about a hundredfold - and the magnetic field grew stronger and steadier. Voyager 1 had left the heliosphere. Plasma waves heard in 2013 confirmed it: the gas around it was some 40 times denser than inside the bubble.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/voyagerDeepDive/reading-cover",
+    "text": "Reading the Cover. Top left: the record from above with its stylus, and in binary the time one turn takes - 3.6 seconds, counted in hydrogen time. Below: the record from the side - play it from the edge inwards, about an hour per side. Top right: how a picture is stored - one image line’s signal, the lines drawn one under another, and the first picture, a circle, to check the decoding. Bottom left: the pulsar map. Each line points to a pulsar, its binary code tells how fast it flashes, and the long line runs to the galaxy’s centre. Pulsars slow down over time, so the map tells where and when. Bottom right: hydrogen, the clock for every number. A small spot of ultra-pure uranium-238 on the cover is a second clock: its decay tells how long ago the record left.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/voyagerDeepDive/picture-in-sound",
+    "text": "A Picture in a Sound. How do you put pictures on a record? As sound: each picture is read line by line, like an old television signal. Every line begins with a short pulse that dips below black - the mark for “new line here” - followed by the brightness along the line as the height of the signal. Played back, the lines are drawn one under another and the picture appears. The cover shows exactly this, top right, with the first picture as a test: a circle. Below, a picture of our own goes through the same steps. The record itself turns at 16⅔ revolutions a minute, half the speed of an LP.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/voyagerDeepDive/still-talking",
+    "text": "Still Talking. Almost half a century after launch, both Voyagers still send data home. To save power the team has switched off most instruments; a few measuring fields and particles remain. Some time in the 2030s the power will no longer run the transmitters and the two probes will fall silent - but they will fly on around the galaxy for billions of years, each with its Golden Record.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/saturnV/whole",
+    "text": "The Whole Rocket. On 16 July 1969 this rocket carried Apollo 11 toward the Moon. The Saturn V stood 110.6 metres tall - taller than the Statue of Liberty with its pedestal - and weighed 2,938 t at liftoff, almost all of it propellant. The small orange figure at its foot is a person, to scale.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/saturnV/stack",
+    "text": "The Stack. The Saturn V is three rockets stacked on each other, with a spacecraft on top. Each stage burns until its tanks are empty and is then thrown away, so the next one has less to carry: the S-IC, the S-II and the S-IVB. Above them sit the Instrument Unit, the adapter with the lunar module inside, the service and command modules, and the escape tower. The S-IVB’s name tells its story: it is an improved S-IV, which had been the second stage of the smaller Saturn I.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/saturnV/sic",
+    "text": "S-IC: Five F-1 Engines. The first stage lifts the whole rocket off the pad. Its five F-1 engines burn kerosene (RP-1) with liquid oxygen and together push with about 34 meganewtons. Every second they swallow almost 13 t of propellant; the oxygen runs from the upper tank through five ducts straight through the fuel tank below it. The centre engine shuts down after 2 minutes 15 seconds, the outer four after 2 minutes 42 seconds; at 67 kilometres the empty stage drops away.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/saturnV/sii",
+    "text": "S-II: Burning Hydrogen. The second stage burns liquid hydrogen, at −253 degreesC, with liquid oxygen. Hydrogen gives more push per kilogram but is so light it needs a huge tank. To save length and weight, the hydrogen and oxygen tanks share one wall - a common bulkhead, insulated so the oxygen does not freeze against the colder hydrogen. Its five J-2 engines burn for 6 minutes 25 seconds.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/saturnV/sivb",
+    "text": "S-IVB: Fired Twice. The third stage has a single J-2 engine, and it can be restarted. Its first burn, 2 minutes 27 seconds, puts Apollo into a parking orbit around Earth. During its second orbit, while the crew checks their spacecraft, it fires again for 5 minutes 47 seconds: trans-lunar injection, which sends Apollo 11 on its way to the Moon at about 39,000 kilometres an hour.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/saturnV/iu",
+    "text": "The Instrument Unit. A ring only 91 centimetres tall, 6.6 metres across, is the rocket’s brain. Inside it are a guidance computer, a gyroscope platform that always knows which way is up, and radios. It steers the engines, times every stage separation and controls the S-IVB until the spacecraft leaves it.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/saturnV/spacecraft",
+    "text": "The Spacecraft on Top. Under the cone-shaped adapter waits the lunar module, legs folded. Above it are the service module with the main engine, fuel, oxygen and power, and the command module, home to the three astronauts. The tower on top could pull the command module away from a failing rocket; it was thrown off while the second stage was burning.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/saturnV/returns",
+    "text": "What Comes Back. Of the whole stack, only the command module comes home: a capsule of 4.9 t that splashed down in the Pacific on 24 July 1969. Everything else was thrown away along the way - the stages one after the other, the tower, the adapter; the lunar module stayed behind at the Moon.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/columbia/whole",
+    "text": "The Spacecraft. Apollo 11’s spacecraft had two parts: the command module Columbia, home to the three astronauts, and the service module behind it with the main engine, propellant, oxygen and power. Together they flew to the Moon and back; only the command module returned to Earth.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/columbia/serviceModule",
+    "text": "The Service Module, Cut Open. Six wedge-shaped sectors surround the main engine. Two hold the oxidizer, two the fuel, each in a sump tank and a storage tank; helium in the middle pushes the propellants to the engine. One sector holds three fuel cells and the tanks of oxygen and hydrogen they turn into electricity. About three quarters of the module’s weight is propellant.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/columbia/engine",
+    "text": "The Engine That Had to Work. The service propulsion engine pushes with about 89 kilonewtons and can be restarted. It braked Apollo 11 into orbit around the Moon and, after the landing, sent Columbia home. There was no second engine to fall back on.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/columbia/commandModule",
+    "text": "The Command Module. A cone 3.2 metres tall and 3.9 metres across. Under its skin lies the heat shield: steel honeycomb covered with a phenolic epoxy resin that charred and fell away as the capsule came back through the atmosphere. Five windows, a side hatch and, at the top, the tunnel to the lunar module.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/columbia/inside",
+    "text": "Inside. This is Columbia as it is today, scanned by the Smithsonian. The cabin offered about 6 cubic metres of room - for three men and eight days, the whole way to the Moon and back.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/columbia/panels",
+    "text": "The Main Display Console. Above the couches arches the main display console: switches, gauges and warning lights for every system on board, and the keyboard of the guidance computer. The commander sat on the left, the command module pilot in the middle, the lunar module pilot on the right.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/columbia/seats",
+    "text": "Three Couches. The three couches stand on crushable honeycomb struts that softened the blow when the capsule hit the water. At their foot lies the lower equipment bay with the navigation instruments: a sextant, a telescope and the guidance computer with its keyboard.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/columbia/notes",
+    "text": "Notes on the Walls. Handwritten numbers and notes cover parts of Columbia’s walls. Michael Collins flew her alone around the Moon while Armstrong and Aldrin walked on its surface. The scan keeps every line, just as the capsule came home.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/eagle/whole",
+    "text": "Eagle. Seven metres tall and more than nine across its feet: the lunar module was the first crewed spacecraft built only to fly in a vacuum. It never had to cross an atmosphere, so it needed no streamlining - only to be light. Its walls are in places as thin as a few sheets of paper.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/eagle/folded",
+    "text": "Folded for the Ride. On the way to the Moon Eagle rode folded up under the spacecraft, in the adapter on top of the Saturn V’s third stage. Its four legs were swung up against its sides. Only in lunar orbit, before the descent, did they unfold and lock.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/eagle/stages",
+    "text": "Two Craft in One. Eagle is two spacecraft stacked: the descent stage below, with its engine, its propellant and the landing gear, carried both astronauts down to the surface. The ascent stage above, with the cabin and an engine of its own, brought them back up to Columbia.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/eagle/descent",
+    "text": "The Descent Stage, Cut Open. Four tanks surround the descent engine, two of fuel and two of oxidizer. It was the first engine on a crewed spacecraft that could be throttled: from full thrust down to a tenth. That let Neil Armstrong hover and fly on across the boulders until he found a place to land.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/eagle/ascent",
+    "text": "The Ascent Stage. The crew’s cabin, a tank on either side and one engine underneath - with no throttle and no gimbal, as simple as an engine can be, because it had to work. Sixteen small thrusters in four clusters at the corners steered the craft.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/eagle/inside",
+    "text": "Inside. The way in is the square hatch at the front, crawling on hands and knees. Inside there are no seats: Armstrong and Aldrin stood, held by cables at their hips, each at his own triangular window. Standing saved weight and brought their eyes close to the windows.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/eagle/panels",
+    "text": "Panels and Windows. In front of each of them the flight displays: the attitude ball, the crosspointer, altitude and rate of descent. Between them the keyboard of the guidance computer - the one whose 1202 alarms sounded during the landing. The windows look down and forward, at the ground they were coming to.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/eagle/liftoff",
+    "text": "Liftoff from the Moon. After 21 hours on the surface the ascent stage fired and rose from the descent stage, which served as its launch pad. The descent stage is still standing in the Sea of Tranquility today, with the plaque on its leg.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/apollo11/launch",
+    "text": "Liftoff. At 9:32 in the morning of 16 July 1969, Florida time, the Saturn V lifted Apollo 11 off Launch Complex 39A. Less than twelve minutes later its third stage shut down in orbit, about 190 kilometres above Earth, with fuel left for one more burn.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/apollo11/parking",
+    "text": "One and a Half Times Around. For one and a half turns around Earth - about two and a half hours - the crew and Mission Control checked the spacecraft before it left. Each turn took about an hour and a half.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/apollo11/tli",
+    "text": "Toward the Moon. Over the Pacific the third stage fired again, for almost six minutes, and brought the craft to 10.8 kilometres per second - nearly fast enough to leave Earth for good. It was aimed not at the Moon, but at where the Moon would be three days later.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/apollo11/dock",
+    "text": "Turning Around. Eagle rode folded up in the adapter below Columbia. Less than half an hour after the burn, Michael Collins separated Columbia, turned it around and docked its nose to Eagle’s roof, then pulled the lunar module free. The spent third stage was sent past the Moon into an orbit around the Sun.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/apollo11/coast",
+    "text": "The Figure Eight. For three days Apollo 11 coasted, slowing as Earth held it back. It flew a free return: had the engine failed, the Moon’s gravity would have swung it around and sent it home - the figure eight. Of four planned course corrections, only one was needed.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/apollo11/loi",
+    "text": "Behind the Moon. Apollo 11 reached the Moon on its far side, out of radio contact with Earth. There Columbia’s engine fired against the direction of flight for almost six minutes and braked it into orbit. Mission Control only learned that it had worked when the craft came out from behind the Moon.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/apollo11/descent",
+    "text": "Eagle Goes Down. On the thirteenth orbit Eagle undocked. Armstrong and Aldrin flew it down while Collins stayed aboard Columbia. A short burn on the far side lowered Eagle to 15 kilometres; from there its engine braked all the way down. Computer alarms and a field of boulders made the last minutes tense - Armstrong flew on past them and landed with less than a minute of fuel to spare.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/apollo11/surface",
+    "text": "Tranquility Base. Eagle landed in the Sea of Tranquility on 20 July. Six and a half hours later Neil Armstrong stepped onto the surface, Buzz Aldrin twenty minutes after him; they spent two and a half hours outside. Above them Collins circled alone, out of contact behind the Moon on every turn.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/apollo11/ascent",
+    "text": "Back Up to Columbia. After twenty-one and a half hours on the Moon, the ascent stage lifted off and left the descent stage behind. Less than four hours later it caught up with Columbia; the two docked, Armstrong and Aldrin climbed back through the tunnel, and the ascent stage was cast off.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/apollo11/home",
+    "text": "The Way Home. Again on the far side, Columbia’s engine fired for two and a half minutes and set it on course for Earth. The way home took two and a half days; one small correction was all it needed.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/apollo11/splashdown",
+    "text": "Splashdown. Shortly before arrival the service module was cast off. The command module met the atmosphere at 11 kilometres per second, its heat shield glowing; its parachutes opened, and on 24 July it splashed down in the Pacific, 24 kilometres from the recovery ship USS Hornet. The mission had lasted eight days, three hours and eighteen minutes.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/planetSizes/lineup",
+    "text": "The Solar System, to Scale. The Sun and all 8 planets side by side, at their true relative sizes. The Sun alone holds about 99.8 percent of the Solar System's mass - it dwarfs even Jupiter, the largest planet, which in turn dwarfs Earth. This lineup shows size only, not distance: the planets' real spacing (light-hours to light-days apart) would spread them far outside any single view. They start in their order out from the Sun; Sort lines them up by size, mass, temperature and more. The following pages fly to each planet in turn, with its own numbers.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/planetSizes/order-distance",
+    "text": "Back in their order out from the Sun: Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus and Neptune.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/planetSizes/order-size",
+    "text": "By size, from the largest to the smallest: Jupiter, Saturn, Uranus, Neptune, Earth, Venus, Mars and Mercury.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/planetSizes/order-mass",
+    "text": "By mass, from the heaviest to the lightest: Jupiter, Saturn, Neptune, Uranus, Earth, Venus, Mars and Mercury.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/planetSizes/order-type",
+    "text": "Rock, gas or ice: first the rocky planets, Mercury, Venus, Earth and Mars. Then the gas giants, Jupiter and Saturn. And last the ice giants, Uranus and Neptune.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/planetSizes/order-speed",
+    "text": "By their speed around the Sun, from the fastest to the slowest: Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus and Neptune. The closer a planet is to the Sun, the faster it flies.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/planetSizes/order-day",
+    "text": "By the length of a day, from one sunrise to the next, from the shortest to the longest: Jupiter, Saturn, Neptune, Uranus, Earth, Mars, Venus and Mercury.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/planetSizes/order-year",
+    "text": "By the length of a year, from the shortest to the longest: Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus and Neptune.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/planetSizes/order-temperature",
+    "text": "By temperature, from the hottest to the coldest: Venus, Mercury, Earth, Mars, Jupiter, Saturn, Uranus and Neptune. On the giants, that is at the top of their clouds.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/planetSizes/order-density",
+    "text": "By density, from the densest to the lightest: Earth, Mercury, Venus, Mars, Neptune, Jupiter, Uranus and Saturn. Saturn is lighter than water - it would float.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/planetSizes/order-gravity",
+    "text": "By gravity - how heavy you would feel there - from the strongest to the weakest: Jupiter, Neptune, Earth, Saturn, Venus, Uranus, Mercury and Mars.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "lessons/planetSizes/order-tilt",
+    "text": "By how far their axes are tilted, from the most upright to the most tipped over: Mercury, Jupiter, Earth, Mars, Saturn, Neptune, Uranus and Venus. Beyond 90 degrees, a planet spins backwards.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/voyager1/launch",
+    "text": "Launch. Cape Canaveral, 5 September 1977. A Titan-Centaur rocket sends Voyager 1 on its way. It left two weeks after its twin but on a faster path - which is why it carries the number one.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/voyager1/overtake",
+    "text": "Overtaking. In December 1977, in the asteroid belt, Voyager 1 overtakes Voyager 2. From here on it leads - all the way out of the solar system.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/voyager1/jupiter",
+    "text": "Jupiter. Closest approach on 5 March 1979, 349,000 kilometres from Jupiter’s centre. Voyager 1 discovers a thin ring and, on the moon Io, erupting volcanoes - the first active volcanoes ever seen beyond Earth.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/voyager1/saturn",
+    "text": "Saturn and Titan. November 1980. Voyager 1 shows the rings to be thousands of ringlets and passes close by Titan, which hides under a thick haze of nitrogen - an atmosphere denser than Earth’s. The pass flings the probe up and out of the planets’ plane: no other planet lies ahead.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/voyager1/pale-blue-dot",
+    "text": "The Pale Blue Dot. 14 February 1990, six billion kilometres out. Voyager 1 looks back and photographs the planets - and Earth, a speck smaller than a pixel. Then its cameras are switched off for good.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/voyager1/termination-shock",
+    "text": "The Termination Shock. December 2004, 94 astronomical units from the Sun. The solar wind, so far racing out at supersonic speed, suddenly slows down where it runs into the gas between the stars. Voyager 1 has crossed into the heliosheath, the bubble’s outer layer.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/voyager1/heliopause",
+    "text": "Into Interstellar Space. 25 August 2012, 121.6 astronomical units from the Sun. Within days the particles of the solar wind all but vanish and the magnetic field changes: Voyager 1 is the first human-made object in interstellar space.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/voyager1/today",
+    "text": "Today. Voyager 1 keeps going at about 17 kilometres a second. Its 23-watt transmitter still reaches the 70-metre dishes of the Deep Space Network; each message takes about a day to arrive.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/voyager2/launch",
+    "text": "Launch. Cape Canaveral, 20 August 1977. Voyager 2 is launched first, on a slower path that will take it past all four giant planets - a chance that comes only about every 175 years.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/voyager2/jupiter",
+    "text": "Jupiter. Closest approach on 9 July 1979, 722,000 kilometres from Jupiter’s centre. Voyager 2 photographs Europa: a smooth shell of ice criss-crossed by cracks - a first hint of the ocean beneath it.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/voyager2/saturn",
+    "text": "Saturn. August 1981. Voyager 2 passes Saturn at 161,000 kilometres and studies the rings in colour - differences that hint at different materials. Saturn’s gravity bends its path toward Uranus.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/voyager2/uranus",
+    "text": "Uranus. January 1986. The first and only visit to Uranus. Voyager 2 finds ten new moons and two new rings, and a magnetic field tipped far from the axis the planet spins on. The moon Miranda looks as if it had been broken apart and put back together.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/voyager2/neptune",
+    "text": "Neptune and Triton. August 1989. Voyager 2 skims just 4,950 kilometres over Neptune’s cloud tops - the closest pass of the whole journey. It finds the Great Dark Spot, the fastest winds in the solar system, and geysers on the frozen moon Triton.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/voyager2/termination-shock",
+    "text": "The Termination Shock. August 2007, 84 astronomical units from the Sun. Voyager 2 crosses the termination shock, where the solar wind slows down abruptly - several times within a few days, as the boundary moved back and forth over it.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/voyager2/heliopause",
+    "text": "Into Interstellar Space. 5 November 2018, 119 astronomical units from the Sun. Voyager 2 leaves the heliosphere. Unlike Voyager 1, whose plasma instrument failed in 1980, it could measure the solar wind itself come to a stop.",
+    "language": "English"
+  },
+  {
+    "locale": "en",
+    "id": "tours/voyager2/today",
+    "text": "Today. Voyager 2 travels south of the planets’ plane at about 15 kilometres a second. Only one dish on Earth, in Australia, can still send it commands.",
+    "language": "English"
+  },
+  {
+    "locale": "de",
+    "id": "tours/grand/sun-approach",
+    "text": "Der Weltraum – unendliche Weiten. Willkommen an Bord. Unsere Reise beginnt dort, wo in diesem System alles beginnt: bei der Sonne. Lehn dich zurück – wir besuchen jeden Planeten, der Reihe nach, von innen nach außen.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/grand/sun-orbit",
+    "text": "In der Sonne steckt mehr als 99,8 Prozent der gesamten Masse des Sonnensystems. Über eine Million Erden hätten in ihr Platz. Tief in ihrem Kern, bei 15 Millionen Grad, verschmilzt sie Wasserstoff zu Helium und verwandelt dabei jede Sekunde vier Millionen Tonnen Materie in Licht. Das Sonnenlicht auf deinem Gesicht hat die Sonne vor gut acht Minuten verlassen.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/grand/mercury-approach",
+    "text": "Erster Halt: Merkur, der kleinste Planet und der sonnennächste. In nur 88 Tagen rast er einmal um die Sonne – schneller als jeder andere Planet.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/grand/mercury-orbit",
+    "text": "Fast ohne Luft, die die Wärme halten könnte, glüht Merkur tagsüber bei 430 Grad und gefriert nachts bei minus 180. Und seine Tage sind lang: Von einem Sonnenaufgang zum nächsten vergehen zwei seiner Jahre. Seltsam, aber wahr: Diese verbrannte Welt hat Eis – versteckt in Kratern an den Polen, in die nie die Sonne scheint. Und Merkur schrumpft: Sein riesiger Eisenkern kühlt ab, der ganze Planet zieht sich zusammen, und seine Oberfläche legt sich in Falten.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/grand/venus-approach",
+    "text": "Als Nächstes kommt die Venus – fast so groß wie die Erde und nach dem Mond das hellste Licht an unserem Nachthimmel. Aber aus der Nähe ist dieser Zwilling ein Albtraum.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/grand/venus-orbit",
+    "text": "Unter ihren Wolken aus Schwefelsäure ist die Venus der heißeste Planet von allen: rund 465 Grad, heiß genug, um Blei zu schmelzen – heißer sogar als Merkur. Ihre dichte Luft aus Kohlendioxid hält die Wärme fest und drückt 90-mal stärker als auf der Erde, als wärst du fast einen Kilometer tief im Meer. Außerdem dreht sich die Venus rückwärts, und so langsam, dass ihr Tag länger dauert als ihr Jahr. Die Sonden, die auf ihr gelandet sind, hielten höchstens zwei Stunden durch.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/grand/earth-approach",
+    "text": "Und hier ist ein Planet, den du kennst. Die Erde – die dritte von der Sonne aus und die einzige Welt, von der wir wissen, dass es auf ihr Leben gibt.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/grand/earth-orbit",
+    "text": "71 Prozent der Erdoberfläche sind von flüssigem Wasser bedeckt – sie ist der einzige Planet mit Ozeanen an der Oberfläche. Und sie ist der dichteste Planet im Sonnensystem. Gerade jetzt rast du mit 30 Kilometern pro Sekunde um die Sonne, mehr als 100.000 Kilometer in der Stunde, ohne irgendetwas davon zu spüren. Und die Luft zum Atmen? Wäre die Erde ein Apfel, wäre ihre Atmosphäre dünner als die Schale.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/grand/mars-approach",
+    "text": "Jetzt geht es hinaus zum Mars, dem Roten Planeten. Seine Farbe kommt von Rost: Eisen in seinem Staub, über Milliarden Jahre langsam oxidiert.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/grand/mars-orbit",
+    "text": "Der Mars ist eine Welt der Extreme. Olympus Mons, der größte Vulkan im Sonnensystem, ist mehr als doppelt so hoch wie der Mount Everest. Valles Marineris, ein Canyon von 4.000 Kilometern Länge, reicht etwa so weit wie von Lissabon bis Moskau. Sein Tag ist nur 40 Minuten länger als unserer – aber seine Sonnenuntergänge sind blau. Der Mars hat zwei winzige Monde, und der größere, Phobos, kommt ihm langsam immer näher. In einigen zehn Millionen Jahren wird er zerbrechen.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/grand/jupiter-approach",
+    "text": "Hinter dem Asteroidengürtel beginnen die Riesen. Jupiter ist so groß, dass alle anderen Planeten zusammen in ihn hineinpassen würden – und es wäre noch Platz.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/grand/jupiter-orbit",
+    "text": "Mehr als 1.300 Erden hätten in Jupiter Platz, und er ist mehr als doppelt so schwer wie alle anderen Planeten zusammen. Einen festen Boden hat er nicht – nur immer dichteres Gas. Der Große Rote Fleck ist ein Sturm, breiter als die Erde, der seit weit über 150 Jahren tobt. Trotz seiner Größe dreht sich Jupiter schneller als jeder andere Planet: Ein Tag dauert keine 10 Stunden. Und unter seinen vielen Monden ist Ganymed – größer als der Planet Merkur.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/grand/saturn-approach",
+    "text": "Jetzt das Juwel des Sonnensystems: Saturn und seine Ringe. Sie spannen sich über fast 300.000 Kilometer – und sind trotzdem hauchdünn.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/grand/saturn-orbit",
+    "text": "Meist sind Saturns Ringe nur etwa 10 Meter dick. Sie bestehen aus unzähligen Brocken Eis, von Staubkörnern bis zu Blöcken so groß wie ein Haus. Saturn selbst ist so leicht, dass er in einer Badewanne, die groß genug wäre, schwimmen würde. An seinem Nordpol kreist ein Sturm in Form eines perfekten Sechsecks. Und sein größter Mond, Titan, hat einen dichten, orangefarbenen Himmel, mit Seen und Flüssen – nicht aus Wasser, sondern aus flüssigem Methan.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/grand/uranus-approach",
+    "text": "Weiter draußen liegt Uranus, der erste Planet, der je mit einem Teleskop entdeckt wurde – von Wilhelm Herschel, im Jahr 1781.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/grand/uranus-orbit",
+    "text": "Uranus rollt auf der Seite liegend um die Sonne: Seine Achse ist um 98 Grad gekippt. Weil eine Runde um die Sonne 84 Jahre dauert, hat jeder Pol 42 Jahre Tag und danach 42 Jahre Nacht. Seine blaugrüne Farbe kommt vom Methangas. Und obwohl Neptun weiter draußen liegt, hält Uranus den Rekord für die kälteste Luft aller Planeten: minus 224 Grad.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/grand/neptune-approach",
+    "text": "Der letzte Planet: Neptun. Gefunden wurde er mit Papier und Bleistift – vorhergesagt aus der Art, wie er an Uranus zerrt, und dann genau dort entdeckt, wo die Rechnung ihn vermutet hatte.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/grand/neptune-orbit",
+    "text": "Das Sonnenlicht braucht mehr als vier Stunden bis zu Neptun. Hier wehen die schnellsten Winde im Sonnensystem – bis zu 2.000 Kilometer pro Stunde. Eine Runde um die Sonne dauert 165 Jahre: Seit seiner Entdeckung im Jahr 1846 hat Neptun sie gerade ein einziges Mal umrundet. Sein größter Mond, Triton, kreist rückwärts um ihn und hat Geysire aus Stickstoff. Nur eine einzige Sonde war je hier: Voyager 2, im Jahr 1989.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/grand/home-approach",
+    "text": "Das war der letzte der Planeten. Zeit für den Heimweg – zurück durchs Sonnensystem, zu der kleinen blauen Welt, von der wir aufgebrochen sind.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/grand/home-orbit",
+    "text": "Vom Rand des Sonnensystems hat Voyager 1 einmal zurückgeschaut und die Erde als blassblauen Punkt gesehen, kleiner als ein einziges Pixel. Alles, was wir kennen, liegt auf diesem Punkt. Danke, dass du mit uns geflogen bist. Die Steuerung gehört jetzt dir: Erkunde selbst weiter, oder lerne, warum es Jahreszeiten, Mondphasen und Finsternisse gibt.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/seasons/orbit",
+    "text": "Die echte Bahn: die Erde um die Sonne. Sieh zu, wie die Erde wirklich um die Sonne kreist. Ihre Achse zeigt dabei immer in dieselbe feste Richtung im Raum – sie kippt nie zur Sonne hin und richtet sich nie zu ihr auf. Aber weil sich die Position der Erde ständig ändert, ändert sich auch der Winkel zwischen dieser festen Achse und der Sonne: mal neigt sie sich zur Sonne hin, mal von ihr weg, und zweimal pro Runde steht sie genau seitlich. Dieser wechselnde Winkel – nicht eine Bewegung der Achse selbst – ist der wahre Grund für die Jahreszeiten. Die Zahl zeigt, wie viel der 23,4 Grad Neigung gerade zur Sonne hin oder von ihr weg zeigt. (Einmal pro Runde verschwindet die Erde aus diesem Blickwinkel kurz hinter der Sonne – das liegt nur an der Kameraposition, im All passiert dabei nichts Besonderes.)",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/seasons/intro",
+    "text": "Einführung: eine schiefe Welt. Die Erdachse ist das ganze Jahr über um 23,4 Grad gegen ihre Bahn um die Sonne geneigt. Diese Neigung – nicht der Abstand zur Sonne, der sich im Lauf eines Jahres kaum ändert – sorgt für die Jahreszeiten: Was sich ändert, ist, wohin die Neigung relativ zur Sonne zeigt. Achte auf Ort A (Norden) und Ort B (Süden), während du durch die Kapitel gehst.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/seasons/march-equinox",
+    "text": "Frühlings-Tagundnachtgleiche. Um die Tagundnachtgleiche im März ist die Erdachse immer noch um 23,4 Grad geneigt, aber zur Seite: weder zur Sonne hin noch von ihr weg (aus diesem Blickwinkel neigt sie sich von dir weg). Die Sonne steht also genau über dem Äquator, und Ort A und Ort B haben fast gleich lange Tage und Nächte.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/seasons/june-solstice",
+    "text": "Sommersonnenwende im Juni. Die Sonnenwende im Juni: Der Nordpol neigt sich zur Sonne. Ort A (Norden) bekommt längere Tage und steiler einfallendes Sonnenlicht – Sommer. Ort B (Süden) bekommt kürzere Tage und flacheres Sonnenlicht – Winter.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/seasons/september-equinox",
+    "text": "Herbst-Tagundnachtgleiche. Um die Tagundnachtgleiche im September zeigt die Neigung wieder zur Seite – diesmal zu dir hin. Die Sonne steht wieder über dem Äquator, und Ort A und Ort B haben wieder fast gleich lange Tage und Nächte – nur geht der Trend jetzt umgekehrt wie im März.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/seasons/december-solstice",
+    "text": "Wintersonnenwende im Dezember. Die Sonnenwende im Dezember: Der Südpol neigt sich zur Sonne. Ort B (Süden) bekommt längere Tage und steiler einfallendes Sonnenlicht – Sommer. Ort A (Norden) bekommt kürzere Tage und flacheres Sonnenlicht – Winter.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/moonPhases/always-half-lit",
+    "text": "Immer zur Hälfte beleuchtet. Die Sonne beleuchtet immer genau die Hälfte des Mondes – die ihr zugewandte, so wie sie auch die halbe Erde beleuchtet. Was sich über einen Monat ändert, ist, wie viel dieser hellen Hälfte uns zugewandt ist. Bei Neumond zeigt sie von uns weg, bei Vollmond zu uns, beim ersten und letzten Viertel sehen wir die Hälfte davon. Die Karte in der Ecke zeigt den Mond, wie man ihn gerade von der Erde aus sieht.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/moonPhases/not-earths-shadow",
+    "text": "Nicht der Erdschatten. Eine häufige Verwechslung: Die Phasen sind nicht der Schatten der Erde auf dem Mond. Der Erdschatten zeigt genau von der Sonne weg, der Mond könnte also nur bei Vollmond hineingeraten – genau dann, wenn wir ihn voll beleuchtet sehen. Und weil die Mondbahn geneigt ist, zieht der Vollmond fast immer ein wenig über oder unter dem Schatten vorbei. Geht er doch hindurch, ist das eine Mondfinsternis – ein seltenes Ereignis, nicht die monatlichen Phasen.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/moonPhases/same-face",
+    "text": "Immer dasselbe Gesicht. Der Mond dreht sich genau in der Zeit einmal um sich selbst, in der er einmal um die Erde läuft – darum zeigt er uns immer dieselbe Seite, die Markierung zeigt auf ihre Mitte. Die Rückseite ist aber nicht dunkel: Bei Neumond liegt gerade sie im vollen Sonnenlicht. Und von einem Neumond zum nächsten vergehen 29,5 Tage, etwa zwei Tage mehr als die 27,3 Tage, die der Mond für eine Runde um die Erde braucht: Inzwischen ist die Erde auf ihrer Bahn weitergezogen, und der Mond braucht etwas länger, bis er wieder in einer Linie mit der Sonne steht.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/moonPhases/evening-crescent",
+    "text": "Vom Boden aus: Sichel am Abend. Etwa drei Tage nach Neumond, kurz nach Sonnenuntergang, schau nach Westen: Eine schmale Sichel hängt tief über dem Leuchten, wo die Sonne verschwunden ist, die helle Seite ihr zugewandt. Der Rest des Mondes schimmert auch: Das ist das Erdlicht, Sonnenlicht, das von der Tagseite der Erde zurückgeworfen wird – die vom Mond aus gesehen fast „voll“ ist. Jeden Abend steht der Mond etwa 12 Grad weiter von der Sonne entfernt, und seine Sichel wächst.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/moonPhases/first-quarter",
+    "text": "Erstes Viertel. Eine Woche nach Neumond hat der Mond ein Viertel seines Wegs um die Erde geschafft und steht 90 Grad von der Sonne entfernt. Bei Sonnenuntergang steht er im Süden, seine rechte Hälfte beleuchtet (von der Südhalbkugel aus die linke). „Viertel“ heißt er wegen seiner Position auf der Bahn, nicht wegen seiner Form.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/moonPhases/full-moon",
+    "text": "Der Vollmond geht auf. Zwei Wochen nach Neumond steht der Mond der Sonne gegenüber: Während die Sonne im Westen untergeht, geht im Osten der Vollmond auf und bleibt die ganze Nacht am Himmel. Achte in der Dämmerung über dem Osthorizont auf ein rosa Band – den Venusgürtel, wo Sonnenlicht noch die hohe Luft erreicht – über dem dunkleren Blau des Erdschattens selbst.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/moonPhases/last-quarter",
+    "text": "Letztes Viertel. Nach drei Wochen hat der Mond drei Viertel seiner Runde hinter sich. Er geht um Mitternacht auf und steht bei Sonnenaufgang noch am Südhimmel, jetzt links beleuchtet. In der nächsten Woche schrumpft er wieder zu einer schmalen Sichel im Morgengrauen – und dann zum Neumond, wenn er zwischen Sonne und Erde hindurchzieht und eine Sonnenfinsternis auslösen kann.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/solarEclipse/new-moon",
+    "text": "Neumond: Sonne, Mond und Erde in einer Reihe. Der Mond umrundet die Erde alle 29,5 Tage. Bei Neumond zieht er zwischen Sonne und Erde hindurch – und wenn die drei genau in einer Linie stehen, verdeckt der Mond das Sonnenlicht und sein Schatten fällt auf die Erde: eine Sonnenfinsternis. Der Schatten hat zwei Teile. Im Kernschatten (zwischen den roten Linien) verdeckt der Mond die ganze Sonne; er läuft knapp hinter der Erdoberfläche spitz zu und trifft die Erde deshalb nur als kleiner Fleck. Im viel breiteren Halbschatten (zwischen den blauen Linien) verdeckt der Mond nur einen Teil der Sonne.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/solarEclipse/tilted-orbit",
+    "text": "Warum nicht jeden Monat? Die Mondbahn ist um etwa 5 Grad gegen die Bahn der Erde um die Sonne geneigt. Bei den meisten Neumonden zieht der Mond deshalb ein wenig über oder unter der Sonne vorbei, und sein Schatten verfehlt die Erde. Nur wenn Neumond nahe an einem der zwei Punkte liegt, an denen der Mond die Ebene der Erdbahn kreuzt, stehen Sonne, Mond und Erde in einer Linie. Während die Erde um die Sonne läuft, passiert das in zwei kurzen „Finsternis-Zeiten“ im Jahr – darum gibt es nur zwei bis fünf Sonnenfinsternisse pro Jahr.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/solarEclipse/shadow-on-earth",
+    "text": "Der Mondschatten auf der Erde. Aus dem All gesehen ist der Mondschatten ein dunkler Fleck, der über die Tagseite der Erde zieht – Satelliten fotografieren ihn bei jeder Finsternis. Wer im Halbschatten (blau) steht, einem Gebiet Tausende Kilometer breit, sieht eine partielle Finsternis. Nur im Kernschatten (rot), höchstens etwa 270 Kilometer breit, verschwindet die Sonne ganz. Der Kernschatten rast mit 1.700 Kilometer pro Stunde oder mehr über die Erde und zieht eine schmale „Totalitätszone“, deshalb dauert die Totalität an einem Ort nur wenige Minuten – nie länger als etwa 7,5.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/solarEclipse/first-contact",
+    "text": "Vom Boden aus: nur ein sonniger Tag? Jetzt stehen wir auf der Erde, in der Totalitätszone. Der Mond hat schon begonnen, die Sonne von ihrem Westrand her zu verdecken – aber das würde niemand merken: Der Himmel bleibt strahlend blau, und die Sonne blendet immer noch viel zu sehr, um hineinzusehen. Schau nie direkt in die Sonne, nicht einmal kurz und auch nicht, wenn sie schon fast ganz bedeckt ist: Das kann die Netzhaut für immer verbrennen, ohne dass es wehtut.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/solarEclipse/partial",
+    "text": "Durch die Finsternisbrille: ein Biss aus der Sonne. Finsternisbrillen (nach der Norm I S O 12312 Teil 2; Sonnenbrillen reichen bei Weitem nicht) lassen nur etwa ein Hunderttausendstel des Sonnenlichts durch. Alles andere wird schwarz, und die Sonne zeigt sich als das, was sie geworden ist: eine Sichel, die etwa eine Stunde lang immer schmaler wird, während der Mond über sie gleitet. Das Tageslicht ändert sich kaum, bis fast die ganze Sonne bedeckt ist.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/solarEclipse/diamond-ring",
+    "text": "Der Diamantring. Sekunden vor der Totalität scheinen die letzten Sonnenstrahlen durch Täler am Mondrand, und die leuchtende äußere Atmosphäre der Sonne zeigt sich um den dunklen Mond: der Diamantring. Das Licht schwindet jetzt innerhalb von Sekunden, und der Himmel wird dunkel. Lass die Finsternisbrille auf, bis der Diamant erloschen ist.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/solarEclipse/totality",
+    "text": "Totalität. Der Mond verdeckt die ganze Sonne – jetzt, und nur jetzt, darfst du ohne Brille hinsehen. Die Korona erscheint, die äußere Atmosphäre der Sonne, über eine Million Grad heiß, mit roten Protuberanzen am Mondrand. Der Himmel wird tiefblau, ein Abendrot umgibt den ganzen Horizont, die hellsten Sterne und Planeten tauchen auf, und es wird spürbar kühler. Eine perfekte Passform: Die Sonne ist etwa 400-mal breiter als der Mond, aber auch etwa 400-mal weiter weg. Die nächste totale Finsternis am 2. August 2027 zieht über Südspanien, Nordafrika und Ägypten.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/solarEclipse/annular",
+    "text": "Feuerring. Die Mondbahn ist kein perfekter Kreis. Kommt eine Finsternis, während der Mond nahe seinem erdfernsten Punkt steht, sieht er etwas kleiner aus als die Sonne und kann sie nicht ganz verdecken: Sein Kernschatten endet, bevor er die Erde erreicht, und ein Feuerring bleibt um den Mond stehen. Bei dieser ringförmigen Finsternis wird es nie dunkel, und die Korona bleibt verborgen – die Finsternisbrille bleibt die ganze Zeit auf.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/voyager/two-probes",
+    "text": "Zwei Sonden, 1977. Im Spätsommer 1977 startete die NASA zwei baugleiche Raumsonden: Voyager 2 am 20. August, Voyager 1 am 5. September. Jede wiegt so viel wie ein Kleinwagen – 722 Kilogramm – und trägt eine Parabolantenne von 3,7 Metern Durchmesser. Gebaut waren sie für fünf Jahre und einen Besuch bei Jupiter und Saturn. Fast ein halbes Jahrhundert später arbeiten beide noch, und Voyager 1 ist das entfernteste Objekt, das Menschen je gebaut haben.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/voyager/on-board",
+    "text": "Was an Bord ist. Die große Antenne zeigt immer zurück zur Erde: Über sie schickt Voyager Bilder und Messwerte nach Hause. Der Ausleger auf der einen Seite trägt die Kameras und die anderen Instrumente, die Planeten beobachten. Auf dem Ausleger gegenüber machen drei Plutonium-Batterien Strom aus Wärme – dort draußen ist das Sonnenlicht viel zu schwach für Solarzellen. Der lange, dünne Ausleger hält ein Magnetometer weit weg von der eigenen Elektronik, damit es schwache Magnetfelder messen kann. Und außen am Rumpf: die Goldene Schallplatte.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/voyager/golden-record",
+    "text": "Die Goldene Schallplatte. Jede Voyager trägt eine vergoldete Kupferplatte von 30 Zentimeter Durchmesser – eine Botschaft für alle, die sie vielleicht in Millionen Jahren finden. Ein Team um Carl Sagan hat darauf 115 Bilder gespeichert, Grüße in 55 Sprachen, Geräusche der Erde – Wind, Regen, Brandung, Vögel, ein Herzschlag, ein Kuss – und 90 Minuten Musik aus vielen Kulturen, von Bach und Beethoven bis Chuck Berry, peruanischen Panflöten und einem Nachtgesang der Navajo. Bilder und Musik gehören ihren Urhebern, deshalb sind sie nicht Teil dieser App; die NASA zeigt sie auf ihrer Website.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/voyager/instructions",
+    "text": "Eine Anleitung, uns zu finden. Die Platte reist in einer Hülle aus Aluminium, in die eine Anleitung graviert ist – ohne Worte, in Bildern und Binärzahlen. Oben links: wie man sie abspielt, mit der mitgelieferten Nadel – und darunter, von der Seite, dass man außen beginnt. Oben rechts: wie die Bilder als Ton gespeichert sind, Zeile für Zeile, und ein erstes Testbild, ein Kreis, zur Kontrolle. Unten links: eine Karte von 14 Pulsaren – Sternen, die in sehr gleichmäßigem Takt blinken –, die zeigt, wo die Sonne in unserer Galaxis steht. Unten rechts: das Wasserstoffatom, das häufigste Atom im Universum; die Zeit, in der es zwischen zwei Zuständen wechselt, ist die Einheit aller anderen Zahlen auf der Hülle.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/voyager/alignment",
+    "text": "Eine seltene Konstellation. Ende der 1970er-Jahre standen Jupiter, Saturn, Uranus und Neptun auf einer Seite der Sonne – eine Anordnung, die nur etwa alle 175 Jahre vorkommt. Eine Sonde konnte von einem Riesenplaneten zum nächsten schwingen und mit der Schwerkraft jedes Planeten schneller werden und Kurs auf den nächsten nehmen, ohne den Treibstoff, den sie sonst bräuchte. Voyager 2 startete zuerst, auf einer langsameren Bahn; Voyager 1 folgte zwei Wochen später auf einer schnelleren und überholte sie im Dezember 1977 im Asteroidengürtel.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/voyager/jupiter",
+    "text": "Jupiter, 1979. Voyager 1 flog am 5. März 1979 an Jupiter vorbei, Voyager 2 am 9. Juli. Sie filmten, wie sich der Große Rote Fleck dreht – ein Sturm größer als die Erde –, entdeckten einen dünnen Ring um den Planeten und aktive Vulkane auf seinem Mond Io: die ersten, die man je jenseits der Erde gesehen hat.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/voyager/saturn",
+    "text": "Saturn, 1980 und 1981. Voyager 1 erreichte Saturn im November 1980, Voyager 2 im August 1981. Sie zeigten, dass die Ringe aus Tausenden schmaler Einzelringe bestehen. Voyager 1 flog dann dicht an Titan vorbei, Saturns großem Mond im Dunst – ein Umweg, der ihre Bahn nach oben aus der Ebene der Planeten lenkte, sodass sie keinen weiteren Planeten besuchen konnte. Voyager 2 flog weiter.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/voyager/ice-giants",
+    "text": "Uranus und Neptun. Voyager 2 ist bis heute die einzige Sonde, die Uranus (Januar 1986) und Neptun (August 1989) besucht hat. Bei Neptun, 4,5 Milliarden km von der Sonne entfernt, fand sie den Großen Dunklen Fleck, die schnellsten Winde im Sonnensystem – über 2.000 Kilometer pro Stunde – und Geysire auf dem Mond Triton. Ihre Signale brauchten mehr als vier Stunden bis zur Erde.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/voyager/pale-blue-dot",
+    "text": "Der blassblaue Punkt. Am 14. Februar 1990, sechs Milliarden Kilometer von zu Hause, drehte Voyager 1 ihre Kameras zurück und machte das erste Porträt des Sonnensystems von außen. Darauf ist die Erde kleiner als ein Pixel: ein blassblauer Punkt in einem Streifen gestreuten Sonnenlichts. Minuten später wurden die Kameras für immer abgeschaltet, um Strom für die lange Reise zu sparen.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/voyager/interstellar",
+    "text": "Hinaus in den interstellaren Raum. Die Sonne bläst einen Wind aus geladenen Teilchen, der eine Blase um das Sonnensystem aufbläst: die Heliosphäre. Am 25. August 2012 verließ Voyager 1 sie, 121,6 Astronomische Einheiten von der Sonne entfernt – als erstes von Menschen gebautes Objekt im interstellaren Raum. Voyager 2 folgte am 5. November 2018. Heute ist Voyager 1 mehr als 170-mal so weit von der Sonne entfernt wie die Erde, und ihr Signal braucht etwa einen Tag zu uns. Wie Voyager funktioniert und was sie gemessen hat: die Lektion „Voyager im Detail“.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/voyagerDeepDive/taken-apart",
+    "text": "Auseinandergenommen. Der Rumpf von Voyager ist ein zehneckiger Ring aus Elektronikkästen, 1,8 Meter breit, um einen Tank mit Treibstoff für die kleinen Steuerdüsen. Darauf sitzen die 3,7-Meter-Antenne, zwei Ausleger – einer für die Stromversorgung, einer für die Instrumentenplattform – und der Magnetometer-Ausleger: 13 Meter dünne Glasfaserstäbe, die für den Start in einem Behälter zusammengefaltet waren. Die Goldene Schallplatte ist außen am Rumpf befestigt.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/voyagerDeepDive/power",
+    "text": "Strom aus Plutonium. Drei Radionuklidbatterien (RTGs) machen aus der Wärme von zerfallendem Plutonium-238 Strom – ganz ohne Sonnenlicht. Beim Start lieferten sie etwa 470 Watt. Weil das Plutonium zerfällt und die Thermoelemente altern, sinkt die Leistung um etwa 4 Watt pro Jahr. Deshalb schaltet das Team Heizungen und Instrumente nach und nach ab, damit der Rest weiterläuft.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/voyagerDeepDive/communication",
+    "text": "Ein Flüstern quer durchs Sonnensystem. Voyager funkt mit einem Sender von etwa 23 Watt – so viel wie eine Kühlschranklampe – über ihre 3,7-Meter-Antenne. Wenn das Signal ankommt, ist es so schwach, dass nur die 70-Meter-Antennen des Deep Space Network der NASA in Kalifornien, Spanien und Australien es empfangen können. Die Daten tröpfeln mit 160 Bit pro Sekunde herein. Voyager 2, weit südlich der Planetenebene, ist nur noch von Australien aus erreichbar.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/voyagerDeepDive/instruments",
+    "text": "Elf Instrumente. Jede Voyager trägt elf wissenschaftliche Instrumente. Auf der schwenkbaren Plattform am Ende des Instrumentenauslegers: eine Weitwinkel- und eine Telekamera, Spektrometer für Infrarot- und Ultraviolettlicht und ein Photopolarimeter, die gemeinsam auf ein Ziel gedreht werden. Am Rumpf und an den Auslegern: Instrumente für Plasma, geladene Teilchen und kosmische Strahlung, Magnetometer und zwei 10 Meter lange Drahtantennen, die Radio- und Plasmawellen belauschen; die Funkverbindung selbst ist das elfte. Im interstellaren Raum zählen nur noch Felder und Teilchen – und nur wenige Instrumente sind noch eingeschaltet.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/voyagerDeepDive/gravity-assist",
+    "text": "Schwung holen an Planeten. Das Diagramm zeigt die echte Geschwindigkeit von Voyager 2 um die Sonne, aus ihrer JPL-Flugbahn, und die Geschwindigkeit, die sie an ihrem Ort bräuchte, um der Sonne zu entkommen. Beim Abflug von der Erde war sie zu langsam – allein wäre sie zurückgefallen. Jupiter, Saturn und Uranus gaben ihr jeweils etwas von ihrer eigenen Bewegung um die Sonne ab: Nach Jupiter war sie schon schnell genug, um das Sonnensystem für immer zu verlassen. Neptun, der ihre Bahn nach Süden bog, bremste sie etwas.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/voyagerDeepDive/out-of-plane",
+    "text": "Raus aus der Ebene. Von der Seite gesehen kreisen alle Planeten fast in einer Ebene. Der nahe Vorbeiflug an Titan 1980 schleuderte Voyager 1 nach Norden aus dieser Ebene, um etwa 35 Grad. Der Flug über Neptuns Nordpol 1989 schickte Voyager 2 nach Süden, unter die Ebene. Die beiden fliegen heute in sehr verschiedene Richtungen.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/voyagerDeepDive/heliopause",
+    "text": "Durch die Heliopause. Die eigenen Messwerte von Voyager 1, Tag für Tag im Jahr 2012. Innerhalb weniger Tage um den 25. August verschwanden die Teilchen, die die Blase des Sonnenwinds füllen, fast völlig – Protonen mit 3 bis 4,6 Megaelektronenvolt wurden etwa hundertmal seltener –, und das Magnetfeld wurde stärker und gleichmäßiger. Voyager 1 hatte die Heliosphäre verlassen. Plasmawellen, gemessen 2013, bestätigten es: Das Gas um sie herum war etwa 40-mal dichter als in der Blase.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/voyagerDeepDive/reading-cover",
+    "text": "Die Hülle lesen. Oben links: die Platte von oben mit ihrer Nadel und binär die Zeit für eine Umdrehung – 3,6 Sekunden, gezählt in Wasserstoff-Zeit. Darunter: die Platte von der Seite – von außen nach innen abspielen, etwa eine Stunde pro Seite. Oben rechts: wie ein Bild gespeichert ist – das Signal einer Bildzeile, die Zeilen untereinander gezeichnet, und das erste Bild, ein Kreis, zur Kontrolle. Unten links: die Pulsarkarte. Jede Linie zeigt auf einen Pulsar, ihr Binärcode sagt, wie schnell er blinkt, und die lange Linie führt zum Zentrum der Galaxis. Pulsare werden mit der Zeit langsamer – die Karte verrät also, wo und wann. Unten rechts: Wasserstoff, die Uhr für alle Zahlen. Ein kleiner Fleck aus hochreinem Uran-238 auf der Hülle ist eine zweite Uhr: Sein Zerfall verrät, wie lange die Platte schon unterwegs ist.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/voyagerDeepDive/picture-in-sound",
+    "text": "Ein Bild in einem Ton. Wie kommen Bilder auf eine Schallplatte? Als Ton: Jedes Bild wird Zeile für Zeile gelesen, wie bei einem alten Fernsehsignal. Jede Zeile beginnt mit einem kurzen Puls, der unter Schwarz abtaucht – das Zeichen „hier beginnt eine Zeile“ –, danach folgt die Helligkeit entlang der Zeile als Höhe des Signals. Beim Abspielen werden die Zeilen untereinander gezeichnet, und das Bild erscheint. Genau das zeigt die Hülle oben rechts, mit dem ersten Bild als Test: einem Kreis. Unten durchläuft ein eigenes Bild dieselben Schritte. Die Platte selbst dreht sich mit 16⅔ Umdrehungen pro Minute, halb so schnell wie eine LP.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/voyagerDeepDive/still-talking",
+    "text": "Sie funken noch. Fast ein halbes Jahrhundert nach dem Start schicken beide Voyagers noch Daten nach Hause. Um Strom zu sparen, hat das Team die meisten Instrumente abgeschaltet; einige, die Felder und Teilchen messen, laufen noch. Irgendwann in den 2030er-Jahren reicht der Strom nicht mehr für die Sender, und die beiden Sonden verstummen – aber sie fliegen noch Milliarden Jahre um die Galaxis, jede mit ihrer Goldenen Schallplatte.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/saturnV/whole",
+    "text": "Die ganze Rakete. Am 16. Juli 1969 trug diese Rakete Apollo 11 auf den Weg zum Mond. Die Saturn V war 110,6 Meter hoch – höher als die Freiheitsstatue samt Sockel – und wog beim Start 2.938 t, fast alles davon Treibstoff. Die kleine orange Figur an ihrem Fuß ist ein Mensch, im selben Maßstab.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/saturnV/stack",
+    "text": "Der Stapel. Die Saturn V sind drei aufeinandergesetzte Raketen mit einem Raumschiff obendrauf. Jede Stufe brennt, bis ihre Tanks leer sind, und wird dann abgeworfen, damit die nächste weniger tragen muss: S-IC, S-II und S-IVB. Darüber sitzen die Instrument Unit, der Adapter mit der Mondfähre, Versorgungs- und Kommandomodul und der Rettungsturm. Der Name der S-IVB erzählt ihre Herkunft: Sie ist eine verbesserte S-IV, die zuvor die zweite Stufe der kleineren Saturn I war.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/saturnV/sic",
+    "text": "S-IC: Fünf F-1-Triebwerke. Die erste Stufe hebt die ganze Rakete von der Rampe. Ihre fünf F-1 verbrennen Kerosin (RP-1) mit flüssigem Sauerstoff und schieben zusammen mit etwa 34 Meganewton. Jede Sekunde schlucken sie fast 13 t Treibstoff; der Sauerstoff fließt aus dem oberen Tank durch fünf Rohre mitten durch den Kerosintank darunter. Das mittlere Triebwerk schaltet nach 2 Minuten 15 Sekunden ab, die äußeren vier nach 2 Minuten 42 Sekunden; in 67 Kilometer Höhe fällt die leere Stufe ab.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/saturnV/sii",
+    "text": "S-II: Wasserstoff. Die zweite Stufe verbrennt flüssigen Wasserstoff, −253 GradC kalt, mit flüssigem Sauerstoff. Wasserstoff liefert mehr Schub pro Kilogramm, ist aber so leicht, dass er einen riesigen Tank braucht. Um Länge und Gewicht zu sparen, teilen sich Wasserstoff- und Sauerstofftank eine Wand – einen isolierten Zwischenboden, damit der Sauerstoff am kälteren Wasserstoff nicht gefriert. Ihre fünf J-2 brennen 6 Minuten 25 Sekunden.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/saturnV/sivb",
+    "text": "S-IVB: Zweimal gezündet. Die dritte Stufe hat ein einziges J-2, und das lässt sich neu zünden. Die erste Zündung, 2 Minuten 27 Sekunden, bringt Apollo in eine Parkbahn um die Erde. Im zweiten Umlauf – die Crew hat inzwischen ihr Raumschiff geprüft – brennt es noch einmal 5 Minuten 47 Sekunden: der Einschuss zum Mond (TLI), der Apollo 11 mit rund 39.000 Kilometer pro Stunde auf den Weg schickt.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/saturnV/iu",
+    "text": "Die Instrument Unit. Ein Ring, nur 91 Zentimeter hoch und 6,6 Meter breit, ist das Gehirn der Rakete. Darin stecken ein Steuercomputer, eine Kreiselplattform, die immer weiß, wo oben ist, und Funkgeräte. Sie lenkt die Triebwerke, löst jede Stufentrennung aus und steuert die S-IVB, bis das Raumschiff sie verlässt.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/saturnV/spacecraft",
+    "text": "Das Raumschiff obendrauf. Unter dem kegelförmigen Adapter wartet die Mondfähre mit eingeklappten Beinen. Darüber sitzen das Versorgungsmodul mit Haupttriebwerk, Treibstoff, Sauerstoff und Strom und das Kommandomodul, in dem die drei Astronauten wohnen. Der Turm an der Spitze hätte das Kommandomodul von einer versagenden Rakete wegziehen können; er wurde abgeworfen, während die zweite Stufe brannte.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/saturnV/returns",
+    "text": "Was zurückkommt. Vom ganzen Stapel kehrt nur das Kommandomodul heim: eine Kapsel von 4,9 t, die am 24. Juli 1969 im Pazifik wasserte. Alles andere wurde unterwegs abgeworfen – die Stufen nacheinander, der Turm, der Adapter; die Mondfähre blieb am Mond zurück.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/columbia/whole",
+    "text": "Das Raumschiff. Das Raumschiff von Apollo 11 bestand aus zwei Teilen: dem Kommandomodul Columbia, in dem die drei Astronauten lebten, und dem Versorgungsmodul dahinter mit Haupttriebwerk, Treibstoff, Sauerstoff und Strom. Gemeinsam flogen sie zum Mond und zurück; nur das Kommandomodul kehrte zur Erde heim.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/columbia/serviceModule",
+    "text": "Das Versorgungsmodul, aufgeschnitten. Sechs keilförmige Sektoren umgeben das Haupttriebwerk. Zwei enthalten den Oxidator, zwei den Brennstoff, jeweils in einem Sammel- und einem Vorratstank; Helium in der Mitte drückt die Treibstoffe zum Triebwerk. Ein Sektor enthält drei Brennstoffzellen und die Sauerstoff- und Wasserstofftanks, aus denen sie Strom machen. Etwa drei Viertel des Gewichts sind Treibstoff.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/columbia/engine",
+    "text": "Das Triebwerk, das funktionieren musste. Das Haupttriebwerk schiebt mit etwa 89 Kilonewton und lässt sich neu zünden. Es bremste Apollo 11 in eine Umlaufbahn um den Mond und schickte Columbia nach der Landung nach Hause. Ein zweites Triebwerk als Reserve gab es nicht.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/columbia/commandModule",
+    "text": "Das Kommandomodul. Ein Kegel, 3,2 Meter hoch und 3,9 Meter breit. Unter der Haut liegt der Hitzeschild: Stahlwaben mit einem Phenol-Epoxidharz darüber, das verkohlte und abfiel, als die Kapsel durch die Atmosphäre zurückkehrte. Fünf Fenster, eine Seitenluke und oben der Tunnel zur Mondfähre.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/columbia/inside",
+    "text": "Innen. So sieht Columbia heute aus, gescannt von der Smithsonian. Die Kabine bot etwa 6 Kubikmeter Platz – für drei Männer und acht Tage, den ganzen Weg zum Mond und zurück.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/columbia/panels",
+    "text": "Die Hauptinstrumententafel. Über den Liegen wölbt sich die Hauptinstrumententafel: Schalter, Anzeigen und Warnlampen für jedes System an Bord und die Tastatur des Steuercomputers. Links saß der Kommandant, in der Mitte der Pilot des Kommandomoduls, rechts der Pilot der Mondfähre.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/columbia/seats",
+    "text": "Drei Liegen. Die drei Liegen stehen auf zusammendrückbaren Wabenstreben, die den Aufprall auf dem Wasser abfederten. An ihrem Fußende liegt die untere Geräteabteilung mit den Navigationsinstrumenten: Sextant, Teleskop und der Steuercomputer mit seiner Tastatur.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/columbia/notes",
+    "text": "Notizen an den Wänden. Handgeschriebene Zahlen und Notizen bedecken Teile der Wände. Michael Collins flog Columbia allein um den Mond, während Armstrong und Aldrin auf seiner Oberfläche liefen. Der Scan bewahrt jede Zeile, so wie die Kapsel heimkehrte.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/eagle/whole",
+    "text": "Eagle. Sieben Meter hoch und über neun Meter breit über die Füße: Die Mondfähre war das erste bemannte Raumfahrzeug, das nur für den luftleeren Raum gebaut wurde. Sie musste nie durch eine Atmosphäre, brauchte also keine Stromlinienform – nur leicht musste sie sein. Ihre Wände sind stellenweise kaum dicker als ein paar Blatt Papier.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/eagle/folded",
+    "text": "Zusammengefaltet für die Reise. Auf dem Weg zum Mond reiste Eagle zusammengefaltet unter dem Raumschiff, im Adapter auf der dritten Stufe der Saturn V. Die vier Beine waren an die Seiten hochgeklappt. Erst im Mondorbit, vor dem Abstieg, klappten sie aus und rasteten ein.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/eagle/stages",
+    "text": "Zwei Fahrzeuge in einem. Eagle sind zwei übereinander gesetzte Raumfahrzeuge: Die Abstiegsstufe unten, mit Triebwerk, Treibstoff und Landebeinen, brachte beide Astronauten hinunter. Die Aufstiegsstufe oben, mit der Kabine und einem eigenen Triebwerk, brachte sie zurück zu Columbia.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/eagle/descent",
+    "text": "Die Abstiegsstufe, aufgeschnitten. Vier Tanks umgeben das Abstiegstriebwerk, zwei mit Treibstoff, zwei mit Oxidator. Es war das erste Triebwerk eines bemannten Raumfahrzeugs, das sich drosseln ließ: von vollem Schub bis auf ein Zehntel. So konnte Neil Armstrong schweben und über die Felsbrocken hinwegfliegen, bis er einen Landeplatz fand.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/eagle/ascent",
+    "text": "Die Aufstiegsstufe. Die Kabine der Besatzung, links und rechts je ein Tank und darunter ein Triebwerk – ohne Drossel und ohne Schwenklager, so einfach wie ein Triebwerk nur sein kann, denn es musste funktionieren. Sechzehn kleine Düsen in vier Gruppen an den Ecken steuerten die Fähre.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/eagle/inside",
+    "text": "Innen. Hinein geht es durch die quadratische Luke vorn, auf Händen und Knien. Drinnen gibt es keine Sitze: Armstrong und Aldrin standen, an der Hüfte von Seilen gehalten, jeder an seinem eigenen dreieckigen Fenster. Stehen sparte Gewicht und brachte die Augen nah an die Fenster.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/eagle/panels",
+    "text": "Instrumente und Fenster. Vor jedem von ihnen die Fluganzeigen: die Lagekugel, das Fadenkreuz, Höhe und Sinkrate. Dazwischen die Tastatur des Bordcomputers – des Computers, dessen Alarme 1202 bei der Landung ertönten. Die Fenster blicken nach unten und vorn, auf den Boden, dem sie entgegenflogen.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/eagle/liftoff",
+    "text": "Start vom Mond. Nach 21 Stunden auf der Oberfläche zündete die Aufstiegsstufe und hob von der Abstiegsstufe ab, die ihr als Startrampe diente. Die Abstiegsstufe steht bis heute im Meer der Ruhe, mit der Plakette an ihrem Bein.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/apollo11/launch",
+    "text": "Der Start. Um 9:32 Uhr Ortszeit am Morgen des 16. Juli 1969 hob die Saturn V Apollo 11 von Startkomplex 39A in Florida ab. Keine zwölf Minuten später schaltete ihre dritte Stufe in einer Umlaufbahn ab, rund 190 Kilometer über der Erde – mit Treibstoff für eine weitere Zündung.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/apollo11/parking",
+    "text": "Anderthalb Runden. Anderthalb Runden um die Erde lang – etwa zweieinhalb Stunden – prüften die Crew und die Flugleitung das Raumschiff, bevor es aufbrach. Eine Runde dauerte rund anderthalb Stunden.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/apollo11/tli",
+    "text": "Kurs auf den Mond. Über dem Pazifik zündete die dritte Stufe noch einmal, fast sechs Minuten lang, und brachte das Raumschiff auf 10,8 Kilometer pro Sekunde – beinahe schnell genug, um die Erde für immer zu verlassen. Gezielt wurde nicht auf den Mond, sondern auf die Stelle, an der er drei Tage später stehen würde.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/apollo11/dock",
+    "text": "Umdrehen und Andocken. Eagle reiste zusammengefaltet im Adapter unter Columbia. Keine halbe Stunde nach der Zündung trennte Michael Collins Columbia ab, drehte sie um, dockte mit ihrer Spitze am Dach von Eagle an und zog die Mondfähre heraus. Die ausgebrannte dritte Stufe wurde am Mond vorbei in eine Bahn um die Sonne geschickt.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/apollo11/coast",
+    "text": "Die Acht. Drei Tage lang flog Apollo 11 antriebslos und wurde dabei langsamer, weil die Erde es zurückhielt. Es war eine Bahn mit freier Rückkehr: Wäre das Triebwerk ausgefallen, hätte die Schwerkraft des Mondes das Raumschiff herumgeschwenkt und nach Hause geschickt – die Acht. Von vier geplanten Kurskorrekturen war nur eine nötig.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/apollo11/loi",
+    "text": "Hinter dem Mond. Apollo 11 erreichte den Mond auf seiner Rückseite, ohne Funkverbindung zur Erde. Dort zündete Columbias Triebwerk fast sechs Minuten lang gegen die Flugrichtung und bremste das Raumschiff in eine Umlaufbahn. Ob es geklappt hatte, erfuhr die Flugleitung erst, als es hinter dem Mond hervorkam.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/apollo11/descent",
+    "text": "Eagle steigt ab. Im dreizehnten Umlauf koppelte Eagle ab. Armstrong und Aldrin flogen die Fähre hinunter, Collins blieb in Columbia. Eine kurze Zündung auf der Rückseite senkte Eagle auf 15 Kilometer; von dort bremste das Triebwerk bis ganz hinunter. Alarme des Bordcomputers und ein Feld voller Felsbrocken machten die letzten Minuten spannend – Armstrong flog darüber hinweg und landete mit Treibstoff für weniger als eine Minute.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/apollo11/surface",
+    "text": "Tranquility Base. Eagle landete am 20. Juli im Meer der Ruhe. Sechseinhalb Stunden später betrat Neil Armstrong die Oberfläche, Buzz Aldrin zwanzig Minuten nach ihm; zweieinhalb Stunden verbrachten sie draußen. Über ihnen kreiste Collins allein, bei jeder Runde ohne Funkkontakt hinter dem Mond.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/apollo11/ascent",
+    "text": "Zurück zu Columbia. Nach einundzwanzigeinhalb Stunden auf dem Mond hob die Aufstiegsstufe ab und ließ die Abstiegsstufe zurück. Keine vier Stunden später holte sie Columbia ein; die beiden dockten an, Armstrong und Aldrin kletterten durch den Tunnel zurück, und die Aufstiegsstufe wurde abgestoßen.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/apollo11/home",
+    "text": "Der Heimweg. Wieder auf der Rückseite zündete Columbias Triebwerk zweieinhalb Minuten lang und brachte sie auf Kurs zur Erde. Der Heimweg dauerte zweieinhalb Tage; eine kleine Korrektur genügte.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/apollo11/splashdown",
+    "text": "Die Wasserung. Kurz vor der Ankunft wurde das Servicemodul abgestoßen. Die Kommandokapsel traf mit 11 Kilometern pro Sekunde auf die Atmosphäre, ihr Hitzeschild glühte; die Fallschirme öffneten sich, und am 24. Juli landete sie im Pazifik, 24 Kilometer vom Bergungsschiff USS Hornet entfernt. Die Mission hatte acht Tage, drei Stunden und achtzehn Minuten gedauert.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/planetSizes/lineup",
+    "text": "Das Sonnensystem, maßstabsgetreu. Die Sonne und alle 8 Planeten nebeneinander, in ihren echten Größenverhältnissen. Die Sonne allein enthält etwa 99,8 Prozent der Masse des Sonnensystems – sie lässt sogar Jupiter, den größten Planeten, klein aussehen, der wiederum die Erde winzig wirken lässt. Diese Reihe zeigt nur die Größe, nicht den Abstand: Mit ihren echten Abständen (Lichtstunden bis Lichttage voneinander entfernt) lägen die Planeten weit außerhalb jedes einzelnen Bildes. Zuerst stehen sie in ihrer Reihenfolge von der Sonne aus; „Sortieren“ reiht sie nach Größe, Masse, Temperatur und mehr auf. Die folgenden Seiten fliegen nacheinander zu jedem Planeten, mit seinen eigenen Zahlen.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/planetSizes/order-distance",
+    "text": "Wieder in ihrer Reihenfolge von der Sonne aus: Merkur, Venus, Erde, Mars, Jupiter, Saturn, Uranus und Neptun.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/planetSizes/order-size",
+    "text": "Nach Größe, vom größten zum kleinsten: Jupiter, Saturn, Uranus, Neptun, Erde, Venus, Mars und Merkur.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/planetSizes/order-mass",
+    "text": "Nach Masse, vom schwersten zum leichtesten: Jupiter, Saturn, Neptun, Uranus, Erde, Venus, Mars und Merkur.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/planetSizes/order-type",
+    "text": "Gestein, Gas oder Eis: zuerst die Gesteinsplaneten, Merkur, Venus, Erde und Mars. Dann die Gasriesen, Jupiter und Saturn. Und zuletzt die Eisriesen, Uranus und Neptun.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/planetSizes/order-speed",
+    "text": "Nach ihrem Tempo um die Sonne, vom schnellsten zum langsamsten: Merkur, Venus, Erde, Mars, Jupiter, Saturn, Uranus und Neptun. Je näher ein Planet an der Sonne ist, desto schneller fliegt er.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/planetSizes/order-day",
+    "text": "Nach der Länge eines Tages, von einem Sonnenaufgang zum nächsten, vom kürzesten zum längsten: Jupiter, Saturn, Neptun, Uranus, Erde, Mars, Venus und Merkur.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/planetSizes/order-year",
+    "text": "Nach der Länge eines Jahres, vom kürzesten zum längsten: Merkur, Venus, Erde, Mars, Jupiter, Saturn, Uranus und Neptun.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/planetSizes/order-temperature",
+    "text": "Nach Temperatur, vom heißesten zum kältesten: Venus, Merkur, Erde, Mars, Jupiter, Saturn, Uranus und Neptun. Bei den Riesen gilt das oben an ihren Wolken.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/planetSizes/order-density",
+    "text": "Nach Dichte, vom dichtesten zum leichtesten: Erde, Merkur, Venus, Mars, Neptun, Jupiter, Uranus und Saturn. Saturn ist leichter als Wasser – er würde schwimmen.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/planetSizes/order-gravity",
+    "text": "Nach Schwerkraft – wie schwer du dich dort fühlen würdest –, von der stärksten zur schwächsten: Jupiter, Neptun, Erde, Saturn, Venus, Uranus, Merkur und Mars.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "lessons/planetSizes/order-tilt",
+    "text": "Nach der Neigung ihrer Achse, vom aufrechtesten zum am stärksten gekippten: Merkur, Jupiter, Erde, Mars, Saturn, Neptun, Uranus und Venus. Über 90 Grad dreht sich ein Planet rückwärts.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/voyager1/launch",
+    "text": "Start. Cape Canaveral, 5. September 1977. Eine Titan-Centaur-Rakete bringt Voyager 1 auf den Weg. Sie startete zwei Wochen nach ihrer Zwillingssonde, aber auf einer schnelleren Bahn – deshalb trägt sie die Nummer eins.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/voyager1/overtake",
+    "text": "Überholt. Im Dezember 1977, im Asteroidengürtel, überholt Voyager 1 ihre Zwillingssonde. Von hier an liegt sie vorn – bis hinaus aus dem Sonnensystem.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/voyager1/jupiter",
+    "text": "Jupiter. Größte Annäherung am 5. März 1979, 349.000 Kilometer vom Mittelpunkt des Jupiters. Voyager 1 entdeckt einen dünnen Ring und auf dem Mond Io ausbrechende Vulkane – die ersten aktiven Vulkane, die man je jenseits der Erde gesehen hat.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/voyager1/saturn",
+    "text": "Saturn und Titan. November 1980. Voyager 1 zeigt, dass die Ringe aus Tausenden Einzelringen bestehen, und fliegt dicht an Titan vorbei, der sich unter einem dicken Dunst aus Stickstoff versteckt – eine Atmosphäre, dichter als die der Erde. Der Vorbeiflug schleudert die Sonde nach oben aus der Ebene der Planeten: Vor ihr liegt kein Planet mehr.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/voyager1/pale-blue-dot",
+    "text": "Der blassblaue Punkt. 14. Februar 1990, sechs Milliarden Kilometer draußen. Voyager 1 blickt zurück und fotografiert die Planeten – und die Erde, ein Pünktchen kleiner als ein Pixel. Dann werden ihre Kameras für immer abgeschaltet.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/voyager1/termination-shock",
+    "text": "Der Terminationsschock. Dezember 2004, 94 Astronomische Einheiten von der Sonne. Der Sonnenwind, bisher mit Überschall unterwegs, wird plötzlich langsamer, wo er auf das Gas zwischen den Sternen trifft. Voyager 1 ist in der Helioshülle angekommen, der äußeren Schicht der Blase.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/voyager1/heliopause",
+    "text": "Hinaus in den interstellaren Raum. 25. August 2012, 121,6 Astronomische Einheiten von der Sonne. Innerhalb weniger Tage verschwinden die Teilchen des Sonnenwinds fast völlig, und das Magnetfeld ändert sich: Voyager 1 ist das erste von Menschen gebaute Objekt im interstellaren Raum.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/voyager1/today",
+    "text": "Heute. Voyager 1 fliegt mit etwa 17 Kilometern pro Sekunde weiter. Ihr 23-Watt-Sender erreicht noch immer die 70-Meter-Antennen des Deep Space Network; jede Nachricht braucht etwa einen Tag.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/voyager2/launch",
+    "text": "Start. Cape Canaveral, 20. August 1977. Voyager 2 startet als erste, auf einer langsameren Bahn, die sie an allen vier Riesenplaneten vorbeiführt – eine Gelegenheit, die es nur etwa alle 175 Jahre gibt.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/voyager2/jupiter",
+    "text": "Jupiter. Größte Annäherung am 9. Juli 1979, 722.000 Kilometer vom Mittelpunkt des Jupiters. Voyager 2 fotografiert Europa: eine glatte Eisschale, kreuz und quer von Rissen durchzogen – ein erster Hinweis auf den Ozean darunter.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/voyager2/saturn",
+    "text": "Saturn. August 1981. Voyager 2 fliegt in 161.000 Kilometern an Saturn vorbei und untersucht die Ringe in Farbe – Unterschiede, die auf verschiedene Stoffe hindeuten. Saturns Schwerkraft lenkt ihre Bahn in Richtung Uranus.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/voyager2/uranus",
+    "text": "Uranus. Januar 1986. Der erste und einzige Besuch bei Uranus. Voyager 2 findet zehn neue Monde und zwei neue Ringe, dazu ein Magnetfeld, das weit gegen die Drehachse des Planeten gekippt ist. Der Mond Miranda sieht aus, als wäre er zerbrochen und wieder zusammengesetzt worden.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/voyager2/neptune",
+    "text": "Neptun und Triton. August 1989. Voyager 2 streift nur 4.950 Kilometer über Neptuns Wolken – der nächste Vorbeiflug der ganzen Reise. Sie findet den Großen Dunklen Fleck, die schnellsten Winde im Sonnensystem und Geysire auf dem gefrorenen Mond Triton.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/voyager2/termination-shock",
+    "text": "Der Terminationsschock. August 2007, 84 Astronomische Einheiten von der Sonne. Voyager 2 durchquert den Terminationsschock, wo der Sonnenwind schlagartig langsamer wird – mehrmals innerhalb weniger Tage, weil die Grenze über ihr hin und her schwankte.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/voyager2/heliopause",
+    "text": "Hinaus in den interstellaren Raum. 5. November 2018, 119 Astronomische Einheiten von der Sonne. Voyager 2 verlässt die Heliosphäre. Anders als bei Voyager 1, deren Plasma-Instrument 1980 ausfiel, konnte sie direkt messen, wie der Sonnenwind zum Stillstand kommt.",
+    "language": "German"
+  },
+  {
+    "locale": "de",
+    "id": "tours/voyager2/today",
+    "text": "Heute. Voyager 2 fliegt südlich der Planetenebene mit etwa 15 Kilometern pro Sekunde. Nur noch eine Antenne auf der Erde, in Australien, kann ihr Befehle schicken.",
+    "language": "German"
+  }
+]

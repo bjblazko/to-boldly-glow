@@ -83,9 +83,9 @@ export function placeApolloRouteLabels(labels: VoyagerLabels, scene: ApolloRoute
 
 function placeEagle(labels: VoyagerLabels, eagle: number, viewpoint: Viewpoint): void {
   const text = msg.lessons.apollo11.labels
-  const landed = Math.abs(eagle - 1) < 1e-3
-  if (!landed) labels.place('eagle', { text: text.eagle, point: eaglePoint(eagle), variant: 'probe' }, viewpoint)
-  else labels.place('site', { text: text.tranquilityBase, point: LANDING_SITE, variant: 'probe' }, viewpoint)
+  // Landed, it is Tranquility Base; docked again, Columbia's label names both.
+  if (Math.abs(eagle - 1) < 1e-3) labels.place('site', { text: text.tranquilityBase, point: LANDING_SITE, variant: 'probe' }, viewpoint)
+  else if (eagle < 2 - 1e-3) labels.place('eagle', { text: text.eagle, point: eaglePoint(eagle), variant: 'probe' }, viewpoint)
 }
 
 // The event's date and time (UTC) and its mission time (hours:minutes:seconds after liftoff's
