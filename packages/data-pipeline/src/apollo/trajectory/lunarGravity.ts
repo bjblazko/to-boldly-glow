@@ -67,26 +67,28 @@ export function parseField(text: string, degree: number): GravityField {
 // frame.
 function harmonicsVW([x, y, z]: Vec3, radius: number, n: number): { v: Float64Array[]; w: Float64Array[] } {
   const r2 = x * x + y * y + z * z
-  const rho = (radius * radius) / r2
-  const [x0, y0, z0] = [(radius * x) / r2, (radius * y) / r2, (radius * z) / r2]
+  const point = { rho: (radius * radius) / r2, x0: (radius * x) / r2, y0: (radius * y) / r2, z0: (radius * z) / r2 }
   const v = Array.from({ length: n + 2 }, () => new Float64Array(n + 2))
   const w = Array.from({ length: n + 2 }, () => new Float64Array(n + 2))
   v[0][0] = radius / Math.sqrt(r2)
-  v[1][0] = z0 * v[0][0]
-  for (let k = 2; k <= n + 1; k++) v[k][0] = ((2 * k - 1) * z0 * v[k - 1][0] - (k - 1) * rho * v[k - 2][0]) / k
-  for (let m = 1; m <= n + 1; m++) {
-    v[m][m] = (2 * m - 1) * (x0 * v[m - 1][m - 1] - y0 * w[m - 1][m - 1])
-    w[m][m] = (2 * m - 1) * (x0 * w[m - 1][m - 1] + y0 * v[m - 1][m - 1])
-    if (m <= n) {
-      v[m + 1][m] = (2 * m + 1) * z0 * v[m][m]
-      w[m + 1][m] = (2 * m + 1) * z0 * w[m][m]
-    }
-    for (let k = m + 2; k <= n + 1; k++) {
-      v[k][m] = ((2 * k - 1) * z0 * v[k - 1][m] - (k + m - 1) * rho * v[k - 2][m]) / (k - m)
-      w[k][m] = ((2 * k - 1) * z0 * w[k - 1][m] - (k + m - 1) * rho * w[k - 2][m]) / (k - m)
-    }
-  }
+  v[1][0] = point.z0 * v[0][0]
+  for (let k = 2; k <= n + 1; k++) v[k][0] = ((2 * k - 1) * point.z0 * v[k - 1][0] - (k - 1) * point.rho * v[k - 2][0]) / k
+  for (let m = 1; m <= n + 1; m++) fillOrder({ v, w }, m, n + 1, point)
   return { v, w }
+}
+
+// One order m: its sectoral term from the one before, then up the degrees.
+function fillOrder({ v, w }: { v: Float64Array[]; w: Float64Array[] }, m: number, top: number, { rho, x0, y0, z0 }: { rho: number; x0: number; y0: number; z0: number }): void {
+  v[m][m] = (2 * m - 1) * (x0 * v[m - 1][m - 1] - y0 * w[m - 1][m - 1])
+  w[m][m] = (2 * m - 1) * (x0 * w[m - 1][m - 1] + y0 * v[m - 1][m - 1])
+  if (m < top) {
+    v[m + 1][m] = (2 * m + 1) * z0 * v[m][m]
+    w[m + 1][m] = (2 * m + 1) * z0 * w[m][m]
+  }
+  for (let k = m + 2; k <= top; k++) {
+    v[k][m] = ((2 * k - 1) * z0 * v[k - 1][m] - (k + m - 1) * rho * v[k - 2][m]) / (k - m)
+    w[k][m] = ((2 * k - 1) * z0 * w[k - 1][m] - (k + m - 1) * rho * w[k - 2][m]) / (k - m)
+  }
 }
 
 // The acceleration (km/s², the field's frame) from the terms of degree `from` up to the field's

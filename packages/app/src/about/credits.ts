@@ -197,7 +197,14 @@ export const CREDIT_GROUPS: CreditGroup[] = [
         license: TEXT.licenses.publicDomain,
         home: 'https://archive.org/details/apollo-by-the-numbers',
         changes: TEXT.changes.apollo11Trajectory,
-        files: ['data/apollo11/translunar.bin', 'data/apollo11/transearth.bin'],
+        files: ['data/apollo11/translunar.bin', 'data/apollo11/lunar.bin', 'data/apollo11/transearth.bin'],
+      },
+      {
+        name: 'NASA/GSFC, GRAIL lunar gravity field GRGM660PRIM (Lemoine et al. 2013, NASA Planetary Data System)',
+        use: TEXT.uses.grail,
+        license: TEXT.licenses.publicDomain,
+        home: 'https://pds-geosciences.wustl.edu/grail/grail-l-lgrs-5-rdr-v1/grail_1001/shadr/',
+        files: ['data/apollo11/lunar.bin'],
       },
       {
         name: 'NASA Space Physics Data Facility, Voyager 1 and 2 merged data (CRS, MAG)',

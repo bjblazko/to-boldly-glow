@@ -360,7 +360,11 @@ NASA's "Apollo 11 Mission Report" (MSC-00171, 1969; https://archive.org/details/
 both public domain. The path (`packages/app/public/data/apollo11/translunar.bin`, `transearth.bin`) is our own
 reconstruction by `packages/data-pipeline/src/buildApollo11Trajectory.ts`; the Moon's and the Sun's
 positions it is integrated in (`data/apollo11-ephemeris.json`, and `public/data/apollo11/moon.bin`)
-are from NASA/JPL Horizons (DE441).
+are from NASA/JPL Horizons (DE441). Columbia's lunar orbits (`lunar.bin`) are integrated in the Moon's gravity field GRGM660PRIM
+(Lemoine et al. 2013, NASA/GSFC, from GRAIL; NASA Planetary Data System,
+https://pds-geosciences.wustl.edu/grail/grail-l-lgrs-5-rdr-v1/grail_1001/shadr/, public domain), to
+degree 60, with the Moon's orientation from the IAU WGCCRE report (Archinal et al. 2018); the field
+itself is not shipped.
 
 ## Tonemapping
 

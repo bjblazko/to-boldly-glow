@@ -2,15 +2,16 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parkingOrbit } from './apollo/trajectory/apollo11Parking'
-import { CIRCULARIZATION_IGNITION, intoLunarOrbit } from './apollo/trajectory/apollo11LunarOrbit'
+import { inLunarOrbit, intoLunarOrbit } from './apollo/trajectory/apollo11LunarOrbit'
+import { grailField } from './apollo/trajectory/lunarGravity'
 import { coast, moonAt, tliState } from './apollo/trajectory/apollo11Translunar'
 import { backToTei, ENTRY_INTERFACE, entryInterfaceState, solveTransearthCorrection, TRANSEARTH_MIDCOURSE } from './apollo/trajectory/apollo11Transearth'
 import type { State, Vec3 } from './apollo/trajectory/propagate'
 import { simplifyTrajectory } from './voyager/trajectorySamples'
 
 // Writes Apollo 11's reconstructed path (apollo/trajectory/) for the app: from the S-IVB's first
-// cutoff in Earth orbit through lunar orbit insertion to the circularization burn
-// (packages/app/public/data/apollo11/translunar.bin), from the transearth injection to entry
+// cutoff in Earth orbit to lunar orbit insertion (packages/app/public/data/apollo11/translunar.bin),
+// Columbia's lunar orbits to the transearth injection (lunar.bin), from the transearth injection to entry
 // interface (transearth.bin), and the Moon's positions over the whole flight (moon.bin) - float32 records of mission time
 // (GET, s) and geocentric position (km) in the ecliptic frame of J2000 (the app's planets'), the
 // path thinned to within 1 km. The TLI burn (2:44:16 to 2:50:13) is drawn as a smooth join between
@@ -48,7 +49,15 @@ export function apollo11Path(): State[] {
   const ignition = parkingOrbit(keep)
   const injected = tliState()
   states.push(...join2(ignition, injected, 30))
-  coast(intoLunarOrbit(keep).state, CIRCULARIZATION_IGNITION, keep)
+  intoLunarOrbit(keep)
+  return ordered(states)
+}
+
+// Columbia's 30 lunar orbits, from the insertion to the transearth injection, in the Moon's
+// gravity field (GRAIL, to degree 60).
+export async function apollo11InLunarOrbit(): Promise<State[]> {
+  const states: State[] = []
+  inLunarOrbit(await grailField(60), (state) => states.push(state))
   return ordered(states)
 }
 
@@ -78,6 +87,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const [outbound, inbound] = [thinned(path), thinned(home)]
   writeFileSync(join(out, 'translunar.bin'), binary(outbound))
   writeFileSync(join(out, 'transearth.bin'), binary(inbound))
+  const lunar = thinned(await apollo11InLunarOrbit())
+  writeFileSync(join(out, 'lunar.bin'), binary(lunar))
+  console.log(`lunar.bin: ${lunar.length} points`)
   const moon = Array.from({ length: Math.ceil((ENTRY_INTERFACE.get - path[0].t) / MOON_STEP) + 1 }, (_, k) => {
     const t = path[0].t + k * MOON_STEP
     return { t, position: moonAt(t) }

@@ -23,6 +23,7 @@ export const credits = {
     voyagerModel: 'The Voyager spacecraft in the Voyager lessons',
     goldenRecord: 'The Golden Record’s cover and record (photos)',
     voyagerPhotos: 'The photos in the Voyager lessons and tours, taken by the probes (and of the launches)',
+    grail: 'Columbia’s lunar orbits are computed in it (the field itself is not included)',
     horizons: 'The Voyagers’ trajectories, speeds and planet flybys',
     spdf: 'The Voyagers’ measurements at the heliopause, 2012 and 2018',
     saturnVModel: 'The Saturn V’s dimensions and figures, from which its model and the lesson’s numbers are made',

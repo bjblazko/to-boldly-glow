@@ -32,6 +32,7 @@ export const credits: Messages['credits'] = {
     apollo11Trajectory: 'Die Ereignisse von Apollo 11 in Missionszeit und die dokumentierten Zustände, aus denen die Flugbahn zum Mond rekonstruiert und an denen sie geprüft wird',
     lmModel: 'Maße der Mondfähre, aus denen Tanks und Triebwerke im Schnitt und die Zahlen der Lektion entstehen',
     nassp: 'Außenseite und Cockpit von Eagle, die mobile Startplattform mit Turm und Armen und der Crawler: ihre 3D-Modelle und Texturen',
+    grail: 'Darin sind Columbias Mondumläufe berechnet (das Schwerefeld selbst ist nicht enthalten)',
     horizons: 'Flugbahnen, Geschwindigkeiten und Planeten-Vorbeiflüge der Voyager-Sonden',
     spdf: 'Die Messwerte der Voyager-Sonden an der Heliopause, 2012 und 2018',
   },
