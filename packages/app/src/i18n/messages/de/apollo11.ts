@@ -146,6 +146,10 @@ export const apollo11: Messages['lessons']['apollo11'] = {
     surface: 'Eagle im Meer der Ruhe, 20. Juli 1969; Buzz Aldrin packt die Experimente aus der Abstiegsstufe aus.',
     rendezvous: 'Die Aufstiegsstufe mit Armstrong und Aldrin an Bord kehrt zu Columbia zurück; dahinter die Erde.',
     splashdown: 'Columbia nach der Wasserung im Pazifik, 24. Juli 1969, die Crew im Floß daneben.',
+    transposition: 'Skizzen der NASA vom Juli 1969: das Umdrehen, das Herausziehen der Mondfähre aus der dritten Stufe, eine Navigationsmessung, das Einbremsen in den Mondorbit.',
+    window: 'Aus Eagles rechtem Fenster kurz nach der Landung: der Boden an der Tranquility Base, Steine und kleine Krater bis zum Horizont.',
+    ascentSketch: 'Skizzen der NASA vom Juli 1969: zurück an Bord, der Start der Aufstiegsstufe von der Abstiegsstufe, Rendezvous und Andocken, der Abwurf der Mondfähre.',
+    ascentStage: 'Die Aufstiegsstufe mit Armstrong und Aldrin an Bord steigt von unten zu Columbia auf, fotografiert von Michael Collins.',
   },
   facts: {
     liftoff: { label: 'Start', value: '16. Juli 1969, 13:32 UTC' },

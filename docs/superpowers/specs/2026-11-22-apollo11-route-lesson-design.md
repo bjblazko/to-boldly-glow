@@ -73,3 +73,15 @@ The exact curve shapes, label placement, colours (from the overlay palette), cam
 Unit tests on the geometry (joins, radii, direction of travel, no path through a globe, far-side
 arrival, landing site on the near side), lesson tests as for the other lessons (texts in both
 languages, narration manifest), lint, typecheck, a real render via `npm run screenshots`.
+
+## Close-ups (added 2026-11-22, owner's request)
+
+The steps the route only names are shown close up, zoomed in on the craft and out again: the
+transposition and docking, undocking, the landing, the liftoff from the Moon, docking again, the
+service module cast off. The vehicle lessons' models (our Saturn V's third stage, Columbia, NASSP's
+Eagle) play a choreography in metres (`closeupChoreography.ts`, tested at the docking points, the
+footpads and the separations), placed enlarged at the craft's point on the route
+(`closeupFrames.ts`); on the Moon Eagle stands on the facet of the drawn sphere, with a projected
+shadow. Drawn relative to the eye (float32 near the scene's origin offsets flickered). The camera
+keeps out of Earth and the Moon on its flights, and turns up after the ascent stage. Photos: NASA's
+sketches of July 1969 and two Apollo 11 photos (`fetchApollo11Photos.ts`).

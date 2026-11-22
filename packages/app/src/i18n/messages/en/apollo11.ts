@@ -141,6 +141,10 @@ export const apollo11 = {
     surface: 'Eagle in the Sea of Tranquility, 20 July 1969; Buzz Aldrin unpacks the experiments from the descent stage.',
     rendezvous: 'The ascent stage, with Armstrong and Aldrin aboard, comes back up to Columbia; the Earth beyond.',
     splashdown: 'Columbia in the Pacific after splashdown, 24 July 1969, the crew in the raft beside it.',
+    transposition: 'NASA’s sketches of July 1969: the transposition, the lunar module drawn out of the third stage, a navigation check, braking into lunar orbit.',
+    window: 'Out of Eagle’s right-hand window just after the landing: the ground at Tranquility Base, rocks and small craters to the horizon.',
+    ascentSketch: 'NASA’s sketches of July 1969: back aboard, the ascent stage launching from the descent stage, the rendezvous and docking, the lunar module cast off.',
+    ascentStage: 'The ascent stage, Armstrong and Aldrin aboard, coming up to Columbia from below, photographed by Michael Collins.',
   },
   facts: {
     liftoff: { label: 'Liftoff', value: '16 July 1969, 13:32 UTC' },

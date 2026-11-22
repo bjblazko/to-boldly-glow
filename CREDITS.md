@@ -265,6 +265,11 @@ The Eagle lesson's photos, fetched the same way by `packages/data-pipeline/src/f
 NASA/JSC, public domain (captions checked: no other credit): as11-40-5927 (Eagle on the Moon, Aldrin
 beside it), as11-44-6581 (Eagle in lunar orbit), as11-40-5863 (Aldrin leaving through the hatch) and
 as11-44-6642 (the ascent stage at rendezvous).
+The Apollo 11 lesson's own photos, fetched the same way by
+`packages/data-pipeline/src/fetchApollo11Photos.ts`, NASA, public domain (captions checked: no other
+credit): Marshall's sketches of July 1969 of the transposition and docking (6902077) and of the
+liftoff from the Moon and the rendezvous (6902073), NASA/MSFC; the ground beside Eagle through its
+window (as11-37-5458) and the ascent stage coming up to Columbia (as11-44-6626), NASA/JSC.
 
 ## Apollo: Columbia, the command and service module
 
