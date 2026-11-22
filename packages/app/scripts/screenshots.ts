@@ -119,12 +119,6 @@ const SHOTS: Record<string, Shot> = {
   'lesson-eagle': (page, base) => lessonAt(page, base, 'eagle', 0),
   'lesson-eagle-cockpit': (page, base) => lessonAt(page, base, 'eagle', 6),
   'lesson-apollo11': (page, base) => lessonAt(page, base, 'apollo11', 4),
-  'check-cu-dock': (page, base) => lessonAt(page, base, 'apollo11', 3, 15000),
-  'check-cu-undock': (page, base) => lessonAt(page, base, 'apollo11', 6, 15000),
-  'check-cu-landing': (page, base) => lessonAt(page, base, 'apollo11', 8, 15000),
-  'check-cu-liftoff': (page, base) => lessonAt(page, base, 'apollo11', 10, 15000),
-  'check-cu-rendezvous': (page, base) => lessonAt(page, base, 'apollo11', 12, 15000),
-  'check-cu-entry': (page, base) => lessonAt(page, base, 'apollo11', 14, 15000),
   // More, on its Audio tab: the narrator, subtitles and the music.
   more: async (page, base) => {
     await boot(page, base)
