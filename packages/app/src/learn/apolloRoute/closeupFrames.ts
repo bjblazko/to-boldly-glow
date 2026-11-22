@@ -143,7 +143,8 @@ export function closeupShot(id: CloseupId): LessonShot {
   const ground = onGround(id)
   const up = ground ? frame.y : frame.z
   const away = unit(sub(frame.origin, nearerBody(frame.origin)))
-  const side = ground ? frame.z : dot(frame.x, away) >= 0 ? frame.x : frame.x.map((value) => -value)
+  const outward = CLOSEUPS[id].lookOut ? -1 : 1
+  const side = ground ? frame.z : outward * dot(frame.x, away) >= 0 ? frame.x : frame.x.map((value) => -value)
   const eye = unit(side.map((value, k) => value + (ground ? 0.2 : 0.35) * up[k] + 0.25 * frame.y[k] * (ground ? 0 : 1)))
   const { right, forward0 } = orbitBasisForUpAxis(up)
   const size = reach * frame.scale

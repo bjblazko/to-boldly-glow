@@ -117,6 +117,9 @@ export interface Closeup {
   play: (seconds: number) => ActorPose[]
   // What the camera keeps its pivot on as it plays (metres, the close-up's frame), if it follows.
   follow?: (seconds: number) => Vec3
+  // The camera on the near body's side, looking out (the entry: over Earth's night side, whose dark,
+  // coarse ground would fill the picture behind the craft otherwise).
+  lookOut?: boolean
 }
 
 const COLUMBIA_LABEL = { name: 'columbia', model: 'csm', point: [0, CM_MIDDLE_Y, 0], assembly: 'cm' } as const
@@ -128,7 +131,7 @@ export const CLOSEUPS: Record<CloseupId, Closeup> = {
   landing: { seconds: 12, center: [-10, 8, 0], reach: 24, play: landing, labels: [EAGLE_LABEL] },
   liftoff: { seconds: LIFTOFF_SECONDS, center: [0, 6, 0], reach: 16, play: liftoff, labels: [EAGLE_LABEL], follow: (t) => [0, Math.max(6, 5.14 + EXPLODE_STEP * liftoffRise(t)), 0] },
   rendezvous: { seconds: 14, center: [0, 18, 0], reach: 22, play: rendezvous, labels: [COLUMBIA_LABEL, EAGLE_LABEL] },
-  entry: { seconds: 11, center: [0, 2, 0], reach: 16, play: entry, labels: [COLUMBIA_LABEL] },
+  entry: { seconds: 11, center: [0, 2, 0], reach: 16, play: entry, labels: [COLUMBIA_LABEL], lookOut: true },
 }
 
 export function posesAt(id: CloseupId, seconds: number): ActorPose[] {

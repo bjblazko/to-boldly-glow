@@ -99,3 +99,18 @@ describe('the ground under Eagle', () => {
     expect(ground.normal[0] * radial[0] + ground.normal[1] * radial[1] + ground.normal[2] * radial[2]).toBeGreaterThan(0.998)
   })
 })
+
+describe('the close-up of the entry', () => {
+  it('looks out from between Earth and the command module, so the dark night side is not behind it', async () => {
+    const { closeupShot, closeupFrame } = await import('../src/learn/apolloRoute/closeupFrames')
+    const { orbitBasisForUpAxis } = await import('../src/camera/orbitCamera')
+    const { ROUTE_EARTH } = await import('../src/learn/apolloRoute/routeGeometry')
+    const { preset } = closeupShot('entry')
+    const { right, forward0 } = orbitBasisForUpAxis(preset.upAxis)
+    const toEye = [0, 1, 2].map((k) => Math.cos(preset.elevation) * (Math.sin(preset.azimuth) * right[k] + Math.cos(preset.azimuth) * forward0[k]) + Math.sin(preset.elevation) * preset.upAxis[k])
+    const origin = closeupFrame('entry').origin
+    const towardEarth = ROUTE_EARTH.map((value, k) => value - origin[k])
+    const length = Math.hypot(...towardEarth)
+    expect(toEye.reduce((sum, value, k) => sum + (value * towardEarth[k]) / length, 0)).toBeGreaterThan(0.5)
+  })
+})
