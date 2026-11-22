@@ -13,6 +13,10 @@
             "hash": "792f40bcb4350e18",
             "seconds": 20.0
           },
+          "lessons/apollo11/crew": {
+            "hash": "9b18488f2fda7629",
+            "seconds": 43.12
+          },
           "lessons/apollo11/descent": {
             "hash": "47cc5b78e7fe2708",
             "seconds": 19.36
@@ -30,8 +34,8 @@
             "seconds": 12.32
           },
           "lessons/apollo11/landing": {
-            "hash": "15caf63ca3f80235",
-            "seconds": 26.8
+            "hash": "e8fb9664a5eabb27",
+            "seconds": 26.72
           },
           "lessons/apollo11/launch": {
             "hash": "addcaf01c0f9b166",
@@ -49,6 +53,14 @@
             "hash": "11534e08e20daa26",
             "seconds": 13.2
           },
+          "lessons/apollo11/quarantine": {
+            "hash": "2a5001335562166e",
+            "seconds": 25.76
+          },
+          "lessons/apollo11/race": {
+            "hash": "c4ee81616e7dfc47",
+            "seconds": 41.76
+          },
           "lessons/apollo11/rendezvous": {
             "hash": "5622955bd2239c21",
             "seconds": 16.88
@@ -62,8 +74,8 @@
             "seconds": 19.04
           },
           "lessons/apollo11/tli": {
-            "hash": "9b0c089e2aadef1a",
-            "seconds": 37.36
+            "hash": "5d096c13fb0d4f24",
+            "seconds": 39.68
           },
           "lessons/apollo11/undocking": {
             "hash": "1de1e2a0abf5c867",
@@ -563,6 +575,10 @@
             "hash": "ee6c8e1d8aeb7fc7",
             "seconds": 17.52
           },
+          "lessons/apollo11/crew": {
+            "hash": "907fda4290726d7f",
+            "seconds": 40.0
+          },
           "lessons/apollo11/descent": {
             "hash": "7aa9f7a7f69ca1a8",
             "seconds": 18.8
@@ -598,6 +614,14 @@
           "lessons/apollo11/parking": {
             "hash": "7b43c16cf5d9ede4",
             "seconds": 10.88
+          },
+          "lessons/apollo11/quarantine": {
+            "hash": "001d7b931f89caa3",
+            "seconds": 23.92
+          },
+          "lessons/apollo11/race": {
+            "hash": "3cdc1bf3e417e3d1",
+            "seconds": 38.8
           },
           "lessons/apollo11/rendezvous": {
             "hash": "6f8e8602b5df3080",
@@ -1121,6 +1145,10 @@
             "hash": "66ddd9d02120d5bf",
             "seconds": 19.76
           },
+          "lessons/apollo11/crew": {
+            "hash": "3e926ca77731d73e",
+            "seconds": 42.08
+          },
           "lessons/apollo11/descent": {
             "hash": "d756c25878574ae2",
             "seconds": 20.4
@@ -1138,8 +1166,8 @@
             "seconds": 13.36
           },
           "lessons/apollo11/landing": {
-            "hash": "bc46e16d94f48471",
-            "seconds": 32.64
+            "hash": "1a60af4d1f29867c",
+            "seconds": 29.92
           },
           "lessons/apollo11/launch": {
             "hash": "6958ae4938f8aa84",
@@ -1157,6 +1185,14 @@
             "hash": "de0e9ee4745d91ce",
             "seconds": 12.64
           },
+          "lessons/apollo11/quarantine": {
+            "hash": "ffff271cac324a7e",
+            "seconds": 28.96
+          },
+          "lessons/apollo11/race": {
+            "hash": "44298565e64c41e4",
+            "seconds": 42.96
+          },
           "lessons/apollo11/rendezvous": {
             "hash": "8133d7329ccbdf6f",
             "seconds": 20.96
@@ -1170,8 +1206,8 @@
             "seconds": 19.36
           },
           "lessons/apollo11/tli": {
-            "hash": "a2eac6436ad76cbc",
-            "seconds": 40.0
+            "hash": "3814b4c07be915d9",
+            "seconds": 40.4
           },
           "lessons/apollo11/undocking": {
             "hash": "0eeea1be94676d7c",
@@ -1671,6 +1707,10 @@
             "hash": "9ec80ae2c45b3664",
             "seconds": 17.52
           },
+          "lessons/apollo11/crew": {
+            "hash": "9db01aa1aaf9f17e",
+            "seconds": 41.12
+          },
           "lessons/apollo11/descent": {
             "hash": "668894cdbe2c0466",
             "seconds": 19.36
@@ -1706,6 +1746,14 @@
           "lessons/apollo11/parking": {
             "hash": "e0785ec48e3669a3",
             "seconds": 12.16
+          },
+          "lessons/apollo11/quarantine": {
+            "hash": "300d155c7d063a0d",
+            "seconds": 24.8
+          },
+          "lessons/apollo11/race": {
+            "hash": "29a1f968250669ba",
+            "seconds": 39.12
           },
           "lessons/apollo11/rendezvous": {
             "hash": "e94c00f33951c1b9",

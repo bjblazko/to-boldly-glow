@@ -32,7 +32,7 @@ const CHAPTERS: Chapter[] = [
   chapter('whiteRoom', { shot: 'crewArm', highlight: 'crewArm', labels: ['crewArm'], gone: NO_CRAWLER }, { photo: photo('s69-35316', 'whiteRoom', 'NASA/JSC') }),
   chapter('escape', { shot: 'tower', highlight: 'tower', labels: ['tower', 'crewArm'], gone: NO_CRAWLER }, { photo: photo('KSC-72PC-0610', 'egress', 'NASA/KSC') }),
   chapter('platform', { shot: 'base', highlight: 'launcher', labels: ['launcher', 'mast1'], gone: NO_CRAWLER }, { photo: photo('KSC-69P-168', 'stacking', 'NASA/KSC') }),
-  chapter('holddown', { shot: 'base', highlight: 'holddown', labels: ['holddown', 'mast1'], gone: NO_CRAWLER }, { facts: [fact('holddown', 'clock')] }),
+  chapter('holddown', { shot: 'base', highlight: 'holddown', labels: ['holddown', 'mast1'], gone: NO_CRAWLER }, { photo: photo('S69-39961', 'liftoffFromTower', 'NASA/JSC'), facts: [fact('holddown', 'clock')] }),
   chapter('crawler', { shot: 'crawler', explode: 1, highlight: 'crawler', labels: ['crawler', 'launcher'] }, {
     photo: photo('KSC-69P-372', 'rollout', 'NASA/KSC'),
     facts: [fact('crawlerMass', 'mass'), fact('crawlerSpeed', 'clock'), fact('crawlerway', 'circumference')],

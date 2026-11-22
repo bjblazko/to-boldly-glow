@@ -117,6 +117,7 @@ export const launcher: Messages['lessons']['launcher'] = {
     tower: { label: 'Turmspitze' },
   },
   captions: {
+    liftoffFromTower: 'Apollo 11 steigt an seinem Turm vorbei auf, 16. Juli 1969, aufgenommen von einer Kamera am Turm mit Blick hinab: die Plattform, darunter der Feuerstrahl.',
     crewWalk: 'Armstrong und Aldrin auf dem Weg zum Raumschiff, neben ihnen Anzugtechniker Joe Schmidt, 16. Juli 1969.',
     whiteRoom: 'Im White Room an der Luke, Apollo 10, 18. Mai 1969: die Crew schon an Bord, die letzten Prüfungen, bevor die Luke schließt.',
     egress: 'Die Crew von Apollo 17 auf dem Zugangsarm bei einer Übung für den Notausstieg, Dezember 1972.',

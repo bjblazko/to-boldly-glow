@@ -34,7 +34,8 @@ const FRAMES: Record<string, VehicleFrame> = {
   whole: { height: 5.2, radius: 24, reach: 6, halfWidth: 4.5 },
   serviceModule: { height: 4.8, radius: 13, reach: 3.2, halfWidth: 2.6 },
   engine: { height: 2.2, radius: 9, reach: 2.4, halfWidth: 2 },
-  commandModule: { height: 8.8, radius: 9, reach: 2, halfWidth: 2.4 },
+  // The command module lifted off its service module (2.5 m: 9.7-12.9 m up), in the middle.
+  commandModule: { height: 10.9, radius: 9, reach: 2, halfWidth: 2.4 },
   // NASSP's cockpit (measured on the built one): the couches 7.8-8.6 m up, their heads toward the
   // side hatch (z 1.0); the main display console over them, its flight director attitude indicators
   // about 8.8 m up at z 0.6-0.8, the Commander's on the left (-X); the lower equipment bay with the

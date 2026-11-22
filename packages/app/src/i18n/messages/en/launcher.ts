@@ -117,6 +117,7 @@ export const launcher = {
     tower: { label: 'Top of the tower' },
   } as Record<string, { label: string; note?: string }>,
   captions: {
+    liftoffFromTower: 'Apollo 11 rises past its tower, 16 July 1969, seen by a camera on the tower looking down: the platform, the flame beneath it.',
     crewWalk: 'Armstrong and Aldrin on their way to the spacecraft, suit technician Joe Schmidt beside them, 16 July 1969.',
     whiteRoom: 'Inside the White Room at the hatch, Apollo 10, 18 May 1969: the crew already aboard, the last checks before the hatch closes.',
     egress: 'Apollo 17’s crew on the access arm during an emergency egress test, December 1972.',
