@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Apollo, the lesson "The Launch Tower and the Crawler": the Saturn V on its mobile launcher beside
+  the 121 m umbilical tower, its nine service arms and the crew access arm, the hold-down arms that
+  held it 8.9 s after ignition, the crawler-transporter that carried it all to the pad - and at
+  liftoff the arms swing away. Project Apollo - NASSP's models (GPL), our Saturn V on them;
+  narrated in English and German.
+
 ## [0.7.0] - 2026-11-21
 
 ### Changed

@@ -308,6 +308,21 @@ the dimensions in Grumman's "Apollo Lunar Module News Reference" for NASA (1968,
 https://archive.org/details/apollo-lunar-module-news-reference-1968); measures it does not settle
 are marked `APPROX` in `apollo/lmProfile.ts`. The lesson's figures come from the same document.
 
+## Apollo: the launch tower and the crawler
+
+The mobile launcher with its umbilical tower, swing arms, crane, hold-down arms and tail service
+masts, and the crawler-transporter (`packages/app/public/models/launcher/`: `launcher.*`,
+`crawler.*`, `nassp/`) are converted from Project Apollo - NASSP (https://github.com/orbiternassp/NASSP,
+GNU General Public License, version 2 or later - see the Eagle section above for the license and why
+it is used under version 3 or later) at commit `ddba501d2e274367b8660d7050dee7b9f4153865`:
+`Meshes/ProjectApollo/Saturn5ML.msh`, `Crawler_Mainbody.msh`, `Crawler_drivetrucks.msh` and the
+textures they name. The arms' and masts' pivots, axes and angles come from NASSP's
+`Orbitersdk/samples/ProjectApollo/src_launch/ML.cpp`, the crawler's layout from `Crawler.cpp`.
+Converted in November 2026 by `packages/data-pipeline/src/buildLauncher.ts` (into our frame, split
+into the lesson's parts, the textures as JPEG). The Saturn V on it is our own model
+(`saturnV-paint.jpg`, `saturnV-palette.png` copied from it). The lesson's figures come from NASA/MSFC's
+"Saturn V News Reference" (December 1968, public domain).
+
 ## Tonemapping
 
 The tonemapping (`packages/app/src/bloom/tonemapWgsl.ts`) follows Troy Sobotka's AgX view

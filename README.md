@@ -106,12 +106,15 @@ And Apollo: *The Saturn V, taken apart* (the rocket to scale, its stack taken ap
 cut open), *Columbia, inside and out* (the command and service module; inside, the Smithsonian's
 3D scan of the real capsule, to walk through as the crew lay) and *Eagle, the lunar module*
 (Project Apollo - NASSP's detailed model: the legs fold, the stages part, and inside you stand
-where Armstrong and Aldrin stood, before every switch of the real panels).
+where Armstrong and Aldrin stood, before every switch of the real panels) and *The Launch Tower and
+the Crawler* (the Saturn V on its mobile launcher beside the umbilical tower, its swing arms, and the
+crawler that carried it all to the pad).
 
 | | |
 | --- | --- |
 | ![The Saturn V lesson: the first stage cut open, its tanks and five F-1 engines](docs/images/lesson-saturn-v.jpg) | ![Columbia's cabin, the Smithsonian's scan: the main display console over the couches](docs/images/lesson-columbia.jpg) |
 | ![Eagle, the lunar module, in the blueprint room with a person for scale](docs/images/lesson-eagle.jpg) | ![Inside Eagle: the Commander's flight displays and the window](docs/images/lesson-eagle-cockpit.jpg) |
+| ![The Saturn V on its mobile launcher beside the umbilical tower](docs/images/lesson-launcher.jpg) | ![The crawler-transporter carrying launcher, tower and rocket](docs/images/lesson-launcher-crawler.jpg) |
 
 ### Music
 
@@ -273,7 +276,7 @@ texts are in [CREDITS.md](CREDITS.md)):
 | Apollo photos | NASA (HQ, MSFC, KSC, JSC), NASA Image and Video Library | Public domain |
 | Saturn V, Columbia's outside, the cutaways | Our own models from NASA's and Grumman's published dimensions | Original, GPL-3.0-or-later |
 | Columbia's cabin | Smithsonian National Air and Space Museum, 3D scan "Command Module Apollo 11: Interior" | CC0 |
-| Eagle's outside and cockpit | [Project Apollo - NASSP](https://github.com/orbiternassp/NASSP) (the Apollo add-on for Orbiter) | GPL-2.0-or-later |
+| Eagle's outside and cockpit, the mobile launcher and the crawler | [Project Apollo - NASSP](https://github.com/orbiternassp/NASSP) (the Apollo add-on for Orbiter) | GPL-2.0-or-later |
 
 ## For developers
 

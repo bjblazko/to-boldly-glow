@@ -1,0 +1,66 @@
+{
+ "vertexCount": 51938,
+ "indexCount": 87444,
+ "indexFormat": "uint16",
+ "draws": [
+  {
+   "texture": "nassp/crawlerradiator.jpg",
+   "firstIndex": 0,
+   "indexCount": 144
+  },
+  {
+   "texture": "nassp/crawlerlight.jpg",
+   "firstIndex": 144,
+   "indexCount": 144
+  },
+  {
+   "texture": "nassp/palette.png",
+   "firstIndex": 288,
+   "indexCount": 67764
+  },
+  {
+   "texture": "nassp/crawlertubing.jpg",
+   "firstIndex": 68052,
+   "indexCount": 4320
+  },
+  {
+   "texture": "nassp/crawlertracksides.jpg",
+   "firstIndex": 72372,
+   "indexCount": 12768
+  },
+  {
+   "texture": "nassp/crawlerbrakedisc.jpg",
+   "firstIndex": 85140,
+   "indexCount": 2304
+  }
+ ],
+ "bounds": {
+  "min": [
+   -17.461740493774414,
+   -0.011880026198923588,
+   -5.014979839324951
+  ],
+  "max": [
+   17.339740753173828,
+   6.209959983825684,
+   34.72798156738281
+  ]
+ },
+ "assemblies": [
+  {
+   "id": "crawler",
+   "explode": [
+    0,
+    0,
+    0
+   ]
+  }
+ ],
+ "anchors": {
+  "crawler": [
+   -0.06099987030029297,
+   3.09903997881338,
+   14.85650086402893
+  ]
+ }
+}

@@ -29,7 +29,7 @@ export const credits: Messages['credits'] = {
     csmModel: 'Maße und Aufbau von Kommando- und Versorgungsmodul, aus denen ihr Modell entsteht',
     columbiaCabin: 'Die Kabine der Columbia von innen: Wände, Instrumententafeln, Liegen und die Notizen der Crew',
     lmModel: 'Maße der Mondfähre, aus denen Tanks und Triebwerke im Schnitt und die Zahlen der Lektion entstehen',
-    nassp: 'Außenseite und Cockpit von Eagle: die 3D-Modelle der Mondfähre und ihre Texturen',
+    nassp: 'Außenseite und Cockpit von Eagle, die mobile Startplattform mit Turm und Armen und der Crawler: ihre 3D-Modelle und Texturen',
     horizons: 'Flugbahnen, Geschwindigkeiten und Planeten-Vorbeiflüge der Voyager-Sonden',
     spdf: 'Die Messwerte der Voyager-Sonden an der Heliopause, 2012 und 2018',
   },
@@ -42,7 +42,7 @@ export const credits: Messages['credits'] = {
     csmModel: 'Das Modell ist unser eigenes, aus den Maßen gebaut.',
     columbiaCabin: 'Vereinfacht (etwa die Hälfte der Dreiecke), Texturen verkleinert, in unser Kommandomodul gesetzt.',
     lmModel: 'Tanks und Triebwerke sind unsere eigenen, aus den Maßen gebaut.',
-    nassp: 'Im November 2026 von packages/data-pipeline/src/buildEagle.ts ins Format der App umgewandelt: in unser Koordinatensystem gebracht, in die Teile der Lektion zerlegt (die Beine klappen), die grobe Kabine der Außenansicht weggelassen, die Texturen als JPEG und verkleinert.',
+    nassp: 'Im November 2026 von packages/data-pipeline/src/buildEagle.ts ins Format der App umgewandelt: in unser Koordinatensystem gebracht, in die Teile der Lektion zerlegt (die Beine klappen), die grobe Kabine der Außenansicht weggelassen, die Texturen als JPEG und verkleinert; Startplattform und Crawler von packages/data-pipeline/src/buildLauncher.ts in unser Koordinatensystem gebracht und in die Teile der Lektion zerlegt, Arme, Masten und Abdeckungen klappen, wie NASSPs eigene Animationen sie drehen.',
   },
   licenses: {
     publicDomain: 'Gemeinfrei',

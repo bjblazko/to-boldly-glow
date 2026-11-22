@@ -1,5 +1,6 @@
 import type { Hinge } from '../../../app/src/spacecraft/modelHinge'
 import type { OrbiterGroup } from '../spacecraft/orbiterMesh'
+import { type NasspGroup, toOurFrame } from './nasspParts'
 
 // How Project Apollo - NASSP's lunar module (nassp.ts) becomes Eagle's: its groups sorted into our
 // assemblies, its frame turned into ours, the legs' hinges found on their struts.
@@ -38,41 +39,11 @@ export function cockpitAssembly(label: string): CockpitPart {
   return /^(Sw_|CB_|TW_|SwitchHolder|Switch_Guard|SwitchGuard|Xpointer|FDAI|Panel|P\d|Rotary|Meter|TalkBack)/.test(label) ? 'panels' : 'cockpit'
 }
 
-export interface LmGroup {
-  label: string
-  material: number | null
-  texture: string | null
-  positions: Float32Array
-  normals: Float32Array
-  uvs: Float32Array | null
-  indices: Uint32Array
-}
+export type LmGroup = NasspGroup
 
-// A group in our frame: x mirrored, lifted by `lift` (metres), its triangles' corners put back in
-// front-face order (a mirror turns them round); normals made where the group has none.
+// A group in our frame, lifted by `lift` (metres): see nasspParts.ts.
 export function toLmFrame(group: OrbiterGroup, lift: number): LmGroup {
-  const positions = Float32Array.from(group.positions, (value, i) => (i % 3 === 0 ? 0 - value || 0 : i % 3 === 1 ? value + lift : value))
-  const indices = new Uint32Array(group.indices.length)
-  for (let t = 0; t < indices.length; t += 3) indices.set([group.indices[t], group.indices[t + 2], group.indices[t + 1]], t)
-  const normals = group.normals ? Float32Array.from(group.normals, (value, i) => (i % 3 === 0 ? -value : value)) : faceNormals(positions, indices)
-  return { label: group.label, material: group.material, texture: group.texture, positions, normals, uvs: group.uvs, indices }
-}
-
-// Per-vertex normals from the triangles around each vertex.
-function faceNormals(p: Float32Array, indices: Uint32Array): Float32Array {
-  const normals = new Float32Array(p.length)
-  for (let t = 0; t < indices.length; t += 3) {
-    const [a, b, c] = [indices[t] * 3, indices[t + 1] * 3, indices[t + 2] * 3]
-    const u = [p[b] - p[a], p[b + 1] - p[a + 1], p[b + 2] - p[a + 2]]
-    const v = [p[c] - p[a], p[c + 1] - p[a + 1], p[c + 2] - p[a + 2]]
-    const n = [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]]
-    for (const corner of [a, b, c]) for (let k = 0; k < 3; k++) normals[corner + k] += n[k]
-  }
-  for (let i = 0; i < normals.length; i += 3) {
-    const length = Math.hypot(normals[i], normals[i + 1], normals[i + 2]) || 1
-    for (let k = 0; k < 3; k++) normals[i + k] /= length
-  }
-  return normals
+  return toOurFrame(group, [0, lift, 0])
 }
 
 // Folded, a leg's strut swings up about its top until it leans 8 degrees in past upright, its
