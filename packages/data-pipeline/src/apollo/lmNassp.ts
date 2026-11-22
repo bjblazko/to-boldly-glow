@@ -10,19 +10,21 @@ import { type NasspGroup, toOurFrame } from './nasspParts'
 // mirrored. NASSP's "Left" leg is therefore our +X leg (leg1, 90 degrees round from forward), its
 // "Right" our -X leg (leg3).
 
-export type LmPart = 'descent' | 'leg0' | 'leg1' | 'leg2' | 'leg3' | 'link0' | 'link1' | 'link2' | 'link3' | 'ascent'
+export type LmPart = 'descent' | 'leg0' | 'leg1' | 'leg2' | 'leg3' | 'link0' | 'link1' | 'link2' | 'link3' | 'probes' | 'ascent'
 export type CockpitPart = 'cockpit' | 'panels' | 'dsky' | 'windows'
 
 const LEG_SUFFIX: Record<string, LmPart> = { '': 'leg0', Left: 'leg1', Aft: 'leg2', Right: 'leg3' }
 
-// The descent stage's groups: each leg's primary strut, lower strut, footpad and probes (the forward
-// one with the ladder and the plaque) turn with the leg; its braces and downlock - the linkage from
+// The descent stage's groups: each leg's primary strut, lower strut and footpad (the forward one with
+// the ladder and the plaque) turn with the leg; the probes are a part of their own; its braces and downlock - the linkage from
 // the stage to the primary strut - have a hinge of their own (linkHinge); the rest is the stage.
 const LINK_SUFFIX: Record<string, LmPart> = { '': 'link0', Left: 'link1', Aft: 'link2', Right: 'link3' }
 export function descentAssembly(label: string): LmPart {
   const link = /^(Downlock|SupportStruts2)(Left|Aft|Right)?$/.exec(label)
   if (link) return LINK_SUFFIX[link[2] ?? '']
-  const leg = /^(MainStrut|Footpad|LowerStrut|Probes\d)(Left|Aft|Right)?$/.exec(label)
+  // The probes were stowed for launch and swung down with the legs: shown only with the legs out.
+  if (/^Probes\d/.test(label)) return 'probes'
+  const leg = /^(MainStrut|Footpad|LowerStrut)(Left|Aft|Right)?$/.exec(label)
   if (leg) return LEG_SUFFIX[leg[2] ?? '']
   return label === 'Ladder' || label === 'zPlaque' ? 'leg0' : 'descent'
 }

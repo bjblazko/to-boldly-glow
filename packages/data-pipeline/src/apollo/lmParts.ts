@@ -13,7 +13,7 @@ import { placedLathe, tankProfile } from './shapes'
 // (lmProfile.ts): what the cutaway shows inside the stages - tanks and engines - and a person for
 // scale. The cockpit is a model of its own (NASSP's, lit by its lamps), rising with the ascent
 // stage.
-export const LM_ASSEMBLIES = ['descent', 'descentInside', 'leg0', 'leg1', 'leg2', 'leg3', 'link0', 'link1', 'link2', 'link3', 'ascent', 'ascentInside', 'person'] as const
+export const LM_ASSEMBLIES = ['descent', 'descentInside', 'leg0', 'leg1', 'leg2', 'leg3', 'link0', 'link1', 'link2', 'link3', 'probes', 'ascent', 'ascentInside', 'person'] as const
 export const COCKPIT_ASSEMBLIES = ['cockpit', 'panels', 'dsky', 'windows'] as const
 export type LmAssembly = (typeof LM_ASSEMBLIES)[number] | (typeof COCKPIT_ASSEMBLIES)[number]
 

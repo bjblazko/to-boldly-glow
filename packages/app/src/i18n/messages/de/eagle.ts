@@ -75,6 +75,7 @@ export const eagle: Messages['lessons']['eagle'] = {
     link0: 'Streben',
     link1: 'Streben',
     link2: 'Streben',
+    probes: 'Bodensonden',
     link3: 'Streben',
     ascent: 'Aufstiegsstufe',
     ascentInside: 'Tanks und Aufstiegstriebwerk',

@@ -4,11 +4,12 @@ import { ascentAssembly, cockpitAssembly, descentAssembly, foldingHinge, foilMap
 import type { OrbiterGroup } from '../src/spacecraft/orbiterMesh'
 
 describe("NASSP's lunar module, sorted into Eagle's parts", () => {
-  it('gives each leg its strut, lower strut, footpad and probes (the ladder and plaque on the forward one), and its braces a linkage of their own', () => {
+  it('gives each leg its strut, lower strut, footpad (the ladder and plaque on the forward one), its braces a linkage of their own, the probes theirs', () => {
     expect(['MainStrut', 'Footpad', 'Ladder', 'zPlaque'].map(descentAssembly)).toEqual(['leg0', 'leg0', 'leg0', 'leg0'])
     // NASSP's "Left" lies on Orbiter's -X, our +X: the Commander's side (leg1, 90 degrees round).
     expect(['MainStrutLeft', 'FootpadAft', 'MainStrutRight'].map(descentAssembly)).toEqual(['leg1', 'leg2', 'leg3'])
-    expect(['LowerStrutAft', 'Probes1Right', 'Probes2Aft', 'LowerStrut'].map(descentAssembly)).toEqual(['leg2', 'leg3', 'leg2', 'leg0'])
+    expect(['LowerStrutAft', 'LowerStrut'].map(descentAssembly)).toEqual(['leg2', 'leg0'])
+    expect(['Probes1Right', 'Probes2Aft'].map(descentAssembly)).toEqual(['probes', 'probes'])
     expect(['Downlock', 'SupportStruts2Left', 'DownlockAft', 'SupportStruts2Right'].map(descentAssembly)).toEqual(['link0', 'link1', 'link2', 'link3'])
     expect(['BodyMain', 'SidePanels3', 'DPSbell', 'FrontPorch', 'zzLR_Antenna'].map(descentAssembly)).toEqual(['descent', 'descent', 'descent', 'descent', 'descent'])
   })

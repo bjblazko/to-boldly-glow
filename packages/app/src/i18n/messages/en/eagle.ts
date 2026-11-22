@@ -75,6 +75,7 @@ export const eagle = {
     link0: 'Struts',
     link1: 'Struts',
     link2: 'Struts',
+    probes: 'Contact probes',
     link3: 'Struts',
     ascent: 'Ascent stage',
     ascentInside: 'Tanks and ascent engine',
