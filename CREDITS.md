@@ -269,7 +269,7 @@ The Apollo 11 lesson's own photos, fetched the same way by
 `packages/data-pipeline/src/fetchApollo11Photos.ts`, NASA, public domain (captions checked: no other
 credit): Marshall's sketches of July 1969 of the transposition and docking (6902077) and of the
 liftoff from the Moon and the rendezvous (6902073), NASA/MSFC; the ground beside Eagle through its
-window (as11-37-5458) and the ascent stage coming up to Columbia (as11-44-6626), NASA/JSC. The crew's official portrait (8903695, NASA/MSFC), President Nixon at the quarantine trailer on the USS Hornet (S69-21365, NASA/JSC) and President Kennedy at Rice University (s67-19620, NASA/JSC).
+window (as11-37-5458) and the ascent stage coming up to Columbia (as11-44-6626), NASA/JSC. The crew's official portrait (8903695, NASA/MSFC), President Nixon at the quarantine trailer on the USS Hornet (S69-21365, NASA/JSC) and President Kennedy at Rice University (s67-19620, NASA/JSC). The launch tower lesson's: Armstrong and Aldrin on the way to the spacecraft (KSC-69PC-399), Apollo 17's crew in an egress test (KSC-72PC-0610), Apollo 11's first stage stacked on its launcher (KSC-69P-168) and a crawler in pieces, 1964 (KSC-20100330-PH-KSC-64-3716), NASA/KSC; the White Room at Apollo 10 (S69-35316, NASA/JSC).
 
 ## Apollo: Columbia, the command and service module
 

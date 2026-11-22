@@ -136,7 +136,7 @@ export const CREDIT_GROUPS: CreditGroup[] = [
         files: ['models/saturnV/', 'models/launcher/saturnV-paint.jpg', 'models/launcher/saturnV-palette.png'],
       },
       {
-        name: 'NASA (HQ, MSFC, KSC, JSC), Apollo photos (NASA Image and Video Library: 6901000, KSC-69P-372, 9903405, 6758331, 6861994, 0100806, 372772main_GPN-2000-001212_full, S69-40758, S69-38317, as11-40-5927, as11-44-6581, as11-40-5863, as11-44-6642, 6902077, as11-37-5458, 6902073, as11-44-6626, 8903695, S69-21365, s67-19620)',
+        name: 'NASA (HQ, MSFC, KSC, JSC), Apollo photos (NASA Image and Video Library: 6901000, KSC-69P-372, 9903405, 6758331, 6861994, 0100806, 372772main_GPN-2000-001212_full, S69-40758, S69-38317, as11-40-5927, as11-44-6581, as11-40-5863, as11-44-6642, 6902077, as11-37-5458, 6902073, as11-44-6626, 8903695, S69-21365, s67-19620, KSC-69PC-399, S69-35316, KSC-72PC-0610, KSC-69P-168, KSC-64-3716)',
         use: TEXT.uses.saturnVPhotos,
         license: TEXT.licenses.publicDomain,
         home: 'https://images.nasa.gov/',

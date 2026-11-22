@@ -28,12 +28,16 @@ const CHAPTERS: Chapter[] = [
   chapter('whole', { shot: 'whole', labels: ['rocket', 'tower', 'launcher', 'person'], heights: true, gone: NO_CRAWLER }, { facts: [fact('tower', 'diameter'), fact('weight', 'mass')] }),
   chapter('tower', { shot: 'tower', highlight: 'tower', labels: ['tower'], gone: NO_CRAWLER }, { facts: [fact('platforms', 'diameter'), fact('elevators', 'clock')] }),
   chapter('arms', { shot: 'arms', highlight: 'serviceArms', labels: ['serviceArms', 'intertankArm', 'crewArm'], gone: NO_CRAWLER }, { facts: [fact('arms', 'power')] }),
-  chapter('crewArm', { shot: 'crewArm', highlight: 'crewArm', labels: ['crewArm', 'damperArm'], gone: NO_CRAWLER }),
+  chapter('crewArm', { shot: 'crewArm', highlight: 'crewArm', labels: ['crewArm', 'damperArm'], gone: NO_CRAWLER }, { photo: photo('KSC-69PC-399', 'crewWalk', 'NASA/KSC') }),
+  chapter('whiteRoom', { shot: 'crewArm', highlight: 'crewArm', labels: ['crewArm'], gone: NO_CRAWLER }, { photo: photo('s69-35316', 'whiteRoom', 'NASA/JSC') }),
+  chapter('escape', { shot: 'tower', highlight: 'tower', labels: ['tower', 'crewArm'], gone: NO_CRAWLER }, { photo: photo('KSC-72PC-0610', 'egress', 'NASA/KSC') }),
+  chapter('platform', { shot: 'base', highlight: 'launcher', labels: ['launcher', 'mast1'], gone: NO_CRAWLER }, { photo: photo('KSC-69P-168', 'stacking', 'NASA/KSC') }),
   chapter('holddown', { shot: 'base', highlight: 'holddown', labels: ['holddown', 'mast1'], gone: NO_CRAWLER }, { facts: [fact('holddown', 'clock')] }),
   chapter('crawler', { shot: 'crawler', explode: 1, highlight: 'crawler', labels: ['crawler', 'launcher'] }, {
     photo: photo('KSC-69P-372', 'rollout', 'NASA/KSC'),
     facts: [fact('crawlerMass', 'mass'), fact('crawlerSpeed', 'clock'), fact('crawlerway', 'circumference')],
   }),
+  chapter('crawlerParts', { shot: 'crawler', explode: 1, highlight: 'crawler', labels: ['crawler'] }, { photo: photo('KSC-20100330-PH-KSC-64-3716', 'crawlerBuilt', 'NASA/KSC') }),
   chapter('liftoff', { shot: 'liftoff', fold: 1, labels: ['serviceArms', 'crewArm', 'mast1'], gone: NO_CRAWLER }, { photo: photo('6901000', 'liftoff', 'NASA/MSFC') }),
 ]
 

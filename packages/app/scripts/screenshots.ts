@@ -119,7 +119,7 @@ const SHOTS: Record<string, Shot> = {
   'lesson-eagle': (page, base) => lessonAt(page, base, 'eagle', 0),
   'lesson-eagle-cockpit': (page, base) => lessonAt(page, base, 'eagle', 6),
   'lesson-launcher': (page, base) => lessonAt(page, base, 'launcher', 0),
-  'lesson-launcher-crawler': (page, base) => lessonAt(page, base, 'launcher', 5),
+  'lesson-launcher-crawler': (page, base) => lessonAt(page, base, 'launcher', 9),
   'lesson-apollo11': (page, base) => lessonAt(page, base, 'apollo11', 6),
   // More, on its Audio tab: the narrator, subtitles and the music.
   more: async (page, base) => {

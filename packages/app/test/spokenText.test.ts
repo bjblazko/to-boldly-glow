@@ -46,4 +46,8 @@ describe('texts made fit to be spoken', () => {
       'Pördju Juniwörsiti, Wäst Peunt, das Em Ai Ti, aus Nju Dschörsi, die Moubail Kwarantien Fasiliti, das Luhner Risiewing Läboratori in Hjuston',
     )
   })
+
+  it('says the launch tower’s English names as in English', () => {
+    expect(spokenText('der White Room, der Pad Leader, im Vehicle Assembly Building', 'de')).toBe('der Weit Ruhm, der Päd Lieder, im Wiekl Essembli Bilding')
+  })
 })
