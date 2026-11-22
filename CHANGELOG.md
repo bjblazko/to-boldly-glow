@@ -31,8 +31,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   names and the Saturns' numerals as in their own language (the German voice says "Eagle" as an
   English speaker would).
 - The lesson camera's flights between shots pass over planets instead of through them.
+- The grand tour always flies at 1 hr/s, and has back, next and pause in the bar.
+- The interface can be hidden in lessons and tours too (More, or H).
+- The Saturn V's paint shows wear: an uneven white, streaks, soot at the base; the lesson says what
+  the black-and-white pattern was for. The escape tower stands on the capsule's cover.
 - Apollo 11's events in mission time, and its path reconstructed from the documented state vectors
   (for the coming tour).
+
+### Fixed
+
+- The grand tour came home short of Earth when the clock ran fast at Realistic scale: it gave up on
+  the last stop and never arrived.
 
 ## [0.7.0] - 2026-11-21
 
