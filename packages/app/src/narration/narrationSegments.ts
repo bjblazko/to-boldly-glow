@@ -4,7 +4,7 @@ import { orderedPlanetIds, PLANET_ORDERS } from '../learn/sizes/planetOrders'
 import { de } from './scripts/de'
 import { en, type NarrationPart, type NarrationScript, type NarrationStop } from './scripts/en'
 import { ORDER_LINES } from './scripts/orders'
-import { spokenText } from './spokenText'
+import { REFINED_SEGMENTS, spokenText } from './spokenText'
 import { missionClipId } from '../missions/missionTimeline'
 
 export const NARRATION_SCRIPTS: Record<Locale, NarrationScript> = { en, de }
@@ -73,18 +73,22 @@ function lessonTexts(locale: Locale): [string, string][] {
     Object.entries(lessons[lessonId].chapters).map(([chapterId, chapter]): [string, { title: string; text: string }] => [lessonClipId(lessonId, chapterId), chapter]),
   )
   chapters.push([lessonClipId('planetSizes', 'lineup'), lessons.planetSizes.lineup])
-  return chapters.map(([id, { title, text }]) => [id, spokenText(`${title}${/[.?!]$/.test(title) ? '' : '.'} ${text}`, locale)])
+  return chapters.map(([id, { title, text }]) => [id, spokenText(`${title}${/[.?!]$/.test(title) ? '' : '.'} ${text}`, locale, isRefined(id))])
 }
 
 // Each mission station's title, then its text, as its card shows them.
 function missionTexts(locale: Locale): [string, string][] {
   const { missions } = messagesFor(locale)
   return (['voyager1', 'voyager2'] as const).flatMap((probe) =>
-    Object.entries(missions[probe].stations).map(([stationId, { title, text }]): [string, string] => [missionClipId(probe, stationId), spokenText(`${title}. ${text}`, locale)]),
+    Object.entries(missions[probe].stations).map(([stationId, { title, text }]): [string, string] => [missionClipId(probe, stationId), spokenText(`${title}. ${text}`, locale, isRefined(missionClipId(probe, stationId)))]),
   )
 }
 
 function orderTexts(locale: Locale): [string, string][] {
   const names = messagesFor(locale).scene.bodies
   return PLANET_ORDERS.map((order) => [orderClipId(order.id), ORDER_LINES[locale][order.id](orderedPlanetIds(order).map((id) => names[id]))])
+}
+
+function isRefined(segmentId: string): boolean {
+  return REFINED_SEGMENTS.some((prefix) => segmentId.startsWith(prefix))
 }
