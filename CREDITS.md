@@ -328,6 +328,18 @@ into the lesson's parts, the textures as JPEG). The Saturn V on it is our own mo
 (`saturnV-paint.jpg`, `saturnV-palette.png` copied from it). The lesson's figures come from NASA/MSFC's
 "Saturn V News Reference" (December 1968, public domain).
 
+## Apollo 11: the recordings from the time
+
+The Apollo 11 lesson's recordings (`packages/app/public/audio/apollo11/`) are NASA's, cut to the
+moment, their loudness evened and encoded as Opus and MP3 by
+`packages/data-pipeline/src/fetchApollo11Audio.ts` (sources and cuts in `src/apollo/originalAudio.ts`):
+the launch, the landing and the first step from NASA's "Historical Sounds"
+(https://www.nasa.gov/historical-sounds/), "You are go for TLI" from Johnson Space Center's Apollo 11
+audio as NASA published it on the Internet Archive (https://archive.org/details/Apollo11Audio, tape
+155-AAA, public domain mark). NASA content is generally not subject to copyright in the United
+States; NASA is the source. The subtitles follow NASA's raw air-to-ground transcript (no copyright
+asserted); the German ones are our translation.
+
 ## Apollo 11: the timeline and the path to the Moon
 
 Apollo 11's events in mission time (`packages/app/src/missions/apollo11/apollo11Events.ts`) and the

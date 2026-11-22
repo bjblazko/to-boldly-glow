@@ -125,6 +125,26 @@ export const apollo11 = {
         'lasted eight days, three hours and eighteen minutes.',
     },
   },
+  // The recordings from the time played after the narrator (packages/data-pipeline/src/apollo/
+  // originalAudio.ts): the words as said, checked against NASA's raw air-to-ground transcript.
+  original: {
+    launch: {
+      words: 'Ignition sequence start. Six, five, four, three, two, one, zero. All engines running. Liftoff! We have a liftoff, 32 minutes past the hour. Liftoff on Apollo 11.',
+      speaker: 'Jack King, launch commentator, Kennedy Space Center · 16 July 1969, 13:32 UTC',
+    },
+    tli: {
+      words: 'Apollo 11, this is Houston. You are go for TLI. Over. – Apollo 11. Thank you.',
+      speaker: 'Bruce McCandless in Houston, and Michael Collins · 16 July 1969, about 16:00 UTC',
+    },
+    landing: {
+      words: 'Houston, uh, Tranquility Base here. The Eagle has landed. – Roger, Tranquility. We copy you on the ground. You got a bunch of guys about to turn blue. We’re breathing again. Thanks a lot.',
+      speaker: 'Neil Armstrong, and Charlie Duke in Houston · 20 July 1969, 20:17 UTC',
+    },
+    surface: {
+      words: 'I’m going to step off the LM now. That’s one small step for man, one giant leap for mankind.',
+      speaker: 'Neil Armstrong · 21 July 1969, 02:56 UTC',
+    },
+  },
   labels: {
     apollo11: 'Apollo 11',
     columbia: 'Columbia',

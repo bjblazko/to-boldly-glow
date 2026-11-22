@@ -130,6 +130,25 @@ export const apollo11: Messages['lessons']['apollo11'] = {
         'acht Tage, drei Stunden und achtzehn Minuten gedauert.',
     },
   },
+  // Die Aufnahmen aus der Zeit, nach der Erzählerin gespielt: übersetzt (gesprochen wird Englisch).
+  original: {
+    launch: {
+      words: 'Zündsequenz läuft. Sechs, fünf, vier, drei, zwei, eins, null. Alle Triebwerke laufen. Abgehoben! Wir haben abgehoben, 32 Minuten nach der vollen Stunde. Apollo 11 hebt ab.',
+      speaker: 'Jack King, Startkommentator, Kennedy Space Center · 16. Juli 1969, 13:32 UTC',
+    },
+    tli: {
+      words: 'Apollo 11, hier Houston. Ihr habt Freigabe für TLI. Over. – Apollo 11. Danke.',
+      speaker: 'Bruce McCandless in Houston und Michael Collins · 16. Juli 1969, gegen 16:00 UTC',
+    },
+    landing: {
+      words: 'Houston, äh, hier Tranquility Base. Eagle ist gelandet. – Verstanden, Tranquility. Wir hören, ihr seid am Boden. Hier laufen ein paar Leute schon blau an. Wir atmen wieder. Vielen Dank.',
+      speaker: 'Neil Armstrong und Charlie Duke in Houston · 20. Juli 1969, 20:17 UTC',
+    },
+    surface: {
+      words: 'Ich steige jetzt von der Fähre. Das ist ein kleiner Schritt für einen Menschen, ein riesiger Sprung für die Menschheit.',
+      speaker: 'Neil Armstrong · 21. Juli 1969, 02:56 UTC',
+    },
+  },
   labels: {
     apollo11: 'Apollo 11',
     columbia: 'Columbia',

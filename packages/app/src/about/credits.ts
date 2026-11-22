@@ -144,6 +144,14 @@ export const CREDIT_GROUPS: CreditGroup[] = [
         files: ['images/apollo/'],
       },
       {
+        name: 'NASA, Apollo 11 recordings (NASA Historical Sounds; Johnson Space Center’s Apollo 11 audio, Internet Archive “Apollo11Audio”, tape 155-AAA)',
+        use: TEXT.uses.apollo11Audio,
+        license: TEXT.licenses.publicDomain,
+        home: 'https://archive.org/details/Apollo11Audio',
+        changes: TEXT.changes.apollo11Audio,
+        files: ['audio/apollo11/'],
+      },
+      {
         name: 'North American Rockwell for NASA, “Apollo Spacecraft News Reference” (1968)',
         use: TEXT.uses.csmModel,
         license: TEXT.licenses.publicDomain,

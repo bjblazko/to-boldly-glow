@@ -2,12 +2,20 @@ import { msg } from '../../i18n/i18n'
 import { RENDEZVOUS, UNDOCKING } from '../apolloRoute/routeGeometry'
 import type { ApolloRouteStage } from '../apolloRoute/routeStage'
 import type { CloseupId } from '../apolloRoute/closeupChoreography'
-import type { Chapter, ChapterFact, ChapterPhoto, Lesson } from '../lessonTypes'
+import type { Chapter, ChapterFact, ChapterPhoto, Lesson, OriginalAudio } from '../lessonTypes'
+import ORIGINAL_SECONDS from './apollo11Audio.json'
 
 const TEXT = msg.lessons.apollo11
 
 function chapter(id: keyof typeof TEXT.chapters, stage: ApolloRouteStage, extra: Partial<Chapter> = {}): Chapter {
-  return { id, ...TEXT.chapters[id], kind: 'apolloRoute', apolloRoute: stage, seasonPhaseDegrees: 0, ...extra }
+  return { id, ...TEXT.chapters[id], kind: 'apolloRoute', apolloRoute: stage, seasonPhaseDegrees: 0, original: original(id), ...extra }
+}
+
+// The chapter's recording from the time, if it has one (cut by packages/data-pipeline/src/fetchApollo11Audio.ts).
+function original(id: string): OriginalAudio | undefined {
+  const seconds = (ORIGINAL_SECONDS as Record<string, number>)[id]
+  const text = (TEXT.original as Record<string, { words: string; speaker: string } | undefined>)[id]
+  return seconds && text ? { clip: `apollo11/${id}`, seconds, ...text } : undefined
 }
 
 function facts(...entries: [keyof typeof TEXT.facts, ChapterFact['icon']][]): ChapterFact[] {
