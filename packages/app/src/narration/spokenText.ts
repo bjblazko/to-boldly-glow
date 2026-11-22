@@ -31,11 +31,8 @@ const SPOKEN: Record<Locale, [RegExp, string][]> = {
   ],
 }
 
-// More units, and names said in their own language: an English name in a German text is written as
-// a German reader would say it in English ("Eagle" as "Igel", not "Ä-ga-le"). Read before the rules
-// above (°C before °, m/s before m). Tried on the segments in REFINED_SEGMENTS first; once heard
-// and found right, they go to every text (and its clips are spoken again).
-const REFINED: Record<Locale, [RegExp, string][]> = {
+// More units, read before the rules above (°C before °, m/s before m), in every text.
+const UNITS: Record<Locale, [RegExp, string][]> = {
   en: [
     [/(\d)\s*°C\b/g, '$1 degrees Celsius'],
     [/(\d)\s*km\/s\b/g, '$1 kilometres per second'],
@@ -51,6 +48,26 @@ const REFINED: Record<Locale, [RegExp, string][]> = {
     [/(\d)\s*m³/g, '$1 Kubikmeter'],
     [/(\d)\s*kN\b/g, '$1 Kilonewton'],
     [/(\d)\s*t\b/g, '$1 Tonnen'],
+  ],
+}
+
+// Names said in their own language: an English name in a German text is written as a German
+// reader would say it in English ("Eagle" as "Igel", not "Ä-ga-le"). Tried on the segments in
+// REFINED_SEGMENTS first; once heard and found right, they go to every text (and its clips are
+// spoken again).
+const NAMES: Record<Locale, [RegExp, string][]> = {
+  // Roman numerals said as numbers (a voice may read them as letters): the Saturn V as "Saturn
+  // Five", its stages S-IC, S-II, S-IVB as "S one C", "S two", "S four B".
+  en: [
+    [/\bSaturn V\b/g, 'Saturn Five'],
+    [/\bSaturn IB\b/g, 'Saturn One B'],
+    [/\bSaturn I\b/g, 'Saturn One'],
+    [/\bS-IC\b/g, 'S one C'],
+    [/\bS-II\b/g, 'S two'],
+    [/\bS-IVB\b/g, 'S four B'],
+    [/\bS-IV\b/g, 'S four'],
+  ],
+  de: [
     [/(\d)([A-Z])\b/g, '$1 $2'],
     [/\bEagle(s?)\b/g, 'Igel$1'],
     [/\bColumbia(s?)\b/g, 'Kolambia$1'],
@@ -61,14 +78,23 @@ const REFINED: Record<Locale, [RegExp, string][]> = {
     [/\bAldrin\b/g, 'Oldrin'],
     [/\bTranquility Base\b/g, 'Tränkwilliti Bäis'],
     [/\bUSS\b/g, 'U S S'],
-    [/\bSaturn V\b/g, 'Saturn Faif'],
+    [/\bTranslunar Injection\b/g, 'Tränsluhner Indschäkschn'],
+    [/„You are go for TLI\.“/g, '„Ju ar gou for Ti El Ai.“'],
+    [/\bTLI\b/g, 'Te El I'],
+    [/\bSaturn V\b/g, 'Saturn Fünf'],
+    [/\bSaturn IB\b/g, 'Saturn Eins B'],
+    [/\bSaturn I\b/g, 'Saturn Eins'],
+    [/\bS-IC\b/g, 'S eins C'],
+    [/\bS-II\b/g, 'S zwei'],
+    [/\bS-IVB\b/g, 'S vier B'],
+    [/\bS-IV\b/g, 'S vier'],
   ],
 }
 
-// The segments (by id prefix) the refined rules are tried on.
-export const REFINED_SEGMENTS: readonly string[] = ['lessons/apollo11/']
+// The segments (by id prefix) the names are tried on.
+export const REFINED_SEGMENTS: readonly string[] = ['lessons/apollo11/', 'lessons/saturnV/']
 
 export function spokenText(text: string, locale: Locale, refined = false): string {
-  const rules = refined ? [...REFINED[locale], ...SPOKEN[locale]] : SPOKEN[locale]
+  const rules = [...(refined ? NAMES[locale] : []), ...UNITS[locale], ...SPOKEN[locale]]
   return rules.reduce((spoken, [pattern, replacement]) => spoken.replace(pattern, replacement), text)
 }

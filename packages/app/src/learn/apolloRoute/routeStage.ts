@@ -1,6 +1,9 @@
 // One chapter of the Apollo 11 lesson (see apolloRouteLesson.ts): where the camera looks, how far
 // the craft goes along the drawn route in it, and what else is marked.
-export type ApolloRouteView = 'earth' | 'whole' | 'moon'
+import type { CloseupId } from './closeupChoreography'
+
+// The close-up shows a moment with the vehicles themselves, zoomed in on the craft.
+export type ApolloRouteView = 'earth' | 'whole' | 'moon' | 'closeup'
 export type ApolloBurn = 'tli' | 'loi' | 'tei'
 
 export interface ApolloRouteStage {
@@ -15,6 +18,8 @@ export interface ApolloRouteStage {
   freeReturn?: boolean
   // A burn marked where it happened.
   burn?: ApolloBurn
+  // With the 'closeup' view: which moment it plays (closeupChoreography.ts).
+  closeup?: CloseupId
   // The event (apollo11Events.ts) whose time the clock shows.
   event: string
 }

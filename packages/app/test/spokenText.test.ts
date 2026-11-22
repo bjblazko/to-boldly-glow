@@ -13,7 +13,7 @@ describe('texts made fit to be spoken', () => {
 
   it('writes English names in German as a German voice would say them in English', () => {
     expect(spokenText('Eagle koppelte von Columbia ab; Neil Armstrong, Buzz Aldrin und Michael Collins. Tranquility Base, USS Hornet, Saturn V, Startkomplex 39A.', 'de', true)).toBe(
-      'Igel koppelte von Kolambia ab; Niel Armstrong, Bass Oldrin und Maikel Kollins. Tränkwilliti Bäis, U S S Hornet, Saturn Faif, Startkomplex 39 A.',
+      'Igel koppelte von Kolambia ab; Niel Armstrong, Bass Oldrin und Maikel Kollins. Tränkwilliti Bäis, U S S Hornet, Saturn Fünf, Startkomplex 39 A.',
     )
   })
 
@@ -23,9 +23,17 @@ describe('texts made fit to be spoken', () => {
 
   it('leaves English names to the English voice', () => {
     expect(spokenText('Eagle undocked from Columbia.', 'en', true)).toBe('Eagle undocked from Columbia.')
+    expect(spokenText('the Saturn V lifted', 'en', true)).toBe('the Saturn Five lifted')
   })
 
-  it('keeps the earlier rules alone for texts not yet re-spoken', () => {
-    expect(spokenText('Eagle, 13 t', 'de', false)).toBe('Eagle, 13 t')
+  it('says the Saturns and their stages with numbers, in the text’s language', () => {
+    expect(spokenText('S-IC, S-II and S-IVB; an improved S-IV from the Saturn I and Saturn IB, under the Saturn V.', 'en', true)).toBe(
+      'S one C, S two and S four B; an improved S four from the Saturn One and Saturn One B, under the Saturn Five.',
+    )
+    expect(spokenText('S-IC, S-II und S-IVB; eine verbesserte S-IV der Saturn I.', 'de', true)).toBe('S eins C, S zwei und S vier B; eine verbesserte S vier der Saturn Eins.')
+  })
+
+  it('spells out units in every text, but leaves the names alone where they are not tried yet', () => {
+    expect(spokenText('Eagle, 13 t', 'de', false)).toBe('Eagle, 13 Tonnen')
   })
 })

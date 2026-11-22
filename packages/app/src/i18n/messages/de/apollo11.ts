@@ -24,10 +24,13 @@ export const apollo11: Messages['lessons']['apollo11'] = {
     tli: {
       title: 'Kurs auf den Mond',
       text:
-        'Über dem Pazifik zündete die dritte Stufe noch einmal, fast sechs Minuten lang, und brachte das ' +
-        'Raumschiff auf 10,8 Kilometer pro Sekunde – beinahe schnell genug, um die Erde für immer zu ' +
-        'verlassen. Gezielt wurde nicht auf den Mond, sondern auf die Stelle, an der er drei Tage später ' +
-        'stehen würde.',
+        'Dann kam die Zündung, mit der man die Erde hinter sich lässt: die Translunar Injection, kurz TLI. ' +
+        'Sieben Monate zuvor, bei Apollo 8, war Michael Collins die Stimme in Houston gewesen, die der ' +
+        'ersten Crew auf dem Weg zu einer anderen Welt sagte: „You are go for TLI.“ Später fand er die Worte ' +
+        'viel zu nüchtern; hätte er es noch einmal sagen dürfen, dann so: „Apollo 8, der Mond gehört euch. ' +
+        'Los.“ Nun, über dem Pazifik, zündete die dritte Stufe fast sechs Minuten lang und brachte Apollo 11 ' +
+        'auf 10,8 Kilometer pro Sekunde – gezielt auf die Stelle, an der der Mond drei Tage später stehen ' +
+        'würde.',
     },
     dock: {
       title: 'Umdrehen und Andocken',
@@ -52,14 +55,29 @@ export const apollo11: Messages['lessons']['apollo11'] = {
         'Columbias Triebwerk fast sechs Minuten lang gegen die Flugrichtung und bremste das Raumschiff in eine ' +
         'Umlaufbahn. Ob es geklappt hatte, erfuhr die Flugleitung erst, als es hinter dem Mond hervorkam.',
     },
+    undocking: {
+      title: 'Eagle löst sich',
+      text:
+        'Armstrong und Aldrin waren durch den Tunnel in Eagle gekrochen und hatten die Beine ausgeklappt. Im ' +
+        'dreizehnten Umlauf ließen die beiden Raumschiffe einander los, und Eagle drehte sich vor Columbia ' +
+        'langsam einmal ganz herum, damit Collins die Beine prüfen konnte. „Der Adler hat Flügel“, funkte ' +
+        'Armstrong.',
+    },
     descent: {
       title: 'Eagle steigt ab',
       text:
-        'Im dreizehnten Umlauf koppelte Eagle ab. Armstrong und Aldrin flogen die Fähre hinunter, Collins ' +
-        'blieb in Columbia. Eine kurze Zündung auf der Rückseite senkte Eagle auf 15 Kilometer; von dort ' +
-        'bremste das Triebwerk bis ganz hinunter. Alarme des Bordcomputers und ein Feld voller Felsbrocken ' +
-        'machten die letzten Minuten spannend – Armstrong flog darüber hinweg und landete mit Treibstoff für ' +
-        'weniger als eine Minute.',
+        'Keine anderthalb Stunden später senkte eine kurze Zündung auf der Rückseite des Mondes Eagles Bahn ' +
+        'auf 15 Kilometer über der Oberfläche. Von dort, wieder in Sicht der Erde, bremste das Triebwerk die ' +
+        'Fähre bis ganz hinunter – zwölfeinhalb Minuten lang –, während Collins in Columbia allein weiterflog.',
+    },
+    landing: {
+      title: 'Der Adler ist gelandet',
+      text:
+        'In den letzten Minuten meldete der Bordcomputer Alarm um Alarm – überlastet, aber er flog weiter – ' +
+        'und steuerte Eagle auf einen Krater voller Felsbrocken zu. Armstrong übernahm und flog weiter, auf ' +
+        'der Suche nach einem freien Platz, während Aldrin Höhe und Geschwindigkeit ansagte. Dann berührte ' +
+        'ein Fühler unter einem Fuß den Boden, und die Kontaktleuchte ging an. „Houston, hier Tranquility ' +
+        'Base. Der Adler ist gelandet.“',
     },
     surface: {
       title: 'Tranquility Base',
@@ -68,12 +86,27 @@ export const apollo11: Messages['lessons']['apollo11'] = {
         'Oberfläche, Buzz Aldrin zwanzig Minuten nach ihm; zweieinhalb Stunden verbrachten sie draußen. Über ' +
         'ihnen kreiste Collins allein, bei jeder Runde ohne Funkkontakt hinter dem Mond.',
     },
-    ascent: {
-      title: 'Zurück zu Columbia',
+    liftoff: {
+      title: 'Start vom Mond',
       text:
-        'Nach einundzwanzigeinhalb Stunden auf dem Mond hob die Aufstiegsstufe ab und ließ die Abstiegsstufe zurück. ' +
-        'Keine vier Stunden später holte sie Columbia ein; die beiden dockten an, Armstrong und Aldrin ' +
-        'kletterten durch den Tunnel zurück, und die Aufstiegsstufe wurde abgestoßen.',
+        'Nach einundzwanzigeinhalb Stunden auf dem Mond zündete das Aufstiegstriebwerk. Ein zweites gab es ' +
+        'nicht: Dieses eine musste funktionieren. Die Abstiegsstufe blieb als Startrampe zurück; die ' +
+        'Aufstiegsstufe stieg auf und war etwa sieben Minuten später in der Mondumlaufbahn. Aldrin sah, wie ' +
+        'der Abgasstrahl die Flagge umwarf, die sie aufgestellt hatten.',
+    },
+    ascent: {
+      title: 'Aufholen',
+      text:
+        'Eagle kam in eine niedrigere Umlaufbahn als Columbia – und eine niedrigere Bahn ist eine schnellere. ' +
+        'Einige kurze Zündungen brachten die Fähre hinter Columbia hinauf, und keine vier Stunden nach dem ' +
+        'Start trafen sich die beiden wieder.',
+    },
+    rendezvous: {
+      title: 'Wieder angedockt',
+      text:
+        'Collins führte die beiden Raumschiffe zusammen, und sie dockten an. Armstrong und Aldrin schwebten ' +
+        'durch den Tunnel zurück in Columbia, mit den Kisten voller Mondgestein und den Filmen. Dann wurde ' +
+        'die Aufstiegsstufe abgestoßen und blieb in der Mondumlaufbahn zurück.',
     },
     home: {
       title: 'Der Heimweg',
@@ -81,12 +114,19 @@ export const apollo11: Messages['lessons']['apollo11'] = {
         'Wieder auf der Rückseite zündete Columbias Triebwerk zweieinhalb Minuten lang und brachte sie auf ' +
         'Kurs zur Erde. Der Heimweg dauerte zweieinhalb Tage; eine kleine Korrektur genügte.',
     },
+    entry: {
+      title: 'Hitzeschild voran',
+      text:
+        'Vierzehn Minuten vor dem Eintritt in die Atmosphäre wurde das Versorgungsmodul abgestoßen – mit dem ' +
+        'Triebwerk, dem Sauerstoff und den Brennstoffzellen, die die Crew acht Tage lang am Leben gehalten ' +
+        'hatten. Das Kommandomodul drehte seinen Hitzeschild nach vorn; von hier an flog es allein.',
+    },
     splashdown: {
       title: 'Die Wasserung',
       text:
-        'Kurz vor der Ankunft wurde das Servicemodul abgestoßen. Die Kommandokapsel traf mit 11 Kilometern ' +
-        'pro Sekunde auf die Atmosphäre, ihr Hitzeschild glühte; die Fallschirme öffneten sich, und am 24. ' +
-        'Juli landete sie im Pazifik, 24 Kilometer vom Bergungsschiff USS Hornet entfernt. Die Mission hatte ' +
+        'Das Kommandomodul traf mit 11 Kilometern ' +
+        'pro Sekunde auf die Atmosphäre, sein Hitzeschild glühte; die Fallschirme öffneten sich, und am 24. ' +
+        'Juli landete es im Pazifik, 24 Kilometer vom Bergungsschiff USS Hornet entfernt. Die Mission hatte ' +
         'acht Tage, drei Stunden und achtzehn Minuten gedauert.',
     },
   },
@@ -94,9 +134,10 @@ export const apollo11: Messages['lessons']['apollo11'] = {
     apollo11: 'Apollo 11',
     columbia: 'Columbia',
     eagle: 'Eagle',
+    thirdStage: 'Dritte Stufe',
     tranquilityBase: 'Tranquility Base',
     freeReturn: 'Freie Rückkehr',
-    burns: { tli: 'Einschuss zum Mond', loi: 'Einschwenken in den Mondorbit', tei: 'Einschuss zur Erde' },
+    burns: { tli: 'Einschuss zum Mond (TLI)', loi: 'Einschwenken in den Mondorbit (LOI)', tei: 'Einschuss zur Erde (TEI)' },
     missionTime: (time: string) => `Missionszeit ${time}`,
   },
   captions: {

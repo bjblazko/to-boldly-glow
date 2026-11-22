@@ -1,13 +1,13 @@
 import type { Viewpoint } from '../../camera/viewpoint'
 import { locale, msg } from '../../i18n/i18n'
 import { LOCALE_TAGS } from '../../i18n/locale'
-import type { Rgba } from '../../math/tuples'
+import type { Rgba, Vec3 } from '../../math/tuples'
 import { APOLLO11_EVENTS, eventUtc } from '../../missions/apollo11/apollo11Events'
 import { OverlayLines } from '../seasons/overlayLines'
 import type { VoyagerLabels } from '../voyager/voyagerLabels'
 import type { ApolloRouteScene } from './apolloRouteScene'
 import { eaglePoint, eaglePoints, LANDING_SITE, LEGS, routePoint, routePoints } from './routeGeometry'
-import type { ApolloBurn } from './routeStage'
+import type { ApolloBurn, ApolloRouteStage } from './routeStage'
 
 // Points per unit of route progress (a leg), and for Eagle's way down and up.
 const POINTS_PER_LEG = 160
@@ -20,6 +20,10 @@ const FREE_RETURN: Rgba = [0.99, 0.78, 0.25, 0.8]
 const BURNS: Record<ApolloBurn, number> = { tli: 2, loi: 3, tei: 4 }
 
 type LineId = 'flown' | 'ahead' | 'eagle' | 'freeReturn'
+export interface VehicleLabel {
+  name: 'columbia' | 'eagle' | 'thirdStage'
+  point: Vec3
+}
 const EMPTY = new Float32Array(0)
 
 // The Apollo 11 lesson's lines and labels: the route flown so far (bright) and still ahead (dim),
@@ -65,20 +69,23 @@ function stretch(from: number, to: number): Float32Array {
 
 // The chapter's labels: the craft (Columbia and Eagle apart while they fly apart), the burn, the
 // free return and Tranquility Base where the chapter shows them; and the clock.
-export function placeApolloRouteLabels(labels: VoyagerLabels, scene: ApolloRouteScene, viewpoint: Viewpoint): void {
-  const text = msg.lessons.apollo11.labels
+// In a close-up, the vehicles named where they are (`vehicles`).
+export function placeApolloRouteLabels(labels: VoyagerLabels, scene: ApolloRouteScene, viewpoint: Viewpoint, vehicles: VehicleLabel[] = []): void {
   const stage = scene.stage
   labels.begin()
-  if (stage) {
-    const eagle = scene.eagleProgress
-    const craft = routePoint(scene.craftProgress)
-    labels.place('craft', { text: eagle === null ? text.apollo11 : text.columbia, point: craft, variant: 'probe' }, viewpoint)
-    if (eagle !== null) placeEagle(labels, eagle, viewpoint)
-    if (stage.burn) labels.place('burn', { text: text.burns[stage.burn], point: routePoint(BURNS[stage.burn]), variant: 'mark' }, viewpoint)
-    if (stage.freeReturn) labels.place('freeReturn', { text: text.freeReturn, point: routePoint(4.55), variant: 'region' }, viewpoint)
-    labels.showClock(clockLines(stage.event))
-  }
+  for (const { name, point } of vehicles) labels.place(`vehicle-${name}`, { text: msg.lessons.apollo11.labels[name], point, variant: 'probe' }, viewpoint)
+  if (stage && !stage.closeup) placeRouteLabels(labels, scene, stage, viewpoint)
+  if (stage) labels.showClock(clockLines(stage.event))
   labels.finish()
+}
+
+function placeRouteLabels(labels: VoyagerLabels, scene: ApolloRouteScene, stage: ApolloRouteStage, viewpoint: Viewpoint): void {
+  const text = msg.lessons.apollo11.labels
+  const eagle = scene.eagleProgress
+  labels.place('craft', { text: eagle === null ? text.apollo11 : text.columbia, point: routePoint(scene.craftProgress), variant: 'probe' }, viewpoint)
+  if (eagle !== null) placeEagle(labels, eagle, viewpoint)
+  if (stage.burn) labels.place('burn', { text: text.burns[stage.burn], point: routePoint(BURNS[stage.burn]), variant: 'mark' }, viewpoint)
+  if (stage.freeReturn) labels.place('freeReturn', { text: text.freeReturn, point: routePoint(4.55), variant: 'region' }, viewpoint)
 }
 
 function placeEagle(labels: VoyagerLabels, eagle: number, viewpoint: Viewpoint): void {

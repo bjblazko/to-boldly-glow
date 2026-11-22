@@ -8,22 +8,28 @@ import type { VoyagerLabels } from '../voyager/voyagerLabels'
 import { ApolloRouteScene } from './apolloRouteScene'
 import { ApolloRouteOverlay, placeApolloRouteLabels } from './routeOverlay'
 import { apolloRouteShot } from './routeShots'
+import { CloseupActors } from './closeupActors'
+import type { ModelContext } from '../../spacecraft/modelRenderer'
 
 function prefersReducedMotion(): boolean {
   return globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
 }
 
 // The Apollo 11 lesson: the mission from launch to splashdown on a drawn route between a staged
-// Earth and Moon (see routeGeometry.ts) - the craft moving along it chapter by chapter.
+// Earth and Moon (see routeGeometry.ts) - the craft moving along it chapter by chapter, and the
+// moments it can only name played close up with the vehicles themselves (closeupChoreography.ts).
 export class ApolloRouteLesson implements StagedLessonScene {
   private readonly scene = new ApolloRouteScene()
   private readonly overlay: ApolloRouteOverlay
 
+  private readonly actors: CloseupActors
+
   constructor(
-    gpu: { device: GPUDevice; linePipeline: GPURenderPipeline },
+    gpu: { device: GPUDevice; linePipeline: GPURenderPipeline; models: ModelContext },
     private readonly labels: VoyagerLabels,
   ) {
     this.overlay = new ApolloRouteOverlay(gpu.device, gpu.linePipeline)
+    this.actors = new CloseupActors(gpu.models)
   }
 
   handles(kind: Chapter['kind']): boolean {
@@ -32,6 +38,7 @@ export class ApolloRouteLesson implements StagedLessonScene {
 
   // Opening the lesson (or jumping to a chapter from elsewhere) shows the chapter's end at once.
   start(chapter: Chapter): void {
+    this.actors.load()
     if (chapter.apolloRoute) this.scene.show(chapter.apolloRoute, false)
   }
 
@@ -56,8 +63,15 @@ export class ApolloRouteLesson implements StagedLessonScene {
   }
 
   updateOverlays(_layout: SceneLayout, _chapter: Chapter, frame: StagedOverlayFrame): void {
-    this.overlay.update(this.scene, frame)
-    placeApolloRouteLabels(this.labels, this.scene, frame.viewpoint)
+    const closeup = this.scene.stage?.closeup
+    if (!closeup) {
+      this.overlay.update(this.scene, frame)
+      placeApolloRouteLabels(this.labels, this.scene, frame.viewpoint)
+      return
+    }
+    const seconds = this.scene.closeupPlayed
+    this.actors.prepare(frame.viewpoint, closeup, seconds)
+    placeApolloRouteLabels(this.labels, this.scene, frame.viewpoint, this.actors.labels(closeup, seconds))
   }
 
   hideOverlays(): void {
@@ -66,9 +80,11 @@ export class ApolloRouteLesson implements StagedLessonScene {
 
   drawBehindBodies(): void {}
 
-  drawInFrontOfBodies(): void {}
+  drawInFrontOfBodies(pass: GPURenderPassEncoder): void {
+    if (this.scene.stage?.closeup) this.actors.draw(pass)
+  }
 
   drawOverlays(pass: GPURenderPassEncoder): void {
-    this.overlay.draw(pass)
+    if (!this.scene.stage?.closeup) this.overlay.draw(pass)
   }
 }

@@ -1,6 +1,7 @@
 import { msg } from '../../i18n/i18n'
 import { RENDEZVOUS, UNDOCKING } from '../apolloRoute/routeGeometry'
 import type { ApolloRouteStage } from '../apolloRoute/routeStage'
+import type { CloseupId } from '../apolloRoute/closeupChoreography'
 import type { Chapter, ChapterFact, ChapterPhoto, Lesson } from '../lessonTypes'
 
 const TEXT = msg.lessons.apollo11
@@ -21,18 +22,34 @@ function photo(nasaId: string, caption: keyof typeof TEXT.captions, credit: stri
 // Columbia goes half a turn round the Moon while Eagle goes down, and half a turn while it comes up.
 const HALF_TURN = 0.125
 
+// The moments the route can only name, played close up with the vehicles (the craft held where it
+// is on the route).
+function closeup(id: keyof typeof TEXT.chapters, play: { closeup: CloseupId; at: number; event: string }, extra: Partial<Chapter> = {}): Chapter {
+  return chapter(id, { view: 'closeup', closeup: play.closeup, from: play.at, to: play.at, event: play.event }, extra)
+}
+
+const DOCKING = 2.08
+const LANDED = UNDOCKING + HALF_TURN
+const LIFTOFF = RENDEZVOUS - HALF_TURN
+const ENTRY = 4.88
+
 const CHAPTERS: Chapter[] = [
   chapter('launch', { view: 'earth', from: 0, to: 1, event: 'liftoff' }, { photo: photo('6901000', 'launch', 'NASA/MSFC'), facts: facts(['liftoff', 'clock'], ['inOrbit', 'orbit']) }),
   chapter('parking', { view: 'earth', from: 1, to: 2, event: 'earthOrbitInsertion' }, { facts: facts(['period', 'rotation']) }),
   chapter('tli', { view: 'earth', from: 2, to: 2.06, burn: 'tli', event: 'tliIgnition' }, { facts: facts(['tliBurn', 'clock'], ['tliSpeed', 'power']) }),
-  chapter('dock', { view: 'earth', from: 2.06, to: 2.12, event: 'docking' }),
-  chapter('coast', { view: 'whole', from: 2.12, to: 2.97, freeReturn: true, event: 'midcourseCorrection' }, { facts: facts(['coast', 'clock'], ['correction', 'orbit']) }),
+  closeup('dock', { closeup: 'transposition', at: DOCKING, event: 'docking' }),
+  chapter('coast', { view: 'whole', from: DOCKING, to: 2.97, freeReturn: true, event: 'midcourseCorrection' }, { facts: facts(['coast', 'clock'], ['correction', 'orbit']) }),
   chapter('loi', { view: 'moon', from: 2.97, to: UNDOCKING, burn: 'loi', event: 'loiIgnition' }, { facts: facts(['loiBurn', 'clock'], ['loiBrake', 'power'], ['orbitHeight', 'orbit']) }),
-  chapter('descent', { view: 'moon', from: UNDOCKING, to: UNDOCKING + HALF_TURN, eagle: { from: 0, to: 1 }, event: 'landing' }, { photo: photo('as11-44-6581', 'orbit', 'NASA/JSC'), facts: facts(['descentTime', 'clock']) }),
-  chapter('surface', { view: 'moon', from: UNDOCKING + HALF_TURN, to: RENDEZVOUS - HALF_TURN, eagle: { from: 1, to: 1 }, event: 'firstStep' }, { photo: photo('as11-40-5927', 'surface', 'NASA/JSC'), facts: facts(['landing', 'clock'], ['firstStep', 'clock'], ['onMoon', 'rotation']) }),
-  chapter('ascent', { view: 'moon', from: RENDEZVOUS - HALF_TURN, to: RENDEZVOUS, eagle: { from: 1, to: 2 }, event: 'rendezvousDocking' }, { photo: photo('as11-44-6642', 'rendezvous', 'NASA/JSC') }),
-  chapter('home', { view: 'whole', from: RENDEZVOUS, to: 4.9, burn: 'tei', event: 'teiIgnition' }, { facts: facts(['teiBurn', 'clock']) }),
-  chapter('splashdown', { view: 'earth', from: 4.9, to: 5, event: 'splashdown' }, { photo: photo('372772main_GPN-2000-001212_full', 'splashdown', 'NASA'), facts: facts(['entrySpeed', 'power'], ['duration', 'clock']) }),
+  closeup('undocking', { closeup: 'undocking', at: UNDOCKING, event: 'undocking' }, { photo: photo('as11-44-6581', 'orbit', 'NASA/JSC') }),
+  chapter('descent', { view: 'moon', from: UNDOCKING, to: LANDED, eagle: { from: 0, to: 1 }, event: 'poweredDescent' }, { facts: facts(['descentTime', 'clock']) }),
+  closeup('landing', { closeup: 'landing', at: LANDED, event: 'landing' }, { facts: facts(['landing', 'clock']) }),
+  chapter('surface', { view: 'moon', from: LANDED, to: LIFTOFF, eagle: { from: 1, to: 1 }, event: 'firstStep' }, { photo: photo('as11-40-5927', 'surface', 'NASA/JSC'), facts: facts(['firstStep', 'clock'], ['onMoon', 'rotation']) }),
+  closeup('liftoff', { closeup: 'liftoff', at: LIFTOFF, event: 'lunarLiftoff' }),
+  chapter('ascent', { view: 'moon', from: LIFTOFF, to: RENDEZVOUS, eagle: { from: 1, to: 2 }, event: 'rendezvousDocking' }),
+  closeup('rendezvous', { closeup: 'rendezvous', at: RENDEZVOUS, event: 'rendezvousDocking' }, { photo: photo('as11-44-6642', 'rendezvous', 'NASA/JSC') }),
+  chapter('home', { view: 'whole', from: RENDEZVOUS, to: ENTRY, burn: 'tei', event: 'teiIgnition' }, { facts: facts(['teiBurn', 'clock']) }),
+  closeup('entry', { closeup: 'entry', at: ENTRY, event: 'cmSmSeparation' }),
+  chapter('splashdown', { view: 'earth', from: ENTRY, to: 5, event: 'splashdown' }, { photo: photo('372772main_GPN-2000-001212_full', 'splashdown', 'NASA'), facts: facts(['entrySpeed', 'power'], ['duration', 'clock']) }),
 ]
 
 export const APOLLO11_LESSON: Lesson = {

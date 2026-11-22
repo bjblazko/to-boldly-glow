@@ -11,6 +11,7 @@ import { moonOrbitTilt, newMoonOrbitAngleDegrees } from '../eclipse/eclipseGeome
 import { earthshineStrength, FLAT_ORBIT, phaseAngle, PHASES_NODE_DEGREES } from '../phases/phasesGeometry'
 import { ROUTE_EARTH, ROUTE_EARTH_RADIUS, ROUTE_MOON, ROUTE_MOON_AGE_DEGREES, ROUTE_MOON_RADIUS } from './routeGeometry'
 import type { ApolloRouteStage } from './routeStage'
+import { CLOSEUPS } from './closeupChoreography'
 
 const EARTH = PLANETS.find((planet) => planet.id === 'earth')!
 const MOON = MOONS.find((moon) => moon.id === 'moon')!
@@ -49,6 +50,8 @@ export class ApolloRouteScene {
   private readonly eagle = new Travel()
   private current: ApolloRouteStage | null = null
   private earthSpin = 0
+  // How long the chapter's close-up has played (seconds).
+  private closeupSeconds = 0
 
   get stage(): ApolloRouteStage | null {
     return this.current
@@ -58,12 +61,18 @@ export class ApolloRouteScene {
     this.current = stage
     this.craft.start(stage.from, stage.to, animate)
     if (stage.eagle) this.eagle.start(stage.eagle.from, stage.eagle.to, animate)
+    this.closeupSeconds = animate || !stage.closeup ? 0 : CLOSEUPS[stage.closeup].seconds
+  }
+
+  get closeupPlayed(): number {
+    return this.closeupSeconds
   }
 
   update(deltaSeconds: number): void {
     this.craft.update(deltaSeconds)
     this.eagle.update(deltaSeconds)
     this.earthSpin += deltaSeconds * EARTH_SPIN_RADIANS_PER_SECOND
+    this.closeupSeconds += deltaSeconds
   }
 
   get craftProgress(): number {
@@ -77,7 +86,7 @@ export class ApolloRouteScene {
 
   layout(ephemeris: Ephemeris): SceneLayout {
     const earth: PlanetPose = { definition: EARTH, position: ROUTE_EARTH, radius: ROUTE_EARTH_RADIUS, poleDirection: EARTH_POLE, tilt: EARTH_TILT, spinRadians: this.earthSpin }
-    return { sun: sunPose(ephemeris, 1), planets: [earth], moons: [moonPose(earth)], alwaysShowBodyLabels: true }
+    return { sun: sunPose(ephemeris, 1), planets: [earth], moons: [moonPose(earth)], alwaysShowBodyLabels: this.current?.view !== 'closeup' }
   }
 }
 

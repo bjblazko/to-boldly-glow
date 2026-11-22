@@ -3,6 +3,7 @@ import { ECLIPTIC_NORTH } from '../../solarSystem/poleOrientation'
 import type { LessonShot } from '../lessonShot'
 import { MOON_DISTANCE, ROUTE_EARTH, ROUTE_MOON, TOWARD_MOON } from './routeGeometry'
 import type { ApolloRouteStage, ApolloRouteView } from './routeStage'
+import { closeupShot } from './closeupFrames'
 
 const UP: Vec3 = [...ECLIPTIC_NORTH]
 // The camera stands on the side the craft leaves Earth from, looking across the Earth-Moon line,
@@ -11,7 +12,7 @@ const UP: Vec3 = [...ECLIPTIC_NORTH]
 const AZIMUTH = Math.atan2(-TOWARD_MOON[0], TOWARD_MOON[1])
 const MIDDLE: Vec3 = [(ROUTE_EARTH[0] + ROUTE_MOON[0]) / 2, (ROUTE_EARTH[1] + ROUTE_MOON[1]) / 2, 0]
 
-const SHOTS: Record<ApolloRouteView, Omit<LessonShot, 'key'>> = {
+const SHOTS: Record<Exclude<ApolloRouteView, 'closeup'>, Omit<LessonShot, 'key'>> = {
   whole: {
     preset: { target: MIDDLE, radius: 48, azimuth: AZIMUTH, elevation: 0.95, upAxis: UP },
     bounds: { top: 6, bottom: -6, halfWidth: MOON_DISTANCE / 2 + 3 },
@@ -31,7 +32,8 @@ const SHOTS: Record<ApolloRouteView, Omit<LessonShot, 'key'>> = {
   },
 }
 
-// A chapter's camera shot: the whole route, or close to Earth or the Moon.
+// A chapter's camera shot: the whole route, close to Earth or the Moon, or zoomed in on the craft.
 export function apolloRouteShot(stage: ApolloRouteStage): LessonShot {
+  if (stage.view === 'closeup') return closeupShot(stage.closeup ?? 'transposition')
   return { key: `apollo-${stage.view}`, ...SHOTS[stage.view] }
 }
