@@ -73,7 +73,9 @@ from the Mission Report / Apollo Flight Journal state vectors, the real Moon, ev
    the Smithsonian scan for the notes on the walls and a new closing chapter "Columbia today" (the
    real capsule in the museum); the outside stays our own model (the cutaways need it).
 8. The tour's lunar orbit and descent: the Moon's gravity field for the 55 h in lunar orbit (step 5's
-   open end), Tranquility Base's terrain from the LRO NAC DTM, the descent (P63/P64/P66, 1202 alarm,
+   open end; built 2026-11-22 - GRAIL to degree 60, Columbia to TEI within 0.1 n mi of the record;
+   open: the orbit's plane and phase against the landing site, spec
+   `superpowers/specs/2026-11-22-apollo11-lunar-orbit-design.md`), Tranquility Base's terrain from the LRO NAC DTM, the descent (P63/P64/P66, 1202 alarm,
    fuel), the ascent and rendezvous.
 9. Camera language for the tour (cuts, tracking, onboard and tower cameras, auto direction).
 10. Launch and ascent (exhaust, staging), pad 39A and the ground scene.
