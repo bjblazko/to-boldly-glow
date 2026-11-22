@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 // Project Apollo - NASSP (https://github.com/orbiternassp/NASSP), the Apollo add-on for the Orbiter
-// space flight simulator, GPL-2.0-or-later: its lunar module's meshes and textures, at one pinned
+// space flight simulator, GPL-2.0-or-later: its lunar module's and command module's meshes and textures, at one pinned
 // commit so every build reads the same files. They are downloaded once into the pipeline's cache
 // (not committed); the build turns them into Eagle's model files.
 
@@ -33,4 +33,6 @@ export const NASSP_MESHES = {
   descent: 'Meshes/ProjectApollo/LM_DescentStage.msh',
   ascent: 'Meshes/ProjectApollo/LM_AscentStage.msh',
   cockpit: 'Meshes/ProjectApollo/LM_VC.msh',
+  cmCockpit: 'Meshes/ProjectApollo/CM-VC.msh',
+  cmCouches: 'Meshes/ProjectApollo/CM-VC-SeatsUnfolded.msh',
 }

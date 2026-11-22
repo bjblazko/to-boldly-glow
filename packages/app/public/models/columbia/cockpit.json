@@ -1,0 +1,279 @@
+{
+ "vertexCount": 621200,
+ "indexCount": 1575546,
+ "indexFormat": "uint32",
+ "draws": [
+  {
+   "texture": "nassp/cmvctex2.jpg",
+   "firstIndex": 0,
+   "indexCount": 77160
+  },
+  {
+   "texture": "nassp/accelerometercover.jpg",
+   "firstIndex": 77160,
+   "indexCount": 2202
+  },
+  {
+   "texture": "nassp/altimetercover.jpg",
+   "firstIndex": 79362,
+   "indexCount": 2202
+  },
+  {
+   "texture": "nassp/circuitbreakers.jpg",
+   "firstIndex": 81564,
+   "indexCount": 240984
+  },
+  {
+   "texture": "nassp/cmvctex1.jpg",
+   "firstIndex": 322548,
+   "indexCount": 117132
+  },
+  {
+   "texture": "nassp/aditionalparts.jpg",
+   "firstIndex": 439680,
+   "indexCount": 188886
+  },
+  {
+   "texture": "nassp/ems_scroll.jpg",
+   "firstIndex": 628566,
+   "indexCount": 54
+  },
+  {
+   "texture": "nassp/palette.png",
+   "firstIndex": 628620,
+   "indexCount": 9258
+  },
+  {
+   "texture": "nassp/fdai_ball.jpg",
+   "firstIndex": 637878,
+   "indexCount": 23808
+  },
+  {
+   "texture": "nassp/colors.jpg",
+   "firstIndex": 661686,
+   "indexCount": 320904
+  },
+  {
+   "texture": "nassp/fdaiframe.jpg",
+   "firstIndex": 982590,
+   "indexCount": 8640
+  },
+  {
+   "texture": "nassp/csm_right_cb_panels.jpg",
+   "firstIndex": 991230,
+   "indexCount": 3201
+  },
+  {
+   "texture": "nassp/ordeal.jpg",
+   "firstIndex": 994431,
+   "indexCount": 3294
+  },
+  {
+   "texture": "nassp/csm_cabin_press_panel.jpg",
+   "firstIndex": 997725,
+   "indexCount": 6660
+  },
+  {
+   "texture": "nassp/cmvcpanel382_cover.jpg",
+   "firstIndex": 1004385,
+   "indexCount": 60
+  },
+  {
+   "texture": "nassp/cmvcpanel230_a15.jpg",
+   "firstIndex": 1004445,
+   "indexCount": 198
+  },
+  {
+   "texture": "nassp/cmvcpanel230_a17.jpg",
+   "firstIndex": 1004643,
+   "indexCount": 198
+  },
+  {
+   "texture": "nassp/rotary.jpg",
+   "firstIndex": 1004841,
+   "indexCount": 24150
+  },
+  {
+   "texture": "nassp/scs_rates_card.jpg",
+   "firstIndex": 1028991,
+   "indexCount": 6
+  },
+  {
+   "texture": "nassp/lmvc.jpg",
+   "firstIndex": 1028997,
+   "indexCount": 73572
+  },
+  {
+   "texture": "nassp/switchcover.jpg",
+   "firstIndex": 1102569,
+   "indexCount": 3840
+  },
+  {
+   "texture": "nassp/holderrahmen.jpg",
+   "firstIndex": 1106409,
+   "indexCount": 318816
+  },
+  {
+   "texture": "nassp/coas.jpg",
+   "firstIndex": 1425225,
+   "indexCount": 456
+  },
+  {
+   "texture": "nassp/mainvctex.jpg",
+   "firstIndex": 1425681,
+   "indexCount": 12504
+  },
+  {
+   "texture": "nassp/csm_lower_equip_bay.jpg",
+   "firstIndex": 1438185,
+   "indexCount": 369
+  },
+  {
+   "texture": "nassp/shutte1.dds.jpg",
+   "firstIndex": 1438554,
+   "indexCount": 324
+  },
+  {
+   "texture": "nassp/cmvctex3.jpg",
+   "firstIndex": 1438878,
+   "indexCount": 10431
+  },
+  {
+   "texture": "nassp/cmfloor.jpg",
+   "firstIndex": 1449309,
+   "indexCount": 672
+  },
+  {
+   "texture": "nassp/cmvc_optics.jpg",
+   "firstIndex": 1449981,
+   "indexCount": 8757
+  },
+  {
+   "texture": "nassp/cmvcdettex3.jpg",
+   "firstIndex": 1458738,
+   "indexCount": 444
+  },
+  {
+   "texture": "nassp/cmvcdettex1.jpg",
+   "firstIndex": 1459182,
+   "indexCount": 780
+  },
+  {
+   "texture": "nassp/cmvcdettex6.jpg",
+   "firstIndex": 1459962,
+   "indexCount": 744
+  },
+  {
+   "texture": "nassp/cmvcdettex4.jpg",
+   "firstIndex": 1460706,
+   "indexCount": 468
+  },
+  {
+   "texture": "nassp/panel300_305.jpg",
+   "firstIndex": 1461174,
+   "indexCount": 3396
+  },
+  {
+   "texture": "nassp/csm_waste_disposal_rotary.jpg",
+   "firstIndex": 1464570,
+   "indexCount": 1356
+  },
+  {
+   "texture": "nassp/fwdhatch.jpg",
+   "firstIndex": 1465926,
+   "indexCount": 1665
+  },
+  {
+   "texture": "nassp/sidehatch.jpg",
+   "firstIndex": 1467591,
+   "indexCount": 1332
+  },
+  {
+   "texture": "nassp/sidehatch_new.jpg",
+   "firstIndex": 1468923,
+   "indexCount": 100026
+  },
+  {
+   "texture": "nassp/cmvcdettex5.jpg",
+   "firstIndex": 1568949,
+   "indexCount": 3033
+  },
+  {
+   "texture": "nassp/cmvcdettex2.jpg",
+   "firstIndex": 1571982,
+   "indexCount": 3564
+  }
+ ],
+ "bounds": {
+  "min": [
+   -1.4830000400543213,
+   7.372700214385986,
+   -1.4816999435424805
+  ],
+  "max": [
+   1.4809999465942383,
+   9.831299781799316,
+   1.6166000366210938
+  ]
+ },
+ "assemblies": [
+  {
+   "id": "vcCabin",
+   "explode": [
+    0,
+    2.5,
+    0
+   ],
+   "kind": "inside"
+  },
+  {
+   "id": "vcPanels",
+   "explode": [
+    0,
+    2.5,
+    0
+   ],
+   "kind": "inside"
+  },
+  {
+   "id": "vcHatches",
+   "explode": [
+    0,
+    2.5,
+    0
+   ],
+   "kind": "inside"
+  },
+  {
+   "id": "vcCouches",
+   "explode": [
+    0,
+    2.5,
+    0
+   ],
+   "kind": "inside"
+  }
+ ],
+ "anchors": {
+  "vcPanels": [
+   -0.005800008773803711,
+   8.303849935531616,
+   0.36215001344680786
+  ],
+  "vcCabin": [
+   -0.001000046730041504,
+   8.601999998092651,
+   0.03570002317428589
+  ],
+  "vcHatches": [
+   0.002200007438659668,
+   8.914250373840332,
+   0.6740000247955322
+  ],
+  "vcCouches": [
+   0.020700007677078247,
+   8.187599897384644,
+   0.2543500065803528
+  ]
+ }
+}

@@ -20,6 +20,7 @@
     "build-saturn-v": "tsx src/buildSaturnV.ts",
     "fetch-saturn-v-photos": "tsx src/fetchSaturnVPhotos.ts",
     "build-columbia": "tsx src/buildColumbia.ts",
+    "build-columbia-cockpit": "tsx src/buildColumbiaCockpit.ts",
     "build-eagle": "tsx src/buildEagle.ts",
     "build-launcher": "tsx src/buildLauncher.ts",
     "fetch-apollo11-ephemeris": "tsx src/fetchApollo11Ephemeris.ts",

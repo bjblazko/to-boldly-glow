@@ -313,6 +313,16 @@ the dimensions in Grumman's "Apollo Lunar Module News Reference" for NASA (1968,
 https://archive.org/details/apollo-lunar-module-news-reference-1968); measures it does not settle
 are marked `APPROX` in `apollo/lmProfile.ts`. The lesson's figures come from the same document.
 
+## Apollo: Columbia's cockpit
+
+Columbia's cabin as it flew (`packages/app/public/models/columbia/cockpit.*`, `nassp/`) is converted
+from Project Apollo - NASSP (https://github.com/orbiternassp/NASSP, GNU General Public License,
+version 2 or later - see the Eagle section above for the license and why it is used under version 3
+or later) at commit `ddba501d2e274367b8660d7050dee7b9f4153865`: `Meshes/ProjectApollo/CM-VC.msh`,
+`CM-VC-SeatsUnfolded.msh` and the textures they name. Converted in November 2026 by
+`packages/data-pipeline/src/buildColumbiaCockpit.ts` (into the command module's frame, split into
+the lesson's parts, the textures as JPEG).
+
 ## Apollo: the launch tower and the crawler
 
 The mobile launcher with its umbilical tower, swing arms, crane, hold-down arms and tail service

@@ -21,27 +21,33 @@ function photo(nasaId: string, caption: keyof typeof TEXT.captions, credit: stri
   return { src: `images/apollo/${nasaId}.jpg`, caption: TEXT.captions[caption], credit }
 }
 
-// Inside, everything of the outside is gone and the cabin shows (it is "inside": seen when cut).
+// Inside, everything of the outside is gone and a cabin shows (it is "inside": seen when cut): the
+// cabin as it flew (NASSP's cockpit), or as it is today (the Smithsonian's scan). Outside, a cut
+// shows the cabin as it flew.
 const OUTSIDE: ColumbiaPart[] = ['cm', 'sm', 'smInside', 'sps', 'rcs', 'antenna', 'person']
-const INSIDE: ColumbiaStage = { shot: 'inside', cut: 1, still: true, gone: OUTSIDE }
+const TODAY: ColumbiaPart[] = ['hull', 'panels', 'seats', 'notes']
+const AS_FLOWN: ColumbiaPart[] = ['vcCabin', 'vcPanels', 'vcHatches', 'vcCouches']
+const INSIDE: ColumbiaStage = { shot: 'inside', cut: 1, still: true, gone: [...OUTSIDE, ...TODAY] }
+const INSIDE_TODAY: ColumbiaStage = { shot: 'today', cut: 1, still: true, gone: [...OUTSIDE, ...AS_FLOWN] }
 
 const CHAPTERS: Chapter[] = [
-  chapter('whole', { shot: 'whole', labels: ['cm', 'sm', 'person'], heights: true }, {
+  chapter('whole', { shot: 'whole', labels: ['cm', 'sm', 'person'], heights: true, gone: TODAY }, {
     photo: photo('372772main_GPN-2000-001212_full', 'splashdown', 'NASA'),
     facts: [fact('crew', 'clock')],
   }),
-  chapter('serviceModule', { shot: 'serviceModule', cut: 1, highlight: 'smInside', labels: ['smInside', 'sps'] }, {
+  chapter('serviceModule', { shot: 'serviceModule', cut: 1, highlight: 'smInside', labels: ['smInside', 'sps'], gone: TODAY }, {
     facts: [fact('smMass', 'mass'), fact('propellant', 'power')],
   }),
-  chapter('engine', { shot: 'engine', highlight: 'sps', labels: ['sps', 'antenna'] }, { facts: [fact('thrust', 'power')] }),
-  chapter('commandModule', { shot: 'commandModule', explode: 1, cut: 1, highlight: 'cm', labels: ['cm', 'rcs'] }, {
+  chapter('engine', { shot: 'engine', highlight: 'sps', labels: ['sps', 'antenna'], gone: TODAY }, { facts: [fact('thrust', 'power')] }),
+  chapter('commandModule', { shot: 'commandModule', explode: 1, cut: 1, highlight: 'cm', labels: ['cm', 'rcs'], gone: TODAY }, {
     photo: photo('S69-40758', 'hornet', 'NASA/JSC'),
     facts: [fact('cmHeight', 'diameter'), fact('diameter', 'circumference')],
   }),
-  chapter('inside', { ...INSIDE, labels: ['panels', 'seats'] }, { facts: [fact('room', 'atmosphere')] }),
-  chapter('panels', { ...INSIDE, shot: 'panels', labels: ['panels'] }, { photo: photo('S69-38317', 'simulator', 'NASA/JSC') }),
-  chapter('seats', { ...INSIDE, shot: 'seats', labels: ['seats'] }),
-  chapter('notes', { ...INSIDE, shot: 'notes', closingShot: 'centerCouch', labels: ['notes'] }),
+  chapter('inside', { ...INSIDE, labels: ['vcPanels', 'vcCouches'] }, { facts: [fact('room', 'atmosphere')] }),
+  chapter('panels', { ...INSIDE, shot: 'panels', labels: ['vcPanels'] }, { photo: photo('S69-38317', 'simulator', 'NASA/JSC') }),
+  chapter('seats', { ...INSIDE, shot: 'seats', labels: ['vcCouches'] }),
+  chapter('today', { ...INSIDE_TODAY, labels: ['panels', 'seats'] }),
+  chapter('notes', { ...INSIDE_TODAY, shot: 'notes', closingShot: 'centerCouch', labels: ['notes'] }),
 ]
 
 export const COLUMBIA_LESSON: Lesson = {

@@ -176,13 +176,13 @@ export const CREDIT_GROUPS: CreditGroup[] = [
         files: ['models/eagle/lm-palette.png'],
       },
       {
-        name: 'Project Apollo – NASSP (orbiternassp/NASSP, commit ddba501), lunar module, mobile launcher and crawler meshes and textures',
+        name: 'Project Apollo – NASSP (orbiternassp/NASSP, commit ddba501), lunar module, command module cockpit, mobile launcher and crawler meshes and textures',
         use: TEXT.uses.nassp,
         license: 'GPL-2.0-or-later',
         home: 'https://github.com/orbiternassp/NASSP',
         text: 'licenses/nassp.txt',
         changes: TEXT.changes.nassp,
-        files: ['models/eagle/lm.bin', 'models/eagle/lm.json', 'models/eagle/cockpit.bin', 'models/eagle/cockpit.json', 'models/eagle/nassp/', 'models/launcher/launcher.bin', 'models/launcher/launcher.json', 'models/launcher/crawler.bin', 'models/launcher/crawler.json', 'models/launcher/nassp/'],
+        files: ['models/eagle/lm.bin', 'models/eagle/lm.json', 'models/eagle/cockpit.bin', 'models/eagle/cockpit.json', 'models/eagle/nassp/', 'models/launcher/launcher.bin', 'models/launcher/launcher.json', 'models/launcher/crawler.bin', 'models/launcher/crawler.json', 'models/launcher/nassp/', 'models/columbia/cockpit.bin', 'models/columbia/cockpit.json', 'models/columbia/nassp/'],
       },
       {
         name: 'NASA/JPL Horizons (Giorgini & JPL Solar System Dynamics Group)',
