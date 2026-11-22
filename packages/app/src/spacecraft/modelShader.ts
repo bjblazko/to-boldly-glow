@@ -28,7 +28,8 @@ struct Uniforms {
   // Toward the Sun, world space; w: sunlight strength.
   toLight: vec4f,
   cameraPosition: vec4f,
-  // x: fill light, z: how far the exploded view has opened (0 to 1).
+  // x: fill light, y: how worn the surfaces look (0 to 1), z: how far the exploded view has opened
+  // (0 to 1).
   look: vec4f,
   // x: the assembly picked out (-1: none), y: how strongly (0 to 1); z: the cut open (1) or not
   // (0), w: up to which height (model frame, metres).
@@ -108,6 +109,34 @@ fn hidden(in: VertexOutput, position: vec2f) -> bool {
 
 const GLOW = vec3f(0.35, 0.75, 1.0);
 
+fn hash3(p: vec3f) -> f32 {
+  return fract(sin(dot(p, vec3f(127.1, 311.7, 74.7))) * 43758.5453);
+}
+
+// Smooth value noise in 3D (0 to 1).
+fn noise3(p: vec3f) -> f32 {
+  let i = floor(p);
+  let f = fract(p);
+  let u = f * f * (3.0 - 2.0 * f);
+  let bottom = mix(mix(hash3(i), hash3(i + vec3f(1.0, 0.0, 0.0)), u.x), mix(hash3(i + vec3f(0.0, 1.0, 0.0)), hash3(i + vec3f(1.0, 1.0, 0.0)), u.x), u.y);
+  let top = mix(mix(hash3(i + vec3f(0.0, 0.0, 1.0)), hash3(i + vec3f(1.0, 0.0, 1.0)), u.x), mix(hash3(i + vec3f(0.0, 1.0, 1.0)), hash3(i + vec3f(1.0, 1.0, 1.0)), u.x), u.y);
+  return mix(bottom, top, u.z);
+}
+
+// How much wear darkens a point (model frame, metres): uneven paint at two sizes, and streaks that
+// run down (noise stretched along the height).
+fn wearAt(local: vec3f) -> f32 {
+  let mottle = noise3(local * 1.4) * 0.6 + noise3(local * 6.0) * 0.4;
+  let streaks = noise3(vec3f(local.x * 22.0, local.y * 0.7, local.z * 22.0));
+  return mottle * 0.14 + smoothstep(0.6, 0.92, streaks) * 0.16;
+}
+
+// The fill as light from all round: brighter from above (the sky, the room's ceiling) than from
+// below (the floor).
+fn ambient(normal: vec3f) -> f32 {
+  return uni.look.x * mix(0.45, 1.25, normal.y * 0.5 + 0.5);
+}
+
 // How much of the first lamp's light reaches this point (0 to 1): the shadow map compared at nine
 // points around it, for a soft edge. Outside the lamp's cone counts as lit.
 fn lampShadow(worldPosition: vec3f) -> f32 {
@@ -163,7 +192,8 @@ fn fs(in: VertexOutput, @builtin(front_facing) frontFacing: bool) -> @location(0
   let specular = pow(max(dot(normal, halfway), 0.0), material.x) * material.y * step(0.0, dot(normal, toLight));
   // A shell's inner face, seen through the cut, in shade.
   if (!frontFacing && uni.parts[in.assembly].x == 1.0) { albedo *= 0.35; }
-  var color = albedo * (diffuse * uni.toLight.w + uni.look.x + lampLight(in.worldPosition, normal, toCamera, material)) + vec3f(specular * uni.toLight.w);
+  albedo *= 1.0 - uni.look.y * wearAt(in.local);
+  var color = albedo * (diffuse * uni.toLight.w + ambient(normal) + lampLight(in.worldPosition, normal, toCamera, material)) + vec3f(specular * uni.toLight.w);
   let picked = uni.highlight.x >= 0.0 && in.assembly == i32(uni.highlight.x);
   let strength = uni.highlight.y;
   if (picked) {

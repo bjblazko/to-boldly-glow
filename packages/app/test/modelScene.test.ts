@@ -71,3 +71,15 @@ describe('ModelScene with a hinged part', () => {
     expect(model.anchor('dish')[0]).toBeCloseTo(3, 6)
   })
 })
+
+describe('a model’s materials', () => {
+  it('takes a part’s own material, else the model’s own default (*), else none', async () => {
+    const { materialFor } = await import('../src/spacecraft/modelScene')
+    const matte = { shininess: 8, shine: 0.05 }
+    const metal = { shininess: 40, shine: 0.5 }
+    expect(materialFor({ '*': matte, sps: metal }, 'sps')).toBe(metal)
+    expect(materialFor({ '*': matte, sps: metal }, 'cm')).toBe(matte)
+    expect(materialFor({ sps: metal }, 'cm')).toBeUndefined()
+    expect(materialFor(undefined, 'cm')).toBeUndefined()
+  })
+})

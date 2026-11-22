@@ -76,11 +76,14 @@ const CABIN_LAMPS = [
   lamp([0.547, 9.007, 0.277], 'panels', { color: FILL, strength: 0.9, reach: 1.8 }),
   lamp([0.012, 8.335, -0.927], 'hull', { color: RIM, strength: 1.8, reach: 1.8 }),
 ]
-// NASSP's cockpit, lit the same way: the console's two floodlights under it, the equipment bay's.
+// NASSP's cockpit, lit like a film set: almost no fill, so the floodlights' key and its shadows
+// carry the picture and the corners stay dark.
+const COCKPIT_LIGHT = { sun: 0.03, fill: 0.04 }
+// The console's two floodlights under it, the equipment bay's.
 const COCKPIT_LAMPS = [
-  lamp([-0.5, 8.68, 0.42], 'vcPanels', { color: KEY, strength: 3.2, reach: 2.4 }),
-  lamp([0.5, 8.68, 0.42], 'vcPanels', { color: FILL, strength: 0.9, reach: 1.8 }),
-  lamp([0, 8.45, -0.6], 'vcCabin', { color: RIM, strength: 1.6, reach: 1.8 }),
+  lamp([-0.5, 8.68, 0.42], 'vcPanels', { color: KEY, strength: 4.6, reach: 2.6 }),
+  lamp([0.5, 8.68, 0.42], 'vcPanels', { color: FILL, strength: 0.5, reach: 1.6 }),
+  lamp([0, 8.45, -0.6], 'vcCabin', { color: RIM, strength: 1.4, reach: 1.6 }),
 ]
 const COCKPIT_MATERIALS = {
   vcPanels: { shininess: 48, shine: 0.3 },
@@ -100,16 +103,17 @@ const CABIN_MATERIALS = {
 
 export const COLUMBIA: VehicleConfig = {
   models: [
-    { url: 'models/columbia', name: 'csm' },
+    // Outside: more light from all round, matte paint, worn by its days on the pad.
+    { url: 'models/columbia', name: 'csm', light: { sun: 0.9, fill: 0.26, wear: 1 }, materials: { '*': { shininess: 10, shine: 0.06 } } },
     { url: 'models/columbia', name: 'cabin', light: CABIN_LIGHT, lamps: CABIN_LAMPS, materials: CABIN_MATERIALS },
-    { url: 'models/columbia', name: 'cockpit', light: CABIN_LIGHT, lamps: COCKPIT_LAMPS, materials: COCKPIT_MATERIALS },
+    { url: 'models/columbia', name: 'cockpit', light: COCKPIT_LIGHT, lamps: COCKPIT_LAMPS, materials: COCKPIT_MATERIALS },
   ],
   // One turn every ninety seconds, starting square to the camera; the cabin holds this angle too.
   turntable: { secondsPerTurn: 90, startAngle: 0, stageSeconds: 2.4 },
   room: { facing: VEHICLE_ROOM_FACING, size: { halfWidth: 7, height: 14, minor: 0.5, major: 1 } },
   occlusionReach: 0.15,
   // Darker corners and deeper creases than the Saturn V's room: the cabin's drama.
-  filmLook: { vignette: 0.62, occlusion: 1.0 },
+  filmLook: { vignette: 0.7, occlusion: 1.25 },
   shot: (id) => vehicleShot(`columbia-${id}`, FRAMES[id] ?? FRAMES.whole),
   partName: (part) => msg.lessons.columbia.parts[part as ColumbiaPart],
   mark: (name) => msg.lessons.columbia.marks[name] ?? { label: name },
