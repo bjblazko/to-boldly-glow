@@ -65,7 +65,12 @@ from the Mission Report / Apollo Flight Journal state vectors, the real Moon, ev
    chapter from launch to splashdown (decided 2026-11-22: the lessons explain schematically; the full
    mission in detail is the tour's). Built 2026-11-22 (spec
    `superpowers/specs/2026-11-22-apollo11-route-lesson-design.md`).
-7. Original audio and photo pipeline (each file's rights checked), subtitles, data charts.
+7. Original audio and photo pipeline (each file's rights checked), subtitles, data charts. First
+   part (2026-11-22): six NASA clips in the Apollo 11 lesson, after the narrator, subtitled - spec
+   `superpowers/specs/2026-11-22-apollo11-original-audio-design.md`. Next, decided 2026-11-22:
+   Columbia's cockpit from NASSP (`CM-VC.msh`) for the chapters inside, the panels and the couches;
+   the Smithsonian scan for the notes on the walls and a new closing chapter "Columbia today" (the
+   real capsule in the museum); the outside stays our own model (the cutaways need it).
 8. The tour's lunar orbit and descent: the Moon's gravity field for the 55 h in lunar orbit (step 5's
    open end), Tranquility Base's terrain from the LRO NAC DTM, the descent (P63/P64/P66, 1202 alarm,
    fuel), the ascent and rendezvous.
