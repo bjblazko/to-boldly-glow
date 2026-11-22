@@ -19,6 +19,9 @@ export interface ClipPlayer {
   // Seconds into the clip playing.
   elapsed(): number
   stop(): void
+  // Holds the clip where it is, and carries on from there.
+  pause(): void
+  resume(): void
 }
 
 export interface NarrationView {
@@ -82,6 +85,24 @@ export class Narrator implements TourPacing, TourListener {
 
   onLoopEnter(): void {
     this.enqueue(this.legsStarted - 1, 'orbit')
+  }
+
+  // Which stop of GRAND_TOUR the tour is at, or heading for.
+  get stopIndex(): number {
+    return this.legsStarted - 1
+  }
+
+  // The tour skips to another stop (its next leg starts there): what was said of it, and after it,
+  // is said again.
+  seek(stop: number): void {
+    this.stop()
+    this.legsStarted = stop
+    for (const spoken of [...this.spoken]) if (Number(spoken.split('-')[0]) >= stop) this.spoken.delete(spoken)
+  }
+
+  setPaused(paused: boolean): void {
+    if (paused) this.player.pause()
+    else this.player.resume()
   }
 
   // The tour was stopped (or left): silence.

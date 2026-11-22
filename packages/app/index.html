@@ -618,6 +618,20 @@
         </button>
       </div>
       <div class="hud-bar-group" data-for="tour">
+        <button id="tour-prev" class="hud-dock-btn" type="button" aria-label="Previous stop" data-i18n-attr="aria-label:ui.narration.previousStop">
+          <svg class="icon" aria-hidden="true"><use href="#icon-prev"></use></svg>
+          <span class="hud-dock-label" data-i18n="ui.dock.back">Back</span>
+        </button>
+        <button id="tour-next" class="hud-dock-btn" type="button" aria-label="Next stop" data-i18n-attr="aria-label:ui.narration.nextStop">
+          <svg class="icon" aria-hidden="true"><use href="#icon-next"></use></svg>
+          <span class="hud-dock-label" data-i18n="ui.dock.next">Next</span>
+        </button>
+        <button id="tour-play" class="hud-dock-btn" type="button" aria-label="Pause" data-state="playing">
+          <svg class="icon icon-pause-glyph" aria-hidden="true"><use href="#icon-pause"></use></svg>
+          <svg class="icon icon-play-glyph" aria-hidden="true"><use href="#icon-play"></use></svg>
+          <span class="hud-dock-label">Pause</span>
+        </button>
+        <span class="hud-bar-sep" aria-hidden="true"></span>
         <button class="hud-dock-btn" data-panel="view" type="button">
           <svg class="icon" aria-hidden="true"><use href="#icon-layers"></use></svg>
           <span class="hud-dock-label" data-i18n="ui.dock.view">View</span>

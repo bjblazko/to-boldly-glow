@@ -87,6 +87,15 @@ export class CameraDirector {
     this.events.onTourChange(true)
   }
 
+  // The tour leaves for its route's next stop now (see TourController.redirect).
+  redirectTour(): void {
+    this.tour.redirect()
+  }
+
+  setTourPaused(paused: boolean): void {
+    this.tour.paused = paused
+  }
+
   // Control returns in free-fly mode exactly where the tour was, looking where it looked and with
   // the same roll, so stopping mid-turn doesn't level the view with a jolt.
   stopTour(): void {

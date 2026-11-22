@@ -45,6 +45,11 @@ export class RouteItinerary implements TourItinerary {
     this.nextStop = 0
   }
 
+  // The stop (its index on the route) the next leg goes to.
+  seek(index: number): void {
+    this.nextStop = Math.min(Math.max(index, 0), this.stops.length - 1)
+  }
+
   next(): SolarSystemEntity | null {
     return this.stops[this.nextStop++] ?? null
   }

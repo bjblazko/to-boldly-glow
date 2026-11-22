@@ -28,6 +28,8 @@ export class AudioClipPlayer implements ClipPlayer {
   private ended: (() => void) | null = null
   private timer: ReturnType<typeof setTimeout> | undefined
   private loading = false
+  // Seconds into the clip when it was paused, or null.
+  private heldAt: number | null = null
   private readonly fetched = new Set<string>()
 
   constructor(private readonly signals: VoiceSignals = NO_SIGNALS) {
@@ -81,7 +83,29 @@ export class AudioClipPlayer implements ClipPlayer {
     return this.silent ? (performance.now() - this.startedAt) / 1000 : this.audio.currentTime
   }
 
+  pause(): void {
+    if (!this.ended || this.heldAt !== null) return
+    this.heldAt = this.elapsed()
+    clearTimeout(this.timer)
+    this.audio.pause()
+    this.signals.speaking(false)
+  }
+
+  resume(): void {
+    if (this.heldAt === null) return
+    const at = this.heldAt
+    this.heldAt = null
+    if (!this.ended) return
+    if (this.silent) {
+      this.startedAt = performance.now() - at * 1000
+      return this.endSilentlyAfter(this.clipSeconds)
+    }
+    this.audio.play().catch(() => this.goSilent())
+    this.signals.speaking(!this.audio.muted)
+  }
+
   stop(): void {
+    this.heldAt = null
     this.ended = null
     clearTimeout(this.timer)
     this.audio.pause()

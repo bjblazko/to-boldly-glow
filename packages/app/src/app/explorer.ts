@@ -5,6 +5,8 @@ import { grandTourRoute } from '../camera/tour/grandTour'
 import type { TourRoute } from '../camera/tourController'
 import { NarratedTour } from '../narration/narratedTour'
 import { setTourTime } from '../camera/tour/tourTime'
+import { GrandTourBar } from '../narration/grandTourBar'
+import { GrandTourRemote } from '../narration/grandTourRemote'
 import type { VoiceSignals } from '../narration/audioClipPlayer'
 import type { NarrationManifest } from '../narration/narrationManifest'
 import type { Obstacle } from '../camera/input/flightSpeed'
@@ -57,6 +59,7 @@ export function createExplorer(canvas: HTMLCanvasElement, display: DisplaySettin
   const { camera, guide } = createCamera(canvas, {
     tourChanged: (touring) => {
       if (touring) return
+      tourBar.detach()
       narration.end()
       narratedTourChanged.forEach((listener) => listener(false))
     },
@@ -68,11 +71,15 @@ export function createExplorer(canvas: HTMLCanvasElement, display: DisplaySettin
   const bodyLabels = new BodyLabels(requireElement('#body-labels'))
   const tour = (route: TourRoute) => startTour(camera, clock, now, route)
   const narration = new NarratedTour(sound.narrationManifest, requireElement, sound.voice)
+  const tourBar = new GrandTourBar(requireElement)
   // The narrator paces the grand tour and hears where it is; started from a click, so it may speak.
   const narratedTour = () => {
     if (camera.isTouring) camera.stopTour()
     const narrator = narration.begin()
-    tour(grandTourRoute({ pacing: narrator, listener: narrator }))
+    const route = grandTourRoute({ pacing: narrator, listener: narrator })
+    tour(route)
+    const ship = { redirect: () => camera.redirectTour(), setPaused: (paused: boolean) => camera.setTourPaused(paused) }
+    tourBar.attach(new GrandTourRemote({ narrator, itinerary: route.itinerary, tour: ship, clock }))
     narratedTourChanged.forEach((listener) => listener(true))
   }
   // Who hears when a narrated tour sets off (true) and ends (false).

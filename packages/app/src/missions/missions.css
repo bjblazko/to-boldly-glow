@@ -66,11 +66,15 @@ body[data-mission-tour] .hud-camera-hint {
 }
 
 #mission-play[data-state='playing'] .icon-play-glyph,
-#mission-play[data-state='paused'] .icon-pause-glyph {
+#mission-play[data-state='paused'] .icon-pause-glyph,
+#tour-play[data-state='playing'] .icon-play-glyph,
+#tour-play[data-state='paused'] .icon-pause-glyph {
   display: none;
 }
 #mission-play[data-state='paused'] .icon-play-glyph,
-#mission-play[data-state='playing'] .icon-pause-glyph {
+#mission-play[data-state='playing'] .icon-pause-glyph,
+#tour-play[data-state='paused'] .icon-play-glyph,
+#tour-play[data-state='playing'] .icon-pause-glyph {
   display: inline;
 }
 

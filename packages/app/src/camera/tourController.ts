@@ -6,12 +6,14 @@ import type { Ephemeris } from '../time/ephemeris'
 import { InertialDirection } from './tour/inertialDirection'
 import { SPEED_LAG_SECONDS, SPEED_SETTLE_SECONDS, stepToward, Throttle, turnRateAround } from './tour/shipMotion'
 import { MAX_GAZE_TURN_RATE, ShipView, WORLD_UP } from './tour/shipView'
-import { ACCELERATION_SECONDS, engineAcceleration, loopRadiusAt, MIN_CRUISE_SPEED, planetPosition, planLeg, WARP, type Leg, type LegPace } from './tour/tourLeg'
+import { ACCELERATION_SECONDS, engineAcceleration, loopRadiusAt, MIN_CRUISE_SPEED, planetPosition, planetVelocity, planLeg, WARP, type Leg, type LegPace } from './tour/tourLeg'
 import { arrivalSeconds, motionHandover } from './tour/warpFlight'
 import { mayLeaveLoop } from './tour/loopExit'
-import { NearestItinerary, type TourItinerary } from './tour/tourItinerary'
+import { NearestItinerary } from './tour/tourItinerary'
+import type { TourRoute, TourStart } from './tour/tourRoute'
 
 export { ACCELERATION_SECONDS } from './tour/tourLeg'
+export type { TourListener, TourPacing, TourRoute, TourStart } from './tour/tourRoute'
 
 // The ship turns like a heavy body: its turn rate builds up and dies down within TURN_ACCELERATION.
 // Its lateral thrust, relative to its forward thrust, limits how fast it can turn at speed (a slow
@@ -71,35 +73,6 @@ interface Moment {
   scaleBlend: number
 }
 
-export interface TourStart {
-  position: readonly [number, number, number]
-  forward?: readonly [number, number, number]
-}
-
-// What the narrated tour tells the ship: how long it should take at a body, and when it may leave.
-export interface TourPacing {
-  pace(target: SolarSystemEntity): LegPace
-  // While false, the ship keeps circling the body (the narrator hasn't finished).
-  mayDepart(target: SolarSystemEntity): boolean
-}
-
-export interface TourListener {
-  onLegStart?(target: SolarSystemEntity): void
-  // The ship is about its leg's transit time (see TourPacing) from the stop - at once on the first
-  // leg, and at the latest on arrival. The narrator's words for the stop end as the ship gets there.
-  onApproach?(target: SolarSystemEntity): void
-  onLoopEnter?(target: SolarSystemEntity): void
-  // The route is over: the ship stays circling its last stop.
-  onFinished?(): void
-}
-
-// Where the tour goes: the endless nearest-planet loop by default, or a set route with its pace.
-export interface TourRoute {
-  itinerary: TourItinerary
-  pacing?: TourPacing
-  listener?: TourListener
-}
-
 // A sightseeing flight, flown like a spaceship: it picks the next body of its route, accelerates
 // toward it, brakes on arrival, makes a lap around it and heads for the next one - with inertia,
 // elastic thrust, a limited turn rate, banking into turns and a gaze that leads the flight path.
@@ -122,6 +95,9 @@ export class TourController {
   private announced = false
   private cruiseSeconds = 0
   private previous: Moment | null = null
+  private redirecting = false
+  // While paused the ship holds still (and the narrator waits).
+  paused = false
 
   constructor(planets: SolarSystemEntity[]) {
     this.defaultRoute = { itinerary: new NearestItinerary(planets) }
@@ -160,7 +136,7 @@ export class TourController {
   }
 
   getEyePosition(): [number, number, number] {
-    return [this.position[0], this.position[1], this.position[2]]
+    return [...this.position] as [number, number, number]
   }
 
   getLookAt(): [number, number, number] {
@@ -176,9 +152,16 @@ export class TourController {
     return this.view.viewMatrix(this.position)
   }
 
+  // Leaves for the route's next stop now, from wherever the ship is (the route was told where to
+  // go: see RouteItinerary.seek).
+  redirect(): void {
+    this.redirecting = true
+  }
+
   update(deltaSeconds: number, ephemeris: Ephemeris, scaleBlend: number): void {
     if (!this.leg) return
     const moment = { ephemeris, scaleBlend }
+    if (this.held(this.leg, moment)) return
     if (this.previous && this.previous.scaleBlend !== scaleBlend) this.followScaleChange(this.leg, this.previous, scaleBlend)
     const planet = planetPosition(this.leg.target, ephemeris, scaleBlend)
     const planetVelocity = this.planetVelocity(this.leg.target, moment, deltaSeconds)
@@ -203,6 +186,17 @@ export class TourController {
     } else if (this.cruiseSeconds >= this.patienceSeconds(leg)) {
       this.giveUpOn(leg, moment)
     }
+  }
+
+  // Paused: the ship holds still. Redirected: it leaves for the next stop now.
+  private held(leg: Leg, moment: Moment): boolean {
+    if (this.paused) this.previous = moment
+    else if (this.redirecting) {
+      this.redirecting = false
+      this.finished = false
+      this.beginLeg(leg.target, this.nextStop(leg.target, moment), moment)
+    }
+    return this.paused
   }
 
   // A stop that takes too long to reach is skipped - but not the route's last (home): the ship
@@ -248,10 +242,7 @@ export class TourController {
   // The planet's own orbital motion, at the current scale (so a scale change in progress doesn't
   // count as motion).
   private planetVelocity(body: SolarSystemEntity, now: Moment, deltaSeconds: number): vec3 {
-    if (!this.previous || deltaSeconds <= 0) return vec3.create()
-    const before = planetPosition(body, this.previous.ephemeris, now.scaleBlend)
-    const after = planetPosition(body, now.ephemeris, now.scaleBlend)
-    return vec3.scale(after, vec3.subtract(after, after, before), 1 / deltaSeconds)
+    return planetVelocity(body, { before: this.previous?.ephemeris ?? null, now: now.ephemeris, scaleBlend: now.scaleBlend }, deltaSeconds)
   }
 
   // Where the stop the ship is leaving is now, and how it moves.

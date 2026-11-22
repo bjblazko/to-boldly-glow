@@ -19,6 +19,13 @@ class FakePlayer implements ClipPlayer {
   stop(): void {
     this.playing = null
   }
+  paused = false
+  pause(): void {
+    this.paused = true
+  }
+  resume(): void {
+    this.paused = false
+  }
   end(): void {
     const playing = this.playing
     this.playing = null
@@ -77,6 +84,33 @@ describe('the narrator', () => {
     guide.onApproach()
     expect(player.played.at(-1)).toBe('mercury approach')
     expect(guide.mayDepart()).toBe(false)
+  })
+
+  it('skips to another stop: falls silent, then speaks of that stop as the ship heads there', () => {
+    const { player, narrator: guide } = narrator()
+    guide.onLegStart()
+    guide.onApproach()
+    expect(guide.stopIndex).toBe(0)
+    guide.seek(5)
+    expect(player.playing).toBeNull()
+    guide.onLegStart()
+    expect(guide.stopIndex).toBe(5)
+    guide.onApproach()
+    expect(player.played.at(-1)).toBe('jupiter approach')
+    guide.seek(0)
+    guide.onLegStart()
+    guide.onApproach()
+    expect(player.played.at(-1)).toBe('sun approach')
+  })
+
+  it('holds its voice while the tour is paused', () => {
+    const { player, narrator: guide } = narrator()
+    guide.onLegStart()
+    guide.onApproach()
+    guide.setPaused(true)
+    expect(player.paused).toBe(true)
+    guide.setPaused(false)
+    expect(player.paused).toBe(false)
   })
 
   it('goes quiet when the tour stops', () => {

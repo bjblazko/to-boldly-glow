@@ -62,6 +62,14 @@ export interface Leg {
   loopAngularSpeed: number
 }
 
+// A planet's own orbital motion between two moments, at one scale (so a scale change in progress
+// doesn't count as motion).
+export function planetVelocity(body: SolarSystemEntity, { before, now, scaleBlend }: { before: Ephemeris | null; now: Ephemeris; scaleBlend: number }, deltaSeconds: number): vec3 {
+  if (!before || deltaSeconds <= 0) return vec3.create()
+  const after = planetPosition(body, now, scaleBlend)
+  return vec3.scale(after, vec3.subtract(after, after, planetPosition(body, before, scaleBlend)), 1 / deltaSeconds)
+}
+
 export function planetPosition(target: SolarSystemEntity, ephemeris: Ephemeris, scaleBlend: number): vec3 {
   return vec3.fromValues(...entityWorldPosition(target, ephemeris.julianMillennia, ephemeris.daysSinceEpoch, scaleBlend))
 }

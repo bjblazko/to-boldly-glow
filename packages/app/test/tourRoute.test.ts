@@ -102,6 +102,30 @@ describe('a set route', () => {
     expect(internals(controller).leg!.target.id).toBe('earth')
   })
 
+  it('flies on to another stop when told to, from wherever it is', () => {
+    const itinerary = new RouteItinerary(ROUTE)
+    const events: string[] = []
+    const controller = new TourController(PLANETS)
+    controller.start({ position: [0, 25, 60] }, clock(0), 1, { itinerary, listener: { onLegStart: (target) => events.push(`leg ${target.id}`), onLoopEnter: (target) => events.push(`loop ${target.id}`) } })
+    fly(controller, 5)
+    itinerary.seek(5)
+    controller.redirect()
+    fly(controller, 120)
+    expect(events.slice(0, 3)).toEqual(['leg sun', 'leg jupiter', 'loop jupiter'])
+  })
+
+  it('holds still while paused, and flies on from there', () => {
+    const { controller } = routeFlight()
+    fly(controller, 5)
+    controller.paused = true
+    const held = controller.getEyePosition()
+    fly(controller, 5)
+    expect(controller.getEyePosition()).toEqual(held)
+    controller.paused = false
+    fly(controller, 1)
+    expect(controller.getEyePosition()).not.toEqual(held)
+  })
+
   it('leaves the Sun soon after it may - Mercury lies far above or below the Sun’s wide loop, which held the ship for another lap', () => {
     let mayLeaveAt = Infinity
     let flown = 0

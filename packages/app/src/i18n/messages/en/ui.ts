@@ -31,6 +31,8 @@ export const ui = {
     sound: 'Voice',
     voice: 'Narrator',
     loading: 'Voice loading …',
+    previousStop: 'Previous stop',
+    nextStop: 'Next stop',
   },
 
   // The tours' words where the start page and search name them.

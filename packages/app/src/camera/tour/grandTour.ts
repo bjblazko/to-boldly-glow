@@ -20,6 +20,6 @@ export const GRAND_TOUR: readonly { bodyId: string; stop: NarrationStop }[] = [
 
 const GRAND_TOUR_BODIES: SolarSystemEntity[] = GRAND_TOUR.map(({ bodyId }) => ALL_ENTITIES.find((entity) => entity.id === bodyId)!)
 
-export function grandTourRoute(guide: { pacing?: TourPacing; listener?: TourListener } = {}): TourRoute {
+export function grandTourRoute(guide: { pacing?: TourPacing; listener?: TourListener } = {}): TourRoute & { itinerary: RouteItinerary } {
   return { itinerary: new RouteItinerary(GRAND_TOUR_BODIES), ...guide }
 }

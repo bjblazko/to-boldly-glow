@@ -32,6 +32,8 @@ export const ui: Messages['ui'] = {
     sound: 'Stimme',
     voice: 'Erzählstimme',
     loading: 'Stimme lädt …',
+    previousStop: 'Vorheriger Halt',
+    nextStop: 'Nächster Halt',
   },
   // The tours' words where the start page and search name them.
   tours: {
