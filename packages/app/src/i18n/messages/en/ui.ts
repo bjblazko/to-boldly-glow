@@ -193,6 +193,7 @@ export const ui = {
     pause: 'Pause',
   },
   lesson: {
+    original: 'Hear the original',
     sortHeading: 'Line the planets up by',
     searchPlaceholder: 'Search lessons…',
     noMatch: 'No lesson matches',

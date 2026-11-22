@@ -51,6 +51,8 @@ export class LessonPanel {
   readonly previousButton: HTMLButtonElement
   readonly nextButton: HTMLButtonElement
   readonly autoplayButton: HTMLButtonElement
+  // Plays the chapter's recording from the time again (shown only where there is one).
+  readonly originalButton: HTMLButtonElement
   // Set by whoever runs the lesson: a chapter picked from the list.
   onChapterPicked: (index: number) => void = () => {}
 
@@ -59,6 +61,7 @@ export class LessonPanel {
     this.previousButton = find('#lesson-prev-chapter')
     this.nextButton = find('#lesson-next-chapter')
     this.autoplayButton = find('#lesson-autoplay')
+    this.originalButton = find('#lesson-original-btn')
     makePanelDraggable(this.el.panel, find('#lesson-panel-grip'))
     // The side column stays put: a panel dragged aside before goes back into it.
     globalThis.matchMedia?.(SIDE_PANEL_MEDIA_QUERY).addEventListener('change', (query) => {
@@ -86,6 +89,7 @@ export class LessonPanel {
     this.nextButton.disabled = !player.hasNextChapter
     this.el.text.textContent = chapter.text
     this.renderFacts(chapter.facts ?? [])
+    this.originalButton.hidden = !chapter.original
     this.media.show(chapter)
     this.el.note.textContent = lesson.note ?? ''
     this.el.note.hidden = !lesson.note

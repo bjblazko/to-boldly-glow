@@ -239,3 +239,12 @@
 #lesson-autoplay[data-state='playing'] .icon-pause-glyph {
   display: inline;
 }
+
+/* "Hear the original": a recording from the time, under the chapter's text. */
+.hud-lesson-original {
+  margin: 10px 0 2px;
+  gap: 6px;
+}
+.hud-lesson-original[hidden] {
+  display: none;
+}

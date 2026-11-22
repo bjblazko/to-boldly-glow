@@ -98,6 +98,11 @@
       </div>
     </dialog>
     <!-- The narrator's subtitles while a narrated tour runs. -->
+    <!-- A recording from the time, in a lesson: its words and who says them. -->
+    <div id="original-audio" class="hud-narration hud-original-audio" role="region" aria-live="polite" hidden>
+      <p id="original-audio-words" class="hud-narration-text"></p>
+      <p id="original-audio-speaker" class="hud-original-audio-speaker"></p>
+    </div>
     <div id="narration-bar" class="hud-narration" role="region" aria-label="Narrated tour" data-i18n-attr="aria-label:ui.narration.title" hidden>
       <p id="narration-subtitle" class="hud-narration-text" aria-live="polite" hidden></p>
     </div>
@@ -714,6 +719,10 @@
       <div id="lesson-panel-body" class="hud-lesson-panel-body">
         <p id="lesson-chapter-text" class="hud-lesson-text"></p>
         <ul id="lesson-chapter-facts" class="hud-lesson-facts" hidden></ul>
+        <button id="lesson-original-btn" class="hud-btn hud-lesson-original" type="button" hidden>
+          <svg class="icon" aria-hidden="true"><use href="#icon-play"></use></svg>
+          <span class="btn-label" data-i18n="ui.lesson.original">Hear the original</span>
+        </button>
         <div id="lesson-chapter-media" class="hud-lesson-media" hidden></div>
         <p id="lesson-note" class="hud-lesson-note" hidden></p>
       </div>

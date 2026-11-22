@@ -18,6 +18,8 @@ export interface ClipPlayer {
   prefetch?(clip: NarrationClip): void
   // Seconds into the clip playing.
   elapsed(): number
+  // Whether the clip playing is still waiting for its download.
+  readonly isLoading?: boolean
   stop(): void
   // Holds the clip where it is, and carries on from there.
   pause(): void

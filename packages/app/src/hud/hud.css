@@ -1962,6 +1962,14 @@ body:has(.hud-library:not([hidden]), .hud-palette:not([hidden])) .hud-controls {
 .hud-narration-text[hidden] {
   display: none;
 }
+/* A recording from the time: who says it, small, under its words. */
+.hud-original-audio-speaker {
+  margin: 8px 0 0;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--hud-dim);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
 body[data-ui-hidden] .hud-narration {
   bottom: 24px;
 }

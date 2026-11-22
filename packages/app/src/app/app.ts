@@ -62,6 +62,8 @@ import { loadNarrationManifest, type NarrationManifest } from '../narration/narr
 import { voiceSignals, VoiceStatus } from '../narration/voiceStatus'
 import { MusicEngine } from '../music/musicEngine'
 import { LessonNarration } from '../narration/lessonNarration'
+import { AudioClipPlayer } from '../narration/audioClipPlayer'
+import { OriginalAudioCaption } from '../narration/originalAudioCaption'
 import { bindMusicSettings } from '../music/musicSettings'
 
 type SceneFeatures = Omit<SceneParts, 'players'>
@@ -102,7 +104,7 @@ function watchLayout(canvas: HTMLCanvasElement, targets: SceneTargets, lessons: 
 function createPlayers(explorer: ReturnType<typeof createExplorer>, gpu: LessonGpu & { models: ModelContext }, groundSky: GroundSky, sound: { narrationManifest: NarrationManifest | null; voice: VoiceSignals }) {
   const soundToggle = requireElement<HTMLInputElement>('#narration-sound-toggle')
   const missions = createMissionTours(explorer, gpu, new MissionNarration(sound.narrationManifest, soundToggle, sound.voice))
-  const { session: lessons, firstFrame } = createLessons(explorer, gpu, groundSky, { voice: new LessonNarration(sound.narrationManifest, soundToggle, sound.voice), missions })
+  const { session: lessons, firstFrame } = createLessons(explorer, gpu, groundSky, { voice: new LessonNarration(sound.narrationManifest, soundToggle, { player: new AudioClipPlayer(sound.voice), view: new OriginalAudioCaption(requireElement) }), missions })
   const exploring = () => !lessons.active && !missions.session.active
   const now = () => ({ daysSinceEpoch: ephemerisAt(explorer.clock.getCurrentDate()).daysSinceEpoch, scaleBlend: explorer.scaleMode.blend })
   const spacecraft = new ExploreSpacecraft(gpu.models, { exploring, now })

@@ -31,6 +31,11 @@ export function clipUrl(voice: NarratorVoice, locale: Locale, segmentId: string)
   return `narration/${voice}/${locale}/${segmentId}.${playableExtension()}`
 }
 
+// A recording from the time (see OriginalAudio), encoded as the narration is.
+export function originalAudioUrl(clip: string): string {
+  return `audio/${clip}.${playableExtension()}`
+}
+
 // Without a manifest (or a clip in it), the tour is narrated by subtitles alone, at about this pace.
 const WORDS_PER_SECOND = 2.3
 

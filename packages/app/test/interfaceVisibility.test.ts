@@ -10,7 +10,7 @@ describe('hiding the interface', () => {
 
   it('works in a lesson too, not only in Explore', async () => {
     const { InterfaceVisibility } = await import('../src/hud/interfaceVisibility')
-    const body = { dataset: { appMode: 'learn' } } as HTMLElement
+    const body = { dataset: { appMode: 'learn' } } as unknown as HTMLElement
     const ui = new InterfaceVisibility(body, { hide: button(), show: button(), returnFocus: button() })
     ui.hide()
     expect(ui.isHidden).toBe(true)

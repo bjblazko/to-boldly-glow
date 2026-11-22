@@ -50,6 +50,18 @@ export interface Chapter {
   links?: ChapterLink[]
   // An interactive demonstration in the panel (the Golden Record's picture stored as sound).
   demo?: 'pictureSignal'
+  // A recording from the time, played after the narrator (see narration/lessonNarration.ts).
+  original?: OriginalAudio
+}
+
+export interface OriginalAudio {
+  // Under public/audio/, without its extension, e.g. 'apollo11/landing'.
+  clip: string
+  seconds: number
+  // What is said, in the lesson's language (in English as said; translated otherwise), and who
+  // says it, when.
+  words: string
+  speaker: string
 }
 
 export interface ChapterLink {

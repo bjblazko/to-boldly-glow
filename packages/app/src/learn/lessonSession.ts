@@ -44,6 +44,8 @@ export interface LessonVoice {
   // How long reading the chapter out takes (its clip, or its text's reading time).
   seconds(lessonId: string, chapter: Chapter): number
   sorted(sortingId: string): void
+  // Plays the chapter's recording from the time now, if it has one.
+  original(chapter: Chapter): void
   // Fetches a chapter's clip ahead.
   prefetch(lessonId: string, chapter: Chapter): void
   // Whether the clip being read is still loading: the lesson waits for it before turning the page.
@@ -107,6 +109,7 @@ export class LessonSession implements ScenePlayer {
     this.orbitOverlay = new OrbitOverlay(gpu.device, gpu.linePipeline)
     parts.panel.previousButton.addEventListener('click', () => this.goToChapter(() => this.player.previousChapter()))
     parts.panel.nextButton.addEventListener('click', () => this.goToChapter(() => this.player.nextChapter()))
+    parts.panel.originalButton.addEventListener('click', () => this.parts.voice.original(this.chapter))
     parts.panel.onChapterPicked = (index) => this.goToChapter(() => this.player.goToChapter(index))
     parts.panel.sortMenu.onPicked = (sortingId) => this.sortBy(sortingId)
     this.autoplay = new LessonAutoplay(parts.panel.autoplayButton, () => this.turnPageByItself())

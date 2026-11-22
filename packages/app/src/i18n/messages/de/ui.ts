@@ -192,6 +192,7 @@ export const ui: Messages['ui'] = {
     pause: 'Anhalten',
   },
   lesson: {
+    original: 'Originalton hören',
     sortHeading: 'Planeten aufreihen nach',
     searchPlaceholder: 'Lektionen suchen…',
     noMatch: 'Keine passende Lektion',
