@@ -78,8 +78,8 @@
             "seconds": 17.12
           },
           "lessons/columbia/inside": {
-            "hash": "57d8af818dc9bbe2",
-            "seconds": 11.76
+            "hash": "f9c66b61a1b9db43",
+            "seconds": 13.84
           },
           "lessons/columbia/notes": {
             "hash": "f2b0a224d3fd38c1",
@@ -96,6 +96,10 @@
           "lessons/columbia/serviceModule": {
             "hash": "53c30fac70ac1f73",
             "seconds": 24.32
+          },
+          "lessons/columbia/today": {
+            "hash": "223cf3ab74cfe0a9",
+            "seconds": 17.36
           },
           "lessons/columbia/whole": {
             "hash": "90f8375a10ea338d",
@@ -624,8 +628,8 @@
             "seconds": 17.04
           },
           "lessons/columbia/inside": {
-            "hash": "4d93cbf1c84d68ef",
-            "seconds": 12.56
+            "hash": "7f4364ca5a2b4b31",
+            "seconds": 13.2
           },
           "lessons/columbia/notes": {
             "hash": "a0efa14daa17affb",
@@ -642,6 +646,10 @@
           "lessons/columbia/serviceModule": {
             "hash": "5f85cc4c190bfa47",
             "seconds": 22.88
+          },
+          "lessons/columbia/today": {
+            "hash": "53fc6a94c35ee654",
+            "seconds": 16.48
           },
           "lessons/columbia/whole": {
             "hash": "1fe43e0f299bd80f",
@@ -1178,8 +1186,8 @@
             "seconds": 17.6
           },
           "lessons/columbia/inside": {
-            "hash": "e678fca05f683830",
-            "seconds": 12.32
+            "hash": "226ceea25f923f01",
+            "seconds": 14.56
           },
           "lessons/columbia/notes": {
             "hash": "b4aefccaa5a7e62d",
@@ -1196,6 +1204,10 @@
           "lessons/columbia/serviceModule": {
             "hash": "562f829cae9f08e0",
             "seconds": 26.08
+          },
+          "lessons/columbia/today": {
+            "hash": "a11d35ae1d2e4ca6",
+            "seconds": 18.56
           },
           "lessons/columbia/whole": {
             "hash": "e35118e7d8110503",
@@ -1724,8 +1736,8 @@
             "seconds": 15.6
           },
           "lessons/columbia/inside": {
-            "hash": "de1007540aa78ec2",
-            "seconds": 13.6
+            "hash": "9e1b0df862ae105c",
+            "seconds": 13.52
           },
           "lessons/columbia/notes": {
             "hash": "7ace20d968e0c24e",
@@ -1742,6 +1754,10 @@
           "lessons/columbia/serviceModule": {
             "hash": "5564e83b71b9c358",
             "seconds": 22.88
+          },
+          "lessons/columbia/today": {
+            "hash": "42bafcd9baf01262",
+            "seconds": 16.72
           },
           "lessons/columbia/whole": {
             "hash": "2c8eaf85677e62bf",
