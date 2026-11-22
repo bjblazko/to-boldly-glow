@@ -5,6 +5,50 @@
     "lyra": {
       "clips": {
         "de": {
+          "lessons/apollo11/ascent": {
+            "hash": "4323cb79cfe03f66",
+            "seconds": 18.16
+          },
+          "lessons/apollo11/coast": {
+            "hash": "792f40bcb4350e18",
+            "seconds": 20.0
+          },
+          "lessons/apollo11/descent": {
+            "hash": "e5a79d7d0f5eea67",
+            "seconds": 26.64
+          },
+          "lessons/apollo11/dock": {
+            "hash": "b6ea741a316c7176",
+            "seconds": 20.24
+          },
+          "lessons/apollo11/home": {
+            "hash": "c1cf3b623c1665ec",
+            "seconds": 12.32
+          },
+          "lessons/apollo11/launch": {
+            "hash": "57fa90907356f131",
+            "seconds": 21.12
+          },
+          "lessons/apollo11/loi": {
+            "hash": "66029b3095c6f7dc",
+            "seconds": 19.28
+          },
+          "lessons/apollo11/parking": {
+            "hash": "11534e08e20daa26",
+            "seconds": 13.2
+          },
+          "lessons/apollo11/splashdown": {
+            "hash": "856289deda666f1e",
+            "seconds": 24.0
+          },
+          "lessons/apollo11/surface": {
+            "hash": "49b1af4fbb6c26ce",
+            "seconds": 18.32
+          },
+          "lessons/apollo11/tli": {
+            "hash": "6a5d6a7b8ddb21e8",
+            "seconds": 19.84
+          },
           "lessons/columbia/commandModule": {
             "hash": "57a2a260427b2bf3",
             "seconds": 19.52
@@ -459,6 +503,50 @@
           }
         },
         "en": {
+          "lessons/apollo11/ascent": {
+            "hash": "3527f78348b24ac6",
+            "seconds": 16.96
+          },
+          "lessons/apollo11/coast": {
+            "hash": "ee6c8e1d8aeb7fc7",
+            "seconds": 17.52
+          },
+          "lessons/apollo11/descent": {
+            "hash": "f066bd391b2256ac",
+            "seconds": 24.16
+          },
+          "lessons/apollo11/dock": {
+            "hash": "4e912e3bc7ce7de9",
+            "seconds": 19.04
+          },
+          "lessons/apollo11/home": {
+            "hash": "c345d5b526ea4c6b",
+            "seconds": 12.16
+          },
+          "lessons/apollo11/launch": {
+            "hash": "7ef7a090524319e3",
+            "seconds": 20.16
+          },
+          "lessons/apollo11/loi": {
+            "hash": "50a6f021e22a3f16",
+            "seconds": 18.08
+          },
+          "lessons/apollo11/parking": {
+            "hash": "7b43c16cf5d9ede4",
+            "seconds": 10.88
+          },
+          "lessons/apollo11/splashdown": {
+            "hash": "6deb23f34efb5ccf",
+            "seconds": 22.96
+          },
+          "lessons/apollo11/surface": {
+            "hash": "9f21761e5f11f44b",
+            "seconds": 20.4
+          },
+          "lessons/apollo11/tli": {
+            "hash": "c5cba9ee0e74d8fd",
+            "seconds": 16.24
+          },
           "lessons/columbia/commandModule": {
             "hash": "1a8ef354acc7dba8",
             "seconds": 21.6
@@ -921,6 +1009,50 @@
     "orion": {
       "clips": {
         "de": {
+          "lessons/apollo11/ascent": {
+            "hash": "07ce2598066e2076",
+            "seconds": 18.8
+          },
+          "lessons/apollo11/coast": {
+            "hash": "66ddd9d02120d5bf",
+            "seconds": 19.76
+          },
+          "lessons/apollo11/descent": {
+            "hash": "7f484244700386d4",
+            "seconds": 26.72
+          },
+          "lessons/apollo11/dock": {
+            "hash": "42c20de8792da547",
+            "seconds": 22.88
+          },
+          "lessons/apollo11/home": {
+            "hash": "4e8589378fe295fb",
+            "seconds": 12.88
+          },
+          "lessons/apollo11/launch": {
+            "hash": "858dc3f50302da16",
+            "seconds": 21.92
+          },
+          "lessons/apollo11/loi": {
+            "hash": "0a952f902d220987",
+            "seconds": 19.76
+          },
+          "lessons/apollo11/parking": {
+            "hash": "de0e9ee4745d91ce",
+            "seconds": 12.64
+          },
+          "lessons/apollo11/splashdown": {
+            "hash": "663884ae7b09c3bc",
+            "seconds": 23.76
+          },
+          "lessons/apollo11/surface": {
+            "hash": "907fb3a7bd76b459",
+            "seconds": 19.92
+          },
+          "lessons/apollo11/tli": {
+            "hash": "cd9d71fce73a24ae",
+            "seconds": 19.6
+          },
           "lessons/columbia/commandModule": {
             "hash": "f674174526811054",
             "seconds": 21.6
@@ -1375,6 +1507,50 @@
           }
         },
         "en": {
+          "lessons/apollo11/ascent": {
+            "hash": "e4785ed14ad2922a",
+            "seconds": 17.28
+          },
+          "lessons/apollo11/coast": {
+            "hash": "9ec80ae2c45b3664",
+            "seconds": 17.52
+          },
+          "lessons/apollo11/descent": {
+            "hash": "fd24b20520438e4e",
+            "seconds": 23.52
+          },
+          "lessons/apollo11/dock": {
+            "hash": "f6b266bb5ada9484",
+            "seconds": 18.0
+          },
+          "lessons/apollo11/home": {
+            "hash": "8a7289b9877e25a1",
+            "seconds": 12.4
+          },
+          "lessons/apollo11/launch": {
+            "hash": "8da0046353d16758",
+            "seconds": 19.28
+          },
+          "lessons/apollo11/loi": {
+            "hash": "46a72a57be8abbe8",
+            "seconds": 17.76
+          },
+          "lessons/apollo11/parking": {
+            "hash": "e0785ec48e3669a3",
+            "seconds": 12.16
+          },
+          "lessons/apollo11/splashdown": {
+            "hash": "fd5a9f95989592da",
+            "seconds": 23.2
+          },
+          "lessons/apollo11/surface": {
+            "hash": "70df73a03e106258",
+            "seconds": 19.2
+          },
+          "lessons/apollo11/tli": {
+            "hash": "d2af05b73a0b57d2",
+            "seconds": 16.96
+          },
           "lessons/columbia/commandModule": {
             "hash": "c01c4ea780e6f8f7",
             "seconds": 19.28
