@@ -37,7 +37,7 @@ const EXPLODES: Partial<Record<ActorModel, Record<string, Vec3>>> = { csm: { cm:
 
 const SATURN_V_SHOWN = ['sivb', 'sivbEngine', 'iu', 'sla']
 const SATURN_V_PARTS = ['les', 'cm', 'sm', 'sla', 'lm', 'iu', 'sivb', 'sivbInside', 'sivbEngine', 'sii', 'siiInside', 'siiEngines', 'sic', 'sicInside', 'sicEngines', 'person']
-const LM_DESCENT_PARTS = ['descent', 'descentInside', 'leg0', 'leg1', 'leg2', 'leg3', 'deployed']
+const LM_DESCENT_PARTS = ['descent', 'descentInside', 'leg0', 'leg1', 'leg2', 'leg3', 'link0', 'link1', 'link2', 'link3']
 const SM_PARTS = ['sm', 'smInside', 'sps', 'rcs', 'antenna']
 // Eagle docked to Columbia's nose, upside down to it (turned half round across its axis).
 const DOCKED_LM_Y = CM_APEX[1] + LM_TOP[1]
@@ -62,7 +62,7 @@ function transposition(t: number): ActorPose[] {
   const csmY = 7 + 18 * phase(t, 0, 4) - 18.52 * phase(t, 7.5, 11) + extraction
   return [
     pose('saturnV', { translation: [0, -IU_TOP, 0], visibility: { ...only(SATURN_V_PARTS, SATURN_V_SHOWN), sla: 1 - phase(t, 0, 1.5) } }),
-    pose('lm', { translation: [0, -LM_DESCENT_BOTTOM + extraction, 0], fold: 1, visibility: { person: 0, deployed: 0 } }),
+    pose('lm', { translation: [0, -LM_DESCENT_BOTTOM + extraction, 0], fold: 1, visibility: { person: 0 } }),
     pose('csm', { translation: [0, csmY, 0], rotation: { x: Math.PI * phase(t, 4, 7.5), y: 0 }, pivot: CSM_MIDDLE }),
   ]
 }
@@ -72,7 +72,7 @@ function transposition(t: number): ActorPose[] {
 function undocking(t: number): ActorPose[] {
   return [
     pose('csm', {}),
-    pose('lm', { translation: [0, DOCKED_LM_Y + 12 * phase(t, 3.5, 8), 0], rotation: { x: Math.PI, y: 2 * Math.PI * phase(t, 8, 14) }, fold: 1 - phase(t, 0, 3.5), visibility: { person: 0, deployed: phase(t, 0, 3.5) } }),
+    pose('lm', { translation: [0, DOCKED_LM_Y + 12 * phase(t, 3.5, 8), 0], rotation: { x: Math.PI, y: 2 * Math.PI * phase(t, 8, 14) }, fold: 1 - phase(t, 0, 3.5), visibility: { person: 0 } }),
   ]
 }
 

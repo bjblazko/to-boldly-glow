@@ -1,4 +1,4 @@
-import type { Hinge } from '../../../app/src/spacecraft/modelHinge'
+import { applyHinge, type Hinge, hingeMatrix } from '../../../app/src/spacecraft/modelHinge'
 import type { OrbiterGroup } from '../spacecraft/orbiterMesh'
 import { type NasspGroup, toOurFrame } from './nasspParts'
 
@@ -10,17 +10,19 @@ import { type NasspGroup, toOurFrame } from './nasspParts'
 // mirrored. NASSP's "Left" leg is therefore our +X leg (leg1, 90 degrees round from forward), its
 // "Right" our -X leg (leg3).
 
-export type LmPart = 'descent' | 'leg0' | 'leg1' | 'leg2' | 'leg3' | 'deployed' | 'ascent'
+export type LmPart = 'descent' | 'leg0' | 'leg1' | 'leg2' | 'leg3' | 'link0' | 'link1' | 'link2' | 'link3' | 'ascent'
 export type CockpitPart = 'cockpit' | 'panels' | 'dsky' | 'windows'
 
 const LEG_SUFFIX: Record<string, LmPart> = { '': 'leg0', Left: 'leg1', Aft: 'leg2', Right: 'leg3' }
 
-// The descent stage's groups: each leg's primary strut and footpad (the forward one with the ladder
-// and the plaque), the secondary struts, downlocks and probes (there only with the legs out), the
-// rest the stage.
+// The descent stage's groups: each leg's primary strut, lower strut, footpad and probes (the forward
+// one with the ladder and the plaque) turn with the leg; its braces and downlock - the linkage from
+// the stage to the primary strut - have a hinge of their own (linkHinge); the rest is the stage.
+const LINK_SUFFIX: Record<string, LmPart> = { '': 'link0', Left: 'link1', Aft: 'link2', Right: 'link3' }
 export function descentAssembly(label: string): LmPart {
-  if (/^(LowerStrut|Downlock|SupportStruts2|Probes\d)/.test(label)) return 'deployed'
-  const leg = /^(MainStrut|Footpad)(Left|Aft|Right)?$/.exec(label)
+  const link = /^(Downlock|SupportStruts2)(Left|Aft|Right)?$/.exec(label)
+  if (link) return LINK_SUFFIX[link[2] ?? '']
+  const leg = /^(MainStrut|Footpad|LowerStrut|Probes\d)(Left|Aft|Right)?$/.exec(label)
   if (leg) return LEG_SUFFIX[leg[2] ?? '']
   return label === 'Ladder' || label === 'zPlaque' ? 'leg0' : 'descent'
 }
@@ -93,4 +95,30 @@ export function foilMapped(group: LmGroup): LmGroup {
 function dominantAxis(normals: number[][]): number {
   const sum = [0, 1, 2].map((k) => Math.abs(normals.reduce((total, normal) => total + normal[k], 0)))
   return sum.indexOf(Math.max(...sum))
+}
+
+// A brace's hinge: about its foot on the stage (the mean of its points nearest the axis), along the
+// leg's own axis, by the angle that keeps its outer end (the points farthest out) pointing at where
+// that end goes on the folded leg. Its length doesn't change, so the end only points there: the
+// brace stands for the real linkage, which folds at a knee.
+export function linkHinge(points: readonly [number, number, number][], leg: Hinge): Hinge {
+  const radius = (p: readonly number[]) => Math.hypot(p[0], p[2])
+  const radii = points.map(radius)
+  const [low, high] = [Math.min(...radii), Math.max(...radii)]
+  const mean = (near: number) => {
+    const chosen = points.filter((p) => Math.abs(radius(p) - near) < 0.1)
+    return [0, 1, 2].map((k) => chosen.reduce((sum, p) => sum + p[k], 0) / chosen.length) as [number, number, number]
+  }
+  const [foot, end] = [mean(low), mean(high)]
+  const folded = applyHinge(hingeMatrix(leg, 1), end)
+  const across = (p: readonly number[]) => {
+    const d = [p[0] - foot[0], p[1] - foot[1], p[2] - foot[2]]
+    const along = d[0] * leg.axis[0] + d[1] * leg.axis[1] + d[2] * leg.axis[2]
+    return d.map((v, k) => v - along * leg.axis[k])
+  }
+  const [a, b] = [across(end), across(folded)]
+  const cross = [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]
+  const sine = cross[0] * leg.axis[0] + cross[1] * leg.axis[1] + cross[2] * leg.axis[2]
+  const cosine = a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+  return { pivot: foot, axis: leg.axis, angle: Math.atan2(sine, cosine) }
 }

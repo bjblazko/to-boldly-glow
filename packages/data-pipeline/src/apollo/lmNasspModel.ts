@@ -3,7 +3,7 @@ import type { MeshPrimitive } from '../spacecraft/glbMesh'
 import { readOrbiterMesh } from '../spacecraft/orbiterMesh'
 import { NASSP_MESHES, nasspFile } from './nassp'
 import { PartsBuilder, points } from './nasspParts'
-import { ascentAssembly, cockpitAssembly, descentAssembly, foilMapped, FOILS, foldingHinge, type LmGroup, toLmFrame } from './lmNassp'
+import { ascentAssembly, cockpitAssembly, descentAssembly, foilMapped, FOILS, foldingHinge, linkHinge, type LmGroup, toLmFrame } from './lmNassp'
 import type { Rgb } from './palette'
 
 // Eagle's outside and cockpit from Project Apollo - NASSP's meshes (lmNassp.ts): each assembly's
@@ -41,7 +41,7 @@ export async function nasspModels(): Promise<NasspModels> {
   descent.groups.forEach((group) => {
     const part = descentAssembly(group.label)
     const placed = toLmFrame(group, DESCENT_AT + lift)
-    if (group.label.startsWith('MainStrut')) struts.set(part, [...(struts.get(part) ?? []), ...points(placed.positions)])
+    if (group.label.startsWith('MainStrut') || part.startsWith('link')) struts.set(part, [...(struts.get(part) ?? []), ...points(placed.positions)])
     builder.add(part, flatFoil(placed), descent.materials)
   })
   ascent.groups.forEach((group) => {
@@ -59,8 +59,10 @@ function flatFoil(group: LmGroup): LmGroup {
   return group.texture && FOILS.test(group.texture) ? foilMapped(group) : group
 }
 
-// Each leg's hinge, found on its primary strut.
+// Each leg's hinge, found on its primary strut; each leg's braces', from theirs (linkHinge).
 function legHinges(struts: Map<string, [number, number, number][]>): Record<string, Hinge> {
-  return Object.fromEntries(Object.entries(LEG_AZIMUTH).map(([leg, azimuth]) => [leg, foldingHinge(struts.get(leg) ?? [], azimuth)]))
+  const legs = Object.fromEntries(Object.entries(LEG_AZIMUTH).map(([leg, azimuth]) => [leg, foldingHinge(struts.get(leg) ?? [], azimuth)]))
+  const links = Object.keys(LEG_AZIMUTH).map((leg) => [leg.replace('leg', 'link'), linkHinge(struts.get(leg.replace('leg', 'link')) ?? [], legs[leg])])
+  return { ...legs, ...Object.fromEntries(links) }
 }
 

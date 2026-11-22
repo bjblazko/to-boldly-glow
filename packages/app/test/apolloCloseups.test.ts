@@ -36,15 +36,15 @@ describe('the Apollo 11 close-ups', () => {
     expect(lmEnd[1] - lmStart[1]).toBeGreaterThan(10)
     expect(actor('transposition', 3, 'saturnV').visibility.sla).toBe(0)
     // Folded, Eagle's struts and probes are tucked away (as in the Eagle lesson).
-    for (const t of [0, 11, CLOSEUPS.transposition.seconds]) expect(actor('transposition', t, 'lm').visibility.deployed).toBe(0)
+    for (const t of [0, 11, CLOSEUPS.transposition.seconds]) expect(actor('transposition', t, 'lm').fold).toBe(1)
   })
 
   it('undocking: docked at first, the legs unfold, then Eagle drifts off and turns round once', () => {
     expect(gap('undocking', 0)).toBeLessThan(0.05)
     expect(actor('undocking', 0, 'lm').fold).toBe(1)
     expect(actor('undocking', CLOSEUPS.undocking.seconds, 'lm').fold).toBe(0)
-    expect(actor('undocking', 0, 'lm').visibility.deployed).toBe(0)
-    expect(actor('undocking', CLOSEUPS.undocking.seconds, 'lm').visibility.deployed).toBe(1)
+    expect(actor('undocking', 0, 'lm').fold).toBe(1)
+    expect(actor('undocking', CLOSEUPS.undocking.seconds, 'lm').fold).toBe(0)
     expect(gap('undocking', CLOSEUPS.undocking.seconds)).toBeGreaterThan(8)
   })
 

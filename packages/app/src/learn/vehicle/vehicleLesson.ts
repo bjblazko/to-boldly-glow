@@ -19,7 +19,7 @@ import { loadVehicleModel } from './vehicleAssets'
 import type { VehicleConfig, VehicleModel } from './vehicleConfig'
 import type { VehicleId, VehicleStage } from './vehicleStage'
 
-const VEHICLE_FILM_LOOK: FilmLook = { vignette: 0.45, grain: 0.035, grade: 0.7, occlusion: 0.8, reach: 0, blur: 6 }
+const VEHICLE_FILM_LOOK: FilmLook = { vignette: 0.45, grain: 0.035, grade: 0.7, occlusion: 0.8, reach: 0, blur: 2.5 }
 
 // A vehicle on show: its models (sharing one stage and one turn) and its room.
 interface OnShow {
