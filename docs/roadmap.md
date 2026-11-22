@@ -54,7 +54,10 @@ from the Mission Report / Apollo Flight Journal state vectors, the real Moon, ev
    user's look at it, NASSP's models (GPL) for a more realistic outside and cockpit.
 4. Pad 39A: umbilical tower, crawler, pad; a ground scene on Earth.
 5. Mission data: event timeline in GET, trajectory reconstruction in the Earth-Moon system,
-   tested against documented values.
+   tested against documented values. Built 2026-11-22 (unattended; for the owner to check): the timeline,
+   the way out to lunar orbit and the way home, each within a fraction of a percent of the record -
+   spec `superpowers/specs/2026-11-22-apollo-mission-data-design.md`; open: the 55 h in lunar orbit
+   (needs the Moon's gravity field).
 6. Lesson Apollo 11, part 1: launch to lunar orbit (a cislunar scene, metre pass for the craft).
 7. Tranquility Base: terrain from the LRO NAC DTM, the descent (P63/P64/P66, 1202 alarm, fuel);
    lesson part 2.

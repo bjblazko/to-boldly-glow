@@ -189,7 +189,7 @@ export const CREDIT_GROUPS: CreditGroup[] = [
         license: TEXT.licenses.publicDomain,
         home: 'https://archive.org/details/apollo-by-the-numbers',
         changes: TEXT.changes.apollo11Trajectory,
-        files: ['data/apollo11/translunar.bin'],
+        files: ['data/apollo11/translunar.bin', 'data/apollo11/transearth.bin'],
       },
       {
         name: 'NASA Space Physics Data Facility, Voyager 1 and 2 merged data (CRS, MAG)',

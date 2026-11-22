@@ -23,10 +23,12 @@ const J2 = 1.08262668e-3
 export type Acceleration = (t: number, position: Vec3) => Vec3
 
 export function integrate(start: State, until: number, { step, acceleration, sample }: { step: number; acceleration: Acceleration; sample?: (state: State) => void }): State {
+  // Forward, or backward in time when `until` lies before the start.
+  const direction = until >= start.t ? 1 : -1
   let state = start
   sample?.(state)
-  while (state.t < until - 1e-9) {
-    state = rk4(state, Math.min(step, until - state.t), acceleration)
+  while (direction * (until - state.t) > 1e-9) {
+    state = rk4(state, direction * Math.min(step, direction * (until - state.t)), acceleration)
     sample?.(state)
   }
   return state

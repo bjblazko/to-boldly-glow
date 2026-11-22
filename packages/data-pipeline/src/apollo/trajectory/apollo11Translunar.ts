@@ -169,7 +169,7 @@ export function solveCorrection(atMidcourse: State): Vec3 {
 
 // One damped step of Newton's method in two unknowns (km/s), the Jacobian by finite differences;
 // a step is held to 3 m/s.
-function newtonStep(miss: (x: number[]) => number[], x: number[], f: number[]): number[] {
+export function newtonStep(miss: (x: number[]) => number[], x: number[], f: number[]): number[] {
   const h = 1e-4
   const j = [0, 1].map((k) => miss(x.map((value, m) => (m === k ? value + h : value))).map((value, i) => (value - f[i]) / h))
   const det = j[0][0] * j[1][1] - j[1][0] * j[0][1]

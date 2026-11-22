@@ -52,3 +52,29 @@ same method); any app scene (step 6).
 
 Step sizes, the thinning tolerance, the file layout, how the parking orbit before TLI is drawn
 (propagated back from TLI).
+
+## Results (2026-11-22)
+
+- Timeline: 34 events, range zero to splashdown; the landing comes out at 20:17:39.9 UTC, the first
+  step at 02:56:15 UTC on 21 July, as recorded.
+- Parking orbit: from the S-IVB's first cutoff, 1.5 turns later over 172.43 deg E (record 172.55).
+- Translunar coast, nothing fitted: at separation, the evasive maneuver and the midcourse correction
+  within 0.1-0.3 % of the recorded altitude and speed; without the correction past the Moon at
+  858 n mi (MR: 896). The evasive maneuver (19.7 ft/s, direction not recorded) taken as
+  retrograde: it brings the coast to within 0.2 % at the correction (0.6 % without).
+- The midcourse correction solved to meet the LOI-derived pericynthion (75:53:28, 60.5 n mi):
+  21.7 ft/s (record 20.9); at LOI ignition 86.76 n mi, 8,250.1 ft/s, -9.99 deg (record 86.7,
+  8,250.0, -9.99).
+- LOI as one impulse at pericynthion to 169.7 x 60.0 n mi: 2,860 ft/s (record 2,917.5 over a
+  357.5 s burn); two turns later at the circularization burn 60.6 n mi, 5,478.1 ft/s (record 61.8,
+  5,477.3), its pericynthion half a minute before the recorded ignition.
+- Way home, computed backward from the recorded entry interface state (MR table 7-VII): at the
+  transearth correction within 0.02 % unaided; the correction solved to meet the departure
+  pericynthion: 4.97 ft/s (record 4.8); after TEI 58.2 n mi, 8,589.2 ft/s, 5.13 deg (record 58.1,
+  8,589, 5.13).
+- Open: the stay in lunar orbit (LOI-2 to TEI, 55 h). With a point-mass Moon the orbit drifts 26
+  degrees in phase and 3.3 degrees in plane from the departure; the Moon's oblateness alone turns
+  such a low orbit's plane by about 2.6 degrees in that time, and its mascons changed the real
+  orbits. Needs the Moon's gravity field - with the descent and ascent (step 7/8).
+- Data for the app: data/apollo11/translunar.bin (EOI to the circularization burn, 1,356 points),
+  transearth.bin (TEI to entry interface, 541 points), moon.bin (every 10 min).

@@ -14,6 +14,17 @@ describe('the integrator', () => {
   })
 })
 
+describe('the integrator, backward', () => {
+  it('comes back to where it started after a turn forward and a turn back', () => {
+    const r = 7000
+    const start: State = { t: 0, position: [r, 0, 0], velocity: [0, Math.sqrt(EARTH_MU / r), 0.5] }
+    const gravity = (_: number, p: [number, number, number]) => p.map((value) => (-EARTH_MU * value) / Math.hypot(...p) ** 3) as [number, number, number]
+    const back = integrate(integrate(start, 3000, { step: 10, acceleration: gravity }), 0, { step: 10, acceleration: gravity })
+    expect(back.t).toBeCloseTo(0, 9)
+    back.position.forEach((value, k) => expect(value).toBeCloseTo(start.position[k], 3))
+  })
+})
+
 describe('the frames', () => {
   it('has Greenwich at 280.46 degrees of sidereal time at noon on 1 January 2000', () => {
     expect(gmstDegrees(2451545.0)).toBeCloseTo(280.46061837, 6)
