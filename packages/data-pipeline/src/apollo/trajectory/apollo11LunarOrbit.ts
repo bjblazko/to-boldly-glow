@@ -19,23 +19,45 @@ function moonVelocity(t: number): Vec3 {
   return [(ahead[0] - behind[0]) / 2, (ahead[1] - behind[1]) / 2, (ahead[2] - behind[2]) / 2]
 }
 
-// The state with its Moon-relative speed set (the direction kept), and the change it took (km/s).
-function withLunarSpeed(state: State, speed: number): { state: State; deltaV: number } {
-  const moonV = moonVelocity(state.t)
-  const v = state.velocity.map((value, k) => value - moonV[k])
-  const now = Math.hypot(...v)
-  return { state: { ...state, velocity: v.map((value, k) => (value * speed) / now + moonV[k]) as Vec3 }, deltaV: now - speed }
-}
 
-// The way from TLI to the Moon (with its correction), then the LOI impulse at pericynthion.
-export function intoLunarOrbit(sample?: (state: State) => void): { state: State; deltaV: number } {
+// Where Columbia's orbit lies over the Moon, fitted (apollo11LunarFit.ts): at the insertion its plane
+// turned by `turnDegrees` about the line to the Moon's centre, and the circularized orbit `raise`
+// n mi higher at both ends than ABTN's 66.1 by 54.5 (its period, and so where Columbia is when) - so
+// that 27 hours later the orbit runs over Tranquility Base, Eagle starting its powered descent about
+// 300 miles before it. The reconstructed approach fixes only the pericynthion's height, not where the
+// plane lies over the Moon, which was the mission's target; and ABTN's orbits are a point-mass
+// Moon's, at one moment, where the Moon's field makes the mean orbit differ.
+export interface Insertion {
+  turnDegrees: number
+  raise: number
+}
+// Solved by fitInsertion (apollo11LunarFit.ts) with GRAIL to degree 60.
+export const INSERTION: Insertion = { turnDegrees: 5.6417, raise: -1.1702 }
+
+// The way from TLI to the Moon (with its correction), then the LOI impulse into the documented
+// 169.7 by 60.0 n mi orbit.
+export function intoLunarOrbit(sample?: (state: State) => void, insertion: Insertion = INSERTION): { state: State; deltaV: number } {
   const atMidcourse = toMidcourse(sample)
   const corrected = correction(atMidcourse, solveCorrection(atMidcourse))
-  const atPericynthion = coast(corrected, closestApproach(corrected).get, sample)
-  const moon = moonAt(atPericynthion.t)
-  const r = Math.hypot(...atPericynthion.position.map((value, k) => value - moon[k]))
-  const apo = MOON_RADIUS + LOI_APOCYNTHION
-  return withLunarSpeed(atPericynthion, Math.sqrt((MOON_MU * 2 * apo) / (r * (r + apo))))
+  const closest = closestApproach(corrected)
+  const atBurn = coast(corrected, closest.get, sample)
+  // The orbit's low point where the approach came closest (its documented height is 60.0 n mi).
+  const inserted = turnPlane(ontoOrbit(atBurn, LOI_APOCYNTHION / 1.852, (Math.hypot(...moonRelative(coast(corrected, closest.get)).r) - MOON_RADIUS) / 1.852), insertion.turnDegrees)
+  return { state: inserted, deltaV: Math.hypot(...inserted.velocity.map((value, k) => value - atBurn.velocity[k])) }
+}
+
+// The Moon-relative velocity turned about the line from the Moon's centre to the craft.
+function turnPlane(state: State, degrees: number): State {
+  if (degrees === 0) return state
+  const { r, v } = moonRelative(state)
+  const radius = Math.hypot(...r)
+  const k = r.map((value) => value / radius)
+  const angle = (degrees * Math.PI) / 180
+  const [c, s] = [Math.cos(angle), Math.sin(angle)]
+  const kv = k[0] * v[0] + k[1] * v[1] + k[2] * v[2]
+  const kxv = [k[1] * v[2] - k[2] * v[1], k[2] * v[0] - k[0] * v[2], k[0] * v[1] - k[1] * v[0]]
+  const moonV = moonVelocity(state.t)
+  return { ...state, velocity: v.map((value, i) => value * c + kxv[i] * s + k[i] * kv * (1 - c) + moonV[i]) as Vec3 }
 }
 
 // Moon-relative altitude (km) and speed (km/s).
@@ -90,7 +112,7 @@ export function lunarOrbitAcceleration(field: GravityField | null) {
   }
 }
 
-function moonRelative(state: State): { r: Vec3; v: Vec3 } {
+export function moonRelative(state: State): { r: Vec3; v: Vec3 } {
   const [moon, moonV] = [moonAt(state.t), moonVelocity(state.t)]
   return { r: state.position.map((value, k) => value - moon[k]) as Vec3, v: state.velocity.map((value, k) => value - moonV[k]) as Vec3 }
 }
@@ -130,10 +152,21 @@ function impulse(state: State, deltaV: number, direction: 'down' | 'up'): State 
   return { ...state, velocity: state.velocity.map((value, k) => value + along[k] * deltaV) as Vec3 }
 }
 
+// Columbia from the insertion to its circularized orbit, in the given field.
+function circularize(field: GravityField | null, insertion: Insertion, sample?: (state: State) => void): State {
+  const flown = integrate(intoLunarOrbit(undefined, insertion).state, CIRCULARIZED.get, { step: LUNAR_STEP, acceleration: lunarOrbitAcceleration(field), sample })
+  return ontoOrbit(flown, CIRCULARIZED.apocynthion + insertion.raise, CIRCULARIZED.pericynthion + insertion.raise)
+}
+
+// Columbia (and Eagle with it) at the undocking.
+export function atUndocking(field: GravityField | null, insertion: Insertion = INSERTION): State {
+  return integrate(circularize(field, insertion), EVENTS.undocked, { step: LUNAR_STEP, acceleration: lunarOrbitAcceleration(field) })
+}
+
 // From the lunar orbit insertion to the transearth injection's ignition, in the given field.
-export function inLunarOrbit(field: GravityField | null, sample?: (state: State) => void): LunarOrbitCheckpoints {
+export function inLunarOrbit(field: GravityField | null, sample?: (state: State) => void, insertion: Insertion = INSERTION): LunarOrbitCheckpoints {
   const fly = (from: State, until: number) => integrate(from, until, { step: LUNAR_STEP, acceleration: lunarOrbitAcceleration(field), sample })
-  const circularized = ontoOrbit(fly(intoLunarOrbit().state, CIRCULARIZED.get), CIRCULARIZED.apocynthion, CIRCULARIZED.pericynthion)
+  const circularized = circularize(field, insertion, sample)
   const undocked = fly(circularized, EVENTS.undocked)
   const separated = fly(impulse(fly(undocked, SEPARATION.get), SEPARATION.deltaV, 'down'), EVENTS.separated)
   const docked = fly(separated, EVENTS.docked)

@@ -69,3 +69,19 @@ documented values.
   altitude: about 80 ft/s instead of 76.4 with today's orbit), powered descent to the site from the
   Mission Report's trajectory data and the crew's callouts (NASA's technical air-to-ground
   transcript, archive.org Apollo11Audio, AS11_TEC), ascent and rendezvous.
+
+## Fitted over the landing site (2026-11-22)
+
+- `apollo11LunarFit.ts`: Eagle follows Columbia to the undocking, brakes at DOI (documented
+  76.4 ft/s) and coasts to powered descent; the fit turns the orbit's plane at the insertion and
+  lowers the circularized orbit until Tranquility Base (LROC 0.67416° N, 23.47314° E) lies in Eagle's
+  orbit plane at the landing and "about 300 miles" (taken as statute miles: 483 km, 15.9°, APPROX)
+  ahead at powered descent. Solved: the plane turned 5.64°, the orbit 1.17 n mi lower than ABTN's
+  66.1 × 54.5 (ABTN's orbits are a point-mass Moon's at one moment; in the field the mean orbit
+  differs). Met to 0.0001° across and 0.03° along.
+- Against ABTN after the fit: undocking 60.9 (62.9), after separation 62.4 × 55.6 (63.7 × 56.0),
+  docking 58.7 (60.6), jettison 59.7 (61.6), and the orbit's shape near 62 × 55 to the end, as
+  documented; TEI ignition 55.7 n mi (52.4) - before the fit 52.4 was met, but with an orbit of
+  70 × 50, a coincidence. Ruling: the orbit over the site matters more for the tour than TEI's
+  height; the transearth path (computed backward from entry) joins at TEI as before.
+- Next: Eagle's powered descent (from this PDI state to the site), ascent and rendezvous.
