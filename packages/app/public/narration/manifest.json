@@ -74,16 +74,16 @@
             "seconds": 19.52
           },
           "lessons/columbia/engine": {
-            "hash": "0475b34368234fe0",
-            "seconds": 17.04
+            "hash": "b6487ff2bedf7253",
+            "seconds": 17.12
           },
           "lessons/columbia/inside": {
-            "hash": "edbd1a1984daeb12",
-            "seconds": 12.4
+            "hash": "57d8af818dc9bbe2",
+            "seconds": 11.76
           },
           "lessons/columbia/notes": {
-            "hash": "273dc48d0cf8e4d7",
-            "seconds": 14.88
+            "hash": "f2b0a224d3fd38c1",
+            "seconds": 17.04
           },
           "lessons/columbia/panels": {
             "hash": "4ffd797fc75ff9a2",
@@ -98,24 +98,24 @@
             "seconds": 24.32
           },
           "lessons/columbia/whole": {
-            "hash": "8f47d8e527bccbcb",
-            "seconds": 18.0
+            "hash": "90f8375a10ea338d",
+            "seconds": 19.76
           },
           "lessons/eagle/ascent": {
             "hash": "22340f2e29a317f9",
             "seconds": 17.36
           },
           "lessons/eagle/descent": {
-            "hash": "1fd6acabe46f1f61",
-            "seconds": 19.36
+            "hash": "93ed99467172e70c",
+            "seconds": 21.6
           },
           "lessons/eagle/folded": {
-            "hash": "0a6986a2fb9baad9",
-            "seconds": 17.36
+            "hash": "5436db5a6d33b8fb",
+            "seconds": 16.8
           },
           "lessons/eagle/inside": {
-            "hash": "9a1e5c18f38b1075",
-            "seconds": 17.92
+            "hash": "03181f09a46055d0",
+            "seconds": 17.84
           },
           "lessons/eagle/liftoff": {
             "hash": "96d1f54ee845c1ac",
@@ -126,12 +126,12 @@
             "seconds": 20.64
           },
           "lessons/eagle/stages": {
-            "hash": "051308aed2e69bc1",
-            "seconds": 16.88
+            "hash": "bcb078474fb8363f",
+            "seconds": 17.28
           },
           "lessons/eagle/whole": {
-            "hash": "8abe3277f604b004",
-            "seconds": 22.08
+            "hash": "55dc9f0350fd62ee",
+            "seconds": 21.12
           },
           "lessons/launcher/arms": {
             "hash": "a4677c5e4d04fd6b",
@@ -142,12 +142,12 @@
             "seconds": 26.0
           },
           "lessons/launcher/crewArm": {
-            "hash": "69d56bf1b5413e24",
-            "seconds": 17.28
+            "hash": "7099ebc3ab76af29",
+            "seconds": 17.76
           },
           "lessons/launcher/holddown": {
-            "hash": "d247398db3144767",
-            "seconds": 16.24
+            "hash": "73c839c5cd476f3a",
+            "seconds": 17.12
           },
           "lessons/launcher/liftoff": {
             "hash": "4f3c3f8d9f4da58a",
@@ -158,8 +158,8 @@
             "seconds": 16.64
           },
           "lessons/launcher/whole": {
-            "hash": "66dbd816133cf905",
-            "seconds": 21.12
+            "hash": "41280e8697244da9",
+            "seconds": 21.68
           },
           "lessons/moonPhases/always-half-lit": {
             "hash": "02183f3a5a6b704c",
@@ -656,8 +656,8 @@
             "seconds": 17.84
           },
           "lessons/eagle/folded": {
-            "hash": "0d74abf7d4dddc00",
-            "seconds": 15.52
+            "hash": "fdeb4e406427fbd4",
+            "seconds": 15.36
           },
           "lessons/eagle/inside": {
             "hash": "9e1c8b51c9bf1183",
@@ -692,8 +692,8 @@
             "seconds": 16.0
           },
           "lessons/launcher/holddown": {
-            "hash": "67b75bade6f13876",
-            "seconds": 17.28
+            "hash": "784fb93c87cb4c1f",
+            "seconds": 17.04
           },
           "lessons/launcher/liftoff": {
             "hash": "697c4e7025531036",
@@ -704,8 +704,8 @@
             "seconds": 17.84
           },
           "lessons/launcher/whole": {
-            "hash": "7057a6cbc7fb5a6e",
-            "seconds": 19.84
+            "hash": "5b4f62099069f528",
+            "seconds": 19.52
           },
           "lessons/moonPhases/always-half-lit": {
             "hash": "d71540260dc4167d",
@@ -1174,16 +1174,16 @@
             "seconds": 21.6
           },
           "lessons/columbia/engine": {
-            "hash": "11930c4975747f63",
-            "seconds": 17.84
+            "hash": "941f967c675e7545",
+            "seconds": 17.6
           },
           "lessons/columbia/inside": {
-            "hash": "ed594e705b27a8be",
-            "seconds": 12.72
+            "hash": "e678fca05f683830",
+            "seconds": 12.32
           },
           "lessons/columbia/notes": {
-            "hash": "2b079c60480b7268",
-            "seconds": 16.96
+            "hash": "b4aefccaa5a7e62d",
+            "seconds": 17.52
           },
           "lessons/columbia/panels": {
             "hash": "61bd3b6f2bf0060b",
@@ -1198,24 +1198,24 @@
             "seconds": 26.08
           },
           "lessons/columbia/whole": {
-            "hash": "7c1b938af5683204",
-            "seconds": 21.6
+            "hash": "e35118e7d8110503",
+            "seconds": 20.72
           },
           "lessons/eagle/ascent": {
             "hash": "f8bae08dbddd9cb2",
             "seconds": 17.84
           },
           "lessons/eagle/descent": {
-            "hash": "0b6616a073de45ad",
-            "seconds": 22.0
+            "hash": "4fbf68d7a05e5da8",
+            "seconds": 20.56
           },
           "lessons/eagle/folded": {
-            "hash": "e29ecc0691b37b87",
-            "seconds": 16.72
+            "hash": "764039490b89529b",
+            "seconds": 17.52
           },
           "lessons/eagle/inside": {
-            "hash": "31e2ada11a724eab",
-            "seconds": 18.08
+            "hash": "ae74928a2d418cb2",
+            "seconds": 18.4
           },
           "lessons/eagle/liftoff": {
             "hash": "ed0a7ddd21cbfaf7",
@@ -1226,12 +1226,12 @@
             "seconds": 23.84
           },
           "lessons/eagle/stages": {
-            "hash": "bddea0fa5fed0aa9",
-            "seconds": 18.56
+            "hash": "c8c01b7e676dcc6f",
+            "seconds": 18.08
           },
           "lessons/eagle/whole": {
-            "hash": "09424000f13be345",
-            "seconds": 21.84
+            "hash": "6de084de9d9d1c39",
+            "seconds": 21.76
           },
           "lessons/launcher/arms": {
             "hash": "193d13a969108184",
@@ -1242,12 +1242,12 @@
             "seconds": 27.28
           },
           "lessons/launcher/crewArm": {
-            "hash": "7e61d74dd1b55d00",
-            "seconds": 17.52
+            "hash": "a32ea3d3d67ace00",
+            "seconds": 18.96
           },
           "lessons/launcher/holddown": {
-            "hash": "30d0c349ecbb0cd5",
-            "seconds": 18.8
+            "hash": "437afe620a914257",
+            "seconds": 17.28
           },
           "lessons/launcher/liftoff": {
             "hash": "3d70369fedc13e4b",
@@ -1258,8 +1258,8 @@
             "seconds": 17.6
           },
           "lessons/launcher/whole": {
-            "hash": "0571e48035ef208d",
-            "seconds": 23.6
+            "hash": "b016cd10d77cb672",
+            "seconds": 20.96
           },
           "lessons/moonPhases/always-half-lit": {
             "hash": "f27118cb55407307",
@@ -1756,8 +1756,8 @@
             "seconds": 19.36
           },
           "lessons/eagle/folded": {
-            "hash": "c619043d5ced991f",
-            "seconds": 15.04
+            "hash": "ec1993fafa18cf62",
+            "seconds": 15.92
           },
           "lessons/eagle/inside": {
             "hash": "a475da426d4ca1b6",
@@ -1792,8 +1792,8 @@
             "seconds": 16.32
           },
           "lessons/launcher/holddown": {
-            "hash": "f8f81f922370cd53",
-            "seconds": 16.48
+            "hash": "8132c48f816ecebb",
+            "seconds": 15.52
           },
           "lessons/launcher/liftoff": {
             "hash": "86f60c80b8c319d4",
@@ -1804,8 +1804,8 @@
             "seconds": 16.08
           },
           "lessons/launcher/whole": {
-            "hash": "da40f20717fe248e",
-            "seconds": 20.4
+            "hash": "483727547aabcaae",
+            "seconds": 20.8
           },
           "lessons/moonPhases/always-half-lit": {
             "hash": "8091e85d5386bf02",
