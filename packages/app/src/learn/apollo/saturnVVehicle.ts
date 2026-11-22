@@ -26,7 +26,8 @@ const FRAMES: Record<string, VehicleFrame> = {
 const LETTERING_ANGLE = (5 * Math.PI) / 4
 
 export const SATURN_V: VehicleConfig = {
-  models: [{ url: 'models/saturnV', name: 'saturnV' }],
+  // More light from all round, and matte paint (its wear is in its texture).
+  models: [{ url: 'models/saturnV', name: 'saturnV', light: { sun: 0.9, fill: 0.26 }, materials: { '*': { shininess: 10, shine: 0.06 } } }],
   // One turn every two minutes; it starts with the lettering toward the camera (turning by `angle`
   // moves a side at angle φ to φ - angle, and the camera stands at -azimuth).
   turntable: { secondsPerTurn: 120, startAngle: LETTERING_ANGLE + VEHICLE_AZIMUTH, stageSeconds: 2.6 },

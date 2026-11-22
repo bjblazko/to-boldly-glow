@@ -3,7 +3,8 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { ModelDescription } from '../../app/src/spacecraft/modelFile'
 import { CABIN_ASSEMBLIES, CABIN_KIND, readCabin, type Cabin, type CabinAssembly } from './apollo/columbiaInterior'
-import { CSM_ASSEMBLIES, csmAssemblyKind, csmExplodeOffset, csmPalette, csmParts, CSM_PALETTE_TEXTURE } from './apollo/csmParts'
+import { CSM_ASSEMBLIES, csmAssemblyKind, csmExplodeOffset, csmPalette, csmParts, CSM_PALETTE_TEXTURE, SM_PAINT_TEXTURE } from './apollo/csmParts'
+import { smPaint } from './apollo/csmTextures'
 import { CSM_HEIGHTS } from './apollo/csmProfile'
 import type { MeshPrimitive } from './spacecraft/glbMesh'
 import { assemblyAnchors, assignAssemblies } from './spacecraft/assemblies'
@@ -13,7 +14,7 @@ import { packModel } from './spacecraft/modelWriter'
 // (apollo/csmProfile.ts), the cabin from the Smithsonian's scan. Writes
 // packages/app/public/models/columbia/: csm.* (outside), cabin.* (inside) and their textures.
 //
-// `npm run build-columbia -- <scan>`, the scan being "Command Module Apollo 11: Interior (medium
+// `npm run build-columbia -- [scan]`, the scan being "Command Module Apollo 11: Interior (medium
 // resolution, glb)" from 3d.si.edu, CC0: apollo_interior-medium_resolution.glb (SHA-256
 // 0041357eccea177fa28023a97ae400b6f45bddcf635b0ad57840315b71089b50), not committed (40 MB).
 
@@ -40,11 +41,14 @@ function inside(cabin: Cabin): { model: ModelDescription; binary: Buffer } {
   return { model: { ...description, assemblies, anchors: assemblyAnchors(parts, () => false), oneSided: true }, binary }
 }
 
-export async function buildColumbia(out: string, scan: string): Promise<void> {
+// Without the scan, only the outside is built (the cabin's files stay as they are).
+export async function buildColumbia(out: string, scan?: string): Promise<void> {
   mkdirSync(out, { recursive: true })
   const csm = outside()
   write(out, 'csm', csm.model, csm.binary)
   writeFileSync(join(out, CSM_PALETTE_TEXTURE), await csmPalette())
+  writeFileSync(join(out, SM_PAINT_TEXTURE), await smPaint())
+  if (!scan) return
   const cabin = await readCabin(scan)
   const built = inside(cabin)
   write(out, 'cabin', built.model, built.binary)
@@ -53,6 +57,6 @@ export async function buildColumbia(out: string, scan: string): Promise<void> {
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const [scan] = process.argv.slice(2)
-  if (!scan) throw new Error('usage: build-columbia <apollo_interior-medium_resolution.glb>')
+  if (!scan) console.log('No scan given (apollo_interior-medium_resolution.glb): the outside only.')
   await buildColumbia(join(dirname(fileURLToPath(import.meta.url)), '../../app/public/models/columbia'), scan)
 }

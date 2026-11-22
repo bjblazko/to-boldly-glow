@@ -8,7 +8,7 @@ import { PartsBuilder, toOurFrame } from './nasspParts'
 import { swatchUv } from './palette'
 import { HEIGHTS, PERSON } from './saturnVProfile'
 import { PALETTE_TEXTURE, saturnVParts, SWATCHES } from './saturnVParts'
-import { placedLathe } from './shapes'
+import { placedLathe, strutMesh } from './shapes'
 
 // The launcher lesson's models: NASSP's mobile launcher with our Saturn V on its hold-down arms and
 // a person for scale; NASSP's crawler-transporter, under the launcher's middle.
@@ -68,7 +68,8 @@ export async function launcherModels(): Promise<LauncherModels> {
   // The first stage's base on the deck, the hold-down arms round it: so the command module's hatch
   // meets the crew access arm's white room, at the tower's 320-ft level.
   const deck = bounds(ml.groups.filter((group) => group.label.startsWith('0001_')), 1)[1] + shift[1]
-  const launcher = new Map([...builder.parts(), ['rocket', rocket(deck - HEIGHTS.sicBase)], ['person', [person()]]])
+  const parts = builder.parts()
+  const launcher = new Map([...parts, ['rocket', rocket(deck - HEIGHTS.sicBase)], ['person', [person()]], ['slidewire', slidewire(boxOf(parts.get('tower') ?? []), deck)]])
   const hinges = Object.fromEntries(Object.entries(LAUNCHER_TURNS).map(([part, turn]) => [part, mirroredHinge(turn, shift)]))
   // A crawler part's place in our frame: its offset from the crawler's attachment, carried to the
   // launcher's parent attachment, mirrored and shifted; its height stays its own (on the floor).
@@ -98,4 +99,43 @@ function rocket(base: number): MeshPrimitive[] {
 // The person for scale, on the floor beside the launcher, in the Saturn V's palette.
 function person(): MeshPrimitive {
   return placedLathe(PERSON.profile, PERSON_AT, 0, { texture: PALETTE_TEXTURE, uv: () => swatchUv(SWATCHES, 'person'), segments: 12 })
+}
+
+// The corners of the box round some primitives.
+function boxOf(primitives: readonly MeshPrimitive[]): { min: number[]; max: number[] } {
+  const min = [Infinity, Infinity, Infinity]
+  const max = [-Infinity, -Infinity, -Infinity]
+  for (const { positions } of primitives) for (let i = 0; i < positions.length; i++) {
+    min[i % 3] = Math.min(min[i % 3], positions[i])
+    max[i % 3] = Math.max(max[i % 3], positions[i])
+  }
+  return { min, max }
+}
+
+// The emergency slide wire (NASA SP-4204, "Moonport", appendix B: a cab on a slide wire from the
+// 98-m level to a revetment 763 m away): from the tower's side away from the rocket, at the crew
+// access arm's 320-ft level above the deck, straight out from the rocket and down to the ground.
+const SLIDEWIRE = { level: 320 * 0.3048, run: 763, end: 2 }
+
+export function slidewireLine(tower: { min: readonly number[]; max: readonly number[] }, deck: number): { from: [number, number, number]; to: [number, number, number] } {
+  const middle = [(tower.min[0] + tower.max[0]) / 2, (tower.min[2] + tower.max[2]) / 2]
+  const length = Math.hypot(middle[0], middle[1]) || 1
+  const out = [middle[0] / length, middle[1] / length]
+  // Where the line out from the rocket leaves the tower's square.
+  const half = Math.min((tower.max[0] - tower.min[0]) / 2 / Math.abs(out[0] || 1e-9), (tower.max[2] - tower.min[2]) / 2 / Math.abs(out[1] || 1e-9))
+  const from: [number, number, number] = [middle[0] + out[0] * half, deck + SLIDEWIRE.level, middle[1] + out[1] * half]
+  return { from, to: [from[0] + out[0] * SLIDEWIRE.run, SLIDEWIRE.end, from[2] + out[1] * SLIDEWIRE.run] }
+}
+
+// Two wires side by side, and the cab hanging under them a little way down (symbolic: a box).
+export function slidewire(tower: { min: readonly number[]; max: readonly number[] }, deck: number): MeshPrimitive[] {
+  const { from, to } = slidewireLine(tower, deck)
+  const along = [to[0] - from[0], to[1] - from[1], to[2] - from[2]]
+  const length = Math.hypot(...along)
+  const across = [-along[2] / length, 0, along[0] / length]
+  const wire = (side: number) => strutMesh([from[0] + across[0] * side, from[1], from[2] + across[2] * side], [to[0] + across[0] * side, to[1], to[2] + across[2] * side], { radius: 0.04, texture: PALETTE_TEXTURE, uv: swatchUv(SWATCHES, 'engine') })
+  const at = (distance: number) => along.map((value, k) => from[k] + (value * distance) / length)
+  const hang = at(28)
+  const cab = placedLathe([[0, -2.4], [1.1, -2.4], [1.1, -0.4], [0, -0.4]], [hang[0], hang[2]], hang[1], { texture: PALETTE_TEXTURE, uv: () => swatchUv(SWATCHES, 'person'), segments: 4, sharp: true, startAngle: Math.PI / 4 + Math.atan2(along[2], along[0]) })
+  return [mergePrimitives([wire(-0.6), wire(0.6), cab])]
 }

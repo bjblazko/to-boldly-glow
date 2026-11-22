@@ -8,6 +8,28 @@ export const apollo11: Messages['lessons']['apollo11'] = {
     'den drei Tagen des Hinflugs zog er in Wahrheit um etwa 40 Grad weiter. Zeiten aus NASAs „Apollo by the ' +
     'Numbers“ und dem Apollo 11 Mission Report.',
   chapters: {
+    race: {
+      title: 'Der Wettlauf zum Mond',
+      text:
+        'Im Oktober 1957 brachte die Sowjetunion den ersten Satelliten in eine Umlaufbahn, Sputnik; im April ' +
+        '1961 flog Juri Gagarin als erster Mensch ins All. Im Kalten Krieg war der Weltraum zum Maßstab ' +
+        'geworden, welche Seite mehr konnte. Sechs Wochen nach Gagarin forderte Präsident Kennedy vom ' +
+        'Kongress, noch in diesem Jahrzehnt einen Menschen auf den Mond und sicher zurückzubringen. Rund ' +
+        '400.000 Menschen arbeiteten an Apollo, für etwa 25 Milliarden Dollar damaligen Geldes. Auch die ' +
+        'Sowjetunion war im Rennen: Ihre eigene Mondrakete, die N1, explodierte zwei Wochen vor dem Start ' +
+        'von Apollo 11 auf der Rampe.',
+    },
+    crew: {
+      title: 'Die Besatzung',
+      text:
+        'Drei Männer flogen Apollo 11, alle 1930 geboren, alle schon einmal im All gewesen, mit Gemini. Neil ' +
+        'Armstrong, der Kommandant, aus Wapakoneta in Ohio: Marineflieger in Korea, Luftfahrtingenieur von ' +
+        'der Purdue University, dann Testpilot des Raketenflugzeugs X-15 – als Einziger der drei Zivilist. ' +
+        'Michael Collins, der Pilot des Kommandomoduls, in Rom geboren, Sohn eines amerikanischen Generals: ' +
+        'Militärakademie West Point, dann Testpilot der Luftwaffe. Buzz Aldrin, der Pilot der Mondfähre, ' +
+        'aus New Jersey: West Point, Jagdflieger in Korea und ein Doktor vom MIT darüber, wie sich ' +
+        'Raumschiffe im Orbit treffen.',
+    },
     launch: {
       title: 'Der Start',
       text:
@@ -129,6 +151,15 @@ export const apollo11: Messages['lessons']['apollo11'] = {
         'Juli landete es im Pazifik, 24 Kilometer vom Bergungsschiff USS Hornet entfernt. Die Mission hatte ' +
         'acht Tage, drei Stunden und achtzehn Minuten gedauert.',
     },
+    quarantine: {
+      title: 'Quarantäne',
+      text:
+        'Niemand wusste sicher, ob der Mond keine Keime trug. Die Crew zog deshalb schon im Schlauchboot ' +
+        'Isolieranzüge an, wurde zur USS Hornet geflogen und ging direkt in einen versiegelten Container, ' +
+        'die Mobile Quarantine Facility. Präsident Nixon begrüßte sie durch ihr Fenster. In Quarantäne ' +
+        'blieben sie bis zum 10. August – drei Wochen nach dem Start vom Mond –, die letzten Tage im Lunar ' +
+        'Receiving Laboratory in Houston.',
+    },
   },
   // Die Aufnahmen aus der Zeit, nach der Erzählerin gespielt: übersetzt (gesprochen wird Englisch).
   original: {
@@ -164,6 +195,9 @@ export const apollo11: Messages['lessons']['apollo11'] = {
     missionTime: (time: string) => `Missionszeit ${time}`,
   },
   captions: {
+    race: 'Präsident Kennedy an der Rice University in Houston, 12. September 1962: „We choose to go to the Moon“.',
+    crew: 'Das offizielle Porträt der Besatzung: Neil Armstrong, Kommandant; Michael Collins, Pilot des Kommandomoduls; Buzz Aldrin, Pilot der Mondfähre.',
+    quarantine: 'Präsident Nixon begrüßt die Crew an Bord der USS Hornet, 24. Juli 1969; Armstrong, Collins und Aldrin in der Mobile Quarantine Facility.',
     launch: 'Apollo 11 hebt von Startkomplex 39A ab, 16. Juli 1969.',
     orbit: 'Eagle im Mondorbit nach dem Abkoppeln, die Beine ausgeklappt, die Fühler nach unten – fotografiert von Michael Collins.',
     surface: 'Eagle im Meer der Ruhe, 20. Juli 1969; Buzz Aldrin packt die Experimente aus der Abstiegsstufe aus.',

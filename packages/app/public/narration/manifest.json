@@ -13,6 +13,10 @@
             "hash": "792f40bcb4350e18",
             "seconds": 20.0
           },
+          "lessons/apollo11/crew": {
+            "hash": "9b18488f2fda7629",
+            "seconds": 43.12
+          },
           "lessons/apollo11/descent": {
             "hash": "47cc5b78e7fe2708",
             "seconds": 19.36
@@ -30,8 +34,8 @@
             "seconds": 12.32
           },
           "lessons/apollo11/landing": {
-            "hash": "15caf63ca3f80235",
-            "seconds": 26.8
+            "hash": "e8fb9664a5eabb27",
+            "seconds": 26.72
           },
           "lessons/apollo11/launch": {
             "hash": "addcaf01c0f9b166",
@@ -49,6 +53,14 @@
             "hash": "11534e08e20daa26",
             "seconds": 13.2
           },
+          "lessons/apollo11/quarantine": {
+            "hash": "2a5001335562166e",
+            "seconds": 25.76
+          },
+          "lessons/apollo11/race": {
+            "hash": "c4ee81616e7dfc47",
+            "seconds": 41.76
+          },
           "lessons/apollo11/rendezvous": {
             "hash": "5622955bd2239c21",
             "seconds": 16.88
@@ -62,8 +74,8 @@
             "seconds": 19.04
           },
           "lessons/apollo11/tli": {
-            "hash": "9b0c089e2aadef1a",
-            "seconds": 37.36
+            "hash": "5d096c13fb0d4f24",
+            "seconds": 39.68
           },
           "lessons/apollo11/undocking": {
             "hash": "1de1e2a0abf5c867",
@@ -78,8 +90,8 @@
             "seconds": 17.12
           },
           "lessons/columbia/inside": {
-            "hash": "57d8af818dc9bbe2",
-            "seconds": 11.76
+            "hash": "f9c66b61a1b9db43",
+            "seconds": 13.84
           },
           "lessons/columbia/notes": {
             "hash": "f2b0a224d3fd38c1",
@@ -96,6 +108,10 @@
           "lessons/columbia/serviceModule": {
             "hash": "53c30fac70ac1f73",
             "seconds": 24.32
+          },
+          "lessons/columbia/today": {
+            "hash": "223cf3ab74cfe0a9",
+            "seconds": 17.36
           },
           "lessons/columbia/whole": {
             "hash": "90f8375a10ea338d",
@@ -141,9 +157,17 @@
             "hash": "970d15fbb3381d33",
             "seconds": 26.0
           },
+          "lessons/launcher/crawlerParts": {
+            "hash": "1340f23b6f9d20c1",
+            "seconds": 31.36
+          },
           "lessons/launcher/crewArm": {
             "hash": "7099ebc3ab76af29",
             "seconds": 17.76
+          },
+          "lessons/launcher/escape": {
+            "hash": "0f6aae42c5a9cc24",
+            "seconds": 33.52
           },
           "lessons/launcher/holddown": {
             "hash": "73c839c5cd476f3a",
@@ -153,13 +177,21 @@
             "hash": "4f3c3f8d9f4da58a",
             "seconds": 15.28
           },
+          "lessons/launcher/platform": {
+            "hash": "68094d4c372114a0",
+            "seconds": 24.88
+          },
           "lessons/launcher/tower": {
             "hash": "605509b0967fec19",
             "seconds": 16.64
           },
-          "lessons/launcher/whole": {
-            "hash": "41280e8697244da9",
+          "lessons/launcher/whiteRoom": {
+            "hash": "810849b06e847825",
             "seconds": 21.68
+          },
+          "lessons/launcher/whole": {
+            "hash": "8cf44cc753b53396",
+            "seconds": 20.08
           },
           "lessons/moonPhases/always-half-lit": {
             "hash": "02183f3a5a6b704c",
@@ -559,6 +591,10 @@
             "hash": "ee6c8e1d8aeb7fc7",
             "seconds": 17.52
           },
+          "lessons/apollo11/crew": {
+            "hash": "907fda4290726d7f",
+            "seconds": 40.0
+          },
           "lessons/apollo11/descent": {
             "hash": "7aa9f7a7f69ca1a8",
             "seconds": 18.8
@@ -595,6 +631,14 @@
             "hash": "7b43c16cf5d9ede4",
             "seconds": 10.88
           },
+          "lessons/apollo11/quarantine": {
+            "hash": "001d7b931f89caa3",
+            "seconds": 23.92
+          },
+          "lessons/apollo11/race": {
+            "hash": "3cdc1bf3e417e3d1",
+            "seconds": 38.8
+          },
           "lessons/apollo11/rendezvous": {
             "hash": "6f8e8602b5df3080",
             "seconds": 16.0
@@ -624,8 +668,8 @@
             "seconds": 17.04
           },
           "lessons/columbia/inside": {
-            "hash": "4d93cbf1c84d68ef",
-            "seconds": 12.56
+            "hash": "7f4364ca5a2b4b31",
+            "seconds": 13.2
           },
           "lessons/columbia/notes": {
             "hash": "a0efa14daa17affb",
@@ -642,6 +686,10 @@
           "lessons/columbia/serviceModule": {
             "hash": "5f85cc4c190bfa47",
             "seconds": 22.88
+          },
+          "lessons/columbia/today": {
+            "hash": "53fc6a94c35ee654",
+            "seconds": 16.48
           },
           "lessons/columbia/whole": {
             "hash": "1fe43e0f299bd80f",
@@ -687,9 +735,17 @@
             "hash": "79d54279cdbcde17",
             "seconds": 25.28
           },
+          "lessons/launcher/crawlerParts": {
+            "hash": "8ab8cd621db1ebff",
+            "seconds": 30.32
+          },
           "lessons/launcher/crewArm": {
             "hash": "e688180f81fb211b",
             "seconds": 16.0
+          },
+          "lessons/launcher/escape": {
+            "hash": "33d112b44dfdc8de",
+            "seconds": 29.68
           },
           "lessons/launcher/holddown": {
             "hash": "784fb93c87cb4c1f",
@@ -699,9 +755,17 @@
             "hash": "697c4e7025531036",
             "seconds": 12.72
           },
+          "lessons/launcher/platform": {
+            "hash": "5ec377941ea2cdc8",
+            "seconds": 23.2
+          },
           "lessons/launcher/tower": {
             "hash": "4bd47e6e92c4015d",
             "seconds": 17.84
+          },
+          "lessons/launcher/whiteRoom": {
+            "hash": "25dcaf6b2f59da8f",
+            "seconds": 21.44
           },
           "lessons/launcher/whole": {
             "hash": "5b4f62099069f528",
@@ -1113,6 +1177,10 @@
             "hash": "66ddd9d02120d5bf",
             "seconds": 19.76
           },
+          "lessons/apollo11/crew": {
+            "hash": "3e926ca77731d73e",
+            "seconds": 42.08
+          },
           "lessons/apollo11/descent": {
             "hash": "d756c25878574ae2",
             "seconds": 20.4
@@ -1130,8 +1198,8 @@
             "seconds": 13.36
           },
           "lessons/apollo11/landing": {
-            "hash": "bc46e16d94f48471",
-            "seconds": 32.64
+            "hash": "1a60af4d1f29867c",
+            "seconds": 29.92
           },
           "lessons/apollo11/launch": {
             "hash": "6958ae4938f8aa84",
@@ -1149,6 +1217,14 @@
             "hash": "de0e9ee4745d91ce",
             "seconds": 12.64
           },
+          "lessons/apollo11/quarantine": {
+            "hash": "ffff271cac324a7e",
+            "seconds": 28.96
+          },
+          "lessons/apollo11/race": {
+            "hash": "44298565e64c41e4",
+            "seconds": 42.96
+          },
           "lessons/apollo11/rendezvous": {
             "hash": "8133d7329ccbdf6f",
             "seconds": 20.96
@@ -1162,8 +1238,8 @@
             "seconds": 19.36
           },
           "lessons/apollo11/tli": {
-            "hash": "a2eac6436ad76cbc",
-            "seconds": 40.0
+            "hash": "3814b4c07be915d9",
+            "seconds": 40.4
           },
           "lessons/apollo11/undocking": {
             "hash": "0eeea1be94676d7c",
@@ -1178,8 +1254,8 @@
             "seconds": 17.6
           },
           "lessons/columbia/inside": {
-            "hash": "e678fca05f683830",
-            "seconds": 12.32
+            "hash": "226ceea25f923f01",
+            "seconds": 14.56
           },
           "lessons/columbia/notes": {
             "hash": "b4aefccaa5a7e62d",
@@ -1196,6 +1272,10 @@
           "lessons/columbia/serviceModule": {
             "hash": "562f829cae9f08e0",
             "seconds": 26.08
+          },
+          "lessons/columbia/today": {
+            "hash": "a11d35ae1d2e4ca6",
+            "seconds": 18.56
           },
           "lessons/columbia/whole": {
             "hash": "e35118e7d8110503",
@@ -1241,9 +1321,17 @@
             "hash": "8483d34f4d4e268f",
             "seconds": 27.28
           },
+          "lessons/launcher/crawlerParts": {
+            "hash": "79cc28e73818d306",
+            "seconds": 34.32
+          },
           "lessons/launcher/crewArm": {
             "hash": "a32ea3d3d67ace00",
             "seconds": 18.96
+          },
+          "lessons/launcher/escape": {
+            "hash": "24abd0e4bff99e2c",
+            "seconds": 35.52
           },
           "lessons/launcher/holddown": {
             "hash": "437afe620a914257",
@@ -1253,13 +1341,21 @@
             "hash": "3d70369fedc13e4b",
             "seconds": 15.76
           },
+          "lessons/launcher/platform": {
+            "hash": "c650f608e1239a81",
+            "seconds": 25.76
+          },
           "lessons/launcher/tower": {
             "hash": "3269022ebf8cd52b",
             "seconds": 17.6
           },
+          "lessons/launcher/whiteRoom": {
+            "hash": "2223569d8428622f",
+            "seconds": 24.0
+          },
           "lessons/launcher/whole": {
-            "hash": "b016cd10d77cb672",
-            "seconds": 20.96
+            "hash": "93023544a6313afd",
+            "seconds": 21.6
           },
           "lessons/moonPhases/always-half-lit": {
             "hash": "f27118cb55407307",
@@ -1659,6 +1755,10 @@
             "hash": "9ec80ae2c45b3664",
             "seconds": 17.52
           },
+          "lessons/apollo11/crew": {
+            "hash": "9db01aa1aaf9f17e",
+            "seconds": 41.12
+          },
           "lessons/apollo11/descent": {
             "hash": "668894cdbe2c0466",
             "seconds": 19.36
@@ -1695,6 +1795,14 @@
             "hash": "e0785ec48e3669a3",
             "seconds": 12.16
           },
+          "lessons/apollo11/quarantine": {
+            "hash": "300d155c7d063a0d",
+            "seconds": 24.8
+          },
+          "lessons/apollo11/race": {
+            "hash": "29a1f968250669ba",
+            "seconds": 39.12
+          },
           "lessons/apollo11/rendezvous": {
             "hash": "e94c00f33951c1b9",
             "seconds": 15.6
@@ -1724,8 +1832,8 @@
             "seconds": 15.6
           },
           "lessons/columbia/inside": {
-            "hash": "de1007540aa78ec2",
-            "seconds": 13.6
+            "hash": "9e1b0df862ae105c",
+            "seconds": 13.52
           },
           "lessons/columbia/notes": {
             "hash": "7ace20d968e0c24e",
@@ -1742,6 +1850,10 @@
           "lessons/columbia/serviceModule": {
             "hash": "5564e83b71b9c358",
             "seconds": 22.88
+          },
+          "lessons/columbia/today": {
+            "hash": "42bafcd9baf01262",
+            "seconds": 16.72
           },
           "lessons/columbia/whole": {
             "hash": "2c8eaf85677e62bf",
@@ -1787,9 +1899,17 @@
             "hash": "d5aa03af2bce3a93",
             "seconds": 25.6
           },
+          "lessons/launcher/crawlerParts": {
+            "hash": "5d81fbc4b6245f74",
+            "seconds": 29.68
+          },
           "lessons/launcher/crewArm": {
             "hash": "c57ce1e4b45c11ef",
             "seconds": 16.32
+          },
+          "lessons/launcher/escape": {
+            "hash": "9028318adbe54c33",
+            "seconds": 30.24
           },
           "lessons/launcher/holddown": {
             "hash": "8132c48f816ecebb",
@@ -1799,9 +1919,17 @@
             "hash": "86f60c80b8c319d4",
             "seconds": 13.92
           },
+          "lessons/launcher/platform": {
+            "hash": "90d91f9cbb259e6c",
+            "seconds": 23.92
+          },
           "lessons/launcher/tower": {
             "hash": "aae08f3d8f655d72",
             "seconds": 16.08
+          },
+          "lessons/launcher/whiteRoom": {
+            "hash": "e1b2f7f3ec09fa38",
+            "seconds": 21.76
           },
           "lessons/launcher/whole": {
             "hash": "483727547aabcaae",

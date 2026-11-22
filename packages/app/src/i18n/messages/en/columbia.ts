@@ -1,13 +1,13 @@
 // Columbia: Apollo 11's command and service module, outside and in. Figures from North American
-// Rockwell's "Apollo Spacecraft News Reference" for NASA (1968); the cabin is the Smithsonian's scan
-// of the real Columbia.
+// Rockwell's "Apollo Spacecraft News Reference" for NASA (1968); the cabin as it flew is Project
+// Apollo - NASSP's cockpit, as it is today the Smithsonian's scan of the real Columbia.
 
 export const columbia = {
   title: 'Columbia, Inside and Out',
   note:
     'The outside is built from the spacecraft’s published dimensions; the service module’s inside is ' +
-    'shown schematically. The cabin is the Smithsonian’s 3D scan of the real Columbia, as it is today ' +
-    'in the National Air and Space Museum.',
+    'shown schematically. The cabin as it flew is Project Apollo - NASSP’s model of it, switch by switch (GPL, built by its volunteers for the Orbiter space flight simulator); ' +
+    'as it is today, the Smithsonian’s 3D scan of the real Columbia in the National Air and Space Museum.',
   chapters: {
     whole: {
       title: 'The Spacecraft',
@@ -41,8 +41,8 @@ export const columbia = {
     inside: {
       title: 'Inside',
       text:
-        'This is Columbia as it is today, scanned by the Smithsonian. The cabin offered about 6 cubic ' +
-        'metres of room - for three men and eight days, the whole way to the Moon and back.',
+        'This is the cabin as it flew, rebuilt switch by switch by Project Apollo - NASSP. It offered about 6 ' +
+        'cubic metres of room - for three men and eight days, the whole way to the Moon and back.',
     },
     panels: {
       title: 'The Main Display Console',
@@ -57,6 +57,13 @@ export const columbia = {
         'The three couches stand on crushable honeycomb struts that softened the blow when the capsule hit ' +
         'the water. At their foot lies the lower equipment bay with the navigation instruments: a sextant, ' +
         'a telescope and the guidance computer with its keyboard.',
+    },
+    today: {
+      title: 'Columbia Today',
+      text:
+        'The real Columbia is in the National Air and Space Museum in Washington. The Smithsonian scanned ' +
+        'its cabin and photographed it all over: this is that scan, the cabin as it is now - the couches ' +
+        'worn, the colours faded, as the capsule came home.',
     },
     notes: {
       title: 'Notes on the Walls',
@@ -78,6 +85,10 @@ export const columbia = {
     panels: 'Main display console',
     seats: 'Couches',
     notes: 'Crew notes',
+    vcCabin: 'Cabin wall',
+    vcPanels: 'Main display console',
+    vcHatches: 'Hatches',
+    vcCouches: 'Couches',
   },
   marks: {
     sm: { label: 'Top of the service module' },

@@ -8,12 +8,12 @@ import { PERSON } from './saturnVProfile'
 import { placedLathe, tankProfile } from './shapes'
 
 // The assemblies Eagle is shown in. The outside is Project Apollo - NASSP's (lmNasspModel.ts): the
-// descent stage's shell (cut open), each leg (they fold), what is there only with them out (the
-// secondary struts, the probes), the ascent stage's shell. Ours, from the dimensions
+// descent stage's shell (cut open), each leg (they fold) and each leg's braces (they fold with it,
+// about their own feet), the ascent stage's shell. Ours, from the dimensions
 // (lmProfile.ts): what the cutaway shows inside the stages - tanks and engines - and a person for
 // scale. The cockpit is a model of its own (NASSP's, lit by its lamps), rising with the ascent
 // stage.
-export const LM_ASSEMBLIES = ['descent', 'descentInside', 'leg0', 'leg1', 'leg2', 'leg3', 'deployed', 'ascent', 'ascentInside', 'person'] as const
+export const LM_ASSEMBLIES = ['descent', 'descentInside', 'leg0', 'leg1', 'leg2', 'leg3', 'link0', 'link1', 'link2', 'link3', 'probes', 'ascent', 'ascentInside', 'person'] as const
 export const COCKPIT_ASSEMBLIES = ['cockpit', 'panels', 'dsky', 'windows'] as const
 export type LmAssembly = (typeof LM_ASSEMBLIES)[number] | (typeof COCKPIT_ASSEMBLIES)[number]
 

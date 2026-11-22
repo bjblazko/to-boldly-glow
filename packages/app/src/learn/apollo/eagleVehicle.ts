@@ -7,7 +7,7 @@ import { eyeLookingAt, VEHICLE_ROOM_FACING, vehicleShot, type VehicleFrame } fro
 // apollo/lmNassp.ts): the outside and the cockpit - Project Apollo - NASSP's - with our tanks and
 // engines inside the stages.
 export type EaglePart =
-  | 'descent' | 'descentInside' | 'leg0' | 'leg1' | 'leg2' | 'leg3' | 'deployed' | 'ascent' | 'ascentInside' | 'person'
+  | 'descent' | 'descentInside' | 'leg0' | 'leg1' | 'leg2' | 'leg3' | 'link0' | 'link1' | 'link2' | 'link3' | 'probes' | 'ascent' | 'ascentInside' | 'person'
   | 'cockpit' | 'panels' | 'dsky' | 'windows'
 
 // Eagle stands on its footpads (y 0), +Z forward - the hatch, the ladder - and the Commander's side
@@ -66,7 +66,11 @@ const CABIN_MATERIALS = {
 // Outside: the foil shines like metal, the struts and the cabin's paint less.
 const OUTSIDE_MATERIALS = {
   descent: { shininess: 40, shine: 0.55 },
-  deployed: { shininess: 30, shine: 0.3 },
+  link0: { shininess: 30, shine: 0.3 },
+  link1: { shininess: 30, shine: 0.3 },
+  link2: { shininess: 30, shine: 0.3 },
+  link3: { shininess: 30, shine: 0.3 },
+  probes: { shininess: 30, shine: 0.3 },
   leg0: { shininess: 30, shine: 0.35 },
   leg1: { shininess: 30, shine: 0.35 },
   leg2: { shininess: 30, shine: 0.35 },

@@ -28,6 +28,6 @@ describe('the shipped Eagle', () => {
       expect(reach, assembly.id).toBeLessThan(3.3)
       expect(highest, assembly.id).toBeLessThan(top)
     })
-    expect(description.assemblies.filter((assembly) => assembly.hinge)).toHaveLength(4)
+    expect(description.assemblies.filter((assembly) => assembly.hinge)).toHaveLength(8)
   })
 })

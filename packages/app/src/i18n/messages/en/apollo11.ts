@@ -10,6 +10,26 @@ export const apollo11 = {
     'days out it really moved on by about 40 degrees. Times from NASA’s “Apollo by the Numbers” and the ' +
     'Apollo 11 Mission Report.',
   chapters: {
+    race: {
+      title: 'The Race to the Moon',
+      text:
+        'In October 1957 the Soviet Union put the first satellite in orbit, Sputnik; in April 1961 Yuri ' +
+        'Gagarin became the first person in space. In the Cold War, space had become the measure of which ' +
+        'side could do more. Six weeks after Gagarin, President Kennedy asked Congress to land a man on the ' +
+        'Moon before the decade was out, and to bring him home safely. Some 400,000 people worked on Apollo, ' +
+        'at a cost of about 25 billion dollars of the time. The Soviet Union raced too: its own Moon rocket, ' +
+        'the N1, exploded on its pad two weeks before Apollo 11 lifted off.',
+    },
+    crew: {
+      title: 'The Crew',
+      text:
+        'Three men flew Apollo 11, all born in 1930, all of whom had flown in space before, on Gemini. Neil ' +
+        'Armstrong, the commander, from Wapakoneta, Ohio: a Navy pilot in Korea, an aeronautical engineer ' +
+        'from Purdue University, then a test pilot of the X-15 rocket plane - the only civilian of the ' +
+        'three. Michael Collins, the command module pilot, born in Rome, the son of an American general: ' +
+        'West Point, then an Air Force test pilot. Buzz Aldrin, the lunar module pilot, from New Jersey: ' +
+        'West Point, a fighter pilot in Korea, and a doctorate from MIT on how spacecraft meet in orbit.',
+    },
     launch: {
       title: 'Liftoff',
       text:
@@ -124,6 +144,15 @@ export const apollo11 = {
         'splashed down in the Pacific, 24 kilometres from the recovery ship USS Hornet. The mission had ' +
         'lasted eight days, three hours and eighteen minutes.',
     },
+    quarantine: {
+      title: 'Quarantine',
+      text:
+        'Nobody knew for certain that the Moon carried no germs. So the crew put on isolation suits in the ' +
+        'raft, were flown to the USS Hornet and went straight into a sealed trailer, the Mobile Quarantine ' +
+        'Facility. President Nixon welcomed them through its window. They stayed in quarantine until 10 ' +
+        'August - three weeks after leaving the Moon - the last days in the Lunar Receiving Laboratory in ' +
+        'Houston.',
+    },
   },
   // The recordings from the time played after the narrator (packages/data-pipeline/src/apollo/
   // originalAudio.ts): the words as said, checked against NASA's raw air-to-ground transcript.
@@ -160,6 +189,9 @@ export const apollo11 = {
     missionTime: (time: string) => `Mission time ${time}`,
   },
   captions: {
+    race: 'President Kennedy at Rice University in Houston, 12 September 1962: “We choose to go to the Moon”.',
+    crew: 'The crew’s official portrait: Neil Armstrong, commander; Michael Collins, command module pilot; Buzz Aldrin, lunar module pilot.',
+    quarantine: 'President Nixon welcomes the crew aboard the USS Hornet, 24 July 1969; Armstrong, Collins and Aldrin in the Mobile Quarantine Facility.',
     launch: 'Apollo 11 lifts off from Launch Complex 39A, 16 July 1969.',
     orbit: 'Eagle in lunar orbit after undocking, its legs out and its probes reaching down, photographed by Michael Collins.',
     surface: 'Eagle in the Sea of Tranquility, 20 July 1969; Buzz Aldrin unpacks the experiments from the descent stage.',

@@ -1,9 +1,10 @@
 import { copyFileSync, mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import sharp from 'sharp'
 import type { ModelDescription } from '../../app/src/spacecraft/modelFile'
 import { launcherModels } from './apollo/launcherModel'
-import { LAUNCHER_PARTS } from './apollo/launcherNassp'
+import { craneRed, LAUNCHER_PARTS } from './apollo/launcherNassp'
 import { nasspPalette, nasspTexture } from './apollo/nasspParts'
 import { PAINT_TEXTURE, PALETTE_TEXTURE } from './apollo/saturnVParts'
 import { assemblyAnchors, assignAssemblies } from './spacecraft/assemblies'
@@ -18,7 +19,15 @@ import { packModel } from './spacecraft/modelWriter'
 //
 // `npm run build-launcher`
 
-export const LAUNCHER_ASSEMBLIES = [...LAUNCHER_PARTS, 'rocket', 'person'] as const
+// The texture the crane is painted from (see craneRed).
+const CRANE_TEXTURE = 'nassp/texcolors.jpg'
+
+async function recoloured(jpeg: Buffer): Promise<Buffer> {
+  const { data, info } = await sharp(jpeg).removeAlpha().raw().toBuffer({ resolveWithObject: true })
+  return sharp(Buffer.from(craneRed(new Uint8Array(data))), { raw: { width: info.width, height: info.height, channels: 3 } }).jpeg({ quality: 86, mozjpeg: true }).toBuffer()
+}
+
+export const LAUNCHER_ASSEMBLIES = [...LAUNCHER_PARTS, 'rocket', 'person', 'slidewire'] as const
 
 const APP = join(dirname(fileURLToPath(import.meta.url)), '../../app/public/models')
 
@@ -46,7 +55,7 @@ export async function buildLauncher(out: string): Promise<void> {
   bytes += write(out, 'crawler', written(models.crawler, ['crawler'], {}, 0))
   for (const file of [PAINT_TEXTURE, PALETTE_TEXTURE]) copyFileSync(join(APP, 'saturnV', file), join(out, file))
   const images: [string, Buffer][] = [['nassp/palette.png', await nasspPalette(models.palette)]]
-  for (const [file, path] of models.textures) images.push([file, await nasspTexture(file, path)])
+  for (const [file, path] of models.textures) images.push([file, file === CRANE_TEXTURE ? await recoloured(await nasspTexture(file, path)) : await nasspTexture(file, path)])
   for (const [file, image] of images) {
     writeFileSync(join(out, file), image)
     bytes += image.length

@@ -269,7 +269,7 @@ The Apollo 11 lesson's own photos, fetched the same way by
 `packages/data-pipeline/src/fetchApollo11Photos.ts`, NASA, public domain (captions checked: no other
 credit): Marshall's sketches of July 1969 of the transposition and docking (6902077) and of the
 liftoff from the Moon and the rendezvous (6902073), NASA/MSFC; the ground beside Eagle through its
-window (as11-37-5458) and the ascent stage coming up to Columbia (as11-44-6626), NASA/JSC.
+window (as11-37-5458) and the ascent stage coming up to Columbia (as11-44-6626), NASA/JSC. The crew's official portrait (8903695, NASA/MSFC), President Nixon at the quarantine trailer on the USS Hornet (S69-21365, NASA/JSC) and President Kennedy at Rice University (s67-19620, NASA/JSC). The launch tower lesson's: Armstrong and Aldrin on the way to the spacecraft (KSC-69PC-399), Apollo 17's crew in an egress test (KSC-72PC-0610), Apollo 11's first stage stacked on its launcher (KSC-69P-168) and a crawler in pieces, 1964 (KSC-20100330-PH-KSC-64-3716), NASA/KSC; the White Room at Apollo 10 (S69-35316) and Apollo 11 rising past its tower (S69-39961), NASA/JSC.
 
 ## Apollo: Columbia, the command and service module
 
@@ -312,6 +312,16 @@ stage's two tanks and engine - and the person for scale (`lm-palette.png`) are o
 the dimensions in Grumman's "Apollo Lunar Module News Reference" for NASA (1968, public domain,
 https://archive.org/details/apollo-lunar-module-news-reference-1968); measures it does not settle
 are marked `APPROX` in `apollo/lmProfile.ts`. The lesson's figures come from the same document.
+
+## Apollo: Columbia's cockpit
+
+Columbia's cabin as it flew (`packages/app/public/models/columbia/cockpit.*`, `nassp/`) is converted
+from Project Apollo - NASSP (https://github.com/orbiternassp/NASSP, GNU General Public License,
+version 2 or later - see the Eagle section above for the license and why it is used under version 3
+or later) at commit `ddba501d2e274367b8660d7050dee7b9f4153865`: `Meshes/ProjectApollo/CM-VC.msh`,
+`CM-VC-SeatsUnfolded.msh` and the textures they name. Converted in November 2026 by
+`packages/data-pipeline/src/buildColumbiaCockpit.ts` (into the command module's frame, split into
+the lesson's parts, the textures as JPEG).
 
 ## Apollo: the launch tower and the crawler
 

@@ -1,24 +1,29 @@
 {
- "vertexCount": 9470,
- "indexCount": 46872,
+ "vertexCount": 9976,
+ "indexCount": 48600,
  "indexFormat": "uint16",
  "draws": [
   {
    "texture": "csm-palette.png",
    "firstIndex": 0,
-   "indexCount": 46872
+   "indexCount": 46296
+  },
+  {
+   "texture": "sm-paint.jpg",
+   "firstIndex": 46296,
+   "indexCount": 2304
   }
  ],
  "bounds": {
   "min": [
    -4.665800094604492,
    0,
-   -2.114051342010498
+   -1.9558000564575195
   ],
   "max": [
-   2.114051342010498,
+   1.9558000564575195,
    10.391799926757812,
-   2.114051342010498
+   1.9558000564575195
   ]
  },
  "assemblies": [
@@ -94,7 +99,7 @@
   ],
   "sm": [
    0,
-   5.054600119590759,
+   5.127100110054016,
    0
   ],
   "smInside": [

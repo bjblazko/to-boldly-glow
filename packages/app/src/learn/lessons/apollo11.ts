@@ -42,6 +42,8 @@ const LIFTOFF = RENDEZVOUS - HALF_TURN
 const ENTRY = 4.88
 
 const CHAPTERS: Chapter[] = [
+  chapter('race', { view: 'earth', from: 0, to: 0, event: 'liftoff' }, { photo: photo('s67-19620', 'race', 'NASA/JSC') }),
+  chapter('crew', { view: 'earth', from: 0, to: 0, event: 'liftoff' }, { photo: photo('8903695', 'crew', 'NASA/MSFC') }),
   chapter('launch', { view: 'earth', from: 0, to: 1, event: 'liftoff' }, { photo: photo('6901000', 'launch', 'NASA/MSFC'), facts: facts(['liftoff', 'clock'], ['inOrbit', 'orbit']) }),
   chapter('parking', { view: 'earth', from: 1, to: 2, event: 'earthOrbitInsertion' }, { facts: facts(['period', 'rotation']) }),
   chapter('tli', { view: 'earth', from: 2, to: 2.06, burn: 'tli', event: 'tliIgnition' }, { facts: facts(['tliBurn', 'clock'], ['tliSpeed', 'power']) }),
@@ -58,6 +60,7 @@ const CHAPTERS: Chapter[] = [
   chapter('home', { view: 'whole', from: RENDEZVOUS, to: ENTRY, burn: 'tei', event: 'teiIgnition' }, { facts: facts(['teiBurn', 'clock']) }),
   closeup('entry', { closeup: 'entry', at: ENTRY, event: 'cmSmSeparation' }),
   chapter('splashdown', { view: 'earth', from: ENTRY, to: 5, event: 'splashdown' }, { photo: photo('372772main_GPN-2000-001212_full', 'splashdown', 'NASA'), facts: facts(['entrySpeed', 'power'], ['duration', 'clock']) }),
+  chapter('quarantine', { view: 'earth', from: 5, to: 5, event: 'splashdown' }, { photo: photo('S69-21365', 'quarantine', 'NASA/JSC') }),
 ]
 
 export const APOLLO11_LESSON: Lesson = {

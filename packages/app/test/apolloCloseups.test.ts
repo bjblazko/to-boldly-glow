@@ -36,15 +36,15 @@ describe('the Apollo 11 close-ups', () => {
     expect(lmEnd[1] - lmStart[1]).toBeGreaterThan(10)
     expect(actor('transposition', 3, 'saturnV').visibility.sla).toBe(0)
     // Folded, Eagle's struts and probes are tucked away (as in the Eagle lesson).
-    for (const t of [0, 11, CLOSEUPS.transposition.seconds]) expect(actor('transposition', t, 'lm').visibility.deployed).toBe(0)
+    for (const t of [0, 11, CLOSEUPS.transposition.seconds]) expect(actor('transposition', t, 'lm').fold).toBe(1)
   })
 
   it('undocking: docked at first, the legs unfold, then Eagle drifts off and turns round once', () => {
     expect(gap('undocking', 0)).toBeLessThan(0.05)
     expect(actor('undocking', 0, 'lm').fold).toBe(1)
     expect(actor('undocking', CLOSEUPS.undocking.seconds, 'lm').fold).toBe(0)
-    expect(actor('undocking', 0, 'lm').visibility.deployed).toBe(0)
-    expect(actor('undocking', CLOSEUPS.undocking.seconds, 'lm').visibility.deployed).toBe(1)
+    expect(actor('undocking', 0, 'lm').fold).toBe(1)
+    expect(actor('undocking', CLOSEUPS.undocking.seconds, 'lm').fold).toBe(0)
     expect(gap('undocking', CLOSEUPS.undocking.seconds)).toBeGreaterThan(8)
   })
 
@@ -97,5 +97,20 @@ describe('the ground under Eagle', () => {
     expect(fromCentre).toBeGreaterThan(ROUTE_MOON_RADIUS * 0.997)
     const radial = [0, 1, 2].map((k) => (LANDING_SITE[k] - ROUTE_MOON[k]) / ROUTE_MOON_RADIUS)
     expect(ground.normal[0] * radial[0] + ground.normal[1] * radial[1] + ground.normal[2] * radial[2]).toBeGreaterThan(0.998)
+  })
+})
+
+describe('the close-up of the entry', () => {
+  it('looks out from between Earth and the command module, so the dark night side is not behind it', async () => {
+    const { closeupShot, closeupFrame } = await import('../src/learn/apolloRoute/closeupFrames')
+    const { orbitBasisForUpAxis } = await import('../src/camera/orbitCamera')
+    const { ROUTE_EARTH } = await import('../src/learn/apolloRoute/routeGeometry')
+    const { preset } = closeupShot('entry')
+    const { right, forward0 } = orbitBasisForUpAxis(preset.upAxis)
+    const toEye = [0, 1, 2].map((k) => Math.cos(preset.elevation) * (Math.sin(preset.azimuth) * right[k] + Math.cos(preset.azimuth) * forward0[k]) + Math.sin(preset.elevation) * preset.upAxis[k])
+    const origin = closeupFrame('entry').origin
+    const towardEarth = ROUTE_EARTH.map((value, k) => value - origin[k])
+    const length = Math.hypot(...towardEarth)
+    expect(toEye.reduce((sum, value, k) => sum + (value * towardEarth[k]) / length, 0)).toBeGreaterThan(0.5)
   })
 })

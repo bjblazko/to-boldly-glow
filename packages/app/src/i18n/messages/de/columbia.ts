@@ -4,8 +4,8 @@ export const columbia: Messages['lessons']['columbia'] = {
   title: 'Columbia, von außen und innen',
   note:
     'Die Außenseite ist aus den veröffentlichten Maßen gebaut; das Innere des Versorgungsmoduls ist ' +
-    'schematisch. Die Kabine ist der 3D-Scan der echten Columbia durch die Smithsonian, so wie sie heute ' +
-    'im National Air and Space Museum steht.',
+    'schematisch. Die Kabine im Flug ist das Modell von Project Apollo – NASSP, Schalter für Schalter (GPL, gebaut von dessen Freiwilligen für den Raumflugsimulator Orbiter); ' +
+    'die Kabine heute ist der 3D-Scan der echten Columbia durch die Smithsonian im National Air and Space Museum.',
   chapters: {
     whole: {
       title: 'Das Raumschiff',
@@ -39,8 +39,8 @@ export const columbia: Messages['lessons']['columbia'] = {
     inside: {
       title: 'Innen',
       text:
-        'So sieht Columbia heute aus, gescannt von der Smithsonian. Die Kabine bot etwa 6 Kubikmeter Platz – ' +
-        'für drei Männer und acht Tage, den ganzen Weg zum Mond und zurück.',
+        'So sah die Kabine im Flug aus, Schalter für Schalter nachgebaut von Project Apollo – NASSP. Sie bot ' +
+        'etwa 6 Kubikmeter Platz – für drei Männer und acht Tage, den ganzen Weg zum Mond und zurück.',
     },
     panels: {
       title: 'Die Hauptinstrumententafel',
@@ -55,6 +55,13 @@ export const columbia: Messages['lessons']['columbia'] = {
         'Die drei Liegen stehen auf zusammendrückbaren Wabenstreben, die den Aufprall auf dem Wasser ' +
         'abfederten. An ihrem Fußende liegt die untere Geräteabteilung mit den Navigationsinstrumenten: ' +
         'Sextant, Teleskop und der Steuercomputer mit seiner Tastatur.',
+    },
+    today: {
+      title: 'Columbia heute',
+      text:
+        'Die echte Columbia steht im National Air and Space Museum in Washington. Die Smithsonian hat ihre ' +
+        'Kabine gescannt und rundum fotografiert: Das ist dieser Scan, die Kabine, wie sie heute ist – die ' +
+        'Liegen abgewetzt, die Farben verblasst, so wie die Kapsel heimkehrte.',
     },
     notes: {
       title: 'Notizen an den Wänden',
@@ -76,6 +83,10 @@ export const columbia: Messages['lessons']['columbia'] = {
     panels: 'Hauptinstrumententafel',
     seats: 'Liegen',
     notes: 'Notizen der Crew',
+    vcCabin: 'Kabinenwand',
+    vcPanels: 'Hauptinstrumententafel',
+    vcHatches: 'Luken',
+    vcCouches: 'Liegen',
   },
   marks: {
     sm: { label: 'Oberkante Versorgungsmodul' },

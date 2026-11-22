@@ -71,7 +71,8 @@ export class ApolloRouteScene {
   update(deltaSeconds: number): void {
     this.craft.update(deltaSeconds)
     this.eagle.update(deltaSeconds)
-    this.earthSpin += deltaSeconds * EARTH_SPIN_RADIANS_PER_SECOND
+    // Held still in a close-up: Earth turning behind a craft seen this close looks like its own motion.
+    if (!this.current?.closeup) this.earthSpin += deltaSeconds * EARTH_SPIN_RADIANS_PER_SECOND
     this.closeupSeconds += deltaSeconds
   }
 

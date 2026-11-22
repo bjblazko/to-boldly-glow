@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test'
 import { openApp } from './support/appBoot'
 import { exitLesson, openLesson } from './support/hud'
 
-const CHAPTERS = ['whole', 'serviceModule', 'engine', 'commandModule', 'inside', 'panels', 'seats', 'notes']
+const CHAPTERS = ['whole', 'serviceModule', 'engine', 'commandModule', 'inside', 'panels', 'seats', 'today', 'notes']
 
 // The requests whose path matches, as they are made.
 function requests(page: Page, pattern: RegExp): string[] {

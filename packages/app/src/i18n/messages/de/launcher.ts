@@ -37,6 +37,32 @@ export const launcher: Messages['lessons']['launcher'] = {
         'Kommandomoduls. Durch ihn stiegen Armstrong, Collins und Aldrin am Morgen des 16. Juli 1969 ein. ' +
         'Fünf Minuten vor dem Start schwenkte der Arm zurück.',
     },
+    whiteRoom: {
+      title: 'Der White Room',
+      text:
+        'Am Ende des Arms, rund um die Luke des Raumschiffs, lag der White Room: ein kleiner, sauberer Raum. ' +
+        'Dort halfen der Pad Leader Guenter Wendt, ein gebürtiger Berliner, und sein Team den Astronauten in ' +
+        'ihre Liegen, schlossen ihre Anzüge an und schlossen die Luke hinter ihnen. Dann verließen sie den ' +
+        'Turm; der Arm blieb bis fünf Minuten vor dem Start am Raumschiff.',
+    },
+    escape: {
+      title: 'Der Notausstieg',
+      text:
+        'Hätte die Rakete auf der Rampe Feuer gefangen, gab es von oben zwei Wege hinunter. Eine Kabine hing ' +
+        'an einem Seil, das von der 98-Meter-Ebene des Turms rund 760 Meter weit zu einem Bunker hinter der ' +
+        'Rampe führte. Oder die zwei schnellen Aufzüge: dreißig Stockwerke hinab mit etwa 180 Metern pro ' +
+        'Minute, dann eine Rutsche durch ein Rohr in einen gummigepolsterten Raum 12 Meter unter der Rampe, ' +
+        'hinter Türen wie in einem Banktresor, mit Vorräten für 20 Menschen für 24 Stunden. Keine Crew ' +
+        'musste sie je benutzen.',
+    },
+    platform: {
+      title: 'Die Startplattform',
+      text:
+        'Der Unterbau ist eine Stahlplattform, zwei Stockwerke hoch, 49 mal 40 Meter, mit einer 14 Meter ' +
+        'breiten quadratischen Öffnung in der Mitte für den Feuerstrahl der Triebwerke. In ihr prüften Räume ' +
+        'voller Rechner und Geräte, verbunden mit dem Startkontrollzentrum, die Rakete bis zum Abheben. Im ' +
+        'Vehicle Assembly Building wurde die Saturn V Stufe für Stufe auf ihr gestapelt.',
+    },
     holddown: {
       title: 'Festgehalten',
       text:
@@ -51,6 +77,15 @@ export const launcher: Messages['lessons']['launcher'] = {
         'der größten Landfahrzeuge, die je gebaut wurden: rund 2.700 Tonnen auf vier Doppelketten. ' +
         'Beladen kroch er mit 1,6 Kilometern pro Stunde über 5,6 Kilometer und hielt seine Plattform dabei ' +
         'auf ein Sechstel Grad waagerecht. Apollo 11 machte die Fahrt am 20. Mai 1969.',
+    },
+    crawlerParts: {
+      title: 'Wie der Crawler funktioniert',
+      text:
+        'Zwei Dieselmotoren mit je 2.750 PS trieben Generatoren an, diese wiederum sechzehn Elektromotoren ' +
+        'in den vier Doppelketten. Jede Kette hat 57 Glieder, jedes 2,3 Meter lang und fast 900 Kilogramm ' +
+        'schwer. Ein eigenes System hielt die Plattform waagerecht, hob sie an und lenkte. Die Crawlerstraße ' +
+        'darunter hat zwei Spuren aus je einem Meter ausgesuchtem Unterboden unter einem Meter Schotter, ' +
+        'gebaut für mehr als 58 Tonnen auf jedem Quadratmeter.',
     },
     liftoff: {
       title: 'Der Start',
@@ -76,12 +111,19 @@ export const launcher: Messages['lessons']['launcher'] = {
     rocket: 'Saturn V',
     person: 'Ein Mensch (1,8 m)',
     crawler: 'Crawler-Transporter',
+    slidewire: 'Seilbahn mit Kabine',
   },
   marks: {
     deck: { label: 'Deck der Startplattform' },
     tower: { label: 'Turmspitze' },
   },
   captions: {
+    liftoffFromTower: 'Apollo 11 steigt an seinem Turm vorbei auf, 16. Juli 1969, aufgenommen von einer Kamera am Turm mit Blick hinab: die Plattform, darunter der Feuerstrahl.',
+    crewWalk: 'Armstrong und Aldrin auf dem Weg zum Raumschiff, neben ihnen Anzugtechniker Joe Schmidt, 16. Juli 1969.',
+    whiteRoom: 'Im White Room an der Luke, Apollo 10, 18. Mai 1969: die Crew schon an Bord, die letzten Prüfungen, bevor die Luke schließt.',
+    egress: 'Die Crew von Apollo 17 auf dem Zugangsarm bei einer Übung für den Notausstieg, Dezember 1972.',
+    stacking: 'Die erste Stufe von Apollo 11 wird im Vehicle Assembly Building auf ihre mobile Startplattform gehoben, Februar 1969.',
+    crawlerBuilt: 'Ein Crawler-Transporter in Einzelteilen am Cape, 1964, vor dem Zusammenbau.',
     rollout: 'Die Saturn V von Apollo 11 auf dem Crawler, unterwegs zur Startrampe, 20. Mai 1969.',
     liftoff: 'Apollo 11 hebt von Launch Complex 39A ab, 16. Juli 1969.',
   },

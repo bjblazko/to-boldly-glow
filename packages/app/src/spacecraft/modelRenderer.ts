@@ -32,7 +32,9 @@ export interface ModelPose {
   highlight: { assembly: number; strength: number }
   // How strong the sunlight and the shadowless fill are; a texture that is a photo of something
   // already lit (the Golden Record) wants mostly fill, so it isn't darkened twice.
-  light?: { sun: number; fill: number }
+  // `wear`: grime, streaks and uneven paint drawn over surfaces in the model's own frame (0: none,
+  // 1: a vehicle that has stood on the pad), for models whose textures are plain colours.
+  light?: { sun: number; fill: number; wear?: number }
   // How far it is cut open (0: closed, 1: open from the bottom to the top of the exploded view).
   cut?: number
   // How visible each assembly is (0 to 1, by index; 1 where not given): parts thrown off fade.
@@ -45,10 +47,17 @@ export interface ModelPose {
   hinges?: readonly Float32Array[]
 }
 
-// How a surface shines: how tight its highlight is and how strong.
+// How a surface shines: how tight its highlight is and how strong; a mirror-like one (the command
+// module's aluminized skin) also reflects its surroundings, as strongly as it shines.
 export interface Material {
   shininess: number
   shine: number
+  mirror?: boolean
+}
+
+// What the shader gets for a material (part.zw): a mirror-like one by a negative shininess.
+export function materialCode({ shininess, shine, mirror }: Material): [number, number] {
+  return [mirror ? -shininess : shininess, shine]
 }
 
 const PLAIN: Material = { shininess: 24, shine: 0.25 }
@@ -61,7 +70,7 @@ export interface Lamp {
 }
 
 // A spacecraft in sunlight: the shadowed side stays dark, as in space, with a faint fill.
-const SUNLIT = { sun: 1, fill: 0.07 }
+const SUNLIT: { sun: number; fill: number; wear?: number } = { sun: 1, fill: 0.07 }
 const OFFSETS_AT = 48
 const PARTS_AT = OFFSETS_AT + MAX_ASSEMBLIES * 4
 const LAMPS_AT = PARTS_AT + MAX_ASSEMBLIES * 4
@@ -144,7 +153,7 @@ export class ModelRenderer {
     const light = pose.light ?? SUNLIT
     values.set([...pose.toSun, light.sun], 32)
     values.set([viewpoint.position[0], viewpoint.position[1], viewpoint.position[2], 1], 36)
-    values.set([light.fill, 0, pose.explode, 0], 40)
+    values.set([light.fill, light.wear ?? 0, pose.explode, 0], 40)
     const cut = pose.cut ?? 0
     const { cutaway } = this.shape
     values.set([pose.highlight.assembly, pose.highlight.strength, cut > 0 ? 1 : 0, cutaway.bottom + cut * cutaway.reach], 44)
@@ -194,8 +203,7 @@ function writeAssemblies(values: Float32Array, pose: ModelPose, kinds: readonly 
 
 function writeParts(values: Float32Array, { visibility, materials }: ModelPose, kinds: readonly number[]): void {
   for (let index = 0; index < MAX_ASSEMBLIES; index++) {
-    const { shininess, shine } = materials?.[index] ?? PLAIN
-    values.set([kinds[index], visibility?.[index] ?? 1, shininess, shine], PARTS_AT + index * 4)
+    values.set([kinds[index], visibility?.[index] ?? 1, ...materialCode(materials?.[index] ?? PLAIN)], PARTS_AT + index * 4)
   }
 }
 

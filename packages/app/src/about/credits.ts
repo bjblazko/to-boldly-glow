@@ -136,7 +136,7 @@ export const CREDIT_GROUPS: CreditGroup[] = [
         files: ['models/saturnV/', 'models/launcher/saturnV-paint.jpg', 'models/launcher/saturnV-palette.png'],
       },
       {
-        name: 'NASA (HQ, MSFC, KSC, JSC), Apollo photos (NASA Image and Video Library: 6901000, KSC-69P-372, 9903405, 6758331, 6861994, 0100806, 372772main_GPN-2000-001212_full, S69-40758, S69-38317, as11-40-5927, as11-44-6581, as11-40-5863, as11-44-6642, 6902077, as11-37-5458, 6902073, as11-44-6626)',
+        name: 'NASA (HQ, MSFC, KSC, JSC), Apollo photos (NASA Image and Video Library: 6901000, KSC-69P-372, 9903405, 6758331, 6861994, 0100806, 372772main_GPN-2000-001212_full, S69-40758, S69-38317, as11-40-5927, as11-44-6581, as11-40-5863, as11-44-6642, 6902077, as11-37-5458, 6902073, as11-44-6626, 8903695, S69-21365, s67-19620, KSC-69PC-399, S69-35316, KSC-72PC-0610, KSC-69P-168, KSC-64-3716, S69-39961)',
         use: TEXT.uses.saturnVPhotos,
         license: TEXT.licenses.publicDomain,
         home: 'https://images.nasa.gov/',
@@ -157,7 +157,7 @@ export const CREDIT_GROUPS: CreditGroup[] = [
         license: TEXT.licenses.publicDomain,
         home: 'https://archive.org/details/apollo-spacecraft-news-reference-1968',
         changes: TEXT.changes.csmModel,
-        files: ['models/columbia/csm.bin', 'models/columbia/csm.json', 'models/columbia/csm-palette.png'],
+        files: ['models/columbia/csm.bin', 'models/columbia/csm.json', 'models/columbia/csm-palette.png', 'models/columbia/sm-paint.jpg'],
       },
       {
         name: 'Smithsonian National Air and Space Museum, “Command Module Apollo 11: Interior” (3D scan)',
@@ -176,13 +176,13 @@ export const CREDIT_GROUPS: CreditGroup[] = [
         files: ['models/eagle/lm-palette.png'],
       },
       {
-        name: 'Project Apollo – NASSP (orbiternassp/NASSP, commit ddba501), lunar module, mobile launcher and crawler meshes and textures',
+        name: 'Project Apollo – NASSP (orbiternassp/NASSP, commit ddba501), lunar module, command module cockpit, mobile launcher and crawler meshes and textures',
         use: TEXT.uses.nassp,
         license: 'GPL-2.0-or-later',
         home: 'https://github.com/orbiternassp/NASSP',
         text: 'licenses/nassp.txt',
         changes: TEXT.changes.nassp,
-        files: ['models/eagle/lm.bin', 'models/eagle/lm.json', 'models/eagle/cockpit.bin', 'models/eagle/cockpit.json', 'models/eagle/nassp/', 'models/launcher/launcher.bin', 'models/launcher/launcher.json', 'models/launcher/crawler.bin', 'models/launcher/crawler.json', 'models/launcher/nassp/'],
+        files: ['models/eagle/lm.bin', 'models/eagle/lm.json', 'models/eagle/cockpit.bin', 'models/eagle/cockpit.json', 'models/eagle/nassp/', 'models/launcher/launcher.bin', 'models/launcher/launcher.json', 'models/launcher/crawler.bin', 'models/launcher/crawler.json', 'models/launcher/nassp/', 'models/columbia/cockpit.bin', 'models/columbia/cockpit.json', 'models/columbia/nassp/'],
       },
       {
         name: 'NASA/JPL Horizons (Giorgini & JPL Solar System Dynamics Group)',

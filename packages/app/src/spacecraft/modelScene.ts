@@ -26,13 +26,18 @@ export interface ModelSceneOptions {
   secondsPerTurn: number
   startAngle: number
   stageSeconds: number
-  // How strong the sunlight and the fill are (see ModelPose.light; sunlit by default).
-  light?: { sun: number; fill: number }
+  // How strong the sunlight and the fill are, and how worn its surfaces look (see ModelPose.light;
+  // sunlit and new by default).
+  light?: { sun: number; fill: number; wear?: number }
   // Lamps that light it from near by, in the model's own frame: they turn with it, and move with the
   // assembly they are fixed to when the model is taken apart.
   lamps?: readonly (Lamp & { fixedTo?: string })[]
-  // Materials by part (a soft plastic sheen for the rest).
+  // Materials by part, '*' for every part not named (a soft plastic sheen where neither is given).
   materials?: Readonly<Record<string, Material>>
+}
+
+export function materialFor(materials: Readonly<Record<string, Material>> | undefined, part: string): Material | undefined {
+  return materials?.[part] ?? materials?.['*']
 }
 
 // How quickly the model turns its cut toward the camera (per second, of the angle left).
@@ -115,7 +120,7 @@ export class ModelScene<Part extends string> {
     const world = turntableMatrix(this.angle, 1)
     const lamps = this.options.lamps?.map(({ fixedTo, ...lamp }) => ({ ...lamp, place: transformPoint(world, this.moved(lamp.place, fixedTo)) }))
     this.lampsNow = lamps ?? []
-    const materials = this.model.assemblies.map((assembly) => this.options.materials?.[assembly.id])
+    const materials = this.model.assemblies.map((assembly) => materialFor(this.options.materials, assembly.id))
     const pose = { world, toSun: TOWARD_SUN, explode, highlight, cut, visibility, light: this.options.light, lamps, materials, hinges: this.hinges() }
     this.renderer.update(viewpoint, pose, this.model.assemblies.map((assembly) => assembly.explode))
     this.cameraAngle = Math.atan2(viewpoint.position[0], viewpoint.position[2])

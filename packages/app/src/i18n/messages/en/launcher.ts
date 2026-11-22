@@ -38,6 +38,31 @@ export const launcher = {
         'Through it Armstrong, Collins and Aldrin climbed aboard on the morning of 16 July 1969. Five ' +
         'minutes before launch the arm swung back.',
     },
+    whiteRoom: {
+      title: 'The White Room',
+      text:
+        'At the end of the arm, round the spacecraft’s hatch, was the White Room: a small, clean room. There ' +
+        'the pad leader, Guenter Wendt, and his close-out crew helped the astronauts into their couches, ' +
+        'connected their suits and shut the hatch behind them. Then they left the tower; the arm stayed ' +
+        'against the spacecraft until five minutes before liftoff.',
+    },
+    escape: {
+      title: 'The Way Out',
+      text:
+        'Had the rocket caught fire on the pad, there were two ways down from the top. A cab hung on a slide ' +
+        'wire that ran from the tower’s 98-metre level some 760 metres out to a bunker beyond the pad. Or the ' +
+        'two fast elevators: thirty storeys down at about 180 metres a minute, then a slide down a tube into a ' +
+        'rubber-padded room 12 metres under the pad, behind doors like a bank vault’s, with supplies for 20 ' +
+        'people for 24 hours. No crew ever had to use them.',
+    },
+    platform: {
+      title: 'The Launch Platform',
+      text:
+        'The launcher’s base is a steel platform two storeys high, 49 by 40 metres, with a 14-metre square ' +
+        'opening in its middle for the engines’ flame. Inside it, rooms of computers and equipment, linked to ' +
+        'the launch control centre, checked the rocket until it lifted off. In the Vehicle Assembly Building ' +
+        'the Saturn V was stacked on it stage by stage.',
+    },
     holddown: {
       title: 'Held Down',
       text:
@@ -52,6 +77,15 @@ export const launcher = {
         'the largest land vehicles ever built: about 2,700 tonnes on four double tracks. Loaded, it crept ' +
         'along at 1.6 kilometres an hour for 5.6 kilometres, keeping its deck level within a sixth of a ' +
         'degree. Apollo 11 made the trip on 20 May 1969.',
+    },
+    crawlerParts: {
+      title: 'How the Crawler Works',
+      text:
+        'Two diesel engines of 2,750 horsepower each drove generators, and these sixteen electric motors in ' +
+        'the four double tracks. Each track has 57 shoes, each 2.3 metres long and close to 900 kilograms. A ' +
+        'separate system kept the platform level, jacked it and steered. The crawlerway beneath has two lanes, ' +
+        'each a metre of selected subsoil under a metre of crushed rock, built for more than 58 tonnes on every ' +
+        'square metre.',
     },
     liftoff: {
       title: 'Liftoff',
@@ -77,12 +111,19 @@ export const launcher = {
     rocket: 'Saturn V',
     person: 'A person (1.8 m)',
     crawler: 'Crawler-transporter',
+    slidewire: 'Slide wire and cab',
   },
   marks: {
     deck: { label: 'Launcher deck' },
     tower: { label: 'Top of the tower' },
   } as Record<string, { label: string; note?: string }>,
   captions: {
+    liftoffFromTower: 'Apollo 11 rises past its tower, 16 July 1969, seen by a camera on the tower looking down: the platform, the flame beneath it.',
+    crewWalk: 'Armstrong and Aldrin on their way to the spacecraft, suit technician Joe Schmidt beside them, 16 July 1969.',
+    whiteRoom: 'Inside the White Room at the hatch, Apollo 10, 18 May 1969: the crew already aboard, the last checks before the hatch closes.',
+    egress: 'Apollo 17’s crew on the access arm during an emergency egress test, December 1972.',
+    stacking: 'Apollo 11’s first stage is lifted to be stacked on its mobile launcher in the Vehicle Assembly Building, February 1969.',
+    crawlerBuilt: 'A crawler-transporter in pieces at the Cape, 1964, before its assembly.',
     rollout: 'Apollo 11’s Saturn V on the crawler, on its way to the pad, 20 May 1969.',
     liftoff: 'Apollo 11 lifts off from Launch Complex 39A, 16 July 1969.',
   },

@@ -49,4 +49,14 @@ describe('the Apollo 11 lesson scene', () => {
     expect([...shot('earth').preset.target]).toEqual([...ROUTE_EARTH])
     expect(shot('whole').bounds.halfWidth).toBeGreaterThan(Math.hypot(ROUTE_MOON[0] - ROUTE_EARTH[0], ROUTE_MOON[1] - ROUTE_EARTH[1]) / 2)
   })
+
+  it('holds Earth still in a close-up, so nothing behind the craft seems to say which way it flies', () => {
+    const scene = new ApolloRouteScene()
+    scene.show({ view: 'closeup', closeup: 'entry', from: 4.88, to: 4.88, event: 'cmSmSeparation' }, true)
+    const spin = () => scene.layout(ephemerisAt(new Date(0))).planets[0].spinRadians
+    const before = spin()
+    scene.update(5)
+    expect(spin()).toBe(before)
+  })
 })
+

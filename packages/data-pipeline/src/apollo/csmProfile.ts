@@ -77,11 +77,16 @@ export const CM_OPENINGS: ConeOpening[] = [
   ...[-1, 1].map((side): ConeOpening => ({ angle: HATCH_ANGLE + side * 0.42, height: 1.95, width: 8 * IN, tall: 13 * IN, kind: 'glass' })),
 ]
 
+// The service module, and its forward fairing round the heat shield (APPROX its height): up to
+// where the command module's own rim (its short cylinder at the shoulder) begins, so the two meet
+// without a gap - and without two surfaces in one place, which flicker.
+const FAIRING_TOP = CSM_HEIGHTS.cmBase + HEAT_SHIELD_DEPTH - 0.005
 export const SERVICE_MODULE: ProfilePoint[] = [
   [0, CSM_HEIGHTS.aftBulkhead],
   [CSM_RADIUS, CSM_HEIGHTS.aftBulkhead],
   [CSM_RADIUS, CSM_HEIGHTS.smTop],
-  [CSM_RADIUS - 0.25, CSM_HEIGHTS.smTop],
+  [CSM_RADIUS, FAIRING_TOP],
+  [CSM_RADIUS - 0.25, FAIRING_TOP],
 ]
 
 // APPROX: the SPS bell, its exit about 2.5 m across, the chamber and valves above it.
@@ -122,9 +127,10 @@ export const TANKS: TankShape[] = [
   ...[0.95, 1.55].map((out): TankShape => ({ sector: 4, out, around: 0.5, bottom: TANK_BOTTOM + 0.2 + 26.5 * IN, height: 31.5 * IN, radius: (31.5 * IN) / 2, contents: 'hydrogen' })),
 ]
 
-// NR: four RCS quads, 8 ft long and nearly 3 ft wide, 90 degrees apart (APPROX: their height on
-// the SM and their depth).
-export const RCS_QUAD = { length: 8 * FT, width: 2.9 * FT, depth: 0.3, middle: CSM_HEIGHTS.aftBulkhead + 3.0, startAngle: Math.PI / 4 }
+// NR: four RCS quads 90 degrees apart, each on a panel of the skin 8 ft long and nearly 3 ft wide
+// (painted flush, csmTextures.ts); on it the quad's housing with its nozzles, up and down (APPROX:
+// the housing's size, its height on the SM; the two nozzles pointing round the module are left out).
+export const RCS_QUAD = { panel: { length: 8 * FT, width: 2.9 * FT }, housing: { tall: 0.7, wide: 0.5, deep: 0.3 }, nozzle: 0.22, middle: CSM_HEIGHTS.aftBulkhead + 3.0, startAngle: Math.PI / 4 }
 
 // The Smithsonian's scan of Columbia's cabin (centimetres): its axis is +Y (the apex up), through
 // x 82, z -94; its floor, at y -123, lies this far above the bottom of our heat shield (APPROX).

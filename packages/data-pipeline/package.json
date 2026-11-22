@@ -1,6 +1,6 @@
 {
   "name": "@toboldlyglow/data-pipeline",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "license": "GPL-3.0-or-later",
   "private": true,
   "type": "module",
@@ -20,12 +20,14 @@
     "build-saturn-v": "tsx src/buildSaturnV.ts",
     "fetch-saturn-v-photos": "tsx src/fetchSaturnVPhotos.ts",
     "build-columbia": "tsx src/buildColumbia.ts",
+    "build-columbia-cockpit": "tsx src/buildColumbiaCockpit.ts",
     "build-eagle": "tsx src/buildEagle.ts",
     "build-launcher": "tsx src/buildLauncher.ts",
     "fetch-apollo11-ephemeris": "tsx src/fetchApollo11Ephemeris.ts",
     "build-apollo11-trajectory": "tsx src/buildApollo11Trajectory.ts",
     "fetch-eagle-photos": "tsx src/fetchEaglePhotos.ts",
     "fetch-apollo11-audio": "tsx src/fetchApollo11Audio.ts",
+    "fetch-launcher-photos": "tsx src/fetchLauncherPhotos.ts",
     "fetch-apollo11-photos": "tsx src/fetchApollo11Photos.ts",
     "fetch-columbia-photos": "tsx src/fetchColumbiaPhotos.ts"
   },

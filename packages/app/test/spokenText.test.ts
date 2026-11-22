@@ -40,4 +40,14 @@ describe('texts made fit to be spoken', () => {
   it('spells TLI in German as an English speaker says it, in the quote too', () => {
     expect(spokenText('kurz TLI. „You are go for TLI.“', 'de')).toBe('kurz Ti Äl Ei. „Ju ar gou for Ti Äl Ei.“')
   })
+
+  it('says the crew’s schools and the quarantine’s English names as in English', () => {
+    expect(spokenText('Purdue University, West Point, das MIT, aus New Jersey, die Mobile Quarantine Facility, das Lunar Receiving Laboratory in Houston', 'de')).toBe(
+      'Pördju Juniwörsiti, Wäst Peunt, das Em Ai Ti, aus Nju Dschörsi, die Moubail Kwarantien Fasiliti, das Luhner Risiewing Läboratori in Hjuston',
+    )
+  })
+
+  it('says the launch tower’s English names as in English', () => {
+    expect(spokenText('der White Room, der Pad Leader, im Vehicle Assembly Building', 'de')).toBe('der Weit Ruhm, der Päd Lieder, im Wiekl Essembli Bilding')
+  })
 })
