@@ -65,3 +65,15 @@ export function mirroredHinge({ pivot, axis, degrees }: NasspTurn, shift: readon
     angle: (-degrees * Math.PI) / 180,
   }
 }
+
+// NASSP paints the tower's hammerhead crane yellow-green (texcolors.dds); in the photos of 1969 it
+// is red like the tower. Its yellow-green pixels (rgb, packed) become the tower's red.
+const TOWER_RED = [200, 0, 0]
+export function craneRed(rgb: Uint8Array): Uint8Array {
+  const out = Uint8Array.from(rgb)
+  for (let i = 0; i < out.length; i += 3) {
+    const [r, g, b] = [out[i], out[i + 1], out[i + 2]]
+    if (g > 180 && r > 150 && b < 90) out.set(TOWER_RED, i)
+  }
+  return out
+}

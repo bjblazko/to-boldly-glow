@@ -90,3 +90,11 @@ describe('the slide wire', () => {
     expect(to[1]).toBeLessThan(5)
   })
 })
+
+describe('the crane on the tower', () => {
+  it('is red like the tower, as in the photos of 1969, not the yellow-green of the simulator’s texture', async () => {
+    const { craneRed } = await import('../src/apollo/launcherNassp')
+    const lime = Uint8Array.of(220, 255, 0, 200, 0, 0, 200, 200, 200)
+    expect(Array.from(craneRed(lime))).toEqual([200, 0, 0, 200, 0, 0, 200, 200, 200])
+  })
+})
