@@ -6,7 +6,12 @@
   {
    "texture": "csm-palette.png",
    "firstIndex": 0,
-   "indexCount": 46872
+   "indexCount": 45144
+  },
+  {
+   "texture": "sm-paint.jpg",
+   "firstIndex": 45144,
+   "indexCount": 1728
   }
  ],
  "bounds": {

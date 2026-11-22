@@ -83,3 +83,11 @@ describe('a model’s materials', () => {
     expect(materialFor(undefined, 'cm')).toBeUndefined()
   })
 })
+
+describe('a mirror-like material', () => {
+  it('is told to the shader by a negative shininess, its reflection as strong as its shine', async () => {
+    const { materialCode } = await import('../src/spacecraft/modelRenderer')
+    expect(materialCode({ shininess: 80, shine: 0.8, mirror: true })).toEqual([-80, 0.8])
+    expect(materialCode({ shininess: 10, shine: 0.06 })).toEqual([10, 0.06])
+  })
+})

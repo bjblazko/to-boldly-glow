@@ -131,6 +131,14 @@ fn wearAt(local: vec3f) -> f32 {
   return mottle * 0.14 + smoothstep(0.6, 0.92, streaks) * 0.16;
 }
 
+// What a mirror-like surface sees in a direction: the floor dark, the sky (the room's ceiling)
+// bright, a soft horizon between.
+fn surroundings(direction: vec3f) -> vec3f {
+  let up = smoothstep(-0.3, 0.55, direction.y);
+  let horizon = exp(-abs(direction.y) * 9.0) * 0.18;
+  return mix(vec3f(0.04, 0.045, 0.05), vec3f(0.82, 0.84, 0.87), up) + vec3f(horizon);
+}
+
 // The fill as light from all round: brighter from above (the sky, the room's ceiling) than from
 // below (the floor).
 fn ambient(normal: vec3f) -> f32 {
@@ -188,12 +196,18 @@ fn fs(in: VertexOutput, @builtin(front_facing) frontFacing: bool) -> @location(0
   let toLight = normalize(uni.toLight.xyz);
   let diffuse = max(dot(normal, toLight), 0.0);
   let halfway = normalize(toLight + toCamera);
-  let material = uni.parts[in.assembly].zw;
+  let mirror = uni.parts[in.assembly].z < 0.0;
+  let material = vec2f(abs(uni.parts[in.assembly].z), uni.parts[in.assembly].w);
   let specular = pow(max(dot(normal, halfway), 0.0), material.x) * material.y * step(0.0, dot(normal, toLight));
   // A shell's inner face, seen through the cut, in shade.
   if (!frontFacing && uni.parts[in.assembly].x == 1.0) { albedo *= 0.35; }
   albedo *= 1.0 - uni.look.y * wearAt(in.local);
   var color = albedo * (diffuse * uni.toLight.w + ambient(normal) + lampLight(in.worldPosition, normal, toCamera, material)) + vec3f(specular * uni.toLight.w);
+  if (mirror) {
+    // Mostly what it reflects, tinted by its own colour, a little of its lit colour beneath.
+    let seen = surroundings(reflect(-toCamera, normal)) * albedo * material.y;
+    color = color * (1.0 - material.y * 0.75) + seen + vec3f(specular * uni.toLight.w);
+  }
   let picked = uni.highlight.x >= 0.0 && in.assembly == i32(uni.highlight.x);
   let strength = uni.highlight.y;
   if (picked) {

@@ -47,10 +47,17 @@ export interface ModelPose {
   hinges?: readonly Float32Array[]
 }
 
-// How a surface shines: how tight its highlight is and how strong.
+// How a surface shines: how tight its highlight is and how strong; a mirror-like one (the command
+// module's aluminized skin) also reflects its surroundings, as strongly as it shines.
 export interface Material {
   shininess: number
   shine: number
+  mirror?: boolean
+}
+
+// What the shader gets for a material (part.zw): a mirror-like one by a negative shininess.
+export function materialCode({ shininess, shine, mirror }: Material): [number, number] {
+  return [mirror ? -shininess : shininess, shine]
 }
 
 const PLAIN: Material = { shininess: 24, shine: 0.25 }
@@ -196,8 +203,7 @@ function writeAssemblies(values: Float32Array, pose: ModelPose, kinds: readonly 
 
 function writeParts(values: Float32Array, { visibility, materials }: ModelPose, kinds: readonly number[]): void {
   for (let index = 0; index < MAX_ASSEMBLIES; index++) {
-    const { shininess, shine } = materials?.[index] ?? PLAIN
-    values.set([kinds[index], visibility?.[index] ?? 1, shininess, shine], PARTS_AT + index * 4)
+    values.set([kinds[index], visibility?.[index] ?? 1, ...materialCode(materials?.[index] ?? PLAIN)], PARTS_AT + index * 4)
   }
 }
 

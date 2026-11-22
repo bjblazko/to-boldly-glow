@@ -6,7 +6,7 @@ export const columbia = {
   title: 'Columbia, Inside and Out',
   note:
     'The outside is built from the spacecraft’s published dimensions; the service module’s inside is ' +
-    'shown schematically. The cabin as it flew is Project Apollo - NASSP’s model of it, switch by switch; ' +
+    'shown schematically. The cabin as it flew is Project Apollo - NASSP’s model of it, switch by switch (GPL, built by its volunteers for the Orbiter space flight simulator); ' +
     'as it is today, the Smithsonian’s 3D scan of the real Columbia in the National Air and Space Museum.',
   chapters: {
     whole: {

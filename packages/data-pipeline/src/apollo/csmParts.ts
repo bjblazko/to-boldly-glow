@@ -22,6 +22,14 @@ export function csmExplodeOffset(assembly: CsmAssembly): [number, number, number
 }
 
 export const CSM_PALETTE_TEXTURE = 'csm-palette.png'
+export const SM_PAINT_TEXTURE = 'sm-paint.jpg'
+
+// The service module's paint (csmTextures.ts): once round it, from its top down to its base.
+const smPaint = {
+  texture: SM_PAINT_TEXTURE,
+  uv: (_radius: number, height: number, around: number): [number, number] => [around, Math.min(Math.max((CSM_HEIGHTS.smTop - height) / (CSM_HEIGHTS.smTop - CSM_HEIGHTS.aftBulkhead), 0), 1)],
+  segments: 96,
+}
 
 const SWATCHES = ['cm', 'sm', 'heatShield', 'engine', 'oxidizer', 'fuel', 'helium', 'oxygen', 'hydrogen', 'fuelCell', 'rcs', 'person', 'hatch', 'glass'] as const
 type Swatch = (typeof SWATCHES)[number]
@@ -53,7 +61,7 @@ const colored = (name: Swatch, segments: number) => ({ texture: CSM_PALETTE_TEXT
 export function csmParts(): Map<CsmAssembly, MeshPrimitive[]> {
   return new Map<CsmAssembly, MeshPrimitive[]>([
     ['cm', [commandModule()]],
-    ['sm', [latheMesh(SERVICE_MODULE, { ...colored('sm', 96), sharp: true })]],
+    ['sm', [latheMesh(SERVICE_MODULE, { ...smPaint, sharp: true })]],
     ['smInside', [mergePrimitives(TANKS.map(tank))]],
     ['sps', [latheMesh(SPS_ENGINE, colored('engine', 48))]],
     ['rcs', [mergePrimitives([0, 1, 2, 3].map(rcsQuad))]],

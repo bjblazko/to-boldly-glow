@@ -157,7 +157,7 @@ export const CREDIT_GROUPS: CreditGroup[] = [
         license: TEXT.licenses.publicDomain,
         home: 'https://archive.org/details/apollo-spacecraft-news-reference-1968',
         changes: TEXT.changes.csmModel,
-        files: ['models/columbia/csm.bin', 'models/columbia/csm.json', 'models/columbia/csm-palette.png'],
+        files: ['models/columbia/csm.bin', 'models/columbia/csm.json', 'models/columbia/csm-palette.png', 'models/columbia/sm-paint.jpg'],
       },
       {
         name: 'Smithsonian National Air and Space Museum, “Command Module Apollo 11: Interior” (3D scan)',

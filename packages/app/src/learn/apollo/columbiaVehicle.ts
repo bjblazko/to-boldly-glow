@@ -101,10 +101,18 @@ const CABIN_MATERIALS = {
   notes: { shininess: 10, shine: 0.06 },
 }
 
+const CSM_MATERIALS = {
+  '*': { shininess: 10, shine: 0.06 },
+  cm: { shininess: 90, shine: 0.85, mirror: true },
+  sm: { shininess: 30, shine: 0.22 },
+  sps: { shininess: 20, shine: 0.15 },
+}
+
 export const COLUMBIA: VehicleConfig = {
   models: [
-    // Outside: more light from all round, matte paint, worn by its days on the pad.
-    { url: 'models/columbia', name: 'csm', light: { sun: 0.9, fill: 0.26, wear: 1 }, materials: { '*': { shininess: 10, shine: 0.06 } } },
+    // Outside: more light from all round; the command module's aluminized skin a mirror, the
+    // service module's bare aluminium (its paint and wear in its texture) with a dull sheen.
+    { url: 'models/columbia', name: 'csm', light: { sun: 0.9, fill: 0.26 }, materials: CSM_MATERIALS },
     { url: 'models/columbia', name: 'cabin', light: CABIN_LIGHT, lamps: CABIN_LAMPS, materials: CABIN_MATERIALS },
     { url: 'models/columbia', name: 'cockpit', light: COCKPIT_LIGHT, lamps: COCKPIT_LAMPS, materials: COCKPIT_MATERIALS },
   ],

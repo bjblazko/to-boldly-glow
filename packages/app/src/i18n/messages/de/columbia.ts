@@ -4,7 +4,7 @@ export const columbia: Messages['lessons']['columbia'] = {
   title: 'Columbia, von außen und innen',
   note:
     'Die Außenseite ist aus den veröffentlichten Maßen gebaut; das Innere des Versorgungsmoduls ist ' +
-    'schematisch. Die Kabine im Flug ist das Modell von Project Apollo – NASSP, Schalter für Schalter; ' +
+    'schematisch. Die Kabine im Flug ist das Modell von Project Apollo – NASSP, Schalter für Schalter (GPL, gebaut von dessen Freiwilligen für den Raumflugsimulator Orbiter); ' +
     'die Kabine heute ist der 3D-Scan der echten Columbia durch die Smithsonian im National Air and Space Museum.',
   chapters: {
     whole: {
