@@ -226,13 +226,10 @@
   box-shadow: 0 0 14px rgba(255, 59, 189, 0.9);
 }
 
-/* Hidden interface (Explore only): nothing but the scene and its labels, and one quiet key in the
-   top right corner to bring it all back. visibility, not display, so open panels return as they were and
-   nothing hidden keeps the keyboard focus. */
-body[data-app-mode='learn'] #hide-ui-btn {
-  display: none;
-}
-body[data-ui-hidden] :is(.hud-follow-chip, .hud-library, .hud-dock, .hud-sheet, .hud-popover, .hud-palette, .hud-camera-hint, .hud-controls, .hud-touch-pad) {
+/* Hidden interface (in Explore, a lesson or a tour): nothing but the scene and its labels, and one
+   quiet key in the top right corner to bring it all back. visibility, not display, so open panels
+   return as they were and nothing hidden keeps the keyboard focus. */
+body[data-ui-hidden] :is(.hud-follow-chip, .hud-library, .hud-dock, .hud-sheet, .hud-popover, .hud-palette, .hud-camera-hint, .hud-controls, .hud-touch-pad, .hud-lesson-panel, .hud-mission) {
   visibility: hidden;
 }
 .hud-show-ui {

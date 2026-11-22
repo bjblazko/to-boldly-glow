@@ -1,6 +1,6 @@
 import { isTextEntryTarget } from '../camera/input/keyboardState'
 
-// Hides the whole interface in Explore, leaving the scene and its labels, and one quiet button in
+// Hides the whole interface - in Explore, a lesson or a tour - leaving the scene and its labels, and one quiet button in
 // the top right corner to bring it back (the keyboard focus then returns to the bar's More, where
 // hiding is). H toggles, Escape brings it back, and Ctrl/Cmd+K brings
 // it back with the palette open (so the palette never opens unseen).
@@ -19,7 +19,6 @@ export class InterfaceVisibility {
   }
 
   hide(): void {
-    if (this.body.dataset.appMode === 'learn') return
     this.body.dataset.uiHidden = ''
     this.buttons.show.hidden = false
     this.buttons.show.focus()
