@@ -33,9 +33,6 @@ export interface PlanetPose extends BodyPose {
   poleDirection: Vec3
   // The seasons lesson washes the hemisphere tilted toward the Sun in a warm tint, the other in a cool one.
   hemisphereTints?: { north: Rgba; south: Rgba }
-  // The atmosphere shell's radius in planet radii, where a scene draws it to scale (by default the
-  // app's own, thicker to stay visible small).
-  atmosphereRadiusFactor?: number
 }
 
 export interface MoonPose extends BodyPose {

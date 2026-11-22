@@ -21,9 +21,6 @@ const EARTH_TILT = axisAlignmentRotation(EARTH_POLE)
 const EARTH_SPIN_RADIANS_PER_SECOND = (2 * Math.PI) / 60
 // How long the craft takes over a chapter's stretch of the route.
 const PLAY_SECONDS = 9
-// Earth's air drawn to scale here, where Earth fills the picture: about 100 km (the Kármán line)
-// of its 6,371 km radius.
-const EARTH_AIR = 1 + 100 / 6371
 
 // A value eased from one end of a chapter's stretch to the other, then held.
 class Travel {
@@ -88,7 +85,7 @@ export class ApolloRouteScene {
   }
 
   layout(ephemeris: Ephemeris): SceneLayout {
-    const earth: PlanetPose = { definition: EARTH, position: ROUTE_EARTH, radius: ROUTE_EARTH_RADIUS, poleDirection: EARTH_POLE, tilt: EARTH_TILT, spinRadians: this.earthSpin, atmosphereRadiusFactor: EARTH_AIR }
+    const earth: PlanetPose = { definition: EARTH, position: ROUTE_EARTH, radius: ROUTE_EARTH_RADIUS, poleDirection: EARTH_POLE, tilt: EARTH_TILT, spinRadians: this.earthSpin }
     return { sun: sunPose(ephemeris, 1), planets: [earth], moons: [moonPose(earth)], alwaysShowBodyLabels: this.current?.view !== 'closeup' }
   }
 }
