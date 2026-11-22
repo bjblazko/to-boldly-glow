@@ -22,8 +22,9 @@ export const LUNAR_ORBIT_RADIUS = 1.65 * MOON_RADIUS
 
 // The plane's own axes: toward the Moon, and across, 90 degrees counterclockwise (the way the
 // Moon moves). New moon lies toward the Sun (-X); the Moon's age turns counterclockwise from it.
+export const ROUTE_MOON_AGE_DEGREES = MOON_AGE_DEGREES
 const AGE = (MOON_AGE_DEGREES * Math.PI) / 180
-const TOWARD_MOON = [-Math.cos(AGE), -Math.sin(AGE)]
+export const TOWARD_MOON = [-Math.cos(AGE), -Math.sin(AGE)]
 const ACROSS = [-TOWARD_MOON[1], TOWARD_MOON[0]]
 export const ROUTE_MOON: Vec3 = at([MOON_DISTANCE, 0])
 
@@ -106,7 +107,7 @@ function hermiteSamples(knots: Knot[]): P2[] {
     const [a, b] = [knots[k], knots[k + 1]]
     const chord = Math.hypot(b.p[0] - a.p[0], b.p[1] - a.p[1])
     const [ta, tb] = [scaled(a.t, chord), scaled(b.t, chord)]
-    for (let i = k === 0 ? 0 : 1; i <= SAMPLES_PER_SEGMENT; i++) points.push(hermite(a.p, ta, b.p, tb, i / SAMPLES_PER_SEGMENT))
+    for (let i = k === 0 ? 0 : 1; i <= SAMPLES_PER_SEGMENT; i++) points.push(hermite({ p: a.p, t: ta }, { p: b.p, t: tb }, i / SAMPLES_PER_SEGMENT))
   }
   return points
 }
@@ -116,10 +117,11 @@ function scaled(v: P2, length: number): P2 {
   return [(v[0] * length) / n, (v[1] * length) / n]
 }
 
-function hermite(p0: P2, t0: P2, p1: P2, t1: P2, s: number): P2 {
+// From knot a to knot b, their tangents already scaled.
+function hermite(a: Knot, b: Knot, s: number): P2 {
   const [s2, s3] = [s * s, s * s * s]
   const h = [2 * s3 - 3 * s2 + 1, s3 - 2 * s2 + s, -2 * s3 + 3 * s2, s3 - s2]
-  return [0, 1].map((i) => h[0] * p0[i] + h[1] * t0[i] + h[2] * p1[i] + h[3] * t1[i]) as P2
+  return [0, 1].map((i) => h[0] * a.p[i] + h[1] * a.t[i] + h[2] * b.p[i] + h[3] * b.t[i]) as P2
 }
 
 // A polyline walked at an even pace: s from 0 to 1 by the distance along it.
@@ -134,8 +136,13 @@ class EvenPath {
 
   at(s: number): P2 {
     const target = s * this.lengths[this.lengths.length - 1]
-    let i = 1
-    while (i < this.lengths.length - 1 && this.lengths[i] < target) i++
+    // The first point at or past the target (binary search).
+    let [low, i] = [1, this.lengths.length - 1]
+    while (low < i) {
+      const middle = (low + i) >> 1
+      if (this.lengths[middle] < target) low = middle + 1
+      else i = middle
+    }
     const f = (target - this.lengths[i - 1]) / (this.lengths[i] - this.lengths[i - 1] || 1)
     const [a, b] = [this.points[i - 1], this.points[i]]
     return [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f]

@@ -61,7 +61,8 @@ from the Mission Report / Apollo Flight Journal state vectors, the real Moon, ev
 6. Lesson "Apollo 11: the way to the Moon and back" - schematic, as the Moon phases lesson: Earth
    and Moon not to scale, the free-return figure eight drawn plainly, the craft moving chapter by
    chapter from launch to splashdown (decided 2026-11-22: the lessons explain schematically; the full
-   mission in detail is the tour's).
+   mission in detail is the tour's). Built 2026-11-22 (spec
+   `superpowers/specs/2026-11-22-apollo11-route-lesson-design.md`).
 7. Original audio and photo pipeline (each file's rights checked), subtitles, data charts.
 8. The tour's lunar orbit and descent: the Moon's gravity field for the 55 h in lunar orbit (step 5's
    open end), Tranquility Base's terrain from the LRO NAC DTM, the descent (P63/P64/P66, 1202 alarm,

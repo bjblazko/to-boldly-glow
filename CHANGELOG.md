@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Apollo: the lesson "Apollo 11: to the Moon and Back" - the whole mission, launch to splashdown,
+  on a drawn route between Earth and the Moon: the parking orbit, the figure eight of the free
+  return, lunar orbit, Eagle's descent and ascent, the way home; each chapter with its moment's
+  date and mission time, figures from NASA's "Apollo by the Numbers" and the Mission Report.
+- Apollo 11's events in mission time, and its path reconstructed from the documented state vectors
+  (for the coming tour).
+
 ## [0.7.0] - 2026-11-21
 
 ### Changed
