@@ -24,6 +24,9 @@ export const APOLLO11_CLIPS: readonly OriginalClip[] = [
   { chapter: 'tli', source: `${JSC_TAPES}155-AAA.mp3`, from: 10068.7, to: 10079.3 },
   // Armstrong "Tranquility Base here. The Eagle has landed", and Duke's answer.
   { chapter: 'landing', source: `${HISTORICAL_SOUNDS}590333main_ringtone_eagleHasLanded_extended.mp3`, from: 0, to: null },
+  // Eagle's own recorder at the liftoff from the Moon (NASA's "Apollo 11 Onboard Audio Highlight
+  // Clip 5", JSC): Aldrin's countdown and the switches, "We're off", "Beautiful".
+  { chapter: 'liftoff', source: `${JSC_TAPES}Apollo11OnboardAudioHighlightClip5.mp3`, from: 78.4, to: 96.4 },
   // Armstrong's first step.
   { chapter: 'surface', source: `${HISTORICAL_SOUNDS}590331main_ringtone_smallStep.mp3`, from: 0, to: null },
 ]

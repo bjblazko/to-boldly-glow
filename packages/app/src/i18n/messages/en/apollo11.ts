@@ -140,6 +140,10 @@ export const apollo11 = {
       words: 'Houston, uh, Tranquility Base here. The Eagle has landed. – Roger, Tranquility. We copy you on the ground. You got a bunch of guys about to turn blue. We’re breathing again. Thanks a lot.',
       speaker: 'Neil Armstrong, and Charlie Duke in Houston · 20 July 1969, 20:17 UTC',
     },
+    liftoff: {
+      words: '9, 8, 7, 6, 5, abort stage, engine arm, ascent, proceed. – We’re off. Look at that stuff go all over the place. Look at that shadow. – Beautiful. 26, 36 feet per second up.',
+      speaker: 'Buzz Aldrin and Neil Armstrong, on Eagle’s own recorder · 21 July 1969, 17:54 UTC',
+    },
     surface: {
       words: 'I’m going to step off the LM now. That’s one small step for man, one giant leap for mankind.',
       speaker: 'Neil Armstrong · 21 July 1969, 02:56 UTC',

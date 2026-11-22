@@ -336,7 +336,8 @@ moment, their loudness evened and encoded as Opus and MP3 by
 the launch, the landing and the first step from NASA's "Historical Sounds"
 (https://www.nasa.gov/historical-sounds/), "You are go for TLI" from Johnson Space Center's Apollo 11
 audio as NASA published it on the Internet Archive (https://archive.org/details/Apollo11Audio, tape
-155-AAA, public domain mark). NASA content is generally not subject to copyright in the United
+155-AAA, public domain mark), and the liftoff from the Moon from Eagle's own recorder (the same item's
+"Apollo 11 Onboard Audio Highlight Clip 5"). NASA content is generally not subject to copyright in the United
 States; NASA is the source. The subtitles follow NASA's raw air-to-ground transcript (no copyright
 asserted); the German ones are our translation.
 

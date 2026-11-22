@@ -144,6 +144,10 @@ export const apollo11: Messages['lessons']['apollo11'] = {
       words: 'Houston, äh, hier Tranquility Base. Eagle ist gelandet. – Verstanden, Tranquility. Wir hören, ihr seid am Boden. Hier laufen ein paar Leute schon blau an. Wir atmen wieder. Vielen Dank.',
       speaker: 'Neil Armstrong und Charlie Duke in Houston · 20. Juli 1969, 20:17 UTC',
     },
+    liftoff: {
+      words: '9, 8, 7, 6, 5, Abort Stage, Engine Arm, Ascent, Proceed. – Wir sind weg. Schau, wie das Zeug überallhin fliegt. Schau dir den Schatten an. – Wunderschön. 26, 36 Fuß pro Sekunde aufwärts.',
+      speaker: 'Buzz Aldrin und Neil Armstrong, auf Eagles eigenem Rekorder · 21. Juli 1969, 17:54 UTC',
+    },
     surface: {
       words: 'Ich steige jetzt von der Fähre. Das ist ein kleiner Schritt für einen Menschen, ein riesiger Sprung für die Menschheit.',
       speaker: 'Neil Armstrong · 21. Juli 1969, 02:56 UTC',

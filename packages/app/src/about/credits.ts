@@ -144,7 +144,7 @@ export const CREDIT_GROUPS: CreditGroup[] = [
         files: ['images/apollo/'],
       },
       {
-        name: 'NASA, Apollo 11 recordings (NASA Historical Sounds; Johnson Space Center’s Apollo 11 audio, Internet Archive “Apollo11Audio”, tape 155-AAA)',
+        name: 'NASA, Apollo 11 recordings (NASA Historical Sounds; Johnson Space Center’s Apollo 11 audio, Internet Archive “Apollo11Audio”: tape 155-AAA, Onboard Audio Highlight Clip 5)',
         use: TEXT.uses.apollo11Audio,
         license: TEXT.licenses.publicDomain,
         home: 'https://archive.org/details/Apollo11Audio',
