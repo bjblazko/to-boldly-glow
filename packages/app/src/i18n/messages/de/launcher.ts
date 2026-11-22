@@ -11,8 +11,8 @@ export const launcher: Messages['lessons']['launcher'] = {
       title: 'Rakete und Turm',
       text:
         'Die Saturn V stand nie allein auf dem Boden. Vom Vehicle Assembly Building bis zum Start stand ' +
-        'sie auf ihrer mobilen Startplattform: einem stählernen Unterbau, zwei Stockwerke hoch und größer ' +
-        'als ein halber Morgen Land, mit einem 121 Meter hohen Turm daneben. Zusammen wogen sie rund ' +
+        'sie auf ihrer mobilen Startplattform: einem stählernen Unterbau, zwei Stockwerke hoch und rund ' +
+        '2.000 Quadratmeter groß, mit einem 121 Meter hohen Turm daneben. Zusammen wogen sie rund ' +
         '4.800 Tonnen.',
     },
     tower: {
@@ -26,8 +26,9 @@ export const launcher: Messages['lessons']['launcher'] = {
       title: 'Neun Arme',
       text:
         'Neun Versorgungsarme reichten vom Turm zur Rakete und führten diese Leitungen in ihre Stufen: ' +
-        'Treibstoff und flüssigen Sauerstoff, kalte Gase, Klimaluft und Kabel. Einige schwenkten Minuten ' +
-        'vor dem Start zurück, die übrigen lösten sich in den Sekunden, in denen die Rakete aufstieg.',
+        'Treibstoff und flüssigen Sauerstoff, kalte Gase, Klimaluft und Kabel. Der Zugangsarm der ' +
+        'Besatzung schwenkte fünf Minuten vor dem Start zurück, der Arm der ersten Stufe Sekunden vorher; ' +
+        'die übrigen lösten sich, als die Rakete aufstieg.',
     },
     crewArm: {
       title: 'Der Weg hinein',
@@ -64,6 +65,9 @@ export const launcher: Messages['lessons']['launcher'] = {
     mast1: 'Heckversorgungsmasten',
     mast2: 'Heckversorgungsmasten',
     mast3: 'Heckversorgungsmasten',
+    cover1: 'Mastabdeckungen',
+    cover2: 'Mastabdeckungen',
+    cover3: 'Mastabdeckungen',
     tower: 'Versorgungsturm',
     damperArm: 'Dämpferarm',
     crewArm: 'Zugangsarm der Besatzung',
@@ -75,7 +79,7 @@ export const launcher: Messages['lessons']['launcher'] = {
   },
   marks: {
     deck: { label: 'Deck der Startplattform' },
-    tower: { label: 'Turmspitze', note: '398 ft' },
+    tower: { label: 'Turmspitze' },
   },
   captions: {
     rollout: 'Die Saturn V von Apollo 11 auf dem Crawler, unterwegs zur Startrampe, 20. Mai 1969.',

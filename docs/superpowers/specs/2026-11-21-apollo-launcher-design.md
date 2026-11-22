@@ -35,15 +35,18 @@ assembly.
   masts, hold-down arms, the rocket, a person) and `crawler.*`.
 - Frame: the rocket's axis at the origin (the hold-down arms' middle), the launcher's bottom on the
   floor; x mirrored (Orbiter is left-handed), hinge angles negated with it.
-- On the crawler: the launcher, tower, arms and rocket rise by the crawler's 6.3 m (+0.9 m jacked)
-  as an explode offset; the crawler shows only in that chapter.
+- On the crawler: the launcher, tower, arms and rocket rise by the crawler mesh's height (6.21 m;
+  NASSP's attachment numbers would sink the launcher 0.3 m into it) as an explode offset; the
+  crawler, placed by NASSP's attachment points (Crawler.cpp, ML.cfg), shows only in that chapter.
+- The rocket stands with its first stage's base on the deck, the hold-down arms round it, so the
+  command module's hatch meets the crew access arm's white room (the tower's 320-ft level).
 - App: `learn/apollo/launcherVehicle.ts`, `learn/lessons/launcher.ts`, i18n en/de, narration,
   NASA photos (rollout, Apollo 11 on the pad), credits.
 
 ## Chapters (wording left to the build)
 
 1. Rocket and tower: 110.6 m of rocket beside a 398-ft tower; the launcher base, a person.
-2. The umbilical tower: 18 platforms, two elevators, the 250-ton crane.
+2. The umbilical tower: 18 platforms, two elevators, the hammerhead crane.
 3. Nine arms: fuel, power and air into the rocket; the crew access arm with the white room.
 4. Held down: four hold-down arms keep the rocket on the ground 8.9 s after ignition.
 5. The crawler: 6 million pounds, 131 x 114 ft, 1 mph with the stack, 3.5 miles, level within

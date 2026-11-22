@@ -168,7 +168,7 @@ export const CREDIT_GROUPS: CreditGroup[] = [
         files: ['models/eagle/lm-palette.png'],
       },
       {
-        name: 'Project Apollo – NASSP (orbiternassp/NASSP, commit ddba501), lunar module meshes and textures',
+        name: 'Project Apollo – NASSP (orbiternassp/NASSP, commit ddba501), lunar module, mobile launcher and crawler meshes and textures',
         use: TEXT.uses.nassp,
         license: 'GPL-2.0-or-later',
         home: 'https://github.com/orbiternassp/NASSP',

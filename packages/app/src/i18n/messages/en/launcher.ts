@@ -13,8 +13,8 @@ export const launcher = {
       title: 'Rocket and Tower',
       text:
         'The Saturn V never stood on the ground by itself. From the Vehicle Assembly Building until ' +
-        'liftoff it stood on its mobile launcher: a steel platform two storeys high, covering more than ' +
-        'half an acre, with a tower beside it 121 metres tall. Together they weighed about 4,800 tonnes.',
+        'liftoff it stood on its mobile launcher: a steel platform two storeys high, covering about half ' +
+        'an acre, with a tower beside it 121 metres tall. Together they weighed about 4,800 tonnes.',
     },
     tower: {
       title: 'The Umbilical Tower',
@@ -27,8 +27,9 @@ export const launcher = {
       title: 'Nine Arms',
       text:
         'Nine service arms reached across from the tower to the rocket and carried those lines into its ' +
-        'stages: fuel and liquid oxygen, cold gases, air conditioning and cables. Some swung back minutes ' +
-        'before launch; the rest let go in the seconds the rocket rose.',
+        'stages: fuel and liquid oxygen, cold gases, air conditioning and cables. The crew access arm swung ' +
+        'back five minutes before launch, the first stage’s arm seconds before; the rest let go as the ' +
+        'rocket rose.',
     },
     crewArm: {
       title: 'The Way In',
@@ -65,6 +66,9 @@ export const launcher = {
     mast1: 'Tail service masts',
     mast2: 'Tail service masts',
     mast3: 'Tail service masts',
+    cover1: 'Mast covers',
+    cover2: 'Mast covers',
+    cover3: 'Mast covers',
     tower: 'Umbilical tower',
     damperArm: 'Damper arm',
     crewArm: 'Crew access arm',
@@ -76,7 +80,7 @@ export const launcher = {
   },
   marks: {
     deck: { label: 'Launcher deck' },
-    tower: { label: 'Top of the tower', note: '398 ft' },
+    tower: { label: 'Top of the tower' },
   } as Record<string, { label: string; note?: string }>,
   captions: {
     rollout: 'Apollo 11’s Saturn V on the crawler, on its way to the pad, 20 May 1969.',

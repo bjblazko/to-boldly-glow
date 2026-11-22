@@ -40,8 +40,8 @@ function write(out: string, name: string, { description, binary }: { description
 export async function buildLauncher(out: string): Promise<void> {
   mkdirSync(join(out, 'nassp'), { recursive: true })
   const models = await launcherModels()
-  // The deck, and the tower's 398 ft above it (Saturn V News Reference).
-  const marks = { deck: models.deck, tower: models.deck + 398 * 0.3048 }
+  // The deck, and the top of the tower's steel.
+  const marks = { deck: models.deck, tower: models.towerTop }
   let bytes = write(out, 'launcher', written(models.launcher, LAUNCHER_ASSEMBLIES, { hinges: models.hinges, marks } as Partial<ModelDescription>, models.crawlerTop))
   bytes += write(out, 'crawler', written(models.crawler, ['crawler'], {}, 0))
   for (const file of [PAINT_TEXTURE, PALETTE_TEXTURE]) copyFileSync(join(APP, 'saturnV', file), join(out, file))

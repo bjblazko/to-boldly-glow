@@ -32,3 +32,48 @@ describe('the shipped launcher', () => {
     }
   })
 })
+
+// An assembly's extent along an axis, folded or not.
+function extent(id: string, fold: number, axis: number): [number, number] {
+  const index = description.assemblies.findIndex((assembly) => assembly.id === id)
+  const turn = hingeMatrix(description.assemblies[index].hinge, fold)
+  let [low, high] = [Infinity, -Infinity]
+  for (let i = 0; i < description.vertexCount; i++) {
+    const o = i * MODEL_VERTEX_FLOATS
+    if (model.vertices[o + 8] !== index) continue
+    const value = applyHinge(turn, [model.vertices[o], model.vertices[o + 1], model.vertices[o + 2]])[axis]
+    ;[low, high] = [Math.min(low, value), Math.max(high, value)]
+  }
+  return [low, high]
+}
+
+describe('the shipped launcher, its parts in place', () => {
+  it("brings the crew access arm to the command module (our Saturn V's 98.76-101.99 m above its base, on the deck)", () => {
+    const deck = description.marks?.deck ?? 0
+    const [low, high] = extent('crewArm', 0, 1)
+    const middle = (low + high) / 2
+    // The rocket stands with its first stage's base (3.0 m above its engines' exits) on the deck.
+    expect(middle).toBeGreaterThan(deck - 3.0 + 98.76)
+    expect(middle).toBeLessThan(deck - 3.0 + 101.99)
+  })
+
+  it('folds the tail service masts and the damper arm up, and opens the masts\' covers', () => {
+    for (const id of ['mast1', 'mast2', 'mast3', 'damperArm']) expect(extent(id, 1, 1)[1], id).toBeGreaterThan(extent(id, 0, 1)[1])
+    // The covers turn about their top edges: they move, their top stays.
+    const moved = (id: string) => [0, 1, 2].reduce((sum, axis) => sum + Math.abs(extent(id, 1, axis)[0] - extent(id, 0, axis)[0]), 0)
+    for (const id of ['cover1', 'cover2', 'cover3']) expect(moved(id), id).toBeGreaterThan(0.3)
+  })
+
+  it('lifts everything but the person onto the crawler, by its height', () => {
+    const crawler = JSON.parse(readFileSync(join(DIR, 'crawler.json'), 'utf8')) as ModelDescription
+    const lift = crawler.bounds.max[1]
+    for (const assembly of description.assemblies) expect(assembly.explode[1], assembly.id).toBeCloseTo(assembly.id === 'person' ? 0 : lift, 1)
+    // The crawler under the launcher's base (where NASSP attaches it: its body reaches 0.25 m past
+    // one edge).
+    const [baseX, baseZ] = [extent('launcher', 0, 0), extent('launcher', 0, 2)]
+    expect(crawler.bounds.min[0]).toBeGreaterThan(baseX[0] - 0.5)
+    expect(crawler.bounds.max[0]).toBeLessThan(baseX[1] + 0.5)
+    expect(crawler.bounds.min[2]).toBeGreaterThan(baseZ[0] - 0.5)
+    expect(crawler.bounds.max[2]).toBeLessThan(baseZ[1] + 0.5)
+  })
+})

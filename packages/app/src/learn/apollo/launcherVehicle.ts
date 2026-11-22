@@ -6,11 +6,11 @@ import { VEHICLE_ROOM_FACING, vehicleShot, type VehicleFrame } from '../vehicle/
 // apollo/launcherNassp.ts and buildLauncher.ts): Project Apollo - NASSP's mobile launcher with our
 // Saturn V on it, and its crawler-transporter.
 export type LauncherPart =
-  | 'launcher' | 'holddown' | 'mast1' | 'mast2' | 'mast3' | 'tower' | 'damperArm' | 'crewArm' | 'serviceArms' | 'intertankArm' | 'rocket' | 'person'
+  | 'launcher' | 'holddown' | 'mast1' | 'mast2' | 'mast3' | 'cover1' | 'cover2' | 'cover3' | 'tower' | 'damperArm' | 'crewArm' | 'serviceArms' | 'intertankArm' | 'rocket' | 'person'
   | 'crawler'
 
 // The rocket's axis on the origin, the launcher's bottom on the floor, its deck 8.4 m up; the tower
-// stands behind the rocket (+Z, 17 to 33 m out) and reaches about 130 m, its crane 141 m. The arms
+// stands behind the rocket (+Z, 17 to 33 m out); its steel reaches 123 m, its crane 141 m. The arms
 // (measured on the built model): the S-IC intertank arm about 25 m up, the other service arms up to
 // 100 m, the crew access arm and the damper arm at 105-107 m. On the crawler everything rises 6.2 m.
 const FRAMES: Record<string, VehicleFrame> = {
