@@ -1,5 +1,9 @@
 import sharp from 'sharp'
+import { CSM_HEIGHTS, CSM_RADIUS, RCS_QUAD } from './csmProfile'
 import { weather } from './weathering'
+
+const RCS_PANEL = RCS_QUAD.panel
+const SM_HEIGHT = CSM_HEIGHTS.smTop - CSM_HEIGHTS.aftBulkhead
 
 // The service module's skin, drawn from photos of the Apollo command and service modules in flight:
 // bare aluminium in six sectors, a band of white radiator panels round its top (the fuel cells'),
@@ -24,6 +28,15 @@ function paintSvg(): string {
   for (let i = 0; i < 9; i++) parts.push(rect(0, HEIGHT * 0.02 + (i * band) / 9, WIDTH, (band / 9) * 0.68, WHITE))
   // The cabin's two radiators, an eighth of the way round each, on opposite sides.
   for (const middle of [0.25, 0.75]) parts.push(rect(WIDTH * (middle - 0.0625), HEIGHT * 0.42, WIDTH * 0.125, HEIGHT * 0.44, WHITE))
+  // The four RCS quads' panels, flush with the skin, a little darker (8 ft by nearly 3 ft, centred on
+  // the quads: 45 degrees round, then every 90; their middle 3 m above the aft bulkhead).
+  for (let k = 0; k < 4; k++) {
+    const middle = (0.125 + k * 0.25) * WIDTH
+    const across = (RCS_PANEL.width / (2 * Math.PI * CSM_RADIUS)) * WIDTH
+    const tall = (RCS_PANEL.length / SM_HEIGHT) * HEIGHT
+    const centre = ((CSM_HEIGHTS.smTop - RCS_QUAD.middle) / SM_HEIGHT) * HEIGHT
+    parts.push(rect(middle - across / 2, centre - tall / 2, across, tall, '#a7aaae'))
+  }
   // The six sectors' seams.
   for (let k = 0; k < 6; k++) parts.push(rect((k * WIDTH) / 6, 0, 2, HEIGHT, SEAM))
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}">${parts.join('')}</svg>`

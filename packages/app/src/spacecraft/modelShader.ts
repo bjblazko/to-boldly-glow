@@ -131,12 +131,13 @@ fn wearAt(local: vec3f) -> f32 {
   return mottle * 0.14 + smoothstep(0.6, 0.92, streaks) * 0.16;
 }
 
-// What a mirror-like surface sees in a direction: the floor dark, the sky (the room's ceiling)
-// bright, a soft horizon between.
+// What a mirror-like surface sees in a direction: below, the room's dark blue floor; a bright band
+// at the horizon; above, a sky that brightens toward the top - contrast, as polished foil shows.
 fn surroundings(direction: vec3f) -> vec3f {
-  let up = smoothstep(-0.3, 0.55, direction.y);
-  let horizon = exp(-abs(direction.y) * 9.0) * 0.18;
-  return mix(vec3f(0.04, 0.045, 0.05), vec3f(0.82, 0.84, 0.87), up) + vec3f(horizon);
+  let floor = vec3f(0.02, 0.05, 0.09);
+  let sky = mix(vec3f(0.35, 0.38, 0.42), vec3f(0.95, 0.96, 0.98), smoothstep(0.05, 0.8, direction.y));
+  let horizon = exp(-abs(direction.y - 0.02) * 14.0) * 0.9;
+  return mix(floor, sky, smoothstep(-0.06, 0.06, direction.y)) + vec3f(horizon);
 }
 
 // The fill as light from all round: brighter from above (the sky, the room's ceiling) than from
@@ -206,7 +207,7 @@ fn fs(in: VertexOutput, @builtin(front_facing) frontFacing: bool) -> @location(0
   if (mirror) {
     // Mostly what it reflects, tinted by its own colour, a little of its lit colour beneath.
     let seen = surroundings(reflect(-toCamera, normal)) * albedo * material.y;
-    color = color * (1.0 - material.y * 0.75) + seen + vec3f(specular * uni.toLight.w);
+    color = color * (1.0 - material.y * 0.9) + seen + vec3f(specular * uni.toLight.w);
   }
   let picked = uni.highlight.x >= 0.0 && in.assembly == i32(uni.highlight.x);
   let strength = uni.highlight.y;

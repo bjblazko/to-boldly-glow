@@ -35,7 +35,7 @@ const SWATCHES = ['cm', 'sm', 'heatShield', 'engine', 'oxidizer', 'fuel', 'heliu
 type Swatch = (typeof SWATCHES)[number]
 
 const COLORS: Record<Swatch, Rgb> = {
-  cm: [214, 216, 220], // the command module's aluminized skin
+  cm: [205, 208, 214], // the command module's aluminized skin (a mirror: its colour tints what it reflects)
   sm: [196, 198, 200], // the service module's aluminium
   heatShield: [150, 110, 70], // the ablator under the skin
   engine: [52, 50, 48],
@@ -123,13 +123,21 @@ function tank(shape: TankShape): MeshPrimitive {
   return placedLathe(profile.map(([r, y]) => [r, y - bottom] as ProfilePoint), placeOf(shape), bottom, { ...colored(contents, 32), sharp: !round })
 }
 
-// A quad: a box on the SM's skin, 90 degrees apart (a lathe of four sides).
+// A quad: its housing, a small box on the SM's skin, with a nozzle cone up and one down, 90 degrees
+// apart round the module.
 function rcsQuad(index: number): MeshPrimitive {
   const angle = RCS_QUAD.startAngle + (index * Math.PI) / 2
-  const out = CSM_RADIUS + RCS_QUAD.depth / 2
-  const half = RCS_QUAD.width / 2 / Math.SQRT2
-  const box: ProfilePoint[] = [[0, -RCS_QUAD.length / 2], [half * 2, -RCS_QUAD.length / 2], [half * 2, RCS_QUAD.length / 2], [0, RCS_QUAD.length / 2]]
-  return placedLathe(box, [out * Math.cos(angle), out * Math.sin(angle)], RCS_QUAD.middle, { ...colored('rcs', 4), sharp: true, startAngle: Math.PI / 4 + angle })
+  const { tall, wide, deep } = RCS_QUAD.housing
+  const out = CSM_RADIUS + deep / 2
+  const place: [number, number] = [out * Math.cos(angle), out * Math.sin(angle)]
+  const half = wide / 2 / Math.SQRT2
+  const box: ProfilePoint[] = [[0, -tall / 2], [half * 2, -tall / 2], [half * 2, tall / 2], [0, tall / 2]]
+  const housing = placedLathe(box, place, RCS_QUAD.middle, { ...colored('rcs', 4), sharp: true, startAngle: Math.PI / 4 + angle })
+  const length = RCS_QUAD.nozzle
+  const up: ProfilePoint[] = [[0.03, 0], [0.09, length], [0, length]]
+  const down: ProfilePoint[] = [[0, -length], [0.09, -length], [0.03, 0]]
+  const nozzles = [placedLathe(up, place, RCS_QUAD.middle + tall / 2, colored('engine', 12)), placedLathe(down, place, RCS_QUAD.middle - tall / 2, colored('engine', 12))]
+  return mergePrimitives([housing, ...nozzles])
 }
 
 // The high-gain antenna on its boom below the aft bulkhead: four dishes round a small square one.
