@@ -8,8 +8,18 @@ import type { VoyagerLabels } from '../voyager/voyagerLabels'
 import { ApolloRouteScene } from './apolloRouteScene'
 import { ApolloRouteOverlay, placeApolloRouteLabels } from './routeOverlay'
 import { apolloRouteShot } from './routeShots'
+import type { KeepOut } from '../lessonCameraViews'
+import type { Vec3 } from '../../math/tuples'
+import { CLOSEUPS } from './closeupChoreography'
+import { closeupFrame, framePoint } from './closeupFrames'
+import { ROUTE_EARTH, ROUTE_EARTH_RADIUS, ROUTE_MOON, ROUTE_MOON_RADIUS } from './routeGeometry'
 import { CloseupActors } from './closeupActors'
 import type { ModelContext } from '../../spacecraft/modelRenderer'
+
+const ROUTE_KEEP_OUT: readonly KeepOut[] = [
+  { center: ROUTE_MOON, radius: ROUTE_MOON_RADIUS * 1.005 },
+  { center: ROUTE_EARTH, radius: ROUTE_EARTH_RADIUS * 1.01 },
+]
 
 function prefersReducedMotion(): boolean {
   return globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
@@ -52,6 +62,19 @@ export class ApolloRouteLesson implements StagedLessonScene {
 
   layout(_chapter: Chapter, ephemeris: Ephemeris): SceneLayout {
     return this.scene.layout(ephemeris)
+  }
+
+  // Over Earth and the Moon, not through them, the camera's flights (just above the Moon's ground,
+  // which its close-ups stand on).
+  keepOut(): readonly KeepOut[] {
+    return ROUTE_KEEP_OUT
+  }
+
+  // The camera, standing on the ground, turns up after the ascent stage as it lifts off.
+  follow(): Vec3 | null {
+    const closeup = this.scene.stage?.closeup
+    const follow = closeup ? CLOSEUPS[closeup].follow : undefined
+    return closeup && follow ? framePoint(closeupFrame(closeup), follow(Math.min(this.scene.closeupPlayed, CLOSEUPS[closeup].seconds))) : null
   }
 
   groundShot(): GroundShot | null {

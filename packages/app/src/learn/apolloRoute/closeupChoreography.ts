@@ -82,9 +82,13 @@ function landing(t: number): ActorPose[] {
   return [pose('lm', { translation: [-60 * left, 45 * left, 0] })]
 }
 
-// The ascent stage lifts off the descent stage, faster and faster.
+// The ascent stage lifts off the descent stage, faster and faster (50 m up in 12 s).
+const LIFTOFF_SECONDS = 12
+function liftoffRise(t: number): number {
+  return 20 * Math.min(t / LIFTOFF_SECONDS, 1) ** 2
+}
 function liftoff(t: number): ActorPose[] {
-  return [pose('lm', { explode: 12 * Math.min(t / 10, 1) ** 2 })]
+  return [pose('lm', { explode: liftoffRise(t) })]
 }
 
 // The ascent stage alone comes up to Columbia's nose and docks; later it is cast off.
@@ -111,6 +115,8 @@ export interface Closeup {
   // Labels: a name (closeup labels' key) on a point of a model's assembly.
   labels: readonly { name: 'columbia' | 'eagle' | 'thirdStage'; model: ActorModel; point: readonly number[]; assembly: string }[]
   play: (seconds: number) => ActorPose[]
+  // What the camera keeps its pivot on as it plays (metres, the close-up's frame), if it follows.
+  follow?: (seconds: number) => Vec3
 }
 
 const COLUMBIA_LABEL = { name: 'columbia', model: 'csm', point: [0, CM_MIDDLE_Y, 0], assembly: 'cm' } as const
@@ -120,7 +126,7 @@ export const CLOSEUPS: Record<CloseupId, Closeup> = {
   transposition: { seconds: 15, center: [0, 8, 0], reach: 26, play: transposition, labels: [COLUMBIA_LABEL, EAGLE_LABEL, { name: 'thirdStage', model: 'saturnV', point: [0, 75.86, 0], assembly: 'sivb' }] },
   undocking: { seconds: 14, center: [0, 16, 0], reach: 20, play: undocking, labels: [COLUMBIA_LABEL, EAGLE_LABEL] },
   landing: { seconds: 12, center: [-10, 8, 0], reach: 24, play: landing, labels: [EAGLE_LABEL] },
-  liftoff: { seconds: 10, center: [0, 10, 0], reach: 18, play: liftoff, labels: [EAGLE_LABEL] },
+  liftoff: { seconds: LIFTOFF_SECONDS, center: [0, 6, 0], reach: 16, play: liftoff, labels: [EAGLE_LABEL], follow: (t) => [0, Math.max(6, 5.14 + EXPLODE_STEP * liftoffRise(t)), 0] },
   rendezvous: { seconds: 14, center: [0, 18, 0], reach: 22, play: rendezvous, labels: [COLUMBIA_LABEL, EAGLE_LABEL] },
   entry: { seconds: 11, center: [0, 2, 0], reach: 16, play: entry, labels: [COLUMBIA_LABEL] },
 }

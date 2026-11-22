@@ -61,6 +61,13 @@ describe('the Apollo 11 close-ups', () => {
     expect(actorPoint(end, [0, 0, 0], 'descent')[1]).toBeCloseTo(0, 6)
   })
 
+  it('liftoff: the camera follows the ascent stage up', () => {
+    const follow = CLOSEUPS.liftoff.follow!
+    const end = CLOSEUPS.liftoff.seconds
+    expect(follow(0)[1]).toBeCloseTo(6, 6)
+    expect(follow(end)[1]).toBeCloseTo(actorPoint(actor('liftoff', end, 'lm'), [0, 5.14, 0], 'ascent')[1], 4)
+  })
+
   it('rendezvous: the ascent stage alone comes up to Columbia and docks, then is cast off', () => {
     expect(actor('rendezvous', 0, 'lm').visibility.descent).toBe(0)
     expect(gap('rendezvous', 0)).toBeGreaterThan(15)

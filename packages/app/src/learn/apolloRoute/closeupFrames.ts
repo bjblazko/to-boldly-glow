@@ -6,7 +6,7 @@ import { orbitBasisForUpAxis } from '../../camera/orbitCamera'
 import type { Vec3 } from '../../math/tuples'
 import type { LessonShot } from '../lessonShot'
 import { CLOSEUPS, type CloseupId } from './closeupChoreography'
-import { LANDING_SITE, RENDEZVOUS, ROUTE_MOON, routePoint, UNDOCKING } from './routeGeometry'
+import { LANDING_SITE, RENDEZVOUS, ROUTE_EARTH, ROUTE_MOON, routePoint, UNDOCKING } from './routeGeometry'
 
 // Where each close-up plays in the scene: at the craft's place on the drawn route (or at
 // Tranquility Base), its frame's +Y along the flight (or straight up from the Moon), +Z toward
@@ -125,21 +125,25 @@ export function groundShadowMatrix(id: CloseupId): mat4 | null {
   return mat4.fromValues(1, 0, 0, 0, -lx / ly, 0, -lz / ly, 0, 0, 0, 1, 0, 0, SHADOW_LIFT, 0, 1)
 }
 
+function nearerBody(point: Vec3): Vec3 {
+  return Math.hypot(...sub(point, ROUTE_MOON)) < Math.hypot(...sub(point, ROUTE_EARTH)) ? ROUTE_MOON : ROUTE_EARTH
+}
+
 // Toward the Sun (at the scene's origin) from the close-up.
 export function closeupToSun(id: CloseupId): Vec3 {
   return unit(closeupFrame(id).origin.map((value) => -value))
 }
 
-// From the side, a little from above, on the sunlit side: in space across the flight; on the
-// ground across Eagle's way in, its horizon level.
+// From the side, a little from above. In space the camera stands on the far side of the craft from
+// the nearer of Earth and the Moon, which shows behind it - and the flight there from the route's
+// view (and back) passes outside them. On the ground it stands to the north, its horizon level.
 export function closeupShot(id: CloseupId): LessonShot {
   const frame = closeupFrame(id)
   const { center, reach } = CLOSEUPS[id]
-  const toSun = closeupToSun(id)
   const ground = onGround(id)
   const up = ground ? frame.y : frame.z
-  const across = ground ? frame.z : frame.x
-  const side = dot(across, toSun) >= 0 ? across : across.map((value) => -value)
+  const away = unit(sub(frame.origin, nearerBody(frame.origin)))
+  const side = ground ? frame.z : dot(frame.x, away) >= 0 ? frame.x : frame.x.map((value) => -value)
   const eye = unit(side.map((value, k) => value + (ground ? 0.2 : 0.35) * up[k] + 0.25 * frame.y[k] * (ground ? 0 : 1)))
   const { right, forward0 } = orbitBasisForUpAxis(up)
   const size = reach * frame.scale

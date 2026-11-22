@@ -1,7 +1,7 @@
 import { vec3 } from 'gl-matrix'
 import { EasedTween } from '../math/easedTween'
 import { COMPACT_MIN_ORBIT_RADIUS, WALK_RADIUS, type OrbitCamera } from '../camera/orbitCamera'
-import { blendViews, cameraSnapshot, viewAbout, type CameraView, type Snapshot } from './lessonCameraViews'
+import { aimedAt, blendViews, cameraSnapshot, keepOutside, viewAbout, type CameraView, type KeepOut, type Snapshot } from './lessonCameraViews'
 import { entryFrom, poseOf, WalkFlight, type Entry } from './walkFlight'
 import { circleSpot, walkInto, walkUpTo, type Obstacle } from './cabinWalk'
 import type { CameraLens } from '../camera/cameraLens'
@@ -278,15 +278,23 @@ export class LessonCamera {
   }
 
   // Moves a flight between two shots along (see frame's glide option).
-  update(deltaSeconds: number): void {
+  // `keepOut`: balls the flight passes over, not through (the staged scene's planets).
+  update(deltaSeconds: number, keepOut: readonly KeepOut[] = []): void {
     if (this.flight && !this.flight.update(deltaSeconds, this.orbit)) this.flight = null
     const glide = this.glide
     if (!glide) return
-    const t = glide.progress.update(deltaSeconds)
-    this.showView(glide.progress.isAnimating ? blendViews(glide.from, glide.to, t) : glide.to)
+    // While under way: a step further along (the last one reaches the end), kept clear of the balls.
+    this.showView(glide.progress.isAnimating ? keepOutside(blendViews(glide.from, glide.to, glide.progress.update(deltaSeconds)), this.orbit.upAxis, keepOut) : glide.to)
     if (glide.progress.isAnimating) return
     this.glide = null
     this.lens.setLessonZoomFloor(glide.zoomFloor)
+  }
+
+  // Keeps looking at a moving point (a craft lifting off) from where the camera stands - turning
+  // after it, as a camera on the ground would; a flight under way ends looking at it.
+  follow(point: Vec3): void {
+    if (this.glide) this.glide.to = aimedAt(this.glide.to, point, this.orbit.upAxis)
+    else this.showView(aimedAt(this.currentView(), point, this.orbit.upAxis))
   }
 
   // Whether the camera is still on its way to the shot.
