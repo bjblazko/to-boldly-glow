@@ -51,3 +51,21 @@ next parts of step 8.
 
 The truncation degree and step size (by convergence), the burn models' details within the
 documented values.
+
+## Result so far (2026-11-22)
+
+- Built: the Moon's orientation (IAU) and gravity field (GRAIL, converged by degree 40-60), Columbia
+  from insertion to TEI in it (`lunar.bin`). Against ABTN: the 66.1 × 54.5 orbit set at
+  circularization; 65.1 × 55.1 after the separation burn (63.7 × 56.0); altitudes at undocking,
+  docking and jettison within 3.5 n mi; at TEI ignition 52.4 n mi within 0.1 (a point-mass Moon:
+  55.9). The final separation burn's direction (not documented) taken radial, as the first was.
+- Found, open: the orbit's plane misses Tranquility Base by about 3.8° (116 km), and its phase runs
+  ahead (powered descent would start 23° instead of about 16° before the site). Why: the
+  translunar reconstruction fixes only the pericynthion's height, not the plane relative to the
+  site - which was the mission's target - and our orbit lies about 2 n mi low, so each revolution
+  is some 20 s short. Next: fit the lunar orbit (its plane, phase and perilune's place at
+  circularization) to all documented checkpoints plus the site passing under the powered descent's
+  ground track at the documented times; then Eagle's descent (DOI solved to the documented PDI
+  altitude: about 80 ft/s instead of 76.4 with today's orbit), powered descent to the site from the
+  Mission Report's trajectory data and the crew's callouts (NASA's technical air-to-ground
+  transcript, archive.org Apollo11Audio, AS11_TEC), ascent and rendezvous.
