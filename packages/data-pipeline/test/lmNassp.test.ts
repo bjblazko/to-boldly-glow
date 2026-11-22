@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { applyHinge, hingeMatrix } from '../../app/src/spacecraft/modelHinge'
-import { ascentAssembly, cockpitAssembly, descentAssembly, foldingHinge, foilMapped, linkHinge, toLmFrame } from '../src/apollo/lmNassp'
+import { ascentAssembly, cockpitAssembly, DECK_UNDERLAY_DROP, descentAssembly, foldingHinge, foilMapped, linkHinge, toLmFrame } from '../src/apollo/lmNassp'
 import type { OrbiterGroup } from '../src/spacecraft/orbiterMesh'
 
 describe("NASSP's lunar module, sorted into Eagle's parts", () => {
@@ -90,6 +90,15 @@ describe('linkHinge', () => {
     const direction = (p: number[]) => { const d = [p[0] - 0, p[1] - 1, p[2] - 0.51]; const l = Math.hypot(...d); return d.map((v) => v / l) }
     const [a, b] = [direction(outer), direction(moved)]
     expect(a[0] * b[0] + a[1] * b[1] + a[2] * b[2]).toBeCloseTo(1, 6)
+  })
+})
+
+describe('the descent stage’s top deck', () => {
+  it('lies under its foil, not in it: NASSP’s plain grey deck plate sits inside the foil’s height and flickered through it', () => {
+    const plate: OrbiterGroup = { label: 'BodyTop2', material: null, texture: null, positions: Float32Array.of(0, 0.88, 0, 1, 0.88, 0, 0, 0.88, 1), normals: null, uvs: null, indices: Uint32Array.of(0, 1, 2) }
+    const placed = toLmFrame(plate, 0)
+    expect(placed.positions[1]).toBeCloseTo(0.88 - DECK_UNDERLAY_DROP, 6)
+    expect(0.88 - DECK_UNDERLAY_DROP).toBeLessThan(0.85)
   })
 })
 

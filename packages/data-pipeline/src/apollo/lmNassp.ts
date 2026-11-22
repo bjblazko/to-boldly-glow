@@ -45,9 +45,14 @@ export function cockpitAssembly(label: string): CockpitPart {
 
 export type LmGroup = NasspGroup
 
+// NASSP's plain grey plate on the descent stage's top deck ("BodyTop2", at 0.88 m) lies inside the
+// height of the foil over it ("BodyTop", 0.85-0.90 m): the two fought for the picture. It goes a
+// little lower, under the foil.
+export const DECK_UNDERLAY_DROP = 0.06
+
 // A group in our frame, lifted by `lift` (metres): see nasspParts.ts.
 export function toLmFrame(group: OrbiterGroup, lift: number): LmGroup {
-  return toOurFrame(group, [0, lift, 0])
+  return toOurFrame(group, [0, lift - (group.label === 'BodyTop2' ? DECK_UNDERLAY_DROP : 0), 0])
 }
 
 // Folded, a leg's strut swings up about its top until it leans 8 degrees in past upright, its
