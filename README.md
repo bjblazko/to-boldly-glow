@@ -103,17 +103,19 @@ themselves. Look around each scene: the Voyager probe and its record from all si
 | ![The Voyager lesson at Jupiter, 1979: both probes on their real paths, Voyager 1's photo of the Great Red Spot](docs/images/lesson-jupiter.jpg) | ![Voyager in detail: the probe taken apart, each part named](docs/images/lesson-taken-apart.jpg) |
 
 And Apollo: *The Saturn V, taken apart* (the rocket to scale, its stack taken apart, each stage
-cut open), *Columbia, inside and out* (the command and service module; inside, the Smithsonian's
-3D scan of the real capsule, to walk through as the crew lay), *Eagle, the lunar module*
-(Project Apollo - NASSP's detailed model: the legs fold, the stages part, and inside you stand
-where Armstrong and Aldrin stood, before every switch of the real panels), *The Launch Tower and
-the Crawler* (the Saturn V on its mobile launcher beside the umbilical tower, its swing arms, and the
-crawler that carried it all to the pad) and *Apollo 11: to the Moon and back* (the whole mission,
-launch to splashdown, on a drawn figure eight between Earth and the Moon, with each moment's time).
+cut open), *Columbia, inside and out* (the command and service module; inside, the cabin as it flew,
+switch by switch - Project Apollo - NASSP's model - and as it is today, the Smithsonian's 3D scan of
+the real capsule), *Eagle, the lunar module* (Project Apollo - NASSP's detailed model: the legs fold,
+the stages part, and inside you stand where Armstrong and Aldrin stood, before every switch of the
+real panels), *The Launch Tower and the Crawler* (the Saturn V on its mobile launcher beside the
+umbilical tower, its swing arms, the White Room, the slide wire out, and the crawler that carried it
+all to the pad) and *Apollo 11: to the Moon and back* (the race to the Moon and the crew, then the
+whole mission, launch to splashdown and quarantine, on a drawn figure eight between Earth and the
+Moon, with each moment's time - and at five moments the voices of the people who were there).
 
 | | |
 | --- | --- |
-| ![The Saturn V lesson: the first stage cut open, its tanks and five F-1 engines](docs/images/lesson-saturn-v.jpg) | ![Columbia's cabin, the Smithsonian's scan: the main display console over the couches](docs/images/lesson-columbia.jpg) |
+| ![The Saturn V lesson: the first stage cut open, its tanks and five F-1 engines](docs/images/lesson-saturn-v.jpg) | ![Columbia's cabin as it flew (Project Apollo - NASSP's model): the Commander's flight displays on the main display console](docs/images/lesson-columbia.jpg) |
 | ![Eagle, the lunar module, in the blueprint room with a person for scale](docs/images/lesson-eagle.jpg) | ![Inside Eagle: the Commander's flight displays and the window](docs/images/lesson-eagle-cockpit.jpg) |
 | ![The Saturn V on its mobile launcher beside the umbilical tower](docs/images/lesson-launcher.jpg) | ![The crawler-transporter carrying launcher, tower and rocket](docs/images/lesson-launcher-crawler.jpg) |
 | ![Apollo 11's way to the Moon and back: the figure eight of the free return between Earth and the Moon](docs/images/lesson-apollo11.jpg) | |

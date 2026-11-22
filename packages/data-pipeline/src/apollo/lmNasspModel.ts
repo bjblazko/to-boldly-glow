@@ -61,8 +61,8 @@ function flatFoil(group: LmGroup): LmGroup {
 
 // Each leg's hinge, found on its primary strut; each leg's braces', from theirs (linkHinge).
 function legHinges(struts: Map<string, [number, number, number][]>): Record<string, Hinge> {
-  const legs = Object.fromEntries(Object.entries(LEG_AZIMUTH).map(([leg, azimuth]) => [leg, foldingHinge(struts.get(leg) ?? [], azimuth)]))
-  const links = Object.keys(LEG_AZIMUTH).map((leg) => [leg.replace('leg', 'link'), linkHinge(struts.get(leg.replace('leg', 'link')) ?? [], legs[leg])])
+  const legs: Record<string, Hinge> = Object.fromEntries(Object.entries(LEG_AZIMUTH).map(([leg, azimuth]) => [leg, foldingHinge(struts.get(leg) ?? [], azimuth)]))
+  const links = Object.keys(LEG_AZIMUTH).map((leg): [string, Hinge] => [leg.replace('leg', 'link'), linkHinge(struts.get(leg.replace('leg', 'link')) ?? [], legs[leg])])
   return { ...legs, ...Object.fromEntries(links) }
 }
 

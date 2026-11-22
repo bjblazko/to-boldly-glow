@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-22
+
 ### Added
 
 - Apollo, the lesson "The Launch Tower and the Crawler": the Saturn V on its mobile launcher beside
@@ -23,7 +25,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the Moon, docking again, the service module cast off before entry - with NASA's photos and
   sketches of them. At five moments the people who were there speak after the narrator - the
   launch, "You are go for TLI", "The Eagle has landed", the first step, the liftoff from the Moon -
-  NASA's own recordings, subtitled in English and German.
+  NASA's own recordings, subtitled in English and German. It opens with the race to the Moon and
+  the crew, and ends with the quarantine - President Nixon at the trailer's window.
+- The launch tower lesson: the White Room at the hatch, the way out (the slide wire, in the model,
+  and the rubber room under the pad), the launch platform, how the crawler works - with NASA's
+  photos.
+- Columbia: the cabin as it flew, switch by switch (Project Apollo - NASSP's cockpit), for the
+  chapters inside; the Smithsonian's scan for a new chapter, Columbia today, and the crew's notes.
 
 ### Changed
 
@@ -37,6 +45,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The interface can be hidden in lessons and tours too (More, or H).
 - The Saturn V's paint shows wear: an uneven white, streaks, soot at the base; the lesson says what
   the black-and-white pattern was for. The escape tower stands on the capsule's cover.
+- Columbia's outside as in the photos: the command module's foil a mirror, the service module bare
+  aluminium with its white radiators; small RCS quads on flush panels.
+- Eagle's braces fold with its legs; the probes are stowed while folded.
+- Vehicle lessons: light from all round, matte paint, less depth-of-field blur; Columbia's cockpit
+  lit like a film set.
+- Apollo 11 close-ups hold Earth still; the entry is seen from Earth's side looking out.
 - Apollo 11's events in mission time, and its path reconstructed from the documented state vectors
   (for the coming tour).
 
@@ -44,6 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The grand tour came home short of Earth when the clock ran fast at Realistic scale: it gave up on
   the last stop and never arrived.
+- Flicker where Columbia's command module meets the service module, and on Eagle's top deck.
 
 ## [0.7.0] - 2026-11-21
 
