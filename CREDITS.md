@@ -265,6 +265,11 @@ The Eagle lesson's photos, fetched the same way by `packages/data-pipeline/src/f
 NASA/JSC, public domain (captions checked: no other credit): as11-40-5927 (Eagle on the Moon, Aldrin
 beside it), as11-44-6581 (Eagle in lunar orbit), as11-40-5863 (Aldrin leaving through the hatch) and
 as11-44-6642 (the ascent stage at rendezvous).
+The Apollo 11 lesson's own photos, fetched the same way by
+`packages/data-pipeline/src/fetchApollo11Photos.ts`, NASA, public domain (captions checked: no other
+credit): Marshall's sketches of July 1969 of the transposition and docking (6902077) and of the
+liftoff from the Moon and the rendezvous (6902073), NASA/MSFC; the ground beside Eagle through its
+window (as11-37-5458) and the ascent stage coming up to Columbia (as11-44-6626), NASA/JSC.
 
 ## Apollo: Columbia, the command and service module
 
@@ -322,6 +327,17 @@ Converted in November 2026 by `packages/data-pipeline/src/buildLauncher.ts` (int
 into the lesson's parts, the textures as JPEG). The Saturn V on it is our own model
 (`saturnV-paint.jpg`, `saturnV-palette.png` copied from it). The lesson's figures come from NASA/MSFC's
 "Saturn V News Reference" (December 1968, public domain).
+
+## Apollo 11: the timeline and the path to the Moon
+
+Apollo 11's events in mission time (`packages/app/src/missions/apollo11/apollo11Events.ts`) and the
+documented states its path is reconstructed from and checked against come from Richard W. Orloff's
+"Apollo by the Numbers" (NASA SP-4029, 2000; https://archive.org/details/apollo-by-the-numbers) and
+NASA's "Apollo 11 Mission Report" (MSC-00171, 1969; https://archive.org/details/apollo-11-mission-report),
+both public domain. The path (`packages/app/public/data/apollo11/translunar.bin`, `transearth.bin`) is our own
+reconstruction by `packages/data-pipeline/src/buildApollo11Trajectory.ts`; the Moon's and the Sun's
+positions it is integrated in (`data/apollo11-ephemeris.json`, and `public/data/apollo11/moon.bin`)
+are from NASA/JPL Horizons (DE441).
 
 ## Tonemapping
 

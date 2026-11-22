@@ -136,7 +136,7 @@ export const CREDIT_GROUPS: CreditGroup[] = [
         files: ['models/saturnV/', 'models/launcher/saturnV-paint.jpg', 'models/launcher/saturnV-palette.png'],
       },
       {
-        name: 'NASA (HQ, MSFC, KSC, JSC), Apollo photos (NASA Image and Video Library: 6901000, KSC-69P-372, 9903405, 6758331, 6861994, 0100806, 372772main_GPN-2000-001212_full, S69-40758, S69-38317, as11-40-5927, as11-44-6581, as11-40-5863, as11-44-6642)',
+        name: 'NASA (HQ, MSFC, KSC, JSC), Apollo photos (NASA Image and Video Library: 6901000, KSC-69P-372, 9903405, 6758331, 6861994, 0100806, 372772main_GPN-2000-001212_full, S69-40758, S69-38317, as11-40-5927, as11-44-6581, as11-40-5863, as11-44-6642, 6902077, as11-37-5458, 6902073, as11-44-6626)',
         use: TEXT.uses.saturnVPhotos,
         license: TEXT.licenses.publicDomain,
         home: 'https://images.nasa.gov/',
@@ -181,7 +181,15 @@ export const CREDIT_GROUPS: CreditGroup[] = [
         use: TEXT.uses.horizons,
         license: TEXT.licenses.publicDomain,
         home: 'https://ssd.jpl.nasa.gov/horizons/',
-        files: ['data/voyager/voyager1.trajectory.bin', 'data/voyager/voyager2.trajectory.bin', 'data/voyager/speeds.json', 'data/voyager/encounters/'],
+        files: ['data/voyager/voyager1.trajectory.bin', 'data/voyager/voyager2.trajectory.bin', 'data/voyager/speeds.json', 'data/voyager/encounters/', 'data/apollo11/moon.bin'],
+      },
+      {
+        name: 'Richard W. Orloff, “Apollo by the Numbers” (NASA SP-4029, 2000), and NASA, “Apollo 11 Mission Report” (MSC-00171, 1969)',
+        use: TEXT.uses.apollo11Trajectory,
+        license: TEXT.licenses.publicDomain,
+        home: 'https://archive.org/details/apollo-by-the-numbers',
+        changes: TEXT.changes.apollo11Trajectory,
+        files: ['data/apollo11/translunar.bin', 'data/apollo11/transearth.bin'],
       },
       {
         name: 'NASA Space Physics Data Facility, Voyager 1 and 2 merged data (CRS, MAG)',

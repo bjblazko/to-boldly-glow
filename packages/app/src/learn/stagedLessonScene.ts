@@ -5,6 +5,7 @@ import type { SceneLayout } from '../scene/sceneLayout'
 import type { Ephemeris } from '../time/ephemeris'
 import type { GroundShot } from './ground/groundShot'
 import type { LessonShot } from './lessonShot'
+import type { KeepOut } from './lessonCameraViews'
 import type { Chapter } from './lessonTypes'
 
 export interface StagedOverlayFrame {
@@ -41,6 +42,10 @@ export interface StagedLessonScene {
   // How far along a ray (unit direction) the scene stands in the way, within `within` if given:
   // what stops the camera walking through a cabin's walls.
   obstacle?(origin: Vec3, direction: Vec3, within: number | undefined, chapter: Chapter): number | null
+  // Balls the camera's flights between shots pass over rather than through (its planets).
+  keepOut?(chapter: Chapter): readonly KeepOut[]
+  // A point the camera keeps looking at while the chapter plays (a craft lifting off), if any.
+  follow?(chapter: Chapter): Vec3 | null
   // A film look over the finished picture, for scenes that want one.
   filmLook?(chapter: Chapter): FilmLook | null
   drawBehindBodies(pass: GPURenderPassEncoder, chapter: Chapter): void

@@ -127,6 +127,15 @@ export class LessonSession implements ScenePlayer {
     return this.parts.stagedScenes.find((scene) => scene.handles(kind))
   }
 
+  // The staged scene plays on; the camera follows what it asks to follow, and a moving view from
+  // the ground.
+  private updateStaged(staged: StagedLessonScene, deltaSeconds: number): void {
+    staged.update(deltaSeconds, this.chapter, this.parts.lessonCamera.viewLeft)
+    const followed = staged.follow?.(this.chapter)
+    if (followed) this.parts.lessonCamera.follow(followed)
+    if (staged.groundShot(this.chapter)) this.frameCamera()
+  }
+
   // The camera framing depends on the window's shape (see LessonCamera).
   reframe(): void {
     if (this.active) this.frameCamera()
@@ -136,13 +145,11 @@ export class LessonSession implements ScenePlayer {
   update(deltaSeconds: number): void {
     if (!this.active) return
     if (!this.parts.voice.isLoading) this.autoplay.update(deltaSeconds)
-    this.parts.lessonCamera.update(deltaSeconds)
     const { kind } = this.chapter
     const staged = this.stagedScene
-    if (staged) {
-      staged.update(deltaSeconds, this.chapter, this.parts.lessonCamera.viewLeft)
-      if (staged.groundShot(this.chapter)) this.frameCamera()
-    } else if (isSeasonsKind(kind)) this.seasons.update(deltaSeconds, kind)
+    this.parts.lessonCamera.update(deltaSeconds, staged?.keepOut?.(this.chapter))
+    if (staged) this.updateStaged(staged, deltaSeconds)
+    else if (isSeasonsKind(kind)) this.seasons.update(deltaSeconds, kind)
     else if (kind === 'sizes') {
       this.turntable.update(deltaSeconds, this.chapter.focusPlanetId)
       this.lineup.update(deltaSeconds)

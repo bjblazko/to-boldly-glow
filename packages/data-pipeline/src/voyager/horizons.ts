@@ -16,9 +16,13 @@ export interface VectorQuery {
   // The body positions are relative to (Horizons' notation; the Sun's centre if not given).
   center?: string
   units?: 'AU-D' | 'KM-S'
+  // The frame's plane: the ecliptic (default) or Earth's mean equator of J2000 ('FRAME').
+  plane?: 'ECLIPTIC' | 'FRAME'
+  // Output times in UT instead of TDB.
+  universalTime?: boolean
 }
 
-export function horizonsVectorsUrl(target: string, { start, stop, step, center = '500@10', units = 'AU-D' }: VectorQuery): string {
+export function horizonsVectorsUrl(target: string, { start, stop, step, center = '500@10', units = 'AU-D', plane = 'ECLIPTIC', universalTime = false }: VectorQuery): string {
   const parameters: Record<string, string> = {
     format: 'text',
     COMMAND: `'${target}'`,
@@ -26,7 +30,7 @@ export function horizonsVectorsUrl(target: string, { start, stop, step, center =
     MAKE_EPHEM: "'YES'",
     EPHEM_TYPE: "'VECTORS'",
     CENTER: `'${center}'`,
-    REF_PLANE: "'ECLIPTIC'",
+    REF_PLANE: `'${plane}'`,
     REF_SYSTEM: "'J2000'",
     START_TIME: `'${start}'`,
     STOP_TIME: `'${stop}'`,
@@ -34,6 +38,7 @@ export function horizonsVectorsUrl(target: string, { start, stop, step, center =
     VEC_TABLE: "'2'",
     OUT_UNITS: `'${units}'`,
     CSV_FORMAT: "'YES'",
+    ...(universalTime ? { TIME_TYPE: "'UT'" } : {}),
   }
   return `https://ssd.jpl.nasa.gov/api/horizons.api?${new URLSearchParams(parameters).toString()}`
 }

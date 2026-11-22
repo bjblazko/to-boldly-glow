@@ -104,17 +104,19 @@ themselves. Look around each scene: the Voyager probe and its record from all si
 
 And Apollo: *The Saturn V, taken apart* (the rocket to scale, its stack taken apart, each stage
 cut open), *Columbia, inside and out* (the command and service module; inside, the Smithsonian's
-3D scan of the real capsule, to walk through as the crew lay) and *Eagle, the lunar module*
+3D scan of the real capsule, to walk through as the crew lay), *Eagle, the lunar module*
 (Project Apollo - NASSP's detailed model: the legs fold, the stages part, and inside you stand
-where Armstrong and Aldrin stood, before every switch of the real panels) and *The Launch Tower and
+where Armstrong and Aldrin stood, before every switch of the real panels), *The Launch Tower and
 the Crawler* (the Saturn V on its mobile launcher beside the umbilical tower, its swing arms, and the
-crawler that carried it all to the pad).
+crawler that carried it all to the pad) and *Apollo 11: to the Moon and back* (the whole mission,
+launch to splashdown, on a drawn figure eight between Earth and the Moon, with each moment's time).
 
 | | |
 | --- | --- |
 | ![The Saturn V lesson: the first stage cut open, its tanks and five F-1 engines](docs/images/lesson-saturn-v.jpg) | ![Columbia's cabin, the Smithsonian's scan: the main display console over the couches](docs/images/lesson-columbia.jpg) |
 | ![Eagle, the lunar module, in the blueprint room with a person for scale](docs/images/lesson-eagle.jpg) | ![Inside Eagle: the Commander's flight displays and the window](docs/images/lesson-eagle-cockpit.jpg) |
 | ![The Saturn V on its mobile launcher beside the umbilical tower](docs/images/lesson-launcher.jpg) | ![The crawler-transporter carrying launcher, tower and rocket](docs/images/lesson-launcher-crawler.jpg) |
+| ![Apollo 11's way to the Moon and back: the figure eight of the free return between Earth and the Moon](docs/images/lesson-apollo11.jpg) | |
 
 ### Music
 

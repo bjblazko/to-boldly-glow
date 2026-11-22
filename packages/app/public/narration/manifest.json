@@ -5,6 +5,70 @@
     "lyra": {
       "clips": {
         "de": {
+          "lessons/apollo11/ascent": {
+            "hash": "b62d9d50fcf4250c",
+            "seconds": 16.0
+          },
+          "lessons/apollo11/coast": {
+            "hash": "792f40bcb4350e18",
+            "seconds": 20.0
+          },
+          "lessons/apollo11/descent": {
+            "hash": "47cc5b78e7fe2708",
+            "seconds": 19.36
+          },
+          "lessons/apollo11/dock": {
+            "hash": "2b920a578f619496",
+            "seconds": 21.44
+          },
+          "lessons/apollo11/entry": {
+            "hash": "c97e722823bb8464",
+            "seconds": 18.16
+          },
+          "lessons/apollo11/home": {
+            "hash": "7e9641019818b796",
+            "seconds": 12.32
+          },
+          "lessons/apollo11/landing": {
+            "hash": "15caf63ca3f80235",
+            "seconds": 26.8
+          },
+          "lessons/apollo11/launch": {
+            "hash": "addcaf01c0f9b166",
+            "seconds": 20.24
+          },
+          "lessons/apollo11/liftoff": {
+            "hash": "813501eb85f5a52a",
+            "seconds": 20.96
+          },
+          "lessons/apollo11/loi": {
+            "hash": "3213c17536d73bc7",
+            "seconds": 18.96
+          },
+          "lessons/apollo11/parking": {
+            "hash": "11534e08e20daa26",
+            "seconds": 13.2
+          },
+          "lessons/apollo11/rendezvous": {
+            "hash": "5622955bd2239c21",
+            "seconds": 16.88
+          },
+          "lessons/apollo11/splashdown": {
+            "hash": "5b554bf50de56f26",
+            "seconds": 20.96
+          },
+          "lessons/apollo11/surface": {
+            "hash": "e98bcea68670d43c",
+            "seconds": 19.04
+          },
+          "lessons/apollo11/tli": {
+            "hash": "649434168a86ef1f",
+            "seconds": 38.16
+          },
+          "lessons/apollo11/undocking": {
+            "hash": "1de1e2a0abf5c867",
+            "seconds": 21.92
+          },
           "lessons/columbia/commandModule": {
             "hash": "57a2a260427b2bf3",
             "seconds": 19.52
@@ -174,36 +238,36 @@
             "seconds": 8.4
           },
           "lessons/saturnV/iu": {
-            "hash": "2c06dd7530867c02",
-            "seconds": 19.36
+            "hash": "9e8ca887b94a79f2",
+            "seconds": 19.76
           },
           "lessons/saturnV/returns": {
-            "hash": "0a74bd86b67e79ce",
-            "seconds": 18.4
+            "hash": "38b8908ba1f4f107",
+            "seconds": 19.12
           },
           "lessons/saturnV/sic": {
-            "hash": "128dbf58ea66df75",
-            "seconds": 34.32
+            "hash": "12bab5ed18eb9e7b",
+            "seconds": 34.16
           },
           "lessons/saturnV/sii": {
-            "hash": "68ee60d9d107c113",
-            "seconds": 26.88
+            "hash": "b4ac539f3427b68e",
+            "seconds": 29.76
           },
           "lessons/saturnV/sivb": {
-            "hash": "06c24ec1378b1cff",
-            "seconds": 29.68
+            "hash": "73e6c2a686b532c5",
+            "seconds": 26.4
           },
           "lessons/saturnV/spacecraft": {
             "hash": "bc6723082882ffbd",
             "seconds": 23.36
           },
           "lessons/saturnV/stack": {
-            "hash": "ed14ffb48c026812",
-            "seconds": 29.28
+            "hash": "2d34af23194e5438",
+            "seconds": 29.84
           },
           "lessons/saturnV/whole": {
-            "hash": "770dda099ec35df0",
-            "seconds": 22.8
+            "hash": "f411c9497d71933d",
+            "seconds": 23.12
           },
           "lessons/seasons/december-solstice": {
             "hash": "be9bf7634ec114b3",
@@ -487,6 +551,70 @@
           }
         },
         "en": {
+          "lessons/apollo11/ascent": {
+            "hash": "aab4dd41a3a5aada",
+            "seconds": 13.2
+          },
+          "lessons/apollo11/coast": {
+            "hash": "ee6c8e1d8aeb7fc7",
+            "seconds": 17.52
+          },
+          "lessons/apollo11/descent": {
+            "hash": "7aa9f7a7f69ca1a8",
+            "seconds": 18.8
+          },
+          "lessons/apollo11/dock": {
+            "hash": "4e912e3bc7ce7de9",
+            "seconds": 19.04
+          },
+          "lessons/apollo11/entry": {
+            "hash": "a187d623358706e3",
+            "seconds": 18.88
+          },
+          "lessons/apollo11/home": {
+            "hash": "c345d5b526ea4c6b",
+            "seconds": 12.16
+          },
+          "lessons/apollo11/landing": {
+            "hash": "0cb406c481da1138",
+            "seconds": 24.96
+          },
+          "lessons/apollo11/launch": {
+            "hash": "e261e1fe18fe301f",
+            "seconds": 21.04
+          },
+          "lessons/apollo11/liftoff": {
+            "hash": "19068a648e24f503",
+            "seconds": 18.88
+          },
+          "lessons/apollo11/loi": {
+            "hash": "50a6f021e22a3f16",
+            "seconds": 18.08
+          },
+          "lessons/apollo11/parking": {
+            "hash": "7b43c16cf5d9ede4",
+            "seconds": 10.88
+          },
+          "lessons/apollo11/rendezvous": {
+            "hash": "6f8e8602b5df3080",
+            "seconds": 16.0
+          },
+          "lessons/apollo11/splashdown": {
+            "hash": "d448cae6ab97349b",
+            "seconds": 20.0
+          },
+          "lessons/apollo11/surface": {
+            "hash": "9f21761e5f11f44b",
+            "seconds": 20.4
+          },
+          "lessons/apollo11/tli": {
+            "hash": "708e331bd6e4fab4",
+            "seconds": 35.68
+          },
+          "lessons/apollo11/undocking": {
+            "hash": "fa9290277d9adc51",
+            "seconds": 18.4
+          },
           "lessons/columbia/commandModule": {
             "hash": "1a8ef354acc7dba8",
             "seconds": 21.6
@@ -656,36 +784,36 @@
             "seconds": 10.48
           },
           "lessons/saturnV/iu": {
-            "hash": "2d212b862eeee520",
-            "seconds": 21.92
+            "hash": "7e5477ff8b6c20f8",
+            "seconds": 21.52
           },
           "lessons/saturnV/returns": {
-            "hash": "c8f936eaa5469d9f",
-            "seconds": 20.0
+            "hash": "611ce924e28c5312",
+            "seconds": 20.16
           },
           "lessons/saturnV/sic": {
-            "hash": "06dea4026639dfed",
-            "seconds": 32.56
+            "hash": "88b75d1a55380989",
+            "seconds": 31.92
           },
           "lessons/saturnV/sii": {
-            "hash": "116e044a5f25e9b1",
-            "seconds": 30.4
+            "hash": "d04786d7d293d8df",
+            "seconds": 28.4
           },
           "lessons/saturnV/sivb": {
-            "hash": "4239550cae708b13",
-            "seconds": 28.4
+            "hash": "e03399f61f1dde85",
+            "seconds": 25.84
           },
           "lessons/saturnV/spacecraft": {
             "hash": "688347649e3aa246",
             "seconds": 22.48
           },
           "lessons/saturnV/stack": {
-            "hash": "ce38af841a614a70",
-            "seconds": 33.12
+            "hash": "1932bc8cb6fe8c60",
+            "seconds": 32.0
           },
           "lessons/saturnV/whole": {
-            "hash": "08064fcd39faccbc",
-            "seconds": 23.04
+            "hash": "2cf5f208087d46c1",
+            "seconds": 24.72
           },
           "lessons/seasons/december-solstice": {
             "hash": "d3ddac8d0cead577",
@@ -977,6 +1105,70 @@
     "orion": {
       "clips": {
         "de": {
+          "lessons/apollo11/ascent": {
+            "hash": "2c01d1ee19777166",
+            "seconds": 15.76
+          },
+          "lessons/apollo11/coast": {
+            "hash": "66ddd9d02120d5bf",
+            "seconds": 19.76
+          },
+          "lessons/apollo11/descent": {
+            "hash": "d756c25878574ae2",
+            "seconds": 20.4
+          },
+          "lessons/apollo11/dock": {
+            "hash": "9759524db305007e",
+            "seconds": 21.76
+          },
+          "lessons/apollo11/entry": {
+            "hash": "8122814fa6c6e836",
+            "seconds": 19.28
+          },
+          "lessons/apollo11/home": {
+            "hash": "c3bf1652ee7946e0",
+            "seconds": 13.36
+          },
+          "lessons/apollo11/landing": {
+            "hash": "bc46e16d94f48471",
+            "seconds": 32.64
+          },
+          "lessons/apollo11/launch": {
+            "hash": "6958ae4938f8aa84",
+            "seconds": 21.68
+          },
+          "lessons/apollo11/liftoff": {
+            "hash": "03527b8031d962cd",
+            "seconds": 23.2
+          },
+          "lessons/apollo11/loi": {
+            "hash": "8f7052bb3f4992bb",
+            "seconds": 19.76
+          },
+          "lessons/apollo11/parking": {
+            "hash": "de0e9ee4745d91ce",
+            "seconds": 12.64
+          },
+          "lessons/apollo11/rendezvous": {
+            "hash": "8133d7329ccbdf6f",
+            "seconds": 20.96
+          },
+          "lessons/apollo11/splashdown": {
+            "hash": "4bb4fc85542f4047",
+            "seconds": 21.6
+          },
+          "lessons/apollo11/surface": {
+            "hash": "42ee77d44ffa3a46",
+            "seconds": 19.36
+          },
+          "lessons/apollo11/tli": {
+            "hash": "8e7c611c2a4b33d6",
+            "seconds": 37.52
+          },
+          "lessons/apollo11/undocking": {
+            "hash": "0eeea1be94676d7c",
+            "seconds": 20.16
+          },
           "lessons/columbia/commandModule": {
             "hash": "f674174526811054",
             "seconds": 21.6
@@ -1146,35 +1338,35 @@
             "seconds": 9.68
           },
           "lessons/saturnV/iu": {
-            "hash": "683f16adc0b40398",
-            "seconds": 22.16
+            "hash": "b4f53b67f64a9ac4",
+            "seconds": 22.4
           },
           "lessons/saturnV/returns": {
-            "hash": "bd59415aed5d0f3e",
-            "seconds": 19.36
+            "hash": "cdb00c09237ae10b",
+            "seconds": 20.96
           },
           "lessons/saturnV/sic": {
-            "hash": "b70a049626bb531f",
-            "seconds": 39.12
+            "hash": "46d9deace9518aa9",
+            "seconds": 36.24
           },
           "lessons/saturnV/sii": {
-            "hash": "04b34d9f8aceedf2",
-            "seconds": 31.92
+            "hash": "92cdd0748eb269b7",
+            "seconds": 31.84
           },
           "lessons/saturnV/sivb": {
-            "hash": "30a8e8f4199c6561",
-            "seconds": 30.08
+            "hash": "ae67c7bb03dd8aa6",
+            "seconds": 30.0
           },
           "lessons/saturnV/spacecraft": {
             "hash": "1b513ec2d7001b6b",
             "seconds": 25.28
           },
           "lessons/saturnV/stack": {
-            "hash": "fdb8aaf8e4513b95",
-            "seconds": 30.88
+            "hash": "3bc61f81d562195c",
+            "seconds": 31.2
           },
           "lessons/saturnV/whole": {
-            "hash": "240c3b19c22db387",
+            "hash": "32e7dfed54a068a5",
             "seconds": 23.84
           },
           "lessons/seasons/december-solstice": {
@@ -1459,6 +1651,70 @@
           }
         },
         "en": {
+          "lessons/apollo11/ascent": {
+            "hash": "8f9fd577ecfbdc78",
+            "seconds": 13.76
+          },
+          "lessons/apollo11/coast": {
+            "hash": "9ec80ae2c45b3664",
+            "seconds": 17.52
+          },
+          "lessons/apollo11/descent": {
+            "hash": "668894cdbe2c0466",
+            "seconds": 19.36
+          },
+          "lessons/apollo11/dock": {
+            "hash": "f6b266bb5ada9484",
+            "seconds": 18.0
+          },
+          "lessons/apollo11/entry": {
+            "hash": "b08a71e2868c4c96",
+            "seconds": 17.28
+          },
+          "lessons/apollo11/home": {
+            "hash": "8a7289b9877e25a1",
+            "seconds": 12.4
+          },
+          "lessons/apollo11/landing": {
+            "hash": "43c6c231ac1ef966",
+            "seconds": 26.0
+          },
+          "lessons/apollo11/launch": {
+            "hash": "38c97a4e8ecc1666",
+            "seconds": 20.56
+          },
+          "lessons/apollo11/liftoff": {
+            "hash": "90b69486ce0f67e6",
+            "seconds": 20.16
+          },
+          "lessons/apollo11/loi": {
+            "hash": "46a72a57be8abbe8",
+            "seconds": 17.76
+          },
+          "lessons/apollo11/parking": {
+            "hash": "e0785ec48e3669a3",
+            "seconds": 12.16
+          },
+          "lessons/apollo11/rendezvous": {
+            "hash": "e94c00f33951c1b9",
+            "seconds": 15.6
+          },
+          "lessons/apollo11/splashdown": {
+            "hash": "c13da5ef661ba486",
+            "seconds": 20.08
+          },
+          "lessons/apollo11/surface": {
+            "hash": "70df73a03e106258",
+            "seconds": 19.2
+          },
+          "lessons/apollo11/tli": {
+            "hash": "0a0955a1934b7a2f",
+            "seconds": 34.48
+          },
+          "lessons/apollo11/undocking": {
+            "hash": "4a57764daa3de8e1",
+            "seconds": 19.28
+          },
           "lessons/columbia/commandModule": {
             "hash": "c01c4ea780e6f8f7",
             "seconds": 19.28
@@ -1628,36 +1884,36 @@
             "seconds": 8.56
           },
           "lessons/saturnV/iu": {
-            "hash": "4c021dfdeb47c3a8",
-            "seconds": 22.48
+            "hash": "3fe8d0ae4d57232b",
+            "seconds": 22.24
           },
           "lessons/saturnV/returns": {
-            "hash": "f456df88515544de",
-            "seconds": 19.2
+            "hash": "9010396034b9cc3d",
+            "seconds": 20.08
           },
           "lessons/saturnV/sic": {
-            "hash": "8bceb5849bc30581",
-            "seconds": 31.68
+            "hash": "3a74aa683cfc9922",
+            "seconds": 32.08
           },
           "lessons/saturnV/sii": {
-            "hash": "cac4f02af60713c4",
-            "seconds": 27.44
+            "hash": "32ea4385c8fa410c",
+            "seconds": 27.76
           },
           "lessons/saturnV/sivb": {
-            "hash": "fff41083c60da32c",
-            "seconds": 28.08
+            "hash": "b2243c8477f35d2f",
+            "seconds": 26.08
           },
           "lessons/saturnV/spacecraft": {
             "hash": "0013e6371f9c046e",
             "seconds": 21.28
           },
           "lessons/saturnV/stack": {
-            "hash": "371077c3daf9b6a6",
-            "seconds": 30.72
+            "hash": "c558261c71f30382",
+            "seconds": 32.32
           },
           "lessons/saturnV/whole": {
-            "hash": "3897296438032126",
-            "seconds": 22.48
+            "hash": "3d024ce6d66d7059",
+            "seconds": 23.2
           },
           "lessons/seasons/december-solstice": {
             "hash": "71d897c56108053d",

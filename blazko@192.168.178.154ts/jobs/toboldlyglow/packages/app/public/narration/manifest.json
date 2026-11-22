@@ -1,0 +1,1838 @@
+{
+  "encoding": "opus-32k.webm+mp3-64k",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "voices": {
+    "lyra": {
+      "clips": {
+        "de": {
+          "lessons/columbia/commandModule": {
+            "hash": "57a2a260427b2bf3",
+            "seconds": 19.52
+          },
+          "lessons/columbia/engine": {
+            "hash": "0475b34368234fe0",
+            "seconds": 17.04
+          },
+          "lessons/columbia/inside": {
+            "hash": "edbd1a1984daeb12",
+            "seconds": 12.4
+          },
+          "lessons/columbia/notes": {
+            "hash": "273dc48d0cf8e4d7",
+            "seconds": 14.88
+          },
+          "lessons/columbia/panels": {
+            "hash": "4ffd797fc75ff9a2",
+            "seconds": 18.0
+          },
+          "lessons/columbia/seats": {
+            "hash": "05a1bf9bc9e7a3e2",
+            "seconds": 16.96
+          },
+          "lessons/columbia/serviceModule": {
+            "hash": "53c30fac70ac1f73",
+            "seconds": 24.32
+          },
+          "lessons/columbia/whole": {
+            "hash": "8f47d8e527bccbcb",
+            "seconds": 18.0
+          },
+          "lessons/eagle/ascent": {
+            "hash": "22340f2e29a317f9",
+            "seconds": 17.36
+          },
+          "lessons/eagle/descent": {
+            "hash": "1fd6acabe46f1f61",
+            "seconds": 19.36
+          },
+          "lessons/eagle/folded": {
+            "hash": "0a6986a2fb9baad9",
+            "seconds": 17.36
+          },
+          "lessons/eagle/inside": {
+            "hash": "9a1e5c18f38b1075",
+            "seconds": 17.92
+          },
+          "lessons/eagle/liftoff": {
+            "hash": "96d1f54ee845c1ac",
+            "seconds": 14.24
+          },
+          "lessons/eagle/panels": {
+            "hash": "f8d5a685e235535a",
+            "seconds": 20.64
+          },
+          "lessons/eagle/stages": {
+            "hash": "051308aed2e69bc1",
+            "seconds": 16.88
+          },
+          "lessons/eagle/whole": {
+            "hash": "8abe3277f604b004",
+            "seconds": 22.08
+          },
+          "lessons/moonPhases/always-half-lit": {
+            "hash": "02183f3a5a6b704c",
+            "seconds": 26.56
+          },
+          "lessons/moonPhases/evening-crescent": {
+            "hash": "a4edb4ff8f4b5d90",
+            "seconds": 30.24
+          },
+          "lessons/moonPhases/first-quarter": {
+            "hash": "6ad1402ae7a006ad",
+            "seconds": 21.12
+          },
+          "lessons/moonPhases/full-moon": {
+            "hash": "46a81c053fd7388c",
+            "seconds": 23.84
+          },
+          "lessons/moonPhases/last-quarter": {
+            "hash": "3d067f6d128440d2",
+            "seconds": 21.44
+          },
+          "lessons/moonPhases/not-earths-shadow": {
+            "hash": "9b225c301e9de161",
+            "seconds": 27.44
+          },
+          "lessons/moonPhases/same-face": {
+            "hash": "e26d59793fb9c49e",
+            "seconds": 34.4
+          },
+          "lessons/planetSizes/lineup": {
+            "hash": "e6c4be81266727de",
+            "seconds": 43.2
+          },
+          "lessons/planetSizes/order-day": {
+            "hash": "78052c6e34532d7d",
+            "seconds": 11.52
+          },
+          "lessons/planetSizes/order-density": {
+            "hash": "643e797356c595bf",
+            "seconds": 13.04
+          },
+          "lessons/planetSizes/order-distance": {
+            "hash": "c562096ce16d862a",
+            "seconds": 7.52
+          },
+          "lessons/planetSizes/order-gravity": {
+            "hash": "5e946af3c4111b37",
+            "seconds": 11.28
+          },
+          "lessons/planetSizes/order-mass": {
+            "hash": "31e5200655af7fdb",
+            "seconds": 8.0
+          },
+          "lessons/planetSizes/order-size": {
+            "hash": "8824a53a4e3a4be3",
+            "seconds": 9.76
+          },
+          "lessons/planetSizes/order-speed": {
+            "hash": "687ca4c513ff9ac7",
+            "seconds": 14.96
+          },
+          "lessons/planetSizes/order-temperature": {
+            "hash": "28a2755b06d6a599",
+            "seconds": 11.92
+          },
+          "lessons/planetSizes/order-tilt": {
+            "hash": "e06403207e9aadc0",
+            "seconds": 12.96
+          },
+          "lessons/planetSizes/order-type": {
+            "hash": "11a2e90d96d965ac",
+            "seconds": 13.36
+          },
+          "lessons/planetSizes/order-year": {
+            "hash": "b0abf459cc8ca0cf",
+            "seconds": 8.4
+          },
+          "lessons/saturnV/iu": {
+            "hash": "2c06dd7530867c02",
+            "seconds": 19.36
+          },
+          "lessons/saturnV/returns": {
+            "hash": "0a74bd86b67e79ce",
+            "seconds": 18.4
+          },
+          "lessons/saturnV/sic": {
+            "hash": "128dbf58ea66df75",
+            "seconds": 34.32
+          },
+          "lessons/saturnV/sii": {
+            "hash": "68ee60d9d107c113",
+            "seconds": 26.88
+          },
+          "lessons/saturnV/sivb": {
+            "hash": "06c24ec1378b1cff",
+            "seconds": 29.68
+          },
+          "lessons/saturnV/spacecraft": {
+            "hash": "bc6723082882ffbd",
+            "seconds": 23.36
+          },
+          "lessons/saturnV/stack": {
+            "hash": "ed14ffb48c026812",
+            "seconds": 29.28
+          },
+          "lessons/saturnV/whole": {
+            "hash": "770dda099ec35df0",
+            "seconds": 22.8
+          },
+          "lessons/seasons/december-solstice": {
+            "hash": "be9bf7634ec114b3",
+            "seconds": 16.16
+          },
+          "lessons/seasons/intro": {
+            "hash": "3f4568078d8cb0c6",
+            "seconds": 24.48
+          },
+          "lessons/seasons/june-solstice": {
+            "hash": "9183f2f9a1198276",
+            "seconds": 16.72
+          },
+          "lessons/seasons/march-equinox": {
+            "hash": "3de12cea0b721b50",
+            "seconds": 22.16
+          },
+          "lessons/seasons/orbit": {
+            "hash": "a7781412a3deb37f",
+            "seconds": 46.56
+          },
+          "lessons/seasons/september-equinox": {
+            "hash": "9fc7ea7d2699e019",
+            "seconds": 17.68
+          },
+          "lessons/solarEclipse/annular": {
+            "hash": "b7c1036b65d02704",
+            "seconds": 26.48
+          },
+          "lessons/solarEclipse/diamond-ring": {
+            "hash": "11c463f3f118e282",
+            "seconds": 20.56
+          },
+          "lessons/solarEclipse/first-contact": {
+            "hash": "bbc11df2812ddb08",
+            "seconds": 28.96
+          },
+          "lessons/solarEclipse/new-moon": {
+            "hash": "cc6ffddb17563cbd",
+            "seconds": 36.48
+          },
+          "lessons/solarEclipse/partial": {
+            "hash": "a83cf4f6e2e4bdef",
+            "seconds": 29.36
+          },
+          "lessons/solarEclipse/shadow-on-earth": {
+            "hash": "fcdd40c85a77048f",
+            "seconds": 35.76
+          },
+          "lessons/solarEclipse/tilted-orbit": {
+            "hash": "520c83df46d59242",
+            "seconds": 30.48
+          },
+          "lessons/solarEclipse/totality": {
+            "hash": "724e71090af397de",
+            "seconds": 38.0
+          },
+          "lessons/voyager/alignment": {
+            "hash": "527e3bde517c46c5",
+            "seconds": 34.64
+          },
+          "lessons/voyager/golden-record": {
+            "hash": "798ad9f2c1b709cf",
+            "seconds": 35.52
+          },
+          "lessons/voyager/ice-giants": {
+            "hash": "ced96f9b50147d8c",
+            "seconds": 28.48
+          },
+          "lessons/voyager/instructions": {
+            "hash": "2f782087b455efdd",
+            "seconds": 41.92
+          },
+          "lessons/voyager/interstellar": {
+            "hash": "54d84c69486f5683",
+            "seconds": 39.6
+          },
+          "lessons/voyager/jupiter": {
+            "hash": "e75238026a28cd63",
+            "seconds": 21.84
+          },
+          "lessons/voyager/on-board": {
+            "hash": "34333fd3f941e9eb",
+            "seconds": 29.84
+          },
+          "lessons/voyager/pale-blue-dot": {
+            "hash": "e19df3c6aed89292",
+            "seconds": 25.04
+          },
+          "lessons/voyager/saturn": {
+            "hash": "8d9883a1f58a09ae",
+            "seconds": 28.8
+          },
+          "lessons/voyager/two-probes": {
+            "hash": "1c7e363084eea793",
+            "seconds": 33.6
+          },
+          "lessons/voyagerDeepDive/communication": {
+            "hash": "379be736965db031",
+            "seconds": 29.68
+          },
+          "lessons/voyagerDeepDive/gravity-assist": {
+            "hash": "8b256e0fc31f5f3b",
+            "seconds": 33.36
+          },
+          "lessons/voyagerDeepDive/heliopause": {
+            "hash": "25f19f2c7ac9ec60",
+            "seconds": 33.84
+          },
+          "lessons/voyagerDeepDive/instruments": {
+            "hash": "be0d650d375c6007",
+            "seconds": 39.12
+          },
+          "lessons/voyagerDeepDive/out-of-plane": {
+            "hash": "2fd8646615087bdb",
+            "seconds": 22.4
+          },
+          "lessons/voyagerDeepDive/picture-in-sound": {
+            "hash": "c9c68bd9e60e72b5",
+            "seconds": 40.08
+          },
+          "lessons/voyagerDeepDive/power": {
+            "hash": "aa064a014af530f7",
+            "seconds": 27.76
+          },
+          "lessons/voyagerDeepDive/reading-cover": {
+            "hash": "7b3be29a887bfba9",
+            "seconds": 50.96
+          },
+          "lessons/voyagerDeepDive/still-talking": {
+            "hash": "6a9373d683c6d8d8",
+            "seconds": 26.4
+          },
+          "lessons/voyagerDeepDive/taken-apart": {
+            "hash": "cd4b744181c4be26",
+            "seconds": 31.04
+          },
+          "tours/grand/earth-approach": {
+            "hash": "4b2d16a53fc8b84a",
+            "seconds": 8.48
+          },
+          "tours/grand/earth-orbit": {
+            "hash": "369245ab8bfe2701",
+            "seconds": 24.8
+          },
+          "tours/grand/home-approach": {
+            "hash": "49eb02e8ecf78c4a",
+            "seconds": 8.32
+          },
+          "tours/grand/home-orbit": {
+            "hash": "e33751250b21b6ee",
+            "seconds": 21.92
+          },
+          "tours/grand/jupiter-approach": {
+            "hash": "5f65d70065c4a9cb",
+            "seconds": 10.48
+          },
+          "tours/grand/jupiter-orbit": {
+            "hash": "88783968459dbe32",
+            "seconds": 30.24
+          },
+          "tours/grand/mars-approach": {
+            "hash": "363ce1344cbdfd9f",
+            "seconds": 9.76
+          },
+          "tours/grand/mars-orbit": {
+            "hash": "56c2fa76440aeb68",
+            "seconds": 29.36
+          },
+          "tours/grand/mercury-approach": {
+            "hash": "c73e77f2d564381f",
+            "seconds": 9.6
+          },
+          "tours/grand/mercury-orbit": {
+            "hash": "29862c4b0929c30c",
+            "seconds": 29.52
+          },
+          "tours/grand/neptune-approach": {
+            "hash": "1bf6270142bd5057",
+            "seconds": 13.12
+          },
+          "tours/grand/neptune-orbit": {
+            "hash": "5f5638c93480535c",
+            "seconds": 28.64
+          },
+          "tours/grand/saturn-approach": {
+            "hash": "faa9444ec03e82cf",
+            "seconds": 8.96
+          },
+          "tours/grand/saturn-orbit": {
+            "hash": "a0b7fa5fbe76d9a2",
+            "seconds": 27.84
+          },
+          "tours/grand/sun-approach": {
+            "hash": "bbb96a7008c78c80",
+            "seconds": 15.12
+          },
+          "tours/grand/sun-orbit": {
+            "hash": "7625d4c203e31da1",
+            "seconds": 22.48
+          },
+          "tours/grand/uranus-approach": {
+            "hash": "393c5ef44ffe3601",
+            "seconds": 10.08
+          },
+          "tours/grand/uranus-orbit": {
+            "hash": "9bb160843957e53c",
+            "seconds": 24.48
+          },
+          "tours/grand/venus-approach": {
+            "hash": "f055b232f2c26cd7",
+            "seconds": 10.32
+          },
+          "tours/grand/venus-orbit": {
+            "hash": "d056838a9276b5ee",
+            "seconds": 28.88
+          },
+          "tours/voyager1/heliopause": {
+            "hash": "564bd702c7256cbd",
+            "seconds": 19.76
+          },
+          "tours/voyager1/jupiter": {
+            "hash": "2f3b059fb24968cf",
+            "seconds": 17.36
+          },
+          "tours/voyager1/launch": {
+            "hash": "10042efb2e0a7578",
+            "seconds": 16.32
+          },
+          "tours/voyager1/overtake": {
+            "hash": "bcf04e54f781bd70",
+            "seconds": 11.92
+          },
+          "tours/voyager1/pale-blue-dot": {
+            "hash": "8c0ae32ec49d7cf0",
+            "seconds": 14.4
+          },
+          "tours/voyager1/saturn": {
+            "hash": "ed78b61df8a536cd",
+            "seconds": 22.24
+          },
+          "tours/voyager1/termination-shock": {
+            "hash": "05336527a9eed934",
+            "seconds": 17.92
+          },
+          "tours/voyager1/today": {
+            "hash": "1f8ad06c336f9195",
+            "seconds": 13.2
+          },
+          "tours/voyager2/heliopause": {
+            "hash": "09267847b433db93",
+            "seconds": 16.32
+          },
+          "tours/voyager2/jupiter": {
+            "hash": "a68280569fb5b503",
+            "seconds": 16.56
+          },
+          "tours/voyager2/launch": {
+            "hash": "659b5a33bb80da39",
+            "seconds": 15.44
+          },
+          "tours/voyager2/neptune": {
+            "hash": "ce5cafdc415f8ab5",
+            "seconds": 18.32
+          },
+          "tours/voyager2/saturn": {
+            "hash": "a29ae48bb574985a",
+            "seconds": 17.92
+          },
+          "tours/voyager2/termination-shock": {
+            "hash": "4a59937f8dc00569",
+            "seconds": 17.84
+          },
+          "tours/voyager2/today": {
+            "hash": "5429417f6e07c00f",
+            "seconds": 10.88
+          },
+          "tours/voyager2/uranus": {
+            "hash": "1b765e671207004f",
+            "seconds": 19.36
+          }
+        },
+        "en": {
+          "lessons/columbia/commandModule": {
+            "hash": "1a8ef354acc7dba8",
+            "seconds": 21.6
+          },
+          "lessons/columbia/engine": {
+            "hash": "30002dae9767dda6",
+            "seconds": 17.04
+          },
+          "lessons/columbia/inside": {
+            "hash": "4d93cbf1c84d68ef",
+            "seconds": 12.56
+          },
+          "lessons/columbia/notes": {
+            "hash": "a0efa14daa17affb",
+            "seconds": 14.72
+          },
+          "lessons/columbia/panels": {
+            "hash": "d4d257f0a61d5b05",
+            "seconds": 16.72
+          },
+          "lessons/columbia/seats": {
+            "hash": "c1ab5db12662b23e",
+            "seconds": 15.92
+          },
+          "lessons/columbia/serviceModule": {
+            "hash": "5f85cc4c190bfa47",
+            "seconds": 22.88
+          },
+          "lessons/columbia/whole": {
+            "hash": "1fe43e0f299bd80f",
+            "seconds": 17.28
+          },
+          "lessons/eagle/ascent": {
+            "hash": "548b00a104dcf742",
+            "seconds": 16.64
+          },
+          "lessons/eagle/descent": {
+            "hash": "418b28ebda7e9802",
+            "seconds": 17.84
+          },
+          "lessons/eagle/folded": {
+            "hash": "0d74abf7d4dddc00",
+            "seconds": 15.52
+          },
+          "lessons/eagle/inside": {
+            "hash": "9e1c8b51c9bf1183",
+            "seconds": 16.48
+          },
+          "lessons/eagle/liftoff": {
+            "hash": "1487f4be405d85ae",
+            "seconds": 15.44
+          },
+          "lessons/eagle/panels": {
+            "hash": "2978bbadd4be40cb",
+            "seconds": 19.6
+          },
+          "lessons/eagle/stages": {
+            "hash": "82ebe0f8218b9d73",
+            "seconds": 15.52
+          },
+          "lessons/eagle/whole": {
+            "hash": "75574d83aef36f89",
+            "seconds": 16.96
+          },
+          "lessons/moonPhases/always-half-lit": {
+            "hash": "d71540260dc4167d",
+            "seconds": 23.6
+          },
+          "lessons/moonPhases/evening-crescent": {
+            "hash": "b2bf200ccc5892e5",
+            "seconds": 27.44
+          },
+          "lessons/moonPhases/first-quarter": {
+            "hash": "39e7667b5936bc57",
+            "seconds": 21.12
+          },
+          "lessons/moonPhases/full-moon": {
+            "hash": "6a8dd0642bb923b8",
+            "seconds": 22.24
+          },
+          "lessons/moonPhases/last-quarter": {
+            "hash": "bfcc8f1d8b39f920",
+            "seconds": 25.12
+          },
+          "lessons/moonPhases/not-earths-shadow": {
+            "hash": "a14e0d1c3269bbb8",
+            "seconds": 25.6
+          },
+          "lessons/moonPhases/same-face": {
+            "hash": "6aa468f91c040ae0",
+            "seconds": 30.0
+          },
+          "lessons/planetSizes/lineup": {
+            "hash": "f6887e228d3b840f",
+            "seconds": 39.76
+          },
+          "lessons/planetSizes/order-day": {
+            "hash": "e301e56405e205bf",
+            "seconds": 12.08
+          },
+          "lessons/planetSizes/order-density": {
+            "hash": "1d4c5eeee18ecc46",
+            "seconds": 13.76
+          },
+          "lessons/planetSizes/order-distance": {
+            "hash": "e577ba5eb65d64f0",
+            "seconds": 7.84
+          },
+          "lessons/planetSizes/order-gravity": {
+            "hash": "ca06dd62c2f267cf",
+            "seconds": 12.64
+          },
+          "lessons/planetSizes/order-mass": {
+            "hash": "d36cf566a674789c",
+            "seconds": 8.64
+          },
+          "lessons/planetSizes/order-size": {
+            "hash": "9d7a1c315cf6b509",
+            "seconds": 10.16
+          },
+          "lessons/planetSizes/order-speed": {
+            "hash": "2af140a83ad3a2db",
+            "seconds": 12.88
+          },
+          "lessons/planetSizes/order-temperature": {
+            "hash": "609eabe495d10e87",
+            "seconds": 13.84
+          },
+          "lessons/planetSizes/order-tilt": {
+            "hash": "965ff10dbb31b1c8",
+            "seconds": 16.96
+          },
+          "lessons/planetSizes/order-type": {
+            "hash": "337d84e2a0c709d6",
+            "seconds": 13.28
+          },
+          "lessons/planetSizes/order-year": {
+            "hash": "e7705827e473cc38",
+            "seconds": 10.48
+          },
+          "lessons/saturnV/iu": {
+            "hash": "2d212b862eeee520",
+            "seconds": 21.92
+          },
+          "lessons/saturnV/returns": {
+            "hash": "c8f936eaa5469d9f",
+            "seconds": 20.0
+          },
+          "lessons/saturnV/sic": {
+            "hash": "06dea4026639dfed",
+            "seconds": 32.56
+          },
+          "lessons/saturnV/sii": {
+            "hash": "116e044a5f25e9b1",
+            "seconds": 30.4
+          },
+          "lessons/saturnV/sivb": {
+            "hash": "4239550cae708b13",
+            "seconds": 28.4
+          },
+          "lessons/saturnV/spacecraft": {
+            "hash": "688347649e3aa246",
+            "seconds": 22.48
+          },
+          "lessons/saturnV/stack": {
+            "hash": "ce38af841a614a70",
+            "seconds": 33.12
+          },
+          "lessons/saturnV/whole": {
+            "hash": "08064fcd39faccbc",
+            "seconds": 23.04
+          },
+          "lessons/seasons/december-solstice": {
+            "hash": "d3ddac8d0cead577",
+            "seconds": 16.72
+          },
+          "lessons/seasons/intro": {
+            "hash": "636adc19037972d1",
+            "seconds": 23.36
+          },
+          "lessons/seasons/june-solstice": {
+            "hash": "25fb6feb75c78722",
+            "seconds": 16.96
+          },
+          "lessons/seasons/march-equinox": {
+            "hash": "a92782d9f91bc0fe",
+            "seconds": 20.4
+          },
+          "lessons/seasons/orbit": {
+            "hash": "2be241a7871bd88f",
+            "seconds": 43.76
+          },
+          "lessons/seasons/september-equinox": {
+            "hash": "76e966454916d7a9",
+            "seconds": 18.24
+          },
+          "lessons/solarEclipse/annular": {
+            "hash": "cc4e4c71e2123bce",
+            "seconds": 24.4
+          },
+          "lessons/solarEclipse/diamond-ring": {
+            "hash": "12774bb0c2157190",
+            "seconds": 20.56
+          },
+          "lessons/solarEclipse/first-contact": {
+            "hash": "568471a9afd642c7",
+            "seconds": 25.6
+          },
+          "lessons/solarEclipse/new-moon": {
+            "hash": "a6526e15bedf9862",
+            "seconds": 35.36
+          },
+          "lessons/solarEclipse/partial": {
+            "hash": "3989e736a8be104f",
+            "seconds": 28.0
+          },
+          "lessons/solarEclipse/shadow-on-earth": {
+            "hash": "42edcd36e195b69f",
+            "seconds": 39.12
+          },
+          "lessons/solarEclipse/tilted-orbit": {
+            "hash": "a5a6f78ce00858f4",
+            "seconds": 30.32
+          },
+          "lessons/solarEclipse/totality": {
+            "hash": "accf7e1df843f18c",
+            "seconds": 38.48
+          },
+          "lessons/voyager/alignment": {
+            "hash": "340eaaec916762e3",
+            "seconds": 32.32
+          },
+          "lessons/voyager/golden-record": {
+            "hash": "2a8d8777fccc2147",
+            "seconds": 38.08
+          },
+          "lessons/voyager/ice-giants": {
+            "hash": "be5475d20a958f4f",
+            "seconds": 26.32
+          },
+          "lessons/voyager/instructions": {
+            "hash": "05741cd2f5ddf472",
+            "seconds": 42.88
+          },
+          "lessons/voyager/interstellar": {
+            "hash": "e0e48f1a0a4ef3ec",
+            "seconds": 37.6
+          },
+          "lessons/voyager/jupiter": {
+            "hash": "95064a4cce692297",
+            "seconds": 20.16
+          },
+          "lessons/voyager/on-board": {
+            "hash": "4641372dfa751d1a",
+            "seconds": 29.68
+          },
+          "lessons/voyager/pale-blue-dot": {
+            "hash": "fe705414f24f5d8a",
+            "seconds": 23.92
+          },
+          "lessons/voyager/saturn": {
+            "hash": "57f25f5dc5486bf3",
+            "seconds": 26.08
+          },
+          "lessons/voyager/two-probes": {
+            "hash": "60a427f9fcf110b0",
+            "seconds": 31.92
+          },
+          "lessons/voyagerDeepDive/communication": {
+            "hash": "7fc7120daf8d4580",
+            "seconds": 28.0
+          },
+          "lessons/voyagerDeepDive/gravity-assist": {
+            "hash": "f6b34f9f9df37697",
+            "seconds": 28.72
+          },
+          "lessons/voyagerDeepDive/heliopause": {
+            "hash": "12781e0f862c34d7",
+            "seconds": 29.68
+          },
+          "lessons/voyagerDeepDive/instruments": {
+            "hash": "fb99dab1f737b4dc",
+            "seconds": 35.44
+          },
+          "lessons/voyagerDeepDive/out-of-plane": {
+            "hash": "648bb191bf368728",
+            "seconds": 22.64
+          },
+          "lessons/voyagerDeepDive/picture-in-sound": {
+            "hash": "dd5a1c3e711a2955",
+            "seconds": 35.76
+          },
+          "lessons/voyagerDeepDive/power": {
+            "hash": "a745ad230bd4a37c",
+            "seconds": 25.44
+          },
+          "lessons/voyagerDeepDive/reading-cover": {
+            "hash": "b934e592d32b7ae6",
+            "seconds": 51.6
+          },
+          "lessons/voyagerDeepDive/still-talking": {
+            "hash": "cb3d4a6768bf5c17",
+            "seconds": 23.52
+          },
+          "lessons/voyagerDeepDive/taken-apart": {
+            "hash": "d882e44f2e17b3f2",
+            "seconds": 26.72
+          },
+          "tours/grand/earth-approach": {
+            "hash": "6b2598d57054fadd",
+            "seconds": 6.64
+          },
+          "tours/grand/earth-orbit": {
+            "hash": "ac530e5700cde150",
+            "seconds": 23.84
+          },
+          "tours/grand/home-approach": {
+            "hash": "a62c91e921300cfa",
+            "seconds": 8.56
+          },
+          "tours/grand/home-orbit": {
+            "hash": "ede9164cb7f50576",
+            "seconds": 20.16
+          },
+          "tours/grand/jupiter-approach": {
+            "hash": "dbd65d929a67832e",
+            "seconds": 9.44
+          },
+          "tours/grand/jupiter-orbit": {
+            "hash": "7338105d7c303731",
+            "seconds": 28.32
+          },
+          "tours/grand/mars-approach": {
+            "hash": "048ad3d129f8109b",
+            "seconds": 9.6
+          },
+          "tours/grand/mars-orbit": {
+            "hash": "d02bad9455723cfa",
+            "seconds": 30.64
+          },
+          "tours/grand/mercury-approach": {
+            "hash": "83e5d0e2215b598c",
+            "seconds": 10.32
+          },
+          "tours/grand/mercury-orbit": {
+            "hash": "8ee3903110c02e4c",
+            "seconds": 26.8
+          },
+          "tours/grand/neptune-approach": {
+            "hash": "ced169f7a11f18ac",
+            "seconds": 10.88
+          },
+          "tours/grand/neptune-orbit": {
+            "hash": "8e4036c7c57d7ce7",
+            "seconds": 30.56
+          },
+          "tours/grand/saturn-approach": {
+            "hash": "70a8dab49708a631",
+            "seconds": 12.24
+          },
+          "tours/grand/saturn-orbit": {
+            "hash": "e7604089bd711a95",
+            "seconds": 24.4
+          },
+          "tours/grand/sun-approach": {
+            "hash": "9a7b6310e934c623",
+            "seconds": 14.24
+          },
+          "tours/grand/sun-orbit": {
+            "hash": "d47d07edd97aa106",
+            "seconds": 22.4
+          },
+          "tours/grand/uranus-approach": {
+            "hash": "00b1a7636613b76f",
+            "seconds": 8.8
+          },
+          "tours/grand/uranus-orbit": {
+            "hash": "b881d972f2f600b7",
+            "seconds": 24.32
+          },
+          "tours/grand/venus-approach": {
+            "hash": "8ec0a9a15b39589b",
+            "seconds": 10.72
+          },
+          "tours/grand/venus-orbit": {
+            "hash": "2e467a75e26b086d",
+            "seconds": 29.6
+          },
+          "tours/voyager1/heliopause": {
+            "hash": "6f8775eff2cbac03",
+            "seconds": 17.76
+          },
+          "tours/voyager1/jupiter": {
+            "hash": "531508b56ee87865",
+            "seconds": 17.6
+          },
+          "tours/voyager1/launch": {
+            "hash": "76418d3fa77ae86f",
+            "seconds": 14.4
+          },
+          "tours/voyager1/overtake": {
+            "hash": "bfdd805bad45e4e6",
+            "seconds": 11.76
+          },
+          "tours/voyager1/pale-blue-dot": {
+            "hash": "e8f8cf563acc28a2",
+            "seconds": 13.76
+          },
+          "tours/voyager1/saturn": {
+            "hash": "9e92f5e32f6dd05c",
+            "seconds": 20.0
+          },
+          "tours/voyager1/termination-shock": {
+            "hash": "9628689ccf31ce26",
+            "seconds": 18.4
+          },
+          "tours/voyager1/today": {
+            "hash": "43db7fa125aa320b",
+            "seconds": 13.68
+          },
+          "tours/voyager2/heliopause": {
+            "hash": "0016ce081a145079",
+            "seconds": 17.04
+          },
+          "tours/voyager2/jupiter": {
+            "hash": "b317c590b7f14cbb",
+            "seconds": 17.04
+          },
+          "tours/voyager2/launch": {
+            "hash": "d5479594285d9f68",
+            "seconds": 15.2
+          },
+          "tours/voyager2/neptune": {
+            "hash": "d9f8a2d785f8f420",
+            "seconds": 18.88
+          },
+          "tours/voyager2/saturn": {
+            "hash": "e28104bdddc72a6d",
+            "seconds": 17.28
+          },
+          "tours/voyager2/termination-shock": {
+            "hash": "5a327de9bfc07f54",
+            "seconds": 14.8
+          },
+          "tours/voyager2/today": {
+            "hash": "75f0da374e6d8048",
+            "seconds": 10.96
+          },
+          "tours/voyager2/uranus": {
+            "hash": "4a2f521f6329804f",
+            "seconds": 18.32
+          }
+        }
+      },
+      "references": {
+        "de": "3a92c05a2aa35c96",
+        "en": "2af94a5932526dc5"
+      }
+    },
+    "orion": {
+      "clips": {
+        "de": {
+          "lessons/columbia/commandModule": {
+            "hash": "f674174526811054",
+            "seconds": 21.6
+          },
+          "lessons/columbia/engine": {
+            "hash": "11930c4975747f63",
+            "seconds": 17.84
+          },
+          "lessons/columbia/inside": {
+            "hash": "ed594e705b27a8be",
+            "seconds": 12.72
+          },
+          "lessons/columbia/notes": {
+            "hash": "2b079c60480b7268",
+            "seconds": 16.96
+          },
+          "lessons/columbia/panels": {
+            "hash": "61bd3b6f2bf0060b",
+            "seconds": 17.28
+          },
+          "lessons/columbia/seats": {
+            "hash": "81b44355e1927999",
+            "seconds": 16.72
+          },
+          "lessons/columbia/serviceModule": {
+            "hash": "562f829cae9f08e0",
+            "seconds": 26.08
+          },
+          "lessons/columbia/whole": {
+            "hash": "7c1b938af5683204",
+            "seconds": 21.6
+          },
+          "lessons/eagle/ascent": {
+            "hash": "f8bae08dbddd9cb2",
+            "seconds": 17.84
+          },
+          "lessons/eagle/descent": {
+            "hash": "0b6616a073de45ad",
+            "seconds": 22.0
+          },
+          "lessons/eagle/folded": {
+            "hash": "e29ecc0691b37b87",
+            "seconds": 16.72
+          },
+          "lessons/eagle/inside": {
+            "hash": "31e2ada11a724eab",
+            "seconds": 18.08
+          },
+          "lessons/eagle/liftoff": {
+            "hash": "ed0a7ddd21cbfaf7",
+            "seconds": 16.32
+          },
+          "lessons/eagle/panels": {
+            "hash": "fe99c0cd39eb7512",
+            "seconds": 23.84
+          },
+          "lessons/eagle/stages": {
+            "hash": "bddea0fa5fed0aa9",
+            "seconds": 18.56
+          },
+          "lessons/eagle/whole": {
+            "hash": "09424000f13be345",
+            "seconds": 21.84
+          },
+          "lessons/moonPhases/always-half-lit": {
+            "hash": "f27118cb55407307",
+            "seconds": 27.6
+          },
+          "lessons/moonPhases/evening-crescent": {
+            "hash": "8439b62520a916d4",
+            "seconds": 30.64
+          },
+          "lessons/moonPhases/first-quarter": {
+            "hash": "bd99d2bafdb21107",
+            "seconds": 20.24
+          },
+          "lessons/moonPhases/full-moon": {
+            "hash": "83c70aa08ff293ef",
+            "seconds": 22.16
+          },
+          "lessons/moonPhases/last-quarter": {
+            "hash": "997e3dcf1b2a959b",
+            "seconds": 24.16
+          },
+          "lessons/moonPhases/not-earths-shadow": {
+            "hash": "ab50bd7c6996bd48",
+            "seconds": 28.24
+          },
+          "lessons/moonPhases/same-face": {
+            "hash": "2f4d9f97333d464d",
+            "seconds": 34.96
+          },
+          "lessons/planetSizes/lineup": {
+            "hash": "06bba9e8755b98bf",
+            "seconds": 44.08
+          },
+          "lessons/planetSizes/order-day": {
+            "hash": "94b27e6740b72517",
+            "seconds": 13.52
+          },
+          "lessons/planetSizes/order-density": {
+            "hash": "d5a7115fdb7960f4",
+            "seconds": 13.52
+          },
+          "lessons/planetSizes/order-distance": {
+            "hash": "d0ca32abdffef3ef",
+            "seconds": 10.24
+          },
+          "lessons/planetSizes/order-gravity": {
+            "hash": "d364b8f6c32104a7",
+            "seconds": 12.8
+          },
+          "lessons/planetSizes/order-mass": {
+            "hash": "0fa24ecc14c1cad2",
+            "seconds": 10.56
+          },
+          "lessons/planetSizes/order-size": {
+            "hash": "9b014a4b4db9673a",
+            "seconds": 10.64
+          },
+          "lessons/planetSizes/order-speed": {
+            "hash": "f99b4322b3d9957d",
+            "seconds": 15.36
+          },
+          "lessons/planetSizes/order-temperature": {
+            "hash": "490b255ed221fb64",
+            "seconds": 11.36
+          },
+          "lessons/planetSizes/order-tilt": {
+            "hash": "b05e3ef9eb354c1e",
+            "seconds": 14.24
+          },
+          "lessons/planetSizes/order-type": {
+            "hash": "091719de32877a60",
+            "seconds": 16.72
+          },
+          "lessons/planetSizes/order-year": {
+            "hash": "06b7a27ab469a78a",
+            "seconds": 9.68
+          },
+          "lessons/saturnV/iu": {
+            "hash": "683f16adc0b40398",
+            "seconds": 22.16
+          },
+          "lessons/saturnV/returns": {
+            "hash": "bd59415aed5d0f3e",
+            "seconds": 19.36
+          },
+          "lessons/saturnV/sic": {
+            "hash": "b70a049626bb531f",
+            "seconds": 39.12
+          },
+          "lessons/saturnV/sii": {
+            "hash": "04b34d9f8aceedf2",
+            "seconds": 31.92
+          },
+          "lessons/saturnV/sivb": {
+            "hash": "30a8e8f4199c6561",
+            "seconds": 30.08
+          },
+          "lessons/saturnV/spacecraft": {
+            "hash": "1b513ec2d7001b6b",
+            "seconds": 25.28
+          },
+          "lessons/saturnV/stack": {
+            "hash": "fdb8aaf8e4513b95",
+            "seconds": 30.88
+          },
+          "lessons/saturnV/whole": {
+            "hash": "240c3b19c22db387",
+            "seconds": 23.84
+          },
+          "lessons/seasons/december-solstice": {
+            "hash": "c4a5805b1e53705a",
+            "seconds": 17.84
+          },
+          "lessons/seasons/intro": {
+            "hash": "cbe3eab7b412d56a",
+            "seconds": 26.16
+          },
+          "lessons/seasons/june-solstice": {
+            "hash": "13eb06b19e97cbba",
+            "seconds": 17.76
+          },
+          "lessons/seasons/march-equinox": {
+            "hash": "4b6ff9f7fea03002",
+            "seconds": 22.0
+          },
+          "lessons/seasons/orbit": {
+            "hash": "532ca2f3d664d555",
+            "seconds": 49.44
+          },
+          "lessons/seasons/september-equinox": {
+            "hash": "1af8d21356326e03",
+            "seconds": 18.56
+          },
+          "lessons/solarEclipse/annular": {
+            "hash": "a6bbbfaf124bac88",
+            "seconds": 28.88
+          },
+          "lessons/solarEclipse/diamond-ring": {
+            "hash": "5de98f90089556ea",
+            "seconds": 22.48
+          },
+          "lessons/solarEclipse/first-contact": {
+            "hash": "5809c21afab8d167",
+            "seconds": 28.32
+          },
+          "lessons/solarEclipse/new-moon": {
+            "hash": "39a028e5ad532efd",
+            "seconds": 41.6
+          },
+          "lessons/solarEclipse/partial": {
+            "hash": "ec03b55e0a212dde",
+            "seconds": 29.6
+          },
+          "lessons/solarEclipse/shadow-on-earth": {
+            "hash": "b2b0bac1d02a3a07",
+            "seconds": 37.12
+          },
+          "lessons/solarEclipse/tilted-orbit": {
+            "hash": "c32a7decbab0a3cd",
+            "seconds": 32.4
+          },
+          "lessons/solarEclipse/totality": {
+            "hash": "b0b1454947df7fd1",
+            "seconds": 38.4
+          },
+          "lessons/voyager/alignment": {
+            "hash": "05bbc1e35e410a75",
+            "seconds": 38.16
+          },
+          "lessons/voyager/golden-record": {
+            "hash": "cb728e740ee711d8",
+            "seconds": 40.88
+          },
+          "lessons/voyager/ice-giants": {
+            "hash": "f10b580f8dadb076",
+            "seconds": 29.84
+          },
+          "lessons/voyager/instructions": {
+            "hash": "6a5fdd260f1a7bc6",
+            "seconds": 43.2
+          },
+          "lessons/voyager/interstellar": {
+            "hash": "ddc450580e7b8709",
+            "seconds": 39.2
+          },
+          "lessons/voyager/jupiter": {
+            "hash": "429a85a11e810854",
+            "seconds": 23.92
+          },
+          "lessons/voyager/on-board": {
+            "hash": "0926b7acdd2a5713",
+            "seconds": 35.52
+          },
+          "lessons/voyager/pale-blue-dot": {
+            "hash": "f7d9b26522d1e347",
+            "seconds": 26.16
+          },
+          "lessons/voyager/saturn": {
+            "hash": "22b134ea21bd48f5",
+            "seconds": 34.0
+          },
+          "lessons/voyager/two-probes": {
+            "hash": "e82b0e6d71b53675",
+            "seconds": 33.6
+          },
+          "lessons/voyagerDeepDive/communication": {
+            "hash": "7bbf8faa5126a5e7",
+            "seconds": 30.96
+          },
+          "lessons/voyagerDeepDive/gravity-assist": {
+            "hash": "1d04ee952809040f",
+            "seconds": 32.16
+          },
+          "lessons/voyagerDeepDive/heliopause": {
+            "hash": "56b355cb09985974",
+            "seconds": 34.8
+          },
+          "lessons/voyagerDeepDive/instruments": {
+            "hash": "aca0e9a46903dff2",
+            "seconds": 39.12
+          },
+          "lessons/voyagerDeepDive/out-of-plane": {
+            "hash": "0ab2f84f557f7a0b",
+            "seconds": 23.52
+          },
+          "lessons/voyagerDeepDive/picture-in-sound": {
+            "hash": "6df4105331eac0ba",
+            "seconds": 41.44
+          },
+          "lessons/voyagerDeepDive/power": {
+            "hash": "81b957fe42cddd23",
+            "seconds": 24.88
+          },
+          "lessons/voyagerDeepDive/reading-cover": {
+            "hash": "7472e1f05b7d9668",
+            "seconds": 53.2
+          },
+          "lessons/voyagerDeepDive/still-talking": {
+            "hash": "beb661b02f9160aa",
+            "seconds": 26.24
+          },
+          "lessons/voyagerDeepDive/taken-apart": {
+            "hash": "17175722af76b65f",
+            "seconds": 31.44
+          },
+          "tours/grand/earth-approach": {
+            "hash": "b4d1c09d8319f6ac",
+            "seconds": 9.92
+          },
+          "tours/grand/earth-orbit": {
+            "hash": "7ae157e40efb9880",
+            "seconds": 26.08
+          },
+          "tours/grand/home-approach": {
+            "hash": "9ee39e6032b03861",
+            "seconds": 9.2
+          },
+          "tours/grand/home-orbit": {
+            "hash": "a000c6c23acf7a40",
+            "seconds": 24.88
+          },
+          "tours/grand/jupiter-approach": {
+            "hash": "0a70c0be1befcd84",
+            "seconds": 10.4
+          },
+          "tours/grand/jupiter-orbit": {
+            "hash": "1cfb8a6f2ceef50c",
+            "seconds": 30.32
+          },
+          "tours/grand/mars-approach": {
+            "hash": "d9c59812d64df420",
+            "seconds": 10.8
+          },
+          "tours/grand/mars-orbit": {
+            "hash": "82464a7e70b6082c",
+            "seconds": 32.88
+          },
+          "tours/grand/mercury-approach": {
+            "hash": "9ee782d6d920a448",
+            "seconds": 10.72
+          },
+          "tours/grand/mercury-orbit": {
+            "hash": "749ec7cf04b80e00",
+            "seconds": 30.16
+          },
+          "tours/grand/neptune-approach": {
+            "hash": "392bf05c96eaddfb",
+            "seconds": 12.96
+          },
+          "tours/grand/neptune-orbit": {
+            "hash": "bb34549e4138c66f",
+            "seconds": 31.44
+          },
+          "tours/grand/saturn-approach": {
+            "hash": "c5a8eb76faada8af",
+            "seconds": 10.24
+          },
+          "tours/grand/saturn-orbit": {
+            "hash": "891b047a4f49ce2b",
+            "seconds": 28.0
+          },
+          "tours/grand/sun-approach": {
+            "hash": "b811dfebd13cd28d",
+            "seconds": 14.08
+          },
+          "tours/grand/sun-orbit": {
+            "hash": "9a4146a84fa40d53",
+            "seconds": 23.12
+          },
+          "tours/grand/uranus-approach": {
+            "hash": "85986eb59874eb37",
+            "seconds": 10.8
+          },
+          "tours/grand/uranus-orbit": {
+            "hash": "c56712dd5949644a",
+            "seconds": 26.08
+          },
+          "tours/grand/venus-approach": {
+            "hash": "7420ac5f9ce5cc59",
+            "seconds": 11.36
+          },
+          "tours/grand/venus-orbit": {
+            "hash": "30615663286c4563",
+            "seconds": 31.28
+          },
+          "tours/voyager1/heliopause": {
+            "hash": "7d0f9a010d495256",
+            "seconds": 21.84
+          },
+          "tours/voyager1/jupiter": {
+            "hash": "e5044041cca94a0a",
+            "seconds": 18.08
+          },
+          "tours/voyager1/launch": {
+            "hash": "fb880730e9749337",
+            "seconds": 16.96
+          },
+          "tours/voyager1/overtake": {
+            "hash": "ff92003ff23abf8d",
+            "seconds": 13.6
+          },
+          "tours/voyager1/pale-blue-dot": {
+            "hash": "48248ec8f14c5576",
+            "seconds": 16.88
+          },
+          "tours/voyager1/saturn": {
+            "hash": "4b42f74e3a335a48",
+            "seconds": 23.92
+          },
+          "tours/voyager1/termination-shock": {
+            "hash": "4d9f10e256f88aef",
+            "seconds": 19.36
+          },
+          "tours/voyager1/today": {
+            "hash": "3bc8de371d77460d",
+            "seconds": 13.44
+          },
+          "tours/voyager2/heliopause": {
+            "hash": "cc807620a3687474",
+            "seconds": 19.68
+          },
+          "tours/voyager2/jupiter": {
+            "hash": "f5f7cb69ceed310e",
+            "seconds": 18.4
+          },
+          "tours/voyager2/launch": {
+            "hash": "d7a162f15d32df3d",
+            "seconds": 16.4
+          },
+          "tours/voyager2/neptune": {
+            "hash": "f6daf7d4a8586e97",
+            "seconds": 20.16
+          },
+          "tours/voyager2/saturn": {
+            "hash": "d303baed08e6bf70",
+            "seconds": 16.48
+          },
+          "tours/voyager2/termination-shock": {
+            "hash": "d56f3d9d69522777",
+            "seconds": 18.0
+          },
+          "tours/voyager2/today": {
+            "hash": "c63f653b9d8b7329",
+            "seconds": 11.52
+          },
+          "tours/voyager2/uranus": {
+            "hash": "59d261592caaa9ec",
+            "seconds": 21.76
+          }
+        },
+        "en": {
+          "lessons/columbia/commandModule": {
+            "hash": "c01c4ea780e6f8f7",
+            "seconds": 19.28
+          },
+          "lessons/columbia/engine": {
+            "hash": "8ab6980be7477955",
+            "seconds": 15.6
+          },
+          "lessons/columbia/inside": {
+            "hash": "de1007540aa78ec2",
+            "seconds": 13.6
+          },
+          "lessons/columbia/notes": {
+            "hash": "7ace20d968e0c24e",
+            "seconds": 15.84
+          },
+          "lessons/columbia/panels": {
+            "hash": "1577f368c4d8bc44",
+            "seconds": 16.8
+          },
+          "lessons/columbia/seats": {
+            "hash": "8059dbbec99fa34f",
+            "seconds": 16.16
+          },
+          "lessons/columbia/serviceModule": {
+            "hash": "5564e83b71b9c358",
+            "seconds": 22.88
+          },
+          "lessons/columbia/whole": {
+            "hash": "2c8eaf85677e62bf",
+            "seconds": 17.92
+          },
+          "lessons/eagle/ascent": {
+            "hash": "c1ea4e3b1edbe93b",
+            "seconds": 16.08
+          },
+          "lessons/eagle/descent": {
+            "hash": "7e2d2c8aa4f6be70",
+            "seconds": 19.36
+          },
+          "lessons/eagle/folded": {
+            "hash": "c619043d5ced991f",
+            "seconds": 15.04
+          },
+          "lessons/eagle/inside": {
+            "hash": "a475da426d4ca1b6",
+            "seconds": 17.04
+          },
+          "lessons/eagle/liftoff": {
+            "hash": "b564c5ebafa388c7",
+            "seconds": 16.0
+          },
+          "lessons/eagle/panels": {
+            "hash": "62c5618239232858",
+            "seconds": 19.36
+          },
+          "lessons/eagle/stages": {
+            "hash": "ccf664c695b2020f",
+            "seconds": 18.08
+          },
+          "lessons/eagle/whole": {
+            "hash": "ab347a4c8652487b",
+            "seconds": 19.36
+          },
+          "lessons/moonPhases/always-half-lit": {
+            "hash": "8091e85d5386bf02",
+            "seconds": 22.72
+          },
+          "lessons/moonPhases/evening-crescent": {
+            "hash": "d0258ce224828758",
+            "seconds": 27.84
+          },
+          "lessons/moonPhases/first-quarter": {
+            "hash": "31e5642ee7639553",
+            "seconds": 18.08
+          },
+          "lessons/moonPhases/full-moon": {
+            "hash": "4a98743c30023433",
+            "seconds": 20.88
+          },
+          "lessons/moonPhases/last-quarter": {
+            "hash": "37fb68557bb17aaa",
+            "seconds": 22.8
+          },
+          "lessons/moonPhases/not-earths-shadow": {
+            "hash": "5465e24534ab0cff",
+            "seconds": 25.36
+          },
+          "lessons/moonPhases/same-face": {
+            "hash": "306aaa4718b5504a",
+            "seconds": 33.36
+          },
+          "lessons/planetSizes/lineup": {
+            "hash": "1ec0572cdb369402",
+            "seconds": 36.88
+          },
+          "lessons/planetSizes/order-day": {
+            "hash": "e7a68365c00cbf95",
+            "seconds": 12.32
+          },
+          "lessons/planetSizes/order-density": {
+            "hash": "d6f05a4f7680e23d",
+            "seconds": 11.6
+          },
+          "lessons/planetSizes/order-distance": {
+            "hash": "24923154e827eaae",
+            "seconds": 8.48
+          },
+          "lessons/planetSizes/order-gravity": {
+            "hash": "897958c2acefa05e",
+            "seconds": 11.84
+          },
+          "lessons/planetSizes/order-mass": {
+            "hash": "fef9980262cff8d6",
+            "seconds": 8.88
+          },
+          "lessons/planetSizes/order-size": {
+            "hash": "a9c3839c02810a63",
+            "seconds": 9.44
+          },
+          "lessons/planetSizes/order-speed": {
+            "hash": "fffbe1c30ef4ca5a",
+            "seconds": 14.0
+          },
+          "lessons/planetSizes/order-temperature": {
+            "hash": "70ee57bec9885ec0",
+            "seconds": 13.28
+          },
+          "lessons/planetSizes/order-tilt": {
+            "hash": "554059994305966a",
+            "seconds": 14.48
+          },
+          "lessons/planetSizes/order-type": {
+            "hash": "b83363eadaa23654",
+            "seconds": 12.24
+          },
+          "lessons/planetSizes/order-year": {
+            "hash": "38cd7a231f5fe82f",
+            "seconds": 8.56
+          },
+          "lessons/saturnV/iu": {
+            "hash": "4c021dfdeb47c3a8",
+            "seconds": 22.48
+          },
+          "lessons/saturnV/returns": {
+            "hash": "f456df88515544de",
+            "seconds": 19.2
+          },
+          "lessons/saturnV/sic": {
+            "hash": "8bceb5849bc30581",
+            "seconds": 31.68
+          },
+          "lessons/saturnV/sii": {
+            "hash": "cac4f02af60713c4",
+            "seconds": 27.44
+          },
+          "lessons/saturnV/sivb": {
+            "hash": "fff41083c60da32c",
+            "seconds": 28.08
+          },
+          "lessons/saturnV/spacecraft": {
+            "hash": "0013e6371f9c046e",
+            "seconds": 21.28
+          },
+          "lessons/saturnV/stack": {
+            "hash": "371077c3daf9b6a6",
+            "seconds": 30.72
+          },
+          "lessons/saturnV/whole": {
+            "hash": "3897296438032126",
+            "seconds": 22.48
+          },
+          "lessons/seasons/december-solstice": {
+            "hash": "71d897c56108053d",
+            "seconds": 16.96
+          },
+          "lessons/seasons/intro": {
+            "hash": "280bbf3df3037ce0",
+            "seconds": 25.04
+          },
+          "lessons/seasons/june-solstice": {
+            "hash": "0d4a21127293edf9",
+            "seconds": 17.2
+          },
+          "lessons/seasons/march-equinox": {
+            "hash": "47122f6551c4925d",
+            "seconds": 20.96
+          },
+          "lessons/seasons/orbit": {
+            "hash": "2cc1d866e9e2bb2f",
+            "seconds": 47.84
+          },
+          "lessons/seasons/september-equinox": {
+            "hash": "c4880547b5d376bd",
+            "seconds": 16.24
+          },
+          "lessons/solarEclipse/annular": {
+            "hash": "8c1ae783d28c453e",
+            "seconds": 21.68
+          },
+          "lessons/solarEclipse/diamond-ring": {
+            "hash": "0b4ba4ab7758b7af",
+            "seconds": 21.12
+          },
+          "lessons/solarEclipse/first-contact": {
+            "hash": "7a1fa65582c2be1f",
+            "seconds": 25.2
+          },
+          "lessons/solarEclipse/new-moon": {
+            "hash": "ef4679726b02e117",
+            "seconds": 35.6
+          },
+          "lessons/solarEclipse/partial": {
+            "hash": "97e3e2ddc08172cd",
+            "seconds": 26.56
+          },
+          "lessons/solarEclipse/shadow-on-earth": {
+            "hash": "61d44fa81fd8f344",
+            "seconds": 36.0
+          },
+          "lessons/solarEclipse/tilted-orbit": {
+            "hash": "d0d71401467555f0",
+            "seconds": 28.72
+          },
+          "lessons/solarEclipse/totality": {
+            "hash": "cc3e8918b32b21ff",
+            "seconds": 35.92
+          },
+          "lessons/voyager/alignment": {
+            "hash": "7146b9b36d978ba7",
+            "seconds": 33.76
+          },
+          "lessons/voyager/golden-record": {
+            "hash": "08f27363bcf3d69d",
+            "seconds": 38.88
+          },
+          "lessons/voyager/ice-giants": {
+            "hash": "4dba235dd6cfc2d4",
+            "seconds": 28.96
+          },
+          "lessons/voyager/instructions": {
+            "hash": "edd29711e5eb8d96",
+            "seconds": 43.28
+          },
+          "lessons/voyager/interstellar": {
+            "hash": "a7d431043ccb019b",
+            "seconds": 36.32
+          },
+          "lessons/voyager/jupiter": {
+            "hash": "322998e27f96d5f9",
+            "seconds": 20.96
+          },
+          "lessons/voyager/on-board": {
+            "hash": "d910a503fba0e136",
+            "seconds": 30.24
+          },
+          "lessons/voyager/pale-blue-dot": {
+            "hash": "a8cb80acbc52a8a3",
+            "seconds": 22.88
+          },
+          "lessons/voyager/saturn": {
+            "hash": "d5acc20921d858cd",
+            "seconds": 24.64
+          },
+          "lessons/voyager/two-probes": {
+            "hash": "5a70daef4f6c53d9",
+            "seconds": 30.64
+          },
+          "lessons/voyagerDeepDive/communication": {
+            "hash": "2b3927bf326f9299",
+            "seconds": 29.2
+          },
+          "lessons/voyagerDeepDive/gravity-assist": {
+            "hash": "6ce30a7ce9adfee9",
+            "seconds": 27.36
+          },
+          "lessons/voyagerDeepDive/heliopause": {
+            "hash": "ed7540ffb8a8b8d6",
+            "seconds": 30.48
+          },
+          "lessons/voyagerDeepDive/instruments": {
+            "hash": "7d5fe8323c46b885",
+            "seconds": 35.76
+          },
+          "lessons/voyagerDeepDive/out-of-plane": {
+            "hash": "d460c12f5aeab9a6",
+            "seconds": 21.28
+          },
+          "lessons/voyagerDeepDive/picture-in-sound": {
+            "hash": "6d333d9957bc3447",
+            "seconds": 37.2
+          },
+          "lessons/voyagerDeepDive/power": {
+            "hash": "a844a3f2cfdfb3c7",
+            "seconds": 26.08
+          },
+          "lessons/voyagerDeepDive/reading-cover": {
+            "hash": "540481b2c8337e0b",
+            "seconds": 51.6
+          },
+          "lessons/voyagerDeepDive/still-talking": {
+            "hash": "9d787669bd3f754b",
+            "seconds": 24.48
+          },
+          "lessons/voyagerDeepDive/taken-apart": {
+            "hash": "6eca57c74e028de9",
+            "seconds": 26.08
+          },
+          "tours/grand/earth-approach": {
+            "hash": "150a27358eaeb7a6",
+            "seconds": 6.8
+          },
+          "tours/grand/earth-orbit": {
+            "hash": "5b0928996df1c581",
+            "seconds": 23.28
+          },
+          "tours/grand/home-approach": {
+            "hash": "effbfe38d6303797",
+            "seconds": 9.2
+          },
+          "tours/grand/home-orbit": {
+            "hash": "17184ccfa1302be9",
+            "seconds": 19.12
+          },
+          "tours/grand/jupiter-approach": {
+            "hash": "a2613a40d193bf0d",
+            "seconds": 9.92
+          },
+          "tours/grand/jupiter-orbit": {
+            "hash": "a1bd0cc1669181b2",
+            "seconds": 28.56
+          },
+          "tours/grand/mars-approach": {
+            "hash": "a406436059219992",
+            "seconds": 9.76
+          },
+          "tours/grand/mars-orbit": {
+            "hash": "d0901f5901cb2b55",
+            "seconds": 28.64
+          },
+          "tours/grand/mercury-approach": {
+            "hash": "eed35d2042df8c38",
+            "seconds": 10.16
+          },
+          "tours/grand/mercury-orbit": {
+            "hash": "582e91833cc8ce1f",
+            "seconds": 28.08
+          },
+          "tours/grand/neptune-approach": {
+            "hash": "6a075a75067ccd1c",
+            "seconds": 11.68
+          },
+          "tours/grand/neptune-orbit": {
+            "hash": "c6cd6916d47166e0",
+            "seconds": 29.2
+          },
+          "tours/grand/saturn-approach": {
+            "hash": "263e26c7e0f90d73",
+            "seconds": 9.76
+          },
+          "tours/grand/saturn-orbit": {
+            "hash": "8d10c4a863a786bc",
+            "seconds": 26.48
+          },
+          "tours/grand/sun-approach": {
+            "hash": "ddcfef19c3182429",
+            "seconds": 13.44
+          },
+          "tours/grand/sun-orbit": {
+            "hash": "4189cf5b8902b9b6",
+            "seconds": 23.44
+          },
+          "tours/grand/uranus-approach": {
+            "hash": "23391273d1bb3e6d",
+            "seconds": 9.12
+          },
+          "tours/grand/uranus-orbit": {
+            "hash": "6dfe2681d9b01e53",
+            "seconds": 25.76
+          },
+          "tours/grand/venus-approach": {
+            "hash": "544cec5b4aebc36f",
+            "seconds": 10.56
+          },
+          "tours/grand/venus-orbit": {
+            "hash": "d9f9ef7540d84ed1",
+            "seconds": 29.68
+          },
+          "tours/voyager1/heliopause": {
+            "hash": "b427563977e763b0",
+            "seconds": 19.04
+          },
+          "tours/voyager1/jupiter": {
+            "hash": "39fc75448cd27afa",
+            "seconds": 16.72
+          },
+          "tours/voyager1/launch": {
+            "hash": "81360ac48a099736",
+            "seconds": 14.08
+          },
+          "tours/voyager1/overtake": {
+            "hash": "fda3a6b0d32a590a",
+            "seconds": 11.04
+          },
+          "tours/voyager1/pale-blue-dot": {
+            "hash": "ed03f9c7136beecd",
+            "seconds": 16.16
+          },
+          "tours/voyager1/saturn": {
+            "hash": "d2b3e1684e008818",
+            "seconds": 19.2
+          },
+          "tours/voyager1/termination-shock": {
+            "hash": "3673148e775c0cea",
+            "seconds": 18.48
+          },
+          "tours/voyager1/today": {
+            "hash": "88bb13a6c5ecc9ec",
+            "seconds": 12.8
+          },
+          "tours/voyager2/heliopause": {
+            "hash": "ed7caa0518fe696e",
+            "seconds": 17.92
+          },
+          "tours/voyager2/jupiter": {
+            "hash": "44025bd3131b1354",
+            "seconds": 15.92
+          },
+          "tours/voyager2/launch": {
+            "hash": "e5f1d308b5b7edda",
+            "seconds": 15.04
+          },
+          "tours/voyager2/neptune": {
+            "hash": "3e1416fc2eb3ebd9",
+            "seconds": 18.72
+          },
+          "tours/voyager2/saturn": {
+            "hash": "05eec5520319d044",
+            "seconds": 15.28
+          },
+          "tours/voyager2/termination-shock": {
+            "hash": "df713fa57c52b945",
+            "seconds": 16.32
+          },
+          "tours/voyager2/today": {
+            "hash": "53f36830891b46f8",
+            "seconds": 10.72
+          },
+          "tours/voyager2/uranus": {
+            "hash": "f2b84c963ecb6d20",
+            "seconds": 18.24
+          }
+        }
+      },
+      "references": {
+        "de": "d63d33151b76aa40",
+        "en": "4fd12a39506b6a3d"
+      }
+    }
+  }
+}

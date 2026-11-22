@@ -18,7 +18,6 @@ export interface LabelSpec {
 export class VoyagerLabels {
   private readonly labels = new Map<string, HTMLElement>()
   private readonly shown = new Set<string>()
-  private clockText = ''
 
   constructor(
     private readonly layer: HTMLElement,
@@ -42,12 +41,15 @@ export class VoyagerLabels {
     for (const [id, label] of this.labels) if (!this.shown.has(id)) hideLabel(label)
   }
 
-  // The date and the probes' distances, in the corner (rewritten only when they change).
+  // The date and the probes' distances (or another lesson's moment), in the corner (rewritten only
+  // when they change).
   showClock(lines: string[]): void {
     if (!this.routeClock) return
     this.routeClock.hidden = false
-    if (lines.join('\n') === this.clockText) return
-    this.clockText = lines.join('\n')
+    // Kept on the element: the Voyager and Apollo 11 lessons share it.
+    const text = lines.join('\n')
+    if (this.routeClock.dataset.lines === text) return
+    this.routeClock.dataset.lines = text
     this.routeClock.replaceChildren(...lines.map((line) => Object.assign(document.createElement('span'), { textContent: line })))
   }
 

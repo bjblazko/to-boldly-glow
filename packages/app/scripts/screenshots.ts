@@ -27,7 +27,7 @@ const sunlit = async (page: Page, base: string, body: string, offset: [number, n
 
 // A lesson from the start page, paused (lessons turn their pages by themselves), `nexts` chapters
 // on - each given time for its scene to settle.
-const lessonAt = async (page: Page, base: string, id: string, nexts: number) => {
+const lessonAt = async (page: Page, base: string, id: string, nexts: number, settle = 2500) => {
   await boot(page, base)
   await page.locator('#start-btn').click()
   await page.locator(`.hud-lesson-card[data-lesson-id="${id}"]`).click()
@@ -37,7 +37,7 @@ const lessonAt = async (page: Page, base: string, id: string, nexts: number) => 
     await page.locator('#lesson-next-chapter').click()
     await wait(2500)
   }
-  await wait(2500)
+  await wait(settle)
 }
 
 // A mission tour from the start page, jumped to its station `index`, paused there.
@@ -120,6 +120,7 @@ const SHOTS: Record<string, Shot> = {
   'lesson-eagle-cockpit': (page, base) => lessonAt(page, base, 'eagle', 6),
   'lesson-launcher': (page, base) => lessonAt(page, base, 'launcher', 0),
   'lesson-launcher-crawler': (page, base) => lessonAt(page, base, 'launcher', 5),
+  'lesson-apollo11': (page, base) => lessonAt(page, base, 'apollo11', 4),
   // More, on its Audio tab: the narrator, subtitles and the music.
   more: async (page, base) => {
     await boot(page, base)

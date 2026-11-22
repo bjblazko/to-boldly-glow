@@ -2,6 +2,7 @@ import { voyagerLesson } from './voyager'
 import { columbia } from './columbia'
 import { eagle } from './eagle'
 import { launcher } from './launcher'
+import { apollo11 } from './apollo11'
 import { saturnV } from './saturnV'
 import { voyagerDeepDive } from './voyagerDeepDive'
 
@@ -244,4 +245,5 @@ export const lessons = {
   columbia,
   eagle,
   launcher,
+  apollo11,
 }

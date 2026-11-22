@@ -14,6 +14,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   held it 8.9 s after ignition, the crawler-transporter that carried it all to the pad - and at
   liftoff the arms swing away. Project Apollo - NASSP's models (GPL), our Saturn V on them;
   narrated in English and German.
+- Apollo: the lesson "Apollo 11: to the Moon and Back" - the whole mission, launch to splashdown,
+  on a drawn route between Earth and the Moon: the parking orbit, the figure eight of the free
+  return, lunar orbit, Eagle's descent and ascent, the way home; each chapter with its moment's
+  date and mission time, figures from NASA's "Apollo by the Numbers" and the Mission Report. Six
+  close-ups play the moments the route can only name with the vehicle lessons' models - the
+  transposition and docking, Eagle letting go, the landing (with its long shadow), the liftoff from
+  the Moon, docking again, the service module cast off before entry - with NASA's photos and
+  sketches of them.
+
+### Changed
+
+- Planets' atmospheres are drawn to scale: Earth's to the Kármán line (100 km), Venus's haze, the
+  giants' hazes over their cloud tops.
+- Narration spells out units everywhere (tonnes, degrees Celsius, metres per second ...), and says
+  names and the Saturns' numerals as in their own language (the German voice says "Eagle" as an
+  English speaker would).
+- The lesson camera's flights between shots pass over planets instead of through them.
+- Apollo 11's events in mission time, and its path reconstructed from the documented state vectors
+  (for the coming tour).
 
 ## [0.7.0] - 2026-11-21
 
