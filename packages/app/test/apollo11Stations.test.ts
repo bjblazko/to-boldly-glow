@@ -14,10 +14,10 @@ describe("the Apollo 11 tour's stations", () => {
     APOLLO11_STATIONS.slice(1).forEach((s, i) => expect(s.from).toBeGreaterThanOrEqual(APOLLO11_STATIONS[i].to))
   })
 
-  it('last some 24 to 27 minutes outside', () => {
+  it('last some 18 to 22 minutes outside, the quiet stretches short', () => {
     const minutes = APOLLO11_STATIONS.reduce((sum, s) => sum + s.seconds, 0) / 60
-    expect(minutes).toBeGreaterThanOrEqual(24)
-    expect(minutes).toBeLessThanOrEqual(27)
+    expect(minutes).toBeGreaterThanOrEqual(18)
+    expect(minutes).toBeLessThanOrEqual(22)
   })
 
   it('lie on the reconstructed path', () => {

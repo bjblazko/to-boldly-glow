@@ -73,6 +73,14 @@ export interface SphereMeshBuffers {
 // Segments per axis of the shared sphere: enough for a round silhouette even on a close-up.
 export const SPHERE_SEGMENTS = 64
 
+// For a body the camera is close to (low orbit): facets of under a degree, so its horizon is round.
+export const FINE_SPHERE_SEGMENTS = 384
+
+// Whether a body is close enough for the fine sphere: within a few of its radii.
+export function needsFineSphere(distanceToCentre: number, radius: number): boolean {
+  return distanceToCentre < radius * 4
+}
+
 // One unit sphere shared by every body (and every atmosphere shell): each draw scales it.
 export function createSphereMeshBuffers(device: GPUDevice, mesh = generateSphereMesh(1, SPHERE_SEGMENTS, SPHERE_SEGMENTS)): SphereMeshBuffers {
   return {

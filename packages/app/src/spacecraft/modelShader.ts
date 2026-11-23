@@ -16,7 +16,8 @@ export const MAX_LAMPS = 3
 // part, per lamp its place and range and its colour and strength, then the first lamp's shadow map
 // projection and its settings.
 // and each assembly's fold about its hinge (three rows).
-export const MODEL_UNIFORM_FLOAT_COUNT = 16 + 16 + 4 + 4 + 4 + 4 + MAX_ASSEMBLIES * 4 * 2 + MAX_LAMPS * 4 * 2 + 16 + 4 + MAX_ASSEMBLIES * 12
+// Last, for a craft in space: its settings and the light thrown back by a body near by.
+export const MODEL_UNIFORM_FLOAT_COUNT = 16 + 16 + 4 + 4 + 4 + 4 + MAX_ASSEMBLIES * 4 * 2 + MAX_LAMPS * 4 * 2 + 16 + 4 + MAX_ASSEMBLIES * 12 + 12
 
 // The kinds as the shader counts them (part.x).
 export const ASSEMBLY_KIND_CODE = { solid: 0, shell: 1, inside: 2 } as const
@@ -48,6 +49,12 @@ struct Uniforms {
   shadow: vec4f,
   // Each assembly's fold about its hinge (see modelHinge.ts).
   hinges: array<vec4f, ${MAX_ASSEMBLIES * 3}>,
+  // In space (x: 1): no room round it - a flat, faint fill, mirrors that see black space and the
+  // body near by (y: the cosine of its apparent radius); z: 1 when the shadow map is the Sun's.
+  space: vec4f,
+  // Toward the body near by (world), w: how much of its light it throws back; and its colour.
+  bounceDirection: vec4f,
+  bounceColor: vec4f,
 }
 ${HINGE_WGSL}
 
@@ -146,7 +153,21 @@ fn surroundings(direction: vec3f) -> vec3f {
 // The fill as light from all round: brighter from above (the sky, the room's ceiling) than from
 // below (the floor).
 fn ambient(normal: vec3f) -> f32 {
+  if (uni.space.x > 0.5) { return uni.look.x; }
   return uni.look.x * mix(0.45, 1.25, normal.y * 0.5 + 0.5);
+}
+
+// In space: the light a sunlit Earth or Moon throws back onto the side facing it, wrapping softly.
+fn bounceLight(normal: vec3f) -> vec3f {
+  if (uni.bounceDirection.w <= 0.0) { return vec3f(0.0); }
+  let facing = dot(normal, uni.bounceDirection.xyz) * 0.5 + 0.5;
+  return uni.bounceColor.rgb * uni.bounceDirection.w * facing * facing;
+}
+
+// What a mirror sees in space: black, and the body near by as a disc of its light.
+fn spaceSurroundings(direction: vec3f) -> vec3f {
+  let onBody = smoothstep(uni.space.y - 0.01, uni.space.y + 0.01, dot(direction, uni.bounceDirection.xyz));
+  return uni.bounceColor.rgb * uni.bounceDirection.w * 2.5 * onBody;
 }
 
 // How much of the first lamp's light reaches this point (0 to 1): the shadow map compared at nine
@@ -183,7 +204,7 @@ fn lampLight(worldPosition: vec3f, normal: vec3f, toCamera: vec3f, material: vec
     let facing = dot(normal, direction);
     let diffuse = (facing * 0.5 + 0.5) * (facing * 0.5 + 0.5);
     let shine = pow(max(dot(normal, normalize(direction + toCamera)), 0.0), material.x) * material.y * step(0.0, facing);
-    let shadowed = select(1.0, lampShadow(worldPosition), i == 0u);
+    let shadowed = select(1.0, lampShadow(worldPosition), i == 0u && uni.space.z < 0.5);
     light += uni.lampColors[i].rgb * falloff * (diffuse + shine) * shadowed;
   }
   return light;
@@ -206,11 +227,14 @@ fn fs(in: VertexOutput, @builtin(front_facing) frontFacing: bool) -> @location(0
   // A shell's inner face, seen through the cut, in shade.
   if (!frontFacing && uni.parts[in.assembly].x == 1.0) { albedo *= 0.35; }
   albedo *= 1.0 - uni.look.y * wearAt(in.local);
-  var color = albedo * (diffuse * uni.toLight.w + ambient(normal) + lampLight(in.worldPosition, normal, toCamera, material)) + vec3f(specular * uni.toLight.w);
+  // In space the Sun's own shadows (the map is then the Sun's).
+  let sunlight = uni.toLight.w * select(1.0, lampShadow(in.worldPosition), uni.space.z > 0.5);
+  var color = albedo * (diffuse * sunlight + ambient(normal) + bounceLight(normal) + lampLight(in.worldPosition, normal, toCamera, material)) + vec3f(specular * sunlight);
   if (mirror) {
     // Mostly what it reflects, tinted by its own colour, a little of its lit colour beneath.
-    let seen = surroundings(reflect(-toCamera, normal)) * albedo * material.y;
-    color = color * (1.0 - material.y * 0.9) + seen + vec3f(specular * uni.toLight.w);
+    let around = select(surroundings(reflect(-toCamera, normal)), spaceSurroundings(reflect(-toCamera, normal)), uni.space.x > 0.5);
+    let seen = around * albedo * material.y;
+    color = color * (1.0 - material.y * 0.9) + seen + vec3f(specular * sunlight);
   }
   let picked = uni.highlight.x >= 0.0 && in.assembly == i32(uni.highlight.x);
   let strength = uni.highlight.y;

@@ -1,4 +1,4 @@
-import { vec3, type mat4 } from 'gl-matrix'
+import { mat4, vec3 } from 'gl-matrix'
 import type { Viewpoint } from '../camera/viewpoint'
 import { createScenePipeline } from '../gpu/scenePipeline'
 import type { TextureLoader } from '../gpu/textureLoader'
@@ -45,6 +45,9 @@ export interface ModelPose {
   materials?: readonly (Material | undefined)[]
   // Each assembly's fold about its hinge, by index (see modelHinge.ts; none: nothing folds).
   hinges?: readonly Float32Array[]
+  // A craft in space: the Sun casts its shadows (a model made with shadows), and the body near by
+  // throws light back - toward it (world), how strongly, its colour and its apparent radius.
+  space?: { bounce: { direction: Vec3; strength: number; color: Vec3; cosRadius: number } | null }
 }
 
 // How a surface shines: how tight its highlight is and how strong; a mirror-like one (the command
@@ -76,6 +79,7 @@ const PARTS_AT = OFFSETS_AT + MAX_ASSEMBLIES * 4
 const LAMPS_AT = PARTS_AT + MAX_ASSEMBLIES * 4
 const SHADOW_AT = LAMPS_AT + MAX_LAMPS * 8
 const HINGES_AT = SHADOW_AT + 20
+const SPACE_AT = HINGES_AT + MAX_ASSEMBLIES * 12
 
 // What every model shares: the device, the scene's color format, the pipelines (both faces of
 // every triangle drawn - a probe's thin sheets - or only the front - a scanned room, whose surfaces
@@ -123,7 +127,7 @@ export class ModelRenderer {
     private readonly context: ModelContext,
     private readonly mesh: { pipeline: GPURenderPipeline; vertex: GPUBuffer; index: GPUBuffer; format: GPUIndexFormat; indexCount: number; uniforms: GPUBuffer },
     private readonly draws: Draw[],
-    private readonly shape: { cutaway: Cutaway; middle: Vec3; shadowMap: ModelShadowMap | null },
+    private readonly shape: { cutaway: Cutaway; middle: Vec3; radius: number; shadowMap: ModelShadowMap | null },
   ) {}
 
   // The model's textures are loaded from next to it (`textureBaseUrl`/<file>); `shadows`: lamps
@@ -142,7 +146,8 @@ export class ModelRenderer {
     )
     const { min, max } = model.description.bounds
     const middle: Vec3 = [(min[0] + max[0]) / 2, (min[1] + max[1]) / 2, (min[2] + max[2]) / 2]
-    return new ModelRenderer(context, { pipeline, ...uploadMesh(device, model), indexCount: model.description.indexCount, uniforms }, draws, { cutaway: cutawayOf(model), middle, shadowMap })
+    const radius = Math.hypot(max[0] - min[0], max[1] - min[1], max[2] - min[2]) / 2
+    return new ModelRenderer(context, { pipeline, ...uploadMesh(device, model), indexCount: model.description.indexCount, uniforms }, draws, { cutaway: cutawayOf(model), middle, radius, shadowMap })
   }
 
   // `offsets`: how far each assembly moves out when fully exploded (metres, model frame).
@@ -159,6 +164,7 @@ export class ModelRenderer {
     values.set([pose.highlight.assembly, pose.highlight.strength, cut > 0 ? 1 : 0, cutaway.bottom + cut * cutaway.reach], 44)
     writeAssemblies(values, pose, cutaway.kinds, offsets)
     writeLamps(values, pose.lamps ?? [])
+    writeSpace(values, pose, Boolean(this.shape.shadowMap))
     this.updateShadow(pose, offsets)
     this.context.device.queue.writeBuffer(this.mesh.uniforms, 0, values)
   }
@@ -170,17 +176,26 @@ export class ModelRenderer {
 
   // The first lamp looks at the model's middle; its projection goes to both shaders.
   private updateShadow(pose: ModelPose, offsets: readonly Vec3[]): void {
-    const lamp = pose.lamps?.[0]
-    const { shadowMap, middle } = this.shape
-    if (!shadowMap || !lamp) {
+    const projection = this.shadowProjection(pose)
+    const { shadowMap } = this.shape
+    if (!shadowMap || !projection) {
       this.values.set([0, 0, 0, 0], SHADOW_AT + 16)
       return
     }
-    const target = vec3.transformMat4(vec3.create(), middle, pose.world) as unknown as Vec3
-    const lightViewProjection = lampViewProjection(lamp.place, [target[0], target[1], target[2]], lamp.reach)
-    shadowMap.update(lightViewProjection, pose.world, { amount: pose.explode, offsets, hinges: pose.hinges })
-    this.values.set(lightViewProjection, SHADOW_AT)
+    shadowMap.update(projection, pose.world, { amount: pose.explode, offsets, hinges: pose.hinges })
+    this.values.set(projection, SHADOW_AT)
     this.values.set([1, 1 / SHADOW_MAP_SIZE, 0, 0], SHADOW_AT + 16)
+  }
+
+  // Whose shadows: the Sun's for a craft in space, else the first lamp's (it looks at the model's
+  // middle); none without a map or a lamp.
+  private shadowProjection(pose: ModelPose): mat4 | null {
+    const { shadowMap, middle, radius } = this.shape
+    if (!shadowMap) return null
+    const target = vec3.transformMat4(vec3.create(), middle, pose.world)
+    if (pose.space) return sunViewProjection(target, pose.toSun, radius)
+    const lamp = pose.lamps?.[0]
+    return lamp ? lampViewProjection(lamp.place, [target[0], target[1], target[2]], lamp.reach) : null
   }
 
   draw(pass: GPURenderPassEncoder): void {
@@ -255,4 +270,26 @@ function uploadMesh(device: GPUDevice, { vertices, indices, description }: Model
   padded.set(new Uint8Array(indices.buffer, indices.byteOffset, indices.byteLength))
   device.queue.writeBuffer(index, 0, padded)
   return { vertex, index, format: description.indexFormat }
+}
+
+// In space: whether it is, the body near by and whether the shadow map is the Sun's.
+function writeSpace(values: Float32Array, pose: ModelPose, shadows: boolean): void {
+  const space = pose.space
+  if (!space) {
+    values.fill(0, SPACE_AT, SPACE_AT + 12)
+    return
+  }
+  const bounce = space.bounce ?? { direction: [0, 0, 0], strength: 0, color: [0, 0, 0], cosRadius: 1 }
+  values.set([1, bounce.cosRadius, shadows ? 1 : 0, 0], SPACE_AT)
+  values.set([...bounce.direction, bounce.strength], SPACE_AT + 4)
+  values.set([...bounce.color, 1], SPACE_AT + 8)
+}
+
+// The Sun's shadow map: looking along its light at the model's middle, square and parallel, just
+// big enough for the model (metres).
+function sunViewProjection(middle: vec3, toSun: Vec3, radius: number): mat4 {
+  const place = vec3.scaleAndAdd(vec3.create(), middle, toSun, radius * 2)
+  const up: Vec3 = Math.abs(toSun[1]) > 0.9 ? [0, 0, 1] : [0, 1, 0]
+  const view = mat4.lookAt(mat4.create(), place, middle, up)
+  return mat4.multiply(mat4.create(), mat4.orthoZO(mat4.create(), -radius, radius, -radius, radius, radius * 0.5, radius * 3.5), view)
 }

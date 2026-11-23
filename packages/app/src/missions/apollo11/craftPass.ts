@@ -5,11 +5,12 @@ import type { Vec3 } from '../../math/tuples'
 
 // The craft are drawn in a pass of their own, in metres: around the camera (so float32 keeps
 // millimetres), with a near and far plane of their own, and their depth squeezed into the front
-// sliver [0, CRAFT_DEPTH] of the one depth buffer - in front of every body, which the world's
+// sliver [0, CRAFT_DEPTH] of the one depth buffer (a hundredth: some 170,000 steps of a 24-bit
+// buffer) - in front of every body, which the world's
 // projection puts at depths near 1 (the craft are never behind Earth or the Moon from where the
 // camera is: they are always within a few kilometres of it, the bodies hundreds away).
 
-export const CRAFT_DEPTH = 0.001
+export const CRAFT_DEPTH = 0.01
 
 export function squeezedProjection({ fov, aspect, near, far, lensShift }: { fov: number; aspect: number; near: number; far: number; lensShift?: LensShift }): mat4 {
   const m = mat4.perspectiveZO(mat4.create(), fov, aspect, near, far)

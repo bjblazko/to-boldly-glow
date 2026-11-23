@@ -31,6 +31,7 @@ export interface Motion {
 
 // The Moon's sphere of influence (about 66,000 km): inside it the Moon is the body flown round.
 const MOON_INFLUENCE_KM = 60_000
+const LANDING_SITE_RADIUS_KM = 1735.47
 const LANDED = 102 * 3600 + 45 * 60 + 40
 const LIFTOFF = 124 * 3600 + 22 * 60 + 0.79
 
@@ -97,7 +98,8 @@ export class Apollo11Scene {
     const centre = (i: number): Vec3 => (nearMoon ? moon[i] : [0, 0, 0])
     const velocity = minus(minus(after, centre(2)), minus(before, centre(0)))
     const fromCentre = minus(here, centre(1))
-    const radius = nearMoon ? MOON.radiusKm : EARTH.radiusKm
+    // The Moon's heights from the landing site's radius, as Apollo's documents give them.
+    const radius = nearMoon ? LANDING_SITE_RADIUS_KM : EARTH.radiusKm
     return { velocity, up: unit(fromCentre), altitudeKm: Math.hypot(...fromCentre) - radius, body: nearMoon ? 'moon' : 'earth' }
   }
 
@@ -110,6 +112,17 @@ export class Apollo11Scene {
     const turned = vec3.transformMat4(vec3.create(), this.siteFixed, moonAxes(this.julianDay()))
     const moon = this.moonKm()
     return [moon[0] + turned[0], moon[1] + turned[1], moon[2] + turned[2]]
+  }
+
+  // Where Eagle stands, in the Moon's own frame (km; also before the landing), and the Moon's own
+  // axes in the scene now.
+  siteMoonFrameKm(): vec3 | null {
+    this.siteFixed ??= this.moonFixed()
+    return this.siteFixed
+  }
+
+  moonAxesNow(): mat4 {
+    return moonAxes(this.julianDay())
   }
 
   // Straight up from the Moon at a point (km, from the origin).

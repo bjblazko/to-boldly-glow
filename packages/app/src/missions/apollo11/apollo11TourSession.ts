@@ -17,7 +17,8 @@ import { Apollo11CraftRenderer } from './apollo11CraftRenderer'
 import { Apollo11Scene, KM_PER_UNIT, type Craft } from './apollo11Scene'
 import { APOLLO11_STATIONS } from './apollo11Stations'
 import { loadApollo11Trajectory } from './apollo11Trajectory'
-import { chaseShot, nearFloorUnits, type Framing } from './chaseShot'
+import { chaseShot, worldFloorUnits, type Framing } from './chaseShot'
+import type { Site } from './lunarGround'
 
 export interface Apollo11TourParts {
   camera: CameraDirector
@@ -39,6 +40,7 @@ interface Running {
 }
 
 const MAX_TOUR_RADIUS = 6000
+const SITE_RADIUS_KM = 1735.47
 // Eagle is the one to watch from the undocking to the rendezvous.
 const EAGLE_STATIONS = new Set(['undocking', 'landing', 'firstStep', 'liftoff', 'rendezvous'])
 
@@ -76,10 +78,12 @@ export class Apollo11TourSession implements ScenePlayer {
   async start(stationIndex: number | null = null): Promise<void> {
     this.stop()
     const attempt = ++this.starting
-    const [trajectory] = await Promise.all([loadApollo11Trajectory(), this.craft.load()])
+    const trajectory = await loadApollo11Trajectory()
+    const scene = new Apollo11Scene(trajectory)
+    await this.craft.load(siteOf(scene))
     if (attempt !== this.starting) return
     const clock = new Apollo11Clock(APOLLO11_STATIONS, { arrived: (index) => this.arrived(index), ended: () => this.parts.ui.ended() }, !prefersReducedMotion())
-    const running: Running = { clock, scene: new Apollo11Scene(trajectory), borrowed: this.borrow(), framing: null, rate: 0 }
+    const running: Running = { clock, scene, borrowed: this.borrow(), framing: null, rate: 0 }
     this.running = running
     this.parts.ui.open(outline(), {
       // While shuttled, Pause stops it where it is.
@@ -132,6 +136,10 @@ export class Apollo11TourSession implements ScenePlayer {
     this.craft.prepare(viewpoint, running.scene, { km: cameraKm(viewpoint), fov: this.parts.lens.fov, lensShift: this.parts.lens.lensShift })
   }
 
+  encodeBeforeScene(encoder: GPUCommandEncoder): void {
+    if (this.running) this.craft.encodeShadows(encoder)
+  }
+
   drawBehindBodies(): void {}
 
   drawInFrontOfBodies(pass: GPURenderPassEncoder): void {
@@ -144,15 +152,17 @@ export class Apollo11TourSession implements ScenePlayer {
     const craftKm = running.scene.craftKm(focus)
     const motion = running.scene.motion(focus)
     if (!craftKm || !motion) return
-    const framing = chaseShot(craftKm, motion)
+    const framing = chaseShot(craftKm, motion, running.clock.position)
     running.framing = framing
-    const look = vec3.sub(vec3.create(), framing.lookKm, framing.eyeKm)
-    const distanceUnits = vec3.length(look) / KM_PER_UNIT
-    vec3.normalize(look, look)
+    const look = vec3.normalize(vec3.create(), vec3.sub(vec3.create(), framing.lookKm, framing.eyeKm))
     const { lens, camera } = this.parts
     lens.fov = framing.fov
     lens.lensShift = besideColumnShift(globalThis.innerWidth, globalThis.innerHeight)
-    lens.setLessonZoomFloor(nearFloorUnits(distanceUnits, Math.max(0.05, motion.altitudeKm)))
+    // The orbit camera turns about a point ahead along the look, as far as its zoom floor: what it
+    // looks at is drawn in the metre pass, so the floor can follow the ground alone.
+    const floor = worldFloorUnits(groundKm(running.scene, framing.eyeKm))
+    lens.setLessonZoomFloor(floor)
+    const distanceUnits = floor * 1.01
     const eye = framing.eyeKm.map((km) => km / KM_PER_UNIT) as Vec3
     steerCamera(camera.orbit, encounterGoal({ eye, look: [look[0], look[1], look[2]], up: framing.up }, distanceUnits), { deltaSeconds: 0, cut: true })
   }
@@ -192,6 +202,22 @@ export class Apollo11TourSession implements ScenePlayer {
     camera.setInputEnabled(true)
     camera.setPickEnabled(true)
   }
+}
+
+// How far a point (km from the origin) is above the nearest ground: Earth's, or the Moon's at the
+// landing site's radius (Tranquility Base lies some 2 km below the Moon's mean radius).
+function groundKm(scene: Apollo11Scene, km: Vec3): number {
+  const [earth, moon] = [scene.earthKm(), scene.moonKm()]
+  const above = (centre: Vec3, radius: number) => Math.hypot(km[0] - centre[0], km[1] - centre[1], km[2] - centre[2]) - radius
+  return Math.min(above(earth, 6378), above(moon, SITE_RADIUS_KM))
+}
+
+// Where Eagle stood, as the ground round it is built.
+function siteOf(scene: Apollo11Scene): Site {
+  const site = scene.siteMoonFrameKm()
+  if (!site) return { latitude: 0.67416, longitude: 23.47314, radiusKm: 1735.47 }
+  const radiusKm = Math.hypot(site[0], site[1], site[2])
+  return { latitude: (Math.asin(site[2] / radiusKm) * 180) / Math.PI, longitude: (Math.atan2(site[1], site[0]) * 180) / Math.PI, radiusKm }
 }
 
 // The eye's place relative to the scene's origin (km): the viewpoint's, in scene units.
