@@ -43,5 +43,7 @@ export function chaseShot(craftKm: Vec3, motion: Motion, seconds = 0): Framing {
 // the world's near plane (4% of the floor, see camera/viewpoint.ts) then lies a third of the way
 // there - as far out as it can, for the depth buffer's sake (the craft have a pass of their own).
 export function worldFloorUnits(groundKm: number): number {
-  return (Math.max(0.001, groundKm) / 1000) * 7.5
+  // Never under a few hundred metres: the ground close by is the metre pass's, and a near plane too
+  // close would push the stars against the far end of the depth buffer.
+  return (Math.max(2, groundKm) / 1000) * 7.5
 }

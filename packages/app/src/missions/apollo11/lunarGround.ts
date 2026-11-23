@@ -42,7 +42,8 @@ export function lunarGround(site: Site, texture = 'moon.jpg'): ModelData {
   for (let ring = 0; ring < RINGS; ring++) {
     for (let k = 0; k < SEGMENTS; k++) {
       const [a, b] = [ring * (SEGMENTS + 1) + k, (ring + 1) * (SEGMENTS + 1) + k]
-      indices.push(a, b, a + 1, a + 1, b, b + 1)
+      // Wound so their front faces up (the shader turns a back face's normal round).
+      indices.push(a, a + 1, b, a + 1, b + 1, b)
     }
   }
   const extent = site.radiusKm * 1000 * REACH_RADIANS
