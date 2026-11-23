@@ -55,7 +55,9 @@ fn vs(@builtin(vertex_index) vertexIndex: u32, @builtin(instance_index) instance
 
 @fragment
 fn fs(in: VertexOutput) -> @location(0) vec4f {
-  let falloff = exp(-dot(in.corner, in.corner) * 4.0);
+  // A soft spot that reaches zero at the quad's rim: no square edge however bright it is.
+  let r = length(in.corner);
+  let falloff = exp(-r * r * 4.0) * (1.0 - smoothstep(0.55, 1.0, r));
   return vec4f(in.light * falloff, 0.0);
 }
 `
