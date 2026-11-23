@@ -10,7 +10,7 @@ const DEG = 180 / Math.PI
 
 // Latitude and longitude (degrees) of a direction from the Moon's centre, in its own frame.
 function selenographic(direction: number[], julianDay: number): { lat: number; lon: number } {
-  const inverse = mat4.invert(mat4.create(), moonAxes(julianDay))
+  const inverse = mat4.invert(mat4.create(), moonAxes(julianDay))!
   const [x, y, z] = vec3.transformMat4(vec3.create(), vec3.normalize(vec3.create(), direction), inverse)
   return { lat: Math.asin(z) * DEG, lon: Math.atan2(y, x) * DEG }
 }
