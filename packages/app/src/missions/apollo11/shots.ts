@@ -49,6 +49,8 @@ export interface ShotContext {
   otherTurn: mat4 | null
   siteKm: Vec3 | null
   siteUp: Vec3 | null
+  // The ground's height (m over the site's level) a way east and north of the site, if known.
+  groundAt?: (east: number, north: number) => number | null
 }
 
 const DEG = Math.PI / 180
@@ -116,7 +118,8 @@ const FRAMINGS: { [K in ShotSpec['kind']]: (spec: Extract<ShotSpec, { kind: K }>
     if (!c.siteKm || !c.siteUp) return FRAMINGS.orbit({ kind: 'orbit', lens: spec.lens, distance: 60, azimuth: 30, elevation: 10 }, c)
     const east = unit(cross([0, 0, 1], c.siteUp))
     const north = unit(cross(c.siteUp, east))
-    const eye = add(add(add(c.siteKm, east, spec.east / 1000), north, spec.north / 1000), c.siteUp, spec.height / 1000)
+    const standing = spec.height + (c.groundAt?.(spec.east, spec.north) ?? 0)
+    const eye = add(add(add(c.siteKm, east, spec.east / 1000), north, spec.north / 1000), c.siteUp, standing / 1000)
     return at(eye, aim(c), c.siteUp, spec.lens)
   },
   watch: (spec, c) => {

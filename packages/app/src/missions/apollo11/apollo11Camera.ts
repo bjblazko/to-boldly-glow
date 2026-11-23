@@ -38,12 +38,13 @@ export interface ShotMemory {
   up: Vec3
 }
 
-export function tourCamera(scene: Apollo11Scene, at: { stationId: string; stationSeconds: number; get: number }, memory: { shot: ShotMemory | null }): TourCamera | null {
+export function tourCamera(scene: Apollo11Scene, at: { stationId: string; stationSeconds: number; get: number }, memory: { shot: ShotMemory | null; groundAt?: ShotContext['groundAt'] }): TourCamera | null {
   const running = shotAt(at.stationId, at.stationSeconds, at.get)
   const subject: Craft = running.shot.subject ?? STATION_SHOTS[at.stationId].focus
   scene.setMoment(at.get, subject)
-  const context = shotContext(scene, subject, running.seconds)
-  if (!context) return null
+  const found = shotContext(scene, subject, running.seconds)
+  if (!found) return null
+  const context = { ...found, groundAt: memory.groundAt }
   if (memory.shot?.key !== running.key) memory.shot = { key: running.key, velocity: context.velocity, up: context.up }
   // In orbit the camera goes round with it, as the craft does (the ground stays put below); on the
   // way between Earth and the Moon it keeps the directions the shot started with.

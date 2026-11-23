@@ -92,7 +92,7 @@ export const STATION_SHOTS: Record<string, StationShots> = {
   },
   firstStep: {
     focus: 'eagle',
-    shots: [shot(ground('wide', 40, 25, 1.6), 8), shot(detail('normal', LM_LADDER, [12, 180, 5]), 7), shot(ground('ultraWide', 12, -8, 1.2), 7), shot(ground('tele', -260, 140, 1.7), 7)],
+    shots: [shot(ground('wide', 40, 25, 1.6), 8), shot(detail('normal', LM_LADDER, [12, 180, 5]), 7), shot(ground('ultraWide', 12, -8, 1.2), 7), shot(ground('tele', -260, 140, 12), 7)],
   },
   columbiaAlone: {
     focus: 'columbia',

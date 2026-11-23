@@ -34,3 +34,14 @@ describe("the ground's triangles", () => {
     expect(n[0] * up[0] + n[1] * up[1] + n[2] * up[2]).toBeGreaterThan(0)
   })
 })
+
+describe('the cap over the terrain', () => {
+  it('leaves out its cells over the terrain, keeps the rest', () => {
+    const site = { latitude: 0.67416, longitude: 23.47314, radiusKm: 1735.47 }
+    const whole = lunarGround(site)
+    const holed = lunarGround(site, 'moon.jpg', { latitude: 0.674, longitude: 23.442, radius: 1950 })
+    expect(holed.indices.length).toBeLessThan(whole.indices.length)
+    // The rings crowd round the site: most cells are near it, but the outer ones stay.
+    expect(holed.indices.length).toBeGreaterThan(whole.indices.length * 0.3)
+  })
+})

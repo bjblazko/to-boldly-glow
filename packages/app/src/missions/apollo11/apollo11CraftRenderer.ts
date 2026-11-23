@@ -15,6 +15,8 @@ import { eagleAttitude } from './craftAttitude'
 import { craftTurns } from './craftTurns'
 import { craftViewpoint, squeezedProjection, sunlit } from './craftPass'
 import { lunarGround, type Site } from './lunarGround'
+import { terrainHeight, tileCircle, tranquilityTerrain } from './tranquilityTerrain'
+import { flattenOnto, groundAt, heightOver, heightOverPlane, loadTerrain, TERRAIN_FILES, type Ground } from './siteGround'
 import { EnginePlumes, type Plume } from './enginePlume'
 import { burnsAt, NOZZLES } from './engineBurns'
 import { bounceFrom, EARTH_LIGHT, MOON_LIGHT, SPACE_FILL, type BodyLight } from './spaceLight'
@@ -27,8 +29,6 @@ const MODELS: Record<ActorModel, VehicleModel> = { saturnV: SATURN_V.models[0], 
 const NO_HIGHLIGHT = { assembly: -1, strength: 0 }
 const SUN_STRENGTH = 1.15
 const GROUND_MATERIAL = { shininess: 4, shine: 0.02 }
-// The ground is drawn while the camera is within this of the site (km).
-const GROUND_KM = 200
 
 interface SceneLight {
   toSun: Vec3
@@ -60,6 +60,15 @@ interface Placed {
 export class Apollo11CraftRenderer {
   private loaded: Record<Slot, LoadedModel> | null = null
   private plumes: EnginePlumes | null = null
+  // Tranquility Base's terrain (drawn with the ground, casting its own shadows).
+  private terrain: LoadedModel | null = null
+  private terrainShown = false
+  // The terrain's height round the site (for cameras standing on it), once loaded.
+  groundHeight: ((east: number, north: number) => number | null) | null = null
+  // Eagle and the descent stage once more, laid flat along the sunlight onto the ground: their
+  // shadows (the terrain's own shadow map holds only its own).
+  private shadows: [ModelRenderer, ModelRenderer] | null = null
+  private shadowsShown: number[] = []
   private plumesShown = false
   private shown: Slot[] = []
 
@@ -74,8 +83,15 @@ export class Apollo11CraftRenderer {
       return { model: data.description, data, renderer: await ModelRenderer.create(this.models, data, MODELS[model].url, { shadows: true }) }
     }
     const [saturnV, csm, lm, eagle, siteStage] = await Promise.all([own('saturnV'), own('csm'), own('lm'), own('lm'), own('lm')])
-    const groundData = lunarGround(site)
+    const tile = await loadTerrain()
+    const groundData = lunarGround(site, 'moon.jpg', tile ? tileCircle(tile.tile) : undefined)
     const ground = { model: groundData.description, data: groundData, renderer: await ModelRenderer.create(this.models, groundData, 'textures') }
+    if (tile) {
+      const terrainData = tranquilityTerrain(tile.tile, tile.raw, site)
+      this.terrain = { model: terrainData.description, data: terrainData, renderer: await ModelRenderer.create(this.models, terrainData, TERRAIN_FILES, { shadows: true }) }
+      this.groundHeight = terrainHeight(tile.tile, tile.raw, site)
+    }
+    this.shadows = [await ModelRenderer.create(this.models, lm.data, MODELS.lm.url), await ModelRenderer.create(this.models, lm.data, MODELS.lm.url)]
     this.plumes = await EnginePlumes.create(this.models.device, this.models.format)
     this.loaded = { saturnV, csm, lm, eagle, site: siteStage, ground }
   }
@@ -84,24 +100,37 @@ export class Apollo11CraftRenderer {
   encodeShadows(encoder: GPUCommandEncoder): void {
     if (!this.loaded) return
     for (const slot of this.shown) this.loaded[slot].renderer.encodeShadow(encoder)
+    if (this.terrainShown) this.terrain?.renderer.encodeShadow(encoder)
   }
 
   // `camera.km`: the camera relative to the scene's origin.
   prepare(world: Viewpoint, scene: Apollo11Scene, camera: { km: Vec3; fov: number; lensShift: { x: number; y: number } }): void {
     this.shown = []
+    this.terrainShown = false
     if (!this.loaded) return
     const items = placed(scene, craftAt(scene.get), camera.km)
     const ground = groundAt(scene, camera.km)
     const planes = metrePlanes(items.map((item) => this.sphereOf(item)), ground ? heightOver(ground) : null)
-    const projection = squeezedProjection({ fov: camera.fov, aspect: world.pixels.width / Math.max(1, world.pixels.height), ...planes, lensShift: camera.lensShift })
-    const viewpoint = craftViewpoint(world, projection)
-    const plumes = plumesAt(scene, camera.km)
-    this.plumes?.update(viewpoint, plumes)
-    this.plumesShown = plumes.length > 0
-    const lamps = plumes.map(plumeLamp)
-    const light = { toSun: scene.toSun, lamps, shadows: [{ centreKm: scene.earthKm(), radiusKm: 6378 }, { centreKm: scene.moonKm(), radiusKm: 1737.4 }], bodies: [{ ...EARTH_LIGHT, centreKm: scene.earthKm() }, { ...MOON_LIGHT, centreKm: scene.moonKm() }] }
+    const viewpoint = craftViewpoint(world, squeezedProjection({ fov: camera.fov, aspect: world.pixels.width / Math.max(1, world.pixels.height), ...planes, lensShift: camera.lensShift }))
+    const light = this.preparePlumes(viewpoint, scene, camera.km)
     for (const item of items) this.prepareOne(viewpoint, item, light, camera.km)
     if (ground) this.prepareGround(viewpoint, ground.world, scene.toSun)
+    this.prepareShadows(viewpoint, items, ground, scene.toSun)
+  }
+
+  // The burning engines' plumes, and the light on the craft: the Sun (and the bodies in its way),
+  // the light the bodies throw back, the engines' own.
+  private preparePlumes(viewpoint: Viewpoint, scene: Apollo11Scene, cameraKm: Vec3): SceneLight {
+    const plumes = plumesAt(scene, cameraKm)
+    this.plumes?.update(viewpoint, plumes)
+    this.plumesShown = plumes.length > 0
+    const [earthKm, moonKm] = [scene.earthKm(), scene.moonKm()]
+    return {
+      toSun: scene.toSun,
+      lamps: plumes.map(plumeLamp),
+      shadows: [{ centreKm: earthKm, radiusKm: 6378 }, { centreKm: moonKm, radiusKm: 1737.4 }],
+      bodies: [{ ...EARTH_LIGHT, centreKm: earthKm }, { ...MOON_LIGHT, centreKm: moonKm }],
+    }
   }
 
   // An item's bounds as a sphere, camera-relative (metres).
@@ -135,15 +164,42 @@ export class Apollo11CraftRenderer {
     this.shown.push(slot)
   }
 
+  // Eagle's and the descent stage's shadows on the ground round the site: each drawn black, flattened
+  // along the sunlight onto the site's level (a hair above it) - while near it and the Sun is up.
+  private prepareShadows(viewpoint: Viewpoint, items: Placed[], ground: Ground | null, toSun: Vec3): void {
+    this.shadowsShown = []
+    if (!ground || !this.shadows) return
+    const onGround = items.filter((item) => (item.slot === 'eagle' || item.slot === 'site') && Math.abs(heightOverPlane(item.world, ground)) < 300)
+    onGround.slice(0, 2).forEach((item, i) => {
+      const flatten = flattenOnto(ground, toSun)
+      if (!flatten) return
+      const { model } = this.loaded![item.slot]
+      const world = mat4.multiply(mat4.create(), flatten, mat4.multiply(mat4.create(), item.world, actorMatrix(item.actor)))
+      const hinges = model.assemblies.map((assembly) => hingeMatrix(assembly.hinge, item.actor.fold))
+      this.shadows![i].update(viewpoint, { world, toSun, explode: item.actor.explode, highlight: NO_HIGHLIGHT, cut: 0, visibility: model.assemblies.map((assembly) => item.actor.visibility[assembly.id] ?? 1), light: { sun: 0, fill: 0 }, hinges }, model.assemblies.map((assembly) => assembly.explode))
+      this.shadowsShown.push(i)
+    })
+  }
+
   private prepareGround(viewpoint: Viewpoint, world: mat4, toSun: Vec3): void {
-    const { renderer } = this.loaded!.ground
-    renderer.update(viewpoint, { world, toSun, explode: 0, highlight: NO_HIGHLIGHT, cut: 0, light: { sun: SUN_STRENGTH, fill: SPACE_FILL }, materials: [GROUND_MATERIAL], space: { bounce: null } }, [[0, 0, 0]])
+    const pose = { world, toSun, explode: 0, highlight: NO_HIGHLIGHT, cut: 0, light: { sun: SUN_STRENGTH, fill: SPACE_FILL }, materials: [GROUND_MATERIAL] }
+    this.loaded!.ground.renderer.update(viewpoint, pose, [[0, 0, 0]])
     this.shown.push('ground')
+    // The terrain in space light: the Sun's shadows in its craters.
+    this.terrain?.renderer.update(viewpoint, { ...pose, space: { bounce: null } }, [[0, 0, 0]])
+    this.terrainShown = this.terrain !== null
+  }
+
+  // The terrain and the shadows on it.
+  private drawGroundExtras(pass: GPURenderPassEncoder): void {
+    if (this.terrainShown) this.terrain?.renderer.draw(pass)
+    for (const i of this.shadowsShown) this.shadows?.[i].draw(pass)
   }
 
   draw(pass: GPURenderPassEncoder): void {
     if (!this.loaded) return
     for (const slot of this.shown) this.loaded[slot].renderer.draw(pass)
+    this.drawGroundExtras(pass)
     if (this.plumesShown) this.plumes?.draw(pass)
   }
 }
@@ -164,16 +220,6 @@ function placed(scene: Apollo11Scene, cast: CraftCast, cameraKm: Vec3): Placed[]
   const eagle = cast.eagle && turns.eagle ? frameAt(scene, 'eagle', cameraKm, turns.eagle) : null
   if (cast.eagle && eagle) out.push({ slot: 'eagle', actor: cast.eagle.pose, world: eagle })
   return out.concat(siteStage(scene, cast, cameraKm))
-}
-
-// How high the camera is over the ground's level (m): the site seen from the camera, along up.
-function heightOver({ world, up }: Ground): number {
-  return Math.abs(world[12] * up[0] + world[13] * up[1] + world[14] * up[2])
-}
-
-interface Ground {
-  world: mat4
-  up: Vec3
 }
 
 // The engines burning now, in camera-relative metres: each nozzle on its craft as that is placed
@@ -198,19 +244,6 @@ const PLUME_LAMP = 260
 function plumeLamp(plume: Plume): Lamp {
   const place: Vec3 = [0, 1, 2].map((k) => plume.exit[k] + plume.way[k] * plume.radius * 1.5) as Vec3
   return { place, reach: 80, color: plume.color.map((c) => c * PLUME_LAMP * plume.strength) as Vec3 }
-}
-
-// The ground round the site (in the Moon's axes, camera-relative metres), while the camera is near.
-function groundAt(scene: Apollo11Scene, cameraKm: Vec3): Ground | null {
-  const site = scene.siteMoonFrameKm()
-  if (!site) return null
-  const axes = scene.moonAxesNow()
-  const moon = scene.moonKm()
-  const turned = vec3.transformMat4(vec3.create(), site, axes)
-  const siteKm: Vec3 = [moon[0] + turned[0], moon[1] + turned[1], moon[2] + turned[2]]
-  if (Math.hypot(siteKm[0] - cameraKm[0], siteKm[1] - cameraKm[1], siteKm[2] - cameraKm[2]) > GROUND_KM) return null
-  const m = mat4.fromTranslation(mat4.create(), [(siteKm[0] - cameraKm[0]) * 1000, (siteKm[1] - cameraKm[1]) * 1000, (siteKm[2] - cameraKm[2]) * 1000])
-  return { world: mat4.multiply(m, m, axes), up: scene.moonUpAt(siteKm) }
 }
 
 // The descent stage stands where Eagle landed, upright on the ground.

@@ -27,25 +27,47 @@ function point(site: Site, angle: number, bearing: number): { position: number[]
   return { position: [r * Math.cos(lat) * Math.cos(lon), r * Math.cos(lat) * Math.sin(lon), r * Math.sin(lat)], lat, lon }
 }
 
-export function lunarGround(site: Site, texture = 'moon.jpg'): ModelData {
+type Hole = { latitude: number; longitude: number; radius: number }
+
+// The ring's angle from the site (radians): crowded near it, out to the cap's reach.
+const ringAngle = (ring: number) => (ring === 0 ? 0 : INNERMOST_RADIANS * (REACH_RADIANS / INNERMOST_RADIANS) ** ((ring - 1) / (RINGS - 1)))
+
+// The cap's points (position from the site, normal, uv, assembly) and which fall in the hole.
+function capVertices(site: Site, hole?: Hole): { vertices: number[]; inside: boolean[] } {
   const centre = point(site, 0, 0).position
+  const holeDirection = hole ? point({ latitude: hole.latitude, longitude: hole.longitude, radiusKm: 0.001 }, 0, 0).position : null
   const vertices: number[] = []
-  const indices: number[] = []
+  const inside: boolean[] = []
   for (let ring = 0; ring <= RINGS; ring++) {
-    const angle = ring === 0 ? 0 : INNERMOST_RADIANS * (REACH_RADIANS / INNERMOST_RADIANS) ** ((ring - 1) / (RINGS - 1))
     for (let k = 0; k <= SEGMENTS; k++) {
-      const { position, lat, lon } = point(site, angle, (k / SEGMENTS) * 2 * Math.PI)
+      const { position, lat, lon } = point(site, ringAngle(ring), (k / SEGMENTS) * 2 * Math.PI)
       const length = Math.hypot(position[0], position[1], position[2])
       vertices.push(position[0] - centre[0], position[1] - centre[1], position[2] - centre[2], position[0] / length, position[1] / length, position[2] / length, 0.5 + lon / (2 * Math.PI), 0.5 - lat / Math.PI, 0)
+      const cosine = holeDirection ? (position[0] * holeDirection[0] + position[1] * holeDirection[1] + position[2] * holeDirection[2]) / length : -1
+      inside.push(hole !== undefined && length * Math.acos(Math.min(1, cosine)) < hole.radius)
     }
   }
+  return { vertices, inside }
+}
+
+// Wound so their front faces up (the shader turns a back face's normal round); a cell with any
+// corner over the terrain left out.
+function capIndices(inside: boolean[]): number[] {
+  const indices: number[] = []
   for (let ring = 0; ring < RINGS; ring++) {
     for (let k = 0; k < SEGMENTS; k++) {
       const [a, b] = [ring * (SEGMENTS + 1) + k, (ring + 1) * (SEGMENTS + 1) + k]
-      // Wound so their front faces up (the shader turns a back face's normal round).
+      if (inside[a] || inside[a + 1] || inside[b] || inside[b + 1]) continue
       indices.push(a, a + 1, b, a + 1, b + 1, b)
     }
   }
+  return indices
+}
+
+// `hole`: where the terrain lies - the cap leaves out what falls within it (its middle and radius, m).
+export function lunarGround(site: Site, texture = 'moon.jpg', hole?: Hole): ModelData {
+  const { vertices, inside } = capVertices(site, hole)
+  const indices = capIndices(inside)
   const extent = site.radiusKm * 1000 * REACH_RADIANS
   return {
     description: {

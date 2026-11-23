@@ -40,6 +40,8 @@ interface Running {
   rate: number
   // The running shot's directions, kept for as long as it runs.
   shot: ShotMemory | null
+  // The ground's height at Tranquility Base, for cameras standing on it (once its terrain is in).
+  groundAt?: (east: number, north: number) => number | null
 }
 
 const MAX_TOUR_RADIUS = 6000
@@ -128,6 +130,7 @@ export class Apollo11TourSession implements ScenePlayer {
     const running = this.running
     if (!running) return
     const moment = advance(running, deltaSeconds)
+    running.groundAt = this.craft.groundHeight ?? undefined
     const station = APOLLO11_STATIONS[moment.stationIndex]
     const camera = tourCamera(running.scene, { stationId: station.id, stationSeconds: running.clock.position - STATION_STARTS[moment.stationIndex], get: moment.get }, running)
     const focus: Craft = camera?.subject ?? 'columbia'

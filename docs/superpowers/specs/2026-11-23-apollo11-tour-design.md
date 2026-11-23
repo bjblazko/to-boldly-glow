@@ -125,3 +125,15 @@ director picks from them so that neighbouring shots differ in distance and lens.
 
 The shots within each station, exact lengths, the speed-up curves, camera positions searched for
 the backgrounds, which cockpit parts can move.
+
+## Tranquility Base's terrain in the tour (2026-11-23)
+
+- The LROC tile (4 km, heights every 4 m, the photo at 2 m; `public/data/apollo11/terrain/`) as a
+  grid every 8 m, curved with the Moon, in the metre pass, the Sun casting its own shadows in its
+  craters; the ground cap round it (the Moon's map) left out over it, the tile running out to the
+  cap's level at a circle round its middle.
+- Heights are set so the site lies where the trajectory has Eagle stand (the terrain model has it
+  27 m lower; to be reconciled when the descent is fitted to the terrain).
+- Eagle's and the descent stage's shadows: drawn flattened along the sunlight onto the site's
+  level (the terrain's shadow map holds only its own shadows).
+- Ground cameras stand on the terrain (its height sampled at their place).
