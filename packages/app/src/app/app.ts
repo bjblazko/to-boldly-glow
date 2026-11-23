@@ -62,6 +62,7 @@ import { loadNarrationManifest, type NarrationManifest } from '../narration/narr
 import { voiceSignals, VoiceStatus } from '../narration/voiceStatus'
 import { MusicEngine } from '../music/musicEngine'
 import { LessonNarration } from '../narration/lessonNarration'
+import { AddressBar } from './addressBar'
 import { AudioClipPlayer } from '../narration/audioClipPlayer'
 import { OriginalAudioCaption } from '../narration/originalAudioCaption'
 import { bindMusicSettings } from '../music/musicSettings'
@@ -154,8 +155,12 @@ function createLessons(explorer: ReturnType<typeof createExplorer>, gpu: LessonG
   missions.activeChanged.push((active) => bar.set('mission', active))
   const cameraInput = { setEnabled: (on: boolean) => camera.setInputEnabled(on), setPickEnabled: (on: boolean) => camera.setPickEnabled(on) }
   const progress = new LessonProgress()
+  const address = new AddressBar()
+  explorer.tourStopChanged.push((stop) => address.show(stop ? { kind: 'tour', id: 'grand', part: stop } : null))
+  missions.session.setPlace((probe, station) => address.show(station ? { kind: 'tour', id: probe, part: station } : null))
   const session: LessonSession = new LessonSession(
     {
+      place: (lesson, chapter) => address.show(lesson ? { kind: 'lesson', id: lesson, part: chapter } : null),
       modeController: new LearnModeController(document.body, cameraInput, dock, (active) => bar.set('lesson', active)),
       camera,
       lessonCamera: new LessonCamera(camera.orbit, lens, canvas),

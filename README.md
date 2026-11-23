@@ -245,6 +245,9 @@ To run it from the source instead, or to work on it:
   through the chapters (the chapter counter lists them all to jump to), and the text card folds
   down to its title. Look around a scene as in Orbit - all the way round the Voyager probe and its
   record - and **Reset view** returns to the lesson's own.
+- **Links** — every lesson and tour can be linked straight into, down to the chapter or station
+  (`#lesson/apollo11/landing`, `#tour/voyager1/jupiter`, `#tour/grand/saturn`): the address bar
+  always holds the link to where you are.
 - **Things to look for** — fly behind Earth (or the Moon) until it covers the Sun: the exposure
   opens up and the Sun's corona appears in full, with its streamers and the red prominences at the
   limb. Earth's night side shows its city lights, and the aurora glows around both poles — best seen

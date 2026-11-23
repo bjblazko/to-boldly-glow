@@ -36,6 +36,8 @@ export interface LessonSessionParts {
   voice: LessonVoice
   // Shows how to turn, move and zoom the view (the first lesson opened shows it).
   showControls(): void
+  // Hears which lesson and chapter are shown (null: none, the lesson ended): the address bar's link.
+  place?(lessonId: string | null, chapterId: string | null): void
 }
 
 // Reads the lesson out: each chapter as it is shown, and a new order of the planets.
@@ -286,11 +288,13 @@ export class LessonSession implements ScenePlayer {
       this.borrowed = null
     }
     panel.visible = false
+    this.parts.place?.(null, null)
   }
 
   private showChapter(): void {
     this.parts.panel.show(this.player, this.sorting?.id)
     this.parts.progress.record(this.player.currentLesson, this.player.currentChapterIndex, this.sorting?.id)
+    this.parts.place?.(this.player.currentLesson.id, this.chapter.id)
     this.autoplay.chapterShown(this.parts.voice.seconds(this.player.currentLesson.id, this.chapter))
     const next = this.player.currentLesson.chapters[this.player.currentChapterIndex + 1]
     if (next) this.parts.voice.prefetch(this.player.currentLesson.id, next)

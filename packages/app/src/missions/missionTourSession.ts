@@ -56,6 +56,8 @@ function prefersReducedMotion(): boolean {
 export class MissionTourSession implements ScenePlayer {
   private running: Running | null = null
   private starting = 0
+  // Hears which station the tour is at (null: none, it ended): the address bar's link.
+  private place: (probe: VoyagerProbeId, stationId: string | null) => void = () => {}
 
   constructor(private readonly parts: MissionTourParts) {}
 
@@ -63,7 +65,12 @@ export class MissionTourSession implements ScenePlayer {
     return this.running !== null
   }
 
-  async start(probe: VoyagerProbeId): Promise<void> {
+  setPlace(place: (probe: VoyagerProbeId, stationId: string | null) => void): void {
+    this.place = place
+  }
+
+  // `stationIndex`: where to start (a link into the tour); its first station without one.
+  async start(probe: VoyagerProbeId, stationIndex: number | null = null): Promise<void> {
     this.stop()
     const attempt = ++this.starting
     const assets = await loadVoyagerAssets(this.parts.gpu.models)
@@ -81,6 +88,7 @@ export class MissionTourSession implements ScenePlayer {
     })
     this.parts.activeChanged(true)
     player.start()
+    if (stationIndex !== null && stationIndex > 0) player.jumpTo(stationIndex)
   }
 
   stop(): void {
@@ -90,6 +98,7 @@ export class MissionTourSession implements ScenePlayer {
     this.running = null
     this.parts.narration.stop()
     this.parts.ui.close()
+    this.place(running.mission.probe, null)
     this.parts.labels.hideAll()
     this.giveBack(running.borrowed)
     this.parts.activeChanged(false)
@@ -162,6 +171,7 @@ export class MissionTourSession implements ScenePlayer {
     if (!running) return
     this.parts.narration.say(missionClipId(running.mission.probe, running.mission.stations[index].id))
     this.parts.ui.showStation(index)
+    this.place(running.mission.probe, running.mission.stations[index].id)
   }
 
   // The camera follows the probe on the route and rides with it at a flyby; a cut into or out of a

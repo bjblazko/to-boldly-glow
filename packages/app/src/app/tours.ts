@@ -33,7 +33,8 @@ export function createMissionTours(explorer: Explorer, gpu: { device: GPUDevice;
 }
 
 export interface Tours {
-  start: (tour: TourId) => void
+  // `partIndex`: a stop or station to start at (a link into the tour).
+  start: (tour: TourId, partIndex?: number | null) => void
   // Ends whichever tour flies.
   stopAll: () => void
 }
@@ -44,11 +45,11 @@ export function createTours(explorer: Explorer, { learnUi, missions }: { learnUi
     explorer.camera.stopTour()
     missions.session.stop()
   }
-  const start = (tour: TourId) => {
+  const start = (tour: TourId, partIndex: number | null = null) => {
     learnUi.explore()
     stopAll()
-    if (tour === 'grand') explorer.startNarratedTour()
-    else void missions.session.start(tour)
+    if (tour === 'grand') explorer.startNarratedTour(partIndex)
+    else void missions.session.start(tour, partIndex)
   }
   return { start, stopAll }
 }
