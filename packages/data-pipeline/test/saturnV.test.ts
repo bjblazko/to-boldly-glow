@@ -133,3 +133,18 @@ describe('the block letters', () => {
     expect(() => letterPath('Q')).toThrow()
   })
 })
+
+describe("the third stage as it flew on alone", () => {
+  const heights = (assembly: 'sivb' | 'sii') => saturnVParts().get(assembly)!.flatMap((p) => [...p.positions].filter((_, i) => i % 3 === 1))
+  const siiTop = HEIGHTS.siiTop
+
+  it('leaves its conical interstage on the S-II: the S-IVB starts at the separation plane, its engine below', () => {
+    expect(Math.min(...heights('sivb'))).toBeGreaterThan(siiTop + 4.8)
+    expect(Math.max(...heights('sii'))).toBeCloseTo(siiTop + SIVB_INTERSTAGE, 3)
+  })
+
+  it('is closed at its aft end: the thrust structure meets the J-2 at its top', () => {
+    const lowest = Math.min(...heights('sivb'))
+    expect(lowest).toBeLessThan(siiTop + 5.0)
+  })
+})

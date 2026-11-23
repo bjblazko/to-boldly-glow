@@ -90,9 +90,13 @@ from the Mission Report / Apollo Flight Journal state vectors, the real Moon, ev
    Sun of 20 July 1969; on the ground the descent stage left behind, the flag and experiments, the
    crew's paths and two plain suited figures. Source only NASA's PDS archive (public domain per
    LROC's terms; credit NASA/GSFC/Arizona State University, Henriksen et al. 2017).
-10. Launch and ascent (exhaust, staging), pad 39A and the ground scene.
+10. Launch and ascent (exhaust, staging), pad 39A and the ground scene. Wanted (the owner,
+    2026-11-23): the S-II's interstage ring dropping away some 30 s after the second stage lit,
+    as the onboard film shows it (looking aft past the J-2s, Earth below).
 11. The full "Apollo 11" tour: the whole mission at true scale on the reconstructed path, with the
     vehicles, the original audio and the photos.
+**Later**: more of the Saturn V's inside (the tanks' ribs, the thrust structures), wanted by the
+owner 2026-11-23.
 **Risks**: depth precision for metres beside Earth and Moon (a metre pass, as in the Voyager
 encounters), interior light and shadow (the model shader has none), download size (load per
 lesson), rights of every photo and audio clip (`huepattl-legal-check` before shipping).
