@@ -64,6 +64,9 @@ const DOCKED_LM = pose('lm', { translation: [0, DOCKED_LM_Y, 0], rotation: { x: 
 
 function earthToMoon(get: number): CraftCast {
   const cast = posesAt('transposition', along(TRANSPOSITION, get))
+  // Inside the adapter Eagle is not seen - and NASSP's Eagle is a little too wide for our adapter
+  // (its folded legs would poke through): it shows once the panels have gone.
+  if ((cast[0].visibility.sla ?? 1) > 0.5) return { columbia: [cast[0], cast[2]], eagle: null, site: null }
   if (get < EXTRACTED) return { columbia: cast, eagle: null, site: null }
   const [sivb, lm, csm] = cast
   if (get >= SIVB_GONE) return { columbia: [lm, csm], eagle: null, site: null }

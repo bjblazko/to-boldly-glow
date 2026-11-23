@@ -133,7 +133,9 @@ export class Apollo11TourSession implements ScenePlayer {
   updateOverlays(_layout: SceneLayout, viewpoint: Viewpoint): void {
     const running = this.running
     if (!running?.framing) return
-    this.craft.prepare(viewpoint, running.scene, { km: cameraKm(viewpoint), fov: this.parts.lens.fov, lensShift: this.parts.lens.lensShift })
+    // The eye as the shot placed it, in double precision - read back from the view matrix (float32,
+    // turning about a point far ahead) it would shake by metres.
+    this.craft.prepare(viewpoint, running.scene, { km: running.framing.eyeKm, fov: this.parts.lens.fov, lensShift: this.parts.lens.lensShift })
   }
 
   encodeBeforeScene(encoder: GPUCommandEncoder): void {
@@ -218,12 +220,6 @@ function siteOf(scene: Apollo11Scene): Site {
   if (!site) return { latitude: 0.67416, longitude: 23.47314, radiusKm: 1735.47 }
   const radiusKm = Math.hypot(site[0], site[1], site[2])
   return { latitude: (Math.asin(site[2] / radiusKm) * 180) / Math.PI, longitude: (Math.atan2(site[1], site[0]) * 180) / Math.PI, radiusKm }
-}
-
-// The eye's place relative to the scene's origin (km): the viewpoint's, in scene units.
-function cameraKm(viewpoint: Viewpoint): Vec3 {
-  const p = viewpoint.position
-  return [p[0] * KM_PER_UNIT, p[1] * KM_PER_UNIT, p[2] * KM_PER_UNIT]
 }
 
 // The tour as the jog and shuttle drive it: shuttling holds the tour's own play, letting go leaves

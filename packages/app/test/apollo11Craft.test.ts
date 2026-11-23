@@ -7,7 +7,7 @@ const models = (time: string) => at(time).columbia.map((actor) => actor.model)
 
 describe("the craft along Apollo 11's mission", () => {
   it('flies as the whole stack in Earth orbit, the third stage under Columbia', () => {
-    expect(models('001:00:00')).toEqual(['saturnV', 'lm', 'csm'])
+    expect(models('001:00:00')).toEqual(['saturnV', 'csm'])
     expect(at('001:00:00').eagle).toBeNull()
   })
 
