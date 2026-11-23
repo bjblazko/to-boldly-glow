@@ -1,16 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { readFileSync } from 'node:fs'
 import { APOLLO11_ORIGINAL, APOLLO11_STATIONS } from '../src/missions/apollo11/apollo11Stations'
-import { apollo11Trajectory } from '../src/missions/apollo11/apollo11Trajectory'
+import { realApollo11Trajectory } from './support/apollo11Files'
 import { getSeconds } from '../src/missions/apollo11/apollo11Events'
 import { parseDeepLink, resolveDeepLink } from '../src/app/deepLink'
 import AUDIO from '../src/learn/lessons/apollo11Audio.json'
 
-const file = (name: string) => {
-  const bytes = readFileSync(new URL(`../public/data/apollo11/${name}.bin`, import.meta.url))
-  return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)
-}
-const trajectory = apollo11Trajectory({ translunar: file('translunar'), lunar: file('lunar'), eagle: file('eagle'), transearth: file('transearth'), moon: file('moon') })
+const trajectory = realApollo11Trajectory()
 const inWindow = (id: string, time: string) => APOLLO11_STATIONS.find((s) => s.id === id)!.realTime!.some((w) => w.from <= getSeconds(time) && getSeconds(time) <= w.to)
 
 describe("the Apollo 11 tour's stations", () => {
