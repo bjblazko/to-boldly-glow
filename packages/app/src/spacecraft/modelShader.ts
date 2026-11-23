@@ -166,27 +166,35 @@ fn bounceLight(normal: vec3f) -> vec3f {
 }
 
 // Lunar ground's fine detail, invented (the terrain model has a point every few metres): a height
-// field of noise at three sizes plus scattered rocks, its slope tilting the normal - a bump map with
-// no texture - and the albedo mottled, the rocks a little brighter. It fades out with distance (m),
-// before it would shimmer.
-fn groundHeight(p: vec3f) -> f32 {
-  let rocks = smoothstep(0.74, 0.9, noise3(p * 0.9)) * 0.9 + smoothstep(0.8, 0.95, noise3(p * 3.1 + 17.0)) * 0.25;
-  return noise3(p * 0.08) * 1.6 + noise3(p * 0.45) * 0.45 + noise3(p * 2.2) * 0.1 + rocks;
+// field of noise at several sizes plus scattered rocks, its slope tilting the normal - a bump map
+// with no texture - the albedo mottled, the rocks a little brighter, and a grain of centimetre
+// speckles. Each size fades out once a pixel covers more than a share of it (footprint: the
+// ground a pixel covers, m), so nothing shimmers in the distance.
+fn octave(footprint: f32, wavelength: f32) -> f32 {
+  return 1.0 - smoothstep(0.12 * wavelength, 0.4 * wavelength, footprint);
 }
 
-fn regolith(p: vec3f, normal: vec3f, distance: f32) -> vec4f {
-  let fade = 1.0 - smoothstep(60.0, 900.0, distance);
-  if (fade <= 0.0) { return vec4f(normal, 1.0); }
-  let e = 0.06;
+fn groundHeight(p: vec3f, footprint: f32) -> f32 {
+  let rocks = smoothstep(0.74, 0.9, noise3(p * 0.9)) * 0.9 * octave(footprint, 1.1)
+    + smoothstep(0.8, 0.95, noise3(p * 3.1 + 17.0)) * 0.25 * octave(footprint, 0.32);
+  let pebbles = smoothstep(0.7, 0.95, noise3(p * 9.0 + 3.0)) * 0.06 * octave(footprint, 0.11);
+  return noise3(p * 0.08) * 1.6 + noise3(p * 0.45) * 0.45 * octave(footprint, 2.2)
+    + noise3(p * 2.2) * 0.1 * octave(footprint, 0.45) + rocks + pebbles;
+}
+
+fn regolith(p: vec3f, normal: vec3f, footprint: f32) -> vec4f {
+  let e = max(0.02, footprint * 0.5);
   let gradient = vec3f(
-    groundHeight(p + vec3f(e, 0.0, 0.0)) - groundHeight(p - vec3f(e, 0.0, 0.0)),
-    groundHeight(p + vec3f(0.0, e, 0.0)) - groundHeight(p - vec3f(0.0, e, 0.0)),
-    groundHeight(p + vec3f(0.0, 0.0, e)) - groundHeight(p - vec3f(0.0, 0.0, e))) / (2.0 * e);
+    groundHeight(p + vec3f(e, 0.0, 0.0), footprint) - groundHeight(p - vec3f(e, 0.0, 0.0), footprint),
+    groundHeight(p + vec3f(0.0, e, 0.0), footprint) - groundHeight(p - vec3f(0.0, e, 0.0), footprint),
+    groundHeight(p + vec3f(0.0, 0.0, e), footprint) - groundHeight(p - vec3f(0.0, 0.0, e), footprint)) / (2.0 * e);
   let along = gradient - dot(gradient, normal) * normal;
-  let bumped = normalize(normal - along * 0.35 * fade);
-  let rock = smoothstep(0.74, 0.9, noise3(p * 0.9));
-  let mottle = 0.82 + 0.3 * noise3(p * 0.03) + 0.12 * noise3(p * 0.6);
-  return vec4f(bumped, mix(1.0, mottle + rock * 0.25, fade));
+  let bumped = normalize(normal - along * 0.35);
+  let rock = smoothstep(0.74, 0.9, noise3(p * 0.9)) * octave(footprint, 1.1);
+  let mottle = 0.82 + 0.3 * noise3(p * 0.03) + 0.12 * noise3(p * 0.6) * octave(footprint, 1.7);
+  // The grain: cells of a few centimetres, each a little lighter or darker.
+  let grain = (hash3(floor(p * 28.0)) - 0.5) * 0.35 * octave(footprint, 0.036) + (hash3(floor(p * 9.0) + 5.0) - 0.5) * 0.2 * octave(footprint, 0.11);
+  return vec4f(bumped, mottle + rock * 0.25 + grain);
 }
 
 // What a mirror sees in space: black, and the body near by as a disc of its light.
@@ -243,8 +251,11 @@ fn fs(in: VertexOutput, @builtin(front_facing) frontFacing: bool) -> @location(0
   let toCamera = normalize(uni.cameraPosition.xyz - in.worldPosition);
   var normal = normalize(in.normal);
   if (!frontFacing) { normal = -normal; }
+  // The ground a pixel covers here (m), for the regolith's detail (taken out of any branch: derivatives
+  // need every pixel of a quad).
+  let footprint = length(fwidth(in.local));
   if (uni.space.w > 0.5) {
-    let ground = regolith(in.local, normal, length(uni.cameraPosition.xyz - in.worldPosition));
+    let ground = regolith(in.local, normal, footprint);
     normal = ground.xyz;
     albedo *= ground.w;
   }
