@@ -29,7 +29,8 @@
     "fetch-apollo11-audio": "tsx src/fetchApollo11Audio.ts",
     "fetch-launcher-photos": "tsx src/fetchLauncherPhotos.ts",
     "fetch-apollo11-photos": "tsx src/fetchApollo11Photos.ts",
-    "fetch-columbia-photos": "tsx src/fetchColumbiaPhotos.ts"
+    "fetch-columbia-photos": "tsx src/fetchColumbiaPhotos.ts",
+    "build-tranquility": "tsx src/buildTranquility.ts"
   },
   "devDependencies": {
     "@gltf-transform/core": "^4.5.1",
@@ -37,6 +38,7 @@
     "@gltf-transform/functions": "^4.5.1",
     "@types/node": "^24.0.0",
     "draco3dgltf": "^1.5.9",
+    "geotiff": "^3.0.5",
     "meshoptimizer": "^1.3.0",
     "sharp": "^0.35.5",
     "tsx": "^4.23.15",

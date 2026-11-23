@@ -24,6 +24,7 @@ export const credits = {
     goldenRecord: 'The Golden Record’s cover and record (photos)',
     voyagerPhotos: 'The photos in the Voyager lessons and tours, taken by the probes (and of the launches)',
     grail: 'Columbia’s lunar orbits are computed in it (the field itself is not included)',
+    lrocTranquility: 'Tranquility Base’s ground: its heights and its photo, the photo’s own shadows evened out',
     horizons: 'The Voyagers’ trajectories, speeds and planet flybys',
     spdf: 'The Voyagers’ measurements at the heliopause, 2012 and 2018',
     saturnVModel: 'The Saturn V’s dimensions and figures, from which its model and the lesson’s numbers are made',

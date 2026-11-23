@@ -207,6 +207,13 @@ export const CREDIT_GROUPS: CreditGroup[] = [
         files: ['data/apollo11/lunar.bin', 'data/apollo11/eagle.bin'],
       },
       {
+        name: 'NASA/GSFC/Arizona State University, LROC NAC terrain model and orthophoto of the Apollo 11 site (NAC_DTM_APOLLO11; Henriksen et al. 2017, NASA Planetary Data System)',
+        use: TEXT.uses.lrocTranquility,
+        license: TEXT.licenses.publicDomain,
+        home: 'https://pds.lroc.im-ldi.com/data/LRO-L-LROC-5-RDR-V1.0/LROLRC_2001/DATA/SDP/NAC_DTM/APOLLO11/',
+        files: ['data/apollo11/terrain/tranquility-heights.bin', 'data/apollo11/terrain/tranquility-albedo.jpg', 'data/apollo11/terrain/tranquility.json'],
+      },
+      {
         name: 'NASA Space Physics Data Facility, Voyager 1 and 2 merged data (CRS, MAG)',
         use: TEXT.uses.spdf,
         license: TEXT.licenses.publicDomain,

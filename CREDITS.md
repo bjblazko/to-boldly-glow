@@ -366,6 +366,16 @@ https://pds-geosciences.wustl.edu/grail/grail-l-lgrs-5-rdr-v1/grail_1001/shadr/,
 degree 60, with the Moon's orientation from the IAU WGCCRE report (Archinal et al. 2018); the field
 itself is not shipped.
 
+Tranquility Base's terrain (`packages/app/public/data/apollo11/terrain/`) is made from LROC's NAC
+terrain model of the Apollo 11 landing site and its orthophoto (NAC M150361817), product
+NAC_DTM_APOLLO11 v1.9 of the NASA Planetary Data System's LRO-L-LROC-5-RDR-V1.0 archive
+(https://pds.lroc.im-ldi.com/data/LRO-L-LROC-5-RDR-V1.0/LROLRC_2001/DATA/SDP/NAC_DTM/APOLLO11/),
+public domain per LROC's terms for data from the PDS archive; credit NASA/GSFC/Arizona State
+University. Method: Henriksen et al., "Extracting accurate and precise topography from LROC narrow
+angle camera stereo observations", Icarus 283 (2017). Cropped, its heights halved to 4 m, its
+stereo seams evened, and the photo's own shadows divided out by
+`packages/data-pipeline/src/buildTranquility.ts`.
+
 ## Tonemapping
 
 The tonemapping (`packages/app/src/bloom/tonemapWgsl.ts`) follows Troy Sobotka's AgX view

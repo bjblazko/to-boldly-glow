@@ -1,0 +1,74 @@
+{
+  "source": "LROC NAC DTM and orthophoto (NAC M150361817) of the Apollo 11 site: NASA PDS LRO-L-LROC-5-RDR-V1.0, NAC_DTM_APOLLO11 v1.9, public domain; NASA/GSFC/Arizona State University",
+  "bounds": {
+    "north": 0.7413428821540676,
+    "south": 0.6070569294791849,
+    "west": 23.37524421716563,
+    "east": 23.509550625357008
+  },
+  "referenceRadiusKm": 1735.5,
+  "heights": {
+    "file": "tranquility-heights.bin",
+    "width": 1018,
+    "height": 1018,
+    "spacingMetres": 4.0000000000012,
+    "offset": -66.13571166992188,
+    "scale": 0.001588152274756571,
+    "format": "uint16 little-endian; metres = offset + value × scale"
+  },
+  "albedo": {
+    "file": "tranquility-albedo.jpg",
+    "width": 2036,
+    "height": 2036,
+    "spacingMetres": 2.0000000000006
+  },
+  "site": {
+    "latitude": 0.67416,
+    "longitude": 23.47314,
+    "albedo": {
+      "x": 1483.538003360387,
+      "y": 1018.1050390307591
+    },
+    "heights": {
+      "x": 741.7690016801935,
+      "y": 509.0525195153796
+    },
+    "heightMetres": -27.081787109375
+  },
+  "seams": [
+    {
+      "column": 928,
+      "step": -0.017
+    },
+    {
+      "column": 929,
+      "step": -0.037
+    },
+    {
+      "column": 930,
+      "step": -0.054
+    },
+    {
+      "column": 931,
+      "step": -0.058
+    },
+    {
+      "column": 932,
+      "step": -0.051
+    },
+    {
+      "column": 933,
+      "step": -0.03
+    },
+    {
+      "column": 934,
+      "step": -0.008
+    }
+  ],
+  "photoSun": {
+    "east": -0.8350320942936961,
+    "north": 0.0064014202636029855,
+    "up": 0.5501639967483265,
+    "incidenceDegrees": 56.62173544202875
+  }
+}
