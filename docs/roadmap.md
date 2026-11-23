@@ -78,6 +78,18 @@ from the Mission Report / Apollo Flight Journal state vectors, the real Moon, ev
    `superpowers/specs/2026-11-22-apollo11-lunar-orbit-design.md`), Tranquility Base's terrain from the LRO NAC DTM, the descent (P63/P64/P66, 1202 alarm,
    fuel), the ascent and rendezvous.
 9. Camera language for the tour (cuts, tracking, onboard and tower cameras, auto direction).
+   Decided 2026-11-23: some 20-30 minutes to watch (the key moments in real time, the long coasts
+   sped up); within a phase the camera stays on the real path with time sped up, between phases a
+   cut behind a fade with the mission time shown; the tour cuts between inside and outside itself,
+   with a switch for outside only / inside only / auto; the first version starts in Earth orbit and
+   runs to splashdown, the launch (step 10) is put in front of it later. Foundation built: the
+   trajectory files to the millisecond, the app's loader for Columbia, Eagle and the Moon at any
+   mission time.
+   Tranquility Base's terrain, decided 2026-11-23: the LRO NAC DTM (2 m) and orthophoto around the
+   site, fading into the global Moon outside; the photo's own shadows evened out and lit by the
+   Sun of 20 July 1969; on the ground the descent stage left behind, the flag and experiments, the
+   crew's paths and two plain suited figures. Source only NASA's PDS archive (public domain per
+   LROC's terms; credit NASA/GSFC/Arizona State University, Henriksen et al. 2017).
 10. Launch and ascent (exhaust, staging), pad 39A and the ground scene.
 11. The full "Apollo 11" tour: the whole mission at true scale on the reconstructed path, with the
     vehicles, the original audio and the photos.
