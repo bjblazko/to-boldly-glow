@@ -13,10 +13,10 @@ describe("the craft's attitudes", () => {
     expect(nose(columbiaAttitude(k('135:25:00')))[0]).toBeCloseTo(1, 3)
   })
 
-  it('rolls slowly across the ecliptic on the coast (passive thermal control)', () => {
-    const [a, b] = [columbiaAttitude(k('030:00:00')), columbiaAttitude(k('030:00:10'))]
+  it('holds still against the stars between the burns, across the ecliptic', () => {
+    const [a, b] = [columbiaAttitude(k('030:00:00')), columbiaAttitude(k('060:00:00', { velocity: [0, 1, 0] }))]
     expect(nose(a)[2]).toBeCloseTo(1, 3)
-    expect(Math.acos(Math.min(1, a[0] * b[0] + a[1] * b[1] + a[2] * b[2])) * (180 / Math.PI)).toBeCloseTo(3, 0)
+    expect([...a]).toEqual([...b])
   })
 
   it('changes attitude smoothly, never in one frame', () => {

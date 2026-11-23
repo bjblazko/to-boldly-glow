@@ -5,13 +5,12 @@ import type { Vec3 } from '../../math/tuples'
 // rotation from the model's frame to the scene's (ecliptic). The burns as flown: TLI and TEI
 // forward, LOI and DOI braking (the engine forward), Eagle's descent engine-first until it pitches
 // up near the ground, upright on it, the ascent climbing off upward and tipping forward. Between
-// burns the attitudes are plausible, not documented (APPROX): forward in orbit, the passive thermal
-// control roll on the coasts (the long axis across the ecliptic, about 0.3 degrees a second),
-// Eagle's roof to Columbia for the rendezvous. Changes of attitude take two minutes.
+// burns the attitudes are plausible, not documented (APPROX): held still against the stars, the
+// long axis across the ecliptic (the passive thermal control attitude), Eagle's roof to Columbia
+// for the rendezvous. Changes of attitude take two minutes.
 
 const T = (hours: number, minutes: number, seconds = 0) => hours * 3600 + minutes * 60 + seconds
 const TURN_SECONDS = 120
-const PTC_DEGREES_PER_SECOND = 0.3
 const NORTH: Vec3 = [0, 0, 1]
 
 export interface Kinematics {
@@ -41,19 +40,20 @@ function pointing(axis: ArrayLike<number>, toward: ArrayLike<number>): quat {
 
 const forward: Rule = (k) => pointing(k.velocity, k.up)
 const backward: Rule = (k) => pointing(vec3.negate(vec3.create(), k.velocity), k.up)
-const ptc: Rule = (k) => {
-  const base = pointing(NORTH, [1, 0, 0])
-  return quat.multiply(quat.create(), base, quat.setAxisAngle(quat.create(), [0, 1, 0], ((PTC_DEGREES_PER_SECOND * k.get) % 360) * (Math.PI / 180)))
-}
+// Held still against the stars, the long axis across the ecliptic: the thermal-control attitude
+// without its slow roll (0.3 degrees a second, which the tour's sped-up time would turn into a
+// spin), and between the burns in orbit too (APPROX) - so a sped-up orbit does not whirl the craft.
+const held: Rule = () => pointing(NORTH, [1, 0, 0])
 
 // Columbia: (from GET, rule).
 const COLUMBIA: [number, Rule][] = [
-  [0, forward],
-  [T(5, 0), ptc],
+  [0, held],
+  [T(2, 40), forward],
+  [T(5, 0), held],
   [T(75, 41), backward],
-  [T(76, 0), forward],
+  [T(76, 0), held],
   [T(135, 13), forward],
-  [T(136, 0), ptc],
+  [T(136, 0), held],
   [T(194, 30), forward],
 ]
 

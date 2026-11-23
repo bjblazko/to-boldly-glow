@@ -17,7 +17,8 @@ import { Apollo11CraftRenderer } from './apollo11CraftRenderer'
 import { Apollo11Scene, KM_PER_UNIT, type Craft } from './apollo11Scene'
 import { APOLLO11_STATIONS } from './apollo11Stations'
 import { loadApollo11Trajectory } from './apollo11Trajectory'
-import { chaseShot, worldFloorUnits, type Framing } from './chaseShot'
+import { worldFloorUnits, type Framing } from './chaseShot'
+import { tourCamera, type ShotMemory } from './apollo11Camera'
 import type { Site } from './lunarGround'
 
 export interface Apollo11TourParts {
@@ -37,12 +38,21 @@ interface Running {
   framing: Framing | null
   // The jog and shuttle's speed (0: the tour plays as it does).
   rate: number
+  // The running shot's directions, kept for as long as it runs.
+  shot: ShotMemory | null
 }
 
 const MAX_TOUR_RADIUS = 6000
 const SITE_RADIUS_KM = 1735.47
-// Eagle is the one to watch from the undocking to the rendezvous.
-const EAGLE_STATIONS = new Set(['undocking', 'landing', 'firstStep', 'liftoff', 'rendezvous'])
+// The clock on by a frame: shuttled at its speed, or playing as it does.
+function advance(running: Running, deltaSeconds: number): ClockMoment {
+  if (running.rate === 0) return running.clock.update(deltaSeconds)
+  running.clock.seek(running.clock.position + deltaSeconds * running.rate)
+  return running.clock.moment
+}
+
+// Where each station starts in the whole tour (s).
+const STATION_STARTS = APOLLO11_STATIONS.map((_, i) => APOLLO11_STATIONS.slice(0, i).reduce((sum, station) => sum + station.seconds, 0))
 
 function prefersReducedMotion(): boolean {
   return globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
@@ -83,7 +93,7 @@ export class Apollo11TourSession implements ScenePlayer {
     await this.craft.load(siteOf(scene))
     if (attempt !== this.starting) return
     const clock = new Apollo11Clock(APOLLO11_STATIONS, { arrived: (index) => this.arrived(index), ended: () => this.parts.ui.ended() }, !prefersReducedMotion())
-    const running: Running = { clock, scene, borrowed: this.borrow(), framing: null, rate: 0 }
+    const running: Running = { clock, scene, borrowed: this.borrow(), framing: null, rate: 0, shot: null }
     this.running = running
     this.parts.ui.open(outline(), {
       // While shuttled, Pause stops it where it is.
@@ -117,11 +127,11 @@ export class Apollo11TourSession implements ScenePlayer {
   update(deltaSeconds: number): void {
     const running = this.running
     if (!running) return
-    if (running.rate !== 0) running.clock.seek(running.clock.position + deltaSeconds * running.rate)
-    const moment = running.rate !== 0 ? running.clock.moment : running.clock.update(deltaSeconds)
-    const focus: Craft = EAGLE_STATIONS.has(APOLLO11_STATIONS[moment.stationIndex].id) && running.scene.craftKm('eagle') ? 'eagle' : 'columbia'
-    running.scene.setMoment(moment.get, focus)
-    this.steer(running, focus)
+    const moment = advance(running, deltaSeconds)
+    const station = APOLLO11_STATIONS[moment.stationIndex]
+    const camera = tourCamera(running.scene, { stationId: station.id, stationSeconds: running.clock.position - STATION_STARTS[moment.stationIndex], get: moment.get }, running)
+    const focus: Craft = camera?.subject ?? 'columbia'
+    if (camera) this.steer(running, camera.framing)
     this.parts.ui.update({ stationIndex: moment.stationIndex, fade: moment.fade, paused: running.rate === 0 && (moment.paused || moment.ended), travelling: false }, this.status(running, moment, focus))
     this.parts.shuttle.update()
   }
@@ -150,11 +160,7 @@ export class Apollo11TourSession implements ScenePlayer {
 
   drawOverlays(): void {}
 
-  private steer(running: Running, focus: Craft): void {
-    const craftKm = running.scene.craftKm(focus)
-    const motion = running.scene.motion(focus)
-    if (!craftKm || !motion) return
-    const framing = chaseShot(craftKm, motion, running.clock.position)
+  private steer(running: Running, framing: Framing): void {
     running.framing = framing
     const look = vec3.normalize(vec3.create(), vec3.sub(vec3.create(), framing.lookKm, framing.eyeKm))
     const { lens, camera } = this.parts

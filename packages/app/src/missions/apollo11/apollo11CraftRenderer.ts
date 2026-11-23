@@ -11,7 +11,8 @@ import { hingeMatrix } from '../../spacecraft/modelHinge'
 import { ModelRenderer, type ModelContext } from '../../spacecraft/modelRenderer'
 import type { Apollo11Scene, Craft } from './apollo11Scene'
 import { craftAt, type CraftCast } from './craftChoreography'
-import { columbiaAttitude, eagleAttitude } from './craftAttitude'
+import { eagleAttitude } from './craftAttitude'
+import { craftTurns } from './craftTurns'
 import { craftViewpoint, squeezedProjection, sunlit } from './craftPass'
 import { lunarGround, type Site } from './lunarGround'
 import { bounceFrom, EARTH_LIGHT, MOON_LIGHT, SPACE_FILL, type BodyLight } from './spaceLight'
@@ -36,11 +37,12 @@ interface SceneLight {
 // The metre pass's planes for what it draws (each as a sphere, camera-relative metres): the near one
 // halfway to the nearest hull, the far one past the farthest - so the depth buffer's steps fall
 // where the craft are; with the ground, out to its horizon.
-export function metrePlanes(spheres: { centre: Vec3; radius: number }[], ground: boolean): { near: number; far: number } {
+export function metrePlanes(spheres: { centre: Vec3; radius: number }[], groundM: number | null): { near: number; far: number } {
   const gaps = spheres.map(({ centre, radius }) => Math.hypot(...centre) - radius)
   const reach = spheres.map(({ centre, radius }) => Math.hypot(...centre) + radius)
-  const near = Math.min(20, Math.max(0.05, Math.min(Infinity, ...gaps) * 0.5))
-  return { near, far: Math.max(near * 100, ...reach.map((r) => r * 1.5), ground ? 60_000 : 0) }
+  // Halfway to the nearest hull - and with the ground drawn, well short of it.
+  const near = Math.max(0.05, Math.min(Math.min(Infinity, ...gaps) * 0.5, groundM === null ? Infinity : Math.max(0.5, groundM * 0.3)))
+  return { near, far: Math.max(near * 100, ...reach.map((r) => r * 1.5), groundM === null ? 0 : 60_000) }
 }
 
 type Slot = 'saturnV' | 'csm' | 'lm' | 'eagle' | 'site' | 'ground'
@@ -83,7 +85,7 @@ export class Apollo11CraftRenderer {
     if (!this.loaded) return
     const items = placed(scene, craftAt(scene.get), camera.km)
     const ground = groundAt(scene, camera.km)
-    const planes = metrePlanes(items.map((item) => this.sphereOf(item)), ground !== null)
+    const planes = metrePlanes(items.map((item) => this.sphereOf(item)), ground ? Math.hypot(ground[12], ground[13], ground[14]) : null)
     const projection = squeezedProjection({ fov: camera.fov, aspect: world.pixels.width / Math.max(1, world.pixels.height), ...planes, lensShift: camera.lensShift })
     const viewpoint = craftViewpoint(world, projection)
     const light = { toSun: scene.toSun, shadows: [{ centreKm: scene.earthKm(), radiusKm: 6378 }, { centreKm: scene.moonKm(), radiusKm: 1737.4 }], bodies: [{ ...EARTH_LIGHT, centreKm: scene.earthKm() }, { ...MOON_LIGHT, centreKm: scene.moonKm() }] }
@@ -142,20 +144,12 @@ function frameAt(scene: Apollo11Scene, craft: Craft, cameraKm: Vec3, turn: mat4)
 }
 
 function placed(scene: Apollo11Scene, cast: CraftCast, cameraKm: Vec3): Placed[] {
-  const motion = scene.motion('columbia')
-  const eagleMotion = scene.motion('eagle')
-  if (!motion) return []
-  const [columbiaKm, eagleKm] = [scene.craftKm('columbia'), scene.craftKm('eagle')]
-  const toward = (from: Vec3 | null, to: Vec3 | null): Vec3 | null => (from && to && Math.hypot(to[0] - from[0], to[1] - from[1], to[2] - from[2]) > 1e-6 ? [to[0] - from[0], to[1] - from[1], to[2] - from[2]] : null)
-  const columbiaTurn = columbiaAttitude({ get: scene.get, ...motion, toOther: toward(columbiaKm, eagleKm) })
-  const columbia = frameAt(scene, 'columbia', cameraKm, columbiaTurn)
+  const turns = craftTurns(scene, cast)
   const out: Placed[] = []
+  const columbia = turns.columbia ? frameAt(scene, 'columbia', cameraKm, turns.columbia) : null
   if (columbia) for (const actor of cast.columbia) out.push({ slot: actor.model, actor, world: columbia })
-  if (cast.eagle && eagleMotion) {
-    const turn = cast.eagle.frame === 'columbia' ? columbiaTurn : eagleAttitude({ get: scene.get, ...eagleMotion, toOther: toward(eagleKm, columbiaKm) })
-    const frame = frameAt(scene, 'eagle', cameraKm, turn)
-    if (frame) out.push({ slot: 'eagle', actor: cast.eagle.pose, world: frame })
-  }
+  const eagle = cast.eagle && turns.eagle ? frameAt(scene, 'eagle', cameraKm, turns.eagle) : null
+  if (cast.eagle && eagle) out.push({ slot: 'eagle', actor: cast.eagle.pose, world: eagle })
   return out.concat(siteStage(scene, cast, cameraKm))
 }
 
