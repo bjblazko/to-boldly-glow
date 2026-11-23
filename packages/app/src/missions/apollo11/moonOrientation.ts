@@ -46,6 +46,31 @@ export function moonAxes(julianDay: number): mat4 {
   return m
 }
 
+// The same in double precision (row-major 3 x 3), for turning points 1,700 km out - a float32
+// matrix would shake them by a decimetre from frame to frame.
+export function moonAxes64(julianDay: number): number[] {
+  const { alpha, delta, w } = moonRotation(julianDay)
+  const rx = (a: number) => [1, 0, 0, 0, Math.cos(a), -Math.sin(a), 0, Math.sin(a), Math.cos(a)]
+  const rz = (a: number) => [Math.cos(a), -Math.sin(a), 0, Math.sin(a), Math.cos(a), 0, 0, 0, 1]
+  return [rx(-OBLIQUITY), rz((90 + alpha) * DEG), rx((90 - delta) * DEG), rz(w * DEG)].reduce(times)
+}
+
+function times(a: number[], b: number[]): number[] {
+  return Array.from({ length: 9 }, (_, i) => {
+    const [row, column] = [Math.floor(i / 3), i % 3]
+    return a[row * 3] * b[column] + a[row * 3 + 1] * b[3 + column] + a[row * 3 + 2] * b[6 + column]
+  })
+}
+
+// A vector in the Moon's own frame into the scene's (and back).
+export function fromMoonFrame(m: number[], [x, y, z]: readonly number[]): [number, number, number] {
+  return [m[0] * x + m[1] * y + m[2] * z, m[3] * x + m[4] * y + m[5] * z, m[6] * x + m[7] * y + m[8] * z]
+}
+
+export function toMoonFrame(m: number[], [x, y, z]: readonly number[]): [number, number, number] {
+  return [m[0] * x + m[3] * y + m[6] * z, m[1] * x + m[4] * y + m[7] * z, m[2] * x + m[5] * y + m[8] * z]
+}
+
 // The tilt that puts the Moon's map where it belongs on the sphere the body renderer draws: its
 // mesh has longitude 0 on local -Y and 90° E on local +X (bodies/sphereMesh.ts), so local x is the
 // Moon's y and local y its -x.

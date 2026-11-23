@@ -1,4 +1,4 @@
-import { mat4, vec3 } from 'gl-matrix'
+import { mat4 } from 'gl-matrix'
 import type { Vec3 } from '../../math/tuples'
 import type { Apollo11Scene } from './apollo11Scene'
 import type { TerrainTile } from './tranquilityTerrain'
@@ -53,12 +53,10 @@ export async function loadTerrain(): Promise<{ tile: TerrainTile; raw: Uint16Arr
 
 // The ground round the site (in the Moon's axes, camera-relative metres), while the camera is near.
 export function groundAt(scene: Apollo11Scene, cameraKm: Vec3): Ground | null {
-  const site = scene.siteMoonFrameKm()
-  if (!site) return null
+  // The site's place in double precision; only the turn of the ground's own (small) frame in float32.
+  const siteKm = scene.siteNowKm()
+  if (!siteKm) return null
   const axes = scene.moonAxesNow()
-  const moon = scene.moonKm()
-  const turned = vec3.transformMat4(vec3.create(), site, axes)
-  const siteKm: Vec3 = [moon[0] + turned[0], moon[1] + turned[1], moon[2] + turned[2]]
   if (Math.hypot(siteKm[0] - cameraKm[0], siteKm[1] - cameraKm[1], siteKm[2] - cameraKm[2]) > GROUND_KM) return null
   const m = mat4.fromTranslation(mat4.create(), [(siteKm[0] - cameraKm[0]) * 1000, (siteKm[1] - cameraKm[1]) * 1000, (siteKm[2] - cameraKm[2]) * 1000])
   return { world: mat4.multiply(m, m, axes), up: scene.moonUpAt(siteKm) }

@@ -1,4 +1,4 @@
-import { mat4, vec3 } from 'gl-matrix'
+import { mat4 } from 'gl-matrix'
 import type { Vec3 } from '../../math/tuples'
 import { realOrientation } from '../../scene/exploreLayout'
 import type { MoonPose, PlanetPose, SceneLayout } from '../../scene/sceneLayout'
@@ -8,7 +8,7 @@ import { MOONS } from '../../solarSystem/moons'
 import { ephemerisAt, type Ephemeris } from '../../time/ephemeris'
 import { APOLLO11_RANGE_ZERO_UTC } from './apollo11Events'
 import type { Apollo11Trajectory } from './apollo11Trajectory'
-import { moonAxes, moonTilt } from './moonOrientation'
+import { fromMoonFrame, moonAxes, moonAxes64, moonTilt, toMoonFrame } from './moonOrientation'
 
 // Apollo 11's world at true scale: Earth, the Moon and the Sun where they were at a mission time,
 // 1 scene unit = 1,000 km. Everything is placed around a floating origin - the craft in view - so
@@ -44,7 +44,7 @@ const unit = (v: Vec3): Vec3 => {
 export class Apollo11Scene {
   private get_ = 0
   private originKm: Vec3 = [0, 0, 0]
-  private siteFixed: vec3 | null = null
+  private siteFixed: Vec3 | null = null
   private ephemeris: Ephemeris = ephemerisAt(new Date(APOLLO11_RANGE_ZERO_UTC))
 
   constructor(private readonly trajectory: Apollo11Trajectory) {}
@@ -114,20 +114,29 @@ export class Apollo11Scene {
     if (this.get_ < LANDED) return null
     this.siteFixed ??= this.moonFixed()
     if (!this.siteFixed) return null
-    const turned = vec3.transformMat4(vec3.create(), this.siteFixed, moonAxes(this.julianDay()))
+    const turned = fromMoonFrame(moonAxes64(this.julianDay()), this.siteFixed)
     const moon = this.moonKm()
     return [moon[0] + turned[0], moon[1] + turned[1], moon[2] + turned[2]]
   }
 
   // Where Eagle stands, in the Moon's own frame (km; also before the landing), and the Moon's own
   // axes in the scene now.
-  siteMoonFrameKm(): vec3 | null {
+  siteMoonFrameKm(): Vec3 | null {
     this.siteFixed ??= this.moonFixed()
     return this.siteFixed
   }
 
   moonAxesNow(): mat4 {
     return moonAxes(this.julianDay())
+  }
+
+  // The site relative to the origin (km), at any time - where Eagle will land, stands, stood.
+  siteNowKm(): Vec3 | null {
+    const site = this.siteMoonFrameKm()
+    if (!site) return null
+    const turned = fromMoonFrame(moonAxes64(this.julianDay()), site)
+    const moon = this.moonKm()
+    return [moon[0] + turned[0], moon[1] + turned[1], moon[2] + turned[2]]
   }
 
   // Straight up from the Moon at a point (km, from the origin).
@@ -148,12 +157,11 @@ export class Apollo11Scene {
   }
 
   // Eagle's place on the ground in the Moon's own frame (km), from just before its liftoff.
-  private moonFixed(): vec3 | null {
+  private moonFixed(): Vec3 | null {
     const [eagle, moon] = [this.trajectory.eagle(LIFTOFF - 1)?.position, this.trajectory.moon(LIFTOFF - 1)]
     if (!eagle || !moon) return null
     const julian = 2451545.0 + ephemerisAt(new Date(APOLLO11_RANGE_ZERO_UTC + (LIFTOFF - 1) * 1000)).daysSinceEpoch
-    const inverse = mat4.invert(mat4.create(), moonAxes(julian))!
-    return vec3.transformMat4(vec3.create(), minus(eagle, moon), inverse)
+    return toMoonFrame(moonAxes64(julian), minus(eagle, moon))
   }
 
   private julianDay(): number {

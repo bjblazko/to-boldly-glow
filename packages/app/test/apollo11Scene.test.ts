@@ -78,3 +78,19 @@ describe('Tranquility Base', () => {
     expect(Math.hypot(...later.map((v, i) => v - scene.moonKm()[i]))).toBeCloseTo(1735.5, 0)
   })
 })
+
+describe("the site's place", () => {
+  it('moves smoothly from frame to frame (turned in double precision, no decimetre shake)', () => {
+    const steps: number[] = []
+    let last: number[] | null = null
+    for (let i = 0; i < 6; i++) {
+      scene.setMoment(getSeconds('110:00:00') + i / 60, 'eagle')
+      const site = scene.siteNowKm()!
+      if (last) steps.push(Math.hypot(site[0] - last[0], site[1] - last[1], site[2] - last[2]) * 1000)
+      last = site
+    }
+    // Eagle stands on it: relative to Eagle (the origin) it keeps still to a few millimetres (the
+    // path's samples a minute apart), where a float32 turn shook it by some 10 cm.
+    for (const step of steps) expect(step).toBeLessThan(0.005)
+  })
+})

@@ -1,4 +1,3 @@
-import { vec3 } from 'gl-matrix'
 import type { Vec3 } from '../../math/tuples'
 import type { Apollo11Scene, Craft } from './apollo11Scene'
 import type { Framing } from './chaseShot'
@@ -76,16 +75,8 @@ function shotContext(scene: Apollo11Scene, subject: Craft, seconds: number): Sho
     toSun: scene.toSun,
     otherKm: scene.craftKm(other),
     otherTurn: turns[other],
-    siteKm: siteKm ?? groundUnder(scene, subjectKm),
+    // Before the landing the ground camera stands at the site itself (where Eagle will land).
+    siteKm: siteKm ?? scene.siteNowKm(),
     siteUp: siteKm ? scene.moonUpAt(siteKm) : scene.moonUpAt(subjectKm),
   }
-}
-
-// Before the landing the ground camera stands at the site itself (where Eagle will land).
-function groundUnder(scene: Apollo11Scene, subjectKm: Vec3): Vec3 | null {
-  const site = scene.siteMoonFrameKm()
-  if (!site) return subjectKm
-  const turned = vec3.transformMat4(vec3.create(), site, scene.moonAxesNow())
-  const moon = scene.moonKm()
-  return [moon[0] + turned[0], moon[1] + turned[1], moon[2] + turned[2]]
 }
