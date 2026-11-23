@@ -51,6 +51,8 @@ export interface ShotContext {
   siteUp: Vec3 | null
   // The ground's height (m over the site's level) a way east and north of the site, if known.
   groundAt?: (east: number, north: number) => number | null
+  // A camera beside the craft on the other side from its azimuth (decided once, at the cut).
+  flipped?: boolean
 }
 
 const DEG = Math.PI / 180
@@ -82,11 +84,17 @@ const aim = (c: ShotContext): Vec3 => modelPoint(c, c.centre)
 
 // A camera beside the craft sees it lit from the side, a little from behind - not from its dark
 // side: of the shot's azimuth and the one opposite, the one whose view has the Sun nearer to 60
-// degrees off it.
-function litDirection(c: ShotContext, azimuth: number, elevation: number): Vec3 {
-  const [a, b] = [orbitDirection(c, azimuth, elevation), orbitDirection(c, azimuth + 180, elevation)]
+// degrees off it. Decided once when the shot starts (flipShot), kept while it runs: decided every
+// frame it would jump from side to side where the two are about as good.
+export function flipShot(spec: ShotSpec, c: ShotContext): boolean {
+  if (spec.kind !== 'orbit' && spec.kind !== 'detail') return false
+  const [a, b] = [orbitDirection(c, spec.azimuth, spec.elevation), orbitDirection(c, spec.azimuth + 180, spec.elevation)]
   const off = (d: Vec3) => Math.abs(d[0] * c.toSun[0] + d[1] * c.toSun[1] + d[2] * c.toSun[2] - 0.5)
-  return off(a) <= off(b) ? a : b
+  return off(b) < off(a)
+}
+
+function litDirection(c: ShotContext, azimuth: number, elevation: number): Vec3 {
+  return orbitDirection(c, azimuth + (c.flipped ? 180 : 0), elevation)
 }
 
 const FRAMINGS: { [K in ShotSpec['kind']]: (spec: Extract<ShotSpec, { kind: K }>, c: ShotContext) => Framing } = {

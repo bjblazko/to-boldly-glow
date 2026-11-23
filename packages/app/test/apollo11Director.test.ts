@@ -1,7 +1,7 @@
 import { mat4 } from 'gl-matrix'
 import { describe, expect, it } from 'vitest'
 import { shotAt } from '../src/missions/apollo11/director'
-import { frame, lensFov, type ShotContext } from '../src/missions/apollo11/shots'
+import { flipShot, frame, lensFov, type ShotContext } from '../src/missions/apollo11/shots'
 import { STATION_SHOTS } from '../src/missions/apollo11/stationShots'
 import { APOLLO11_STATIONS } from '../src/missions/apollo11/apollo11Stations'
 
@@ -87,7 +87,8 @@ describe('light on a camera beside the craft', () => {
   it('takes the side the Sun is on', () => {
     const lit = { seconds: 0, subjectKm: [0, 0, 0], turn: mat4.create(), velocity: [1, 0, 0], up: [0, 0, 1], size: 11, centre: [0, 0, 0], earthKm: [1e5, 0, 0], moonKm: [0, 1e5, 0], toSun: [-1, 0, 0], otherKm: null, otherTurn: null, siteKm: null, siteUp: null } as ShotContext
     // Asked for from ahead (azimuth 180 = in front, the Sun behind the craft), it goes behind: sunward.
-    const f = frame({ kind: 'orbit', lens: 'normal', distance: 50, azimuth: 180, elevation: 0 }, lit)
+    const spec = { kind: 'orbit', lens: 'normal', distance: 50, azimuth: 180, elevation: 0 } as const
+    const f = frame(spec, { ...lit, flipped: flipShot(spec, lit) })
     expect(f.eyeKm[0]).toBeLessThan(0)
   })
 })

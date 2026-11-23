@@ -132,7 +132,7 @@ export class Apollo11TourSession implements ScenePlayer {
     const moment = advance(running, deltaSeconds)
     running.groundAt = this.craft.groundHeight ?? undefined
     const station = APOLLO11_STATIONS[moment.stationIndex]
-    const camera = tourCamera(running.scene, { stationId: station.id, stationSeconds: running.clock.position - STATION_STARTS[moment.stationIndex], get: moment.get }, running)
+    const camera = tourCamera(running.scene, { stationId: station.id, stationSeconds: running.clock.position - STATION_STARTS[moment.stationIndex], get: moment.get, take: moment.take, inOrbit: station.maxRate !== undefined }, running)
     const focus: Craft = camera?.subject ?? 'columbia'
     if (camera) this.steer(running, camera.framing)
     this.parts.ui.update({ stationIndex: moment.stationIndex, fade: moment.fade, paused: running.rate === 0 && (moment.paused || moment.ended), travelling: false }, this.status(running, moment, focus))

@@ -144,3 +144,19 @@ describe('scrubbing the tour', () => {
     expect(c.moment.ended).toBe(false)
   })
 })
+
+describe('a station in orbit, its time capped', () => {
+  it('plays takes at no more than its speed, cutting between them', () => {
+    const c = new Apollo11Clock([{ id: 'o', from: 0, to: 36_000, seconds: 35, maxRate: 90 }], { arrived: () => {}, ended: () => {} }, true)
+    c.start()
+    let [last, lastTake, cuts] = [c.moment.get, c.moment.take, 0]
+    for (let t = 0; t < 34.9; t += 0.05) {
+      const m = c.update(0.05)
+      if (m.take !== lastTake) cuts++
+      else expect((m.get - last) / 0.05).toBeLessThanOrEqual(90.01)
+      ;[last, lastTake] = [m.get, m.take]
+    }
+    expect(cuts).toBe(4)
+    expect(last).toBeGreaterThan(30_000)
+  })
+})

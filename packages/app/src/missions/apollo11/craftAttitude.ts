@@ -21,8 +21,8 @@ export interface Kinematics {
   // Toward the other craft, when both fly apart.
   toOther: Vec3 | null
   altitudeKm?: number
-  // The craft's velocity at another mission time (to hold a burn's attitude after it).
-  velocityAt?: (get: number) => Vec3 | null
+  // The craft's velocity and up at another mission time (to hold a burn's attitude after it).
+  motionAt?: (get: number) => { velocity: Vec3; up: Vec3 } | null
 }
 
 type Rule = (k: Kinematics) => quat
@@ -47,8 +47,10 @@ const backward: Rule = (k) => pointing(vec3.negate(vec3.create(), k.velocity), k
 // On the coasts: held still against the stars in the attitude a burn ended in (the thermal-control
 // roll left out: sped up it would be a spin).
 const holding = (get: number, sign: 1 | -1): Rule => (k) => {
-  const v = k.velocityAt?.(get) ?? k.velocity
-  return pointing([v[0] * sign, v[1] * sign, v[2] * sign], NORTH)
+  const then = k.motionAt?.(get) ?? { velocity: k.velocity, up: NORTH }
+  const v = then.velocity
+  // Rolled as it was then (as `forward` turns it), so taking up the hold turns nothing.
+  return pointing([v[0] * sign, v[1] * sign, v[2] * sign], then.up)
 }
 
 // Columbia: (from GET, rule). Every turn falls in the cut between two stations, out of sight:

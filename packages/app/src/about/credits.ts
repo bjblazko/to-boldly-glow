@@ -265,7 +265,7 @@ export const CREDIT_GROUPS: CreditGroup[] = [
         license: 'GPL-3.0-or-later',
         home: 'https://github.com/bjblazko/to-boldly-glow',
         text: 'licenses/to-boldly-glow.txt',
-        files: ['logo.svg', 'sky/milkyWay.jpg', 'licenses/'],
+        files: ['logo.svg', 'sky/milkyWay.jpg', 'licenses/', 'data/apollo11/terrain/regolith-detail.png'],
       },
     ],
   },

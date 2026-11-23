@@ -16,8 +16,8 @@ describe("the craft's attitudes", () => {
   })
 
   it('holds still on the coasts, in the attitude its burn ended in', () => {
-    const velocityAt = () => [0, 1, 0] as [number, number, number]
-    const [a, b] = [columbiaAttitude(k('030:00:00', { velocityAt })), columbiaAttitude(k('060:00:00', { velocity: [1, 0, 0], velocityAt }))]
+    const motionAt = () => ({ velocity: [0, 1, 0] as [number, number, number], up: [0, 0, 1] as [number, number, number] })
+    const [a, b] = [columbiaAttitude(k('030:00:00', { motionAt })), columbiaAttitude(k('060:00:00', { velocity: [1, 0, 0], motionAt }))]
     expect(nose(a)[1]).toBeCloseTo(1, 3)
     expect([...a]).toEqual([...b])
   })

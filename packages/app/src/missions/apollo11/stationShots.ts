@@ -106,7 +106,7 @@ export const STATION_SHOTS: Record<string, StationShots> = {
   rendezvous: {
     focus: 'eagle',
     shots: [shot(orbit('tele', [300, 40, 10]), 7), shot({ kind: 'watch', lens: 'normal', from: COLUMBIA_WINDOW }, 7), shot(orbit('wide', [40, 200, 20]), 7), shot(orbit('longTele', [1800, 120, -3]), 7), shot(orbit('normal', [70, 30, 15]), 6)],
-    pinned: [{ from: T(128, 2, 30), to: T(128, 3, 20), spec: { kind: 'watch', lens: 'normal', from: EAGLE_WINDOW }, seconds: 50, subject: 'columbia' }],
+    pinned: [{ from: T(128, 2, 30), to: T(128, 3), spec: { kind: 'watch', lens: 'normal', from: EAGLE_WINDOW }, seconds: 30, subject: 'columbia' }],
   },
   tei: {
     focus: 'columbia',

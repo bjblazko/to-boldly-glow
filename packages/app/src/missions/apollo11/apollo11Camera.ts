@@ -4,7 +4,7 @@ import type { Framing } from './chaseShot'
 import { craftAt } from './craftChoreography'
 import { craftTurns } from './craftTurns'
 import { shotAt } from './director'
-import { frame, type ShotContext } from './shots'
+import { flipShot, frame, type ShotContext, type ShotSpec } from './shots'
 import { STATION_SHOTS } from './stationShots'
 
 // The tour's camera at a moment: the director's shot for the station, framed on its craft. The
@@ -35,26 +35,43 @@ export interface ShotMemory {
   key: string
   velocity: Vec3
   up: Vec3
+  // Which side of the craft it stands on (shots.ts's flipShot), and whether it goes round with the
+  // orbit.
+  flipped: boolean
+  follows: boolean
 }
 
-export function tourCamera(scene: Apollo11Scene, at: { stationId: string; stationSeconds: number; get: number }, memory: { shot: ShotMemory | null; groundAt?: ShotContext['groundAt'] }): TourCamera | null {
-  const running = shotAt(at.stationId, at.stationSeconds, at.get)
+export function tourCamera(scene: Apollo11Scene, at: { stationId: string; stationSeconds: number; get: number; take?: number; inOrbit?: boolean }, memory: { shot: ShotMemory | null; groundAt?: ShotContext['groundAt'] }): TourCamera | null {
+  const shot = shotAt(at.stationId, at.stationSeconds, at.get)
+  // A jump in mission time between takes is a cut, as a new shot is.
+  const running = { ...shot, key: `${shot.key}/${at.take ?? 0}` }
   const subject: Craft = running.shot.subject ?? STATION_SHOTS[at.stationId].focus
   scene.setMoment(at.get, subject)
   const found = shotContext(scene, subject, running.seconds)
   if (!found) return null
   const context = { ...found, groundAt: memory.groundAt }
-  if (memory.shot?.key !== running.key) memory.shot = { key: running.key, velocity: context.velocity, up: context.up }
   // In orbit the camera goes round with it, as the craft does (the ground stays put below); on the
-  // way between Earth and the Moon it keeps the directions the shot started with.
-  const steady = inOrbit(scene, subject) ? context : { ...context, velocity: memory.shot.velocity, up: memory.shot.up }
+  // way between Earth and the Moon, and nearly at rest (on the ground, touching down), it keeps the
+  // directions the shot started with. Decided at the cut, with the side it stands on.
+  if (memory.shot?.key !== running.key) memory.shot = rememberShot(running, context, at.inOrbit === true)
+  const kept = { ...context, flipped: memory.shot.flipped }
+  const steady = memory.shot.follows ? kept : { ...kept, velocity: memory.shot.velocity, up: memory.shot.up }
   return { framing: frame(running.shot.spec, steady), shotKey: running.key, subject }
 }
 
+// What a shot keeps from its start: the directions, its side, and whether it goes round with the
+// orbit - in an orbit station, low over the body, and moving (not nearly at rest, touching down).
+function rememberShot(running: { key: string; shot: { spec: ShotSpec } }, context: ShotContext, orbitStation: boolean): ShotMemory {
+  const follows = orbitStation && Math.hypot(...context.velocity) > 0.05 && inOrbitAt(context)
+  return { key: running.key, velocity: context.velocity, up: context.up, flipped: flipShot(running.shot.spec, context), follows }
+}
+
 const ORBIT_KM = 3000
-function inOrbit(scene: Apollo11Scene, subject: Craft): boolean {
-  const motion = scene.motion(subject)
-  return motion !== null && motion.altitudeKm < ORBIT_KM
+// Whether the shot's craft is in orbit (low over its body).
+function inOrbitAt(context: ShotContext): boolean {
+  const earth = Math.hypot(...context.earthKm.map((v, k) => v - context.subjectKm[k])) - 6378
+  const moon = Math.hypot(...context.moonKm.map((v, k) => v - context.subjectKm[k])) - 1737.4
+  return Math.min(earth, moon) < ORBIT_KM
 }
 
 function shotContext(scene: Apollo11Scene, subject: Craft, seconds: number): ShotContext | null {

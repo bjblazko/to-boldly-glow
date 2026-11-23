@@ -13,6 +13,10 @@ export interface TourStation {
   // Its length in the tour (s).
   seconds: number
   realTime?: { from: number; to: number }[]
+  // In orbit: time runs at most this many times real time - sped up further, an orbit would whirl
+  // round the picture. What does not fit is jumped over: the stretch is played as takes, each at
+  // this speed, a hard cut between them.
+  maxRate?: number
 }
 
 export interface ClockMoment {
@@ -22,6 +26,8 @@ export interface ClockMoment {
   fade: number
   paused: boolean
   ended: boolean
+  // Which take of the station plays (a jump in mission time between two is a cut).
+  take: number
 }
 
 export interface ClockListener {
@@ -39,6 +45,24 @@ interface Piece {
   from: number
   to: number
   slope: number
+  // At one speed throughout (a take of a capped stretch).
+  linear?: boolean
+}
+
+// How long a take of a capped stretch runs in the tour (s).
+const TAKE_SECONDS = 7
+
+// A fast piece that would run faster than `maxRate`: takes at that speed, spread over its stretch.
+function capped(piece: Piece, maxRate: number): Piece[] {
+  const length = piece.to - piece.from
+  if (piece.slope === 1 || piece.seconds <= 0 || length / piece.seconds <= maxRate) return [piece]
+  const takes = Math.max(1, Math.round(piece.seconds / TAKE_SECONDS))
+  const seconds = piece.seconds / takes
+  const [span, covered] = [length / takes, maxRate * seconds]
+  return Array.from({ length: takes }, (_, j) => {
+    const from = piece.from + j * span + (span - covered) / 2
+    return { start: piece.start + j * seconds, seconds, from, to: from + covered, slope: seconds / covered, linear: true }
+  })
 }
 
 // The fast stretches between the windows get the tour time left, each by its share of the GET.
@@ -62,12 +86,12 @@ function pieces(station: TourStation): Piece[] {
     const piece = { start, seconds, from: span.from, to: span.to, slope: span.real || length === 0 ? 1 : seconds / length }
     start += seconds
     return piece
-  })
+  }).flatMap((piece) => (station.maxRate ? capped(piece, station.maxRate) : [piece]))
 }
 
 function getIn(piece: Piece, t: number): number {
   const s = piece.seconds > 0 ? Math.min(1, Math.max(0, (t - piece.start) / piece.seconds)) : 1
-  if (piece.slope === 1) return piece.from + s * (piece.to - piece.from)
+  if (piece.slope === 1 || piece.linear) return piece.from + s * (piece.to - piece.from)
   // Hermite from 0 to 1 with both end slopes `slope` (under 1: monotone), in units of the piece.
   const m = piece.slope
   const f = -2 * s ** 3 + 3 * s ** 2 + m * (s ** 3 - 2 * s ** 2 + s) + m * (s ** 3 - s ** 2)
@@ -139,7 +163,7 @@ export class Apollo11Clock {
   }
 
   get moment(): ClockMoment {
-    return { stationIndex: this.index, get: this.get(), fade: this.fade(), paused: this.paused, ended: this.ended }
+    return { stationIndex: this.index, get: this.get(), fade: this.fade(), paused: this.paused, ended: this.ended, take: this.take() }
   }
 
   // Forward, or backward with a negative step (it stops at the start).
@@ -169,6 +193,12 @@ export class Apollo11Clock {
     const over = this.elapsed - this.stations[this.index].seconds
     this.jumpTo(this.index + 1)
     this.elapsed = over
+  }
+
+  private take(): number {
+    const plan = this.plans[this.index]
+    const i = plan.findIndex((p) => this.elapsed < p.start + p.seconds)
+    return i < 0 ? plan.length - 1 : i
   }
 
   private get(): number {
