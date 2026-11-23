@@ -28,12 +28,12 @@ function siteAt(get: number): Vec3 {
 }
 
 // Eagle at powered descent initiation: from the undocking, through its DOI.
-export function eagleAtPdi(field: GravityField | null, insertion: Insertion = INSERTION, doiDeltaV = DOI.deltaV): State {
-  const fly = (from: State, until: number) => integrate(from, until, { step: 10, acceleration: lunarOrbitAcceleration(field) })
+export function eagleAtPdi(field: GravityField | null, insertion: Insertion = INSERTION, sample?: (state: State) => void): State {
+  const fly = (from: State, until: number) => integrate(from, until, { step: 10, acceleration: lunarOrbitAcceleration(field), sample })
   const beforeDoi = fly(atUndocking(field, insertion), DOI.get)
   const { v } = moonRelative(beforeDoi)
   const speed = Math.hypot(...v)
-  const braked = { ...beforeDoi, velocity: beforeDoi.velocity.map((value, k) => value - (v[k] / speed) * doiDeltaV) as Vec3 }
+  const braked = { ...beforeDoi, velocity: beforeDoi.velocity.map((value, k) => value - (v[k] / speed) * DOI.deltaV) as Vec3 }
   return fly(braked, PDI)
 }
 

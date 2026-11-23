@@ -4,6 +4,8 @@ import { fileURLToPath } from 'node:url'
 import { parkingOrbit } from './apollo/trajectory/apollo11Parking'
 import { inLunarOrbit, intoLunarOrbit } from './apollo/trajectory/apollo11LunarOrbit'
 import { grailField } from './apollo/trajectory/lunarGravity'
+import { eagleAtPdi } from './apollo/trajectory/apollo11LunarFit'
+import { descentAt, onSurface, poweredDescent, TOUCHDOWN } from './apollo/trajectory/apollo11Descent'
 import { coast, moonAt, tliState } from './apollo/trajectory/apollo11Translunar'
 import { backToTei, ENTRY_INTERFACE, entryInterfaceState, solveTransearthCorrection, TRANSEARTH_MIDCOURSE } from './apollo/trajectory/apollo11Transearth'
 import type { State, Vec3 } from './apollo/trajectory/propagate'
@@ -61,6 +63,18 @@ export async function apollo11InLunarOrbit(): Promise<State[]> {
   return ordered(states)
 }
 
+// Eagle on its own: from the undocking through its descent orbit and powered descent to the
+// landing, then standing on Tranquility Base (turning with the Moon) until its liftoff.
+const LUNAR_LIFTOFF = 124 * 3600 + 22 * 60 + 0.79
+export async function apollo11EagleDown(): Promise<State[]> {
+  const states: State[] = []
+  const atPdi = eagleAtPdi(await grailField(60), undefined, (state) => states.push(state))
+  const descent = poweredDescent(atPdi)
+  for (let get = atPdi.t + 1; get <= TOUCHDOWN; get += 1) states.push(descentAt(descent, get))
+  for (let get = TOUCHDOWN + 60; get <= LUNAR_LIFTOFF; get += 60) states.push(onSurface(descent, get))
+  return ordered(states)
+}
+
 // The way home, from the transearth injection to entry interface (computed backward).
 export function apollo11WayHome(): State[] {
   const states: State[] = []
@@ -90,6 +104,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const lunar = thinned(await apollo11InLunarOrbit())
   writeFileSync(join(out, 'lunar.bin'), binary(lunar))
   console.log(`lunar.bin: ${lunar.length} points`)
+  const eagle = thinned(await apollo11EagleDown())
+  writeFileSync(join(out, 'eagle.bin'), binary(eagle))
+  console.log(`eagle.bin: ${eagle.length} points`)
   const moon = Array.from({ length: Math.ceil((ENTRY_INTERFACE.get - path[0].t) / MOON_STEP) + 1 }, (_, k) => {
     const t = path[0].t + k * MOON_STEP
     return { t, position: moonAt(t) }
