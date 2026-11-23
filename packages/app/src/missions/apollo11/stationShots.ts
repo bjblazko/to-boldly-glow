@@ -32,9 +32,9 @@ const CM_NOSE: Vec3 = [0, 10.4, 0]
 const HEAT_SHIELD: Vec3 = [0, 7.2, 0]
 const SPS_BELL: Vec3 = [0, 0.6, 0]
 const SM_SIDE_EYE: Vec3 = [2.6, 1.2, 0.9]
-// In the stack (Columbia's frame) the third stage hangs below: its J-2's bell from 17 m to 12 m down.
-const SIVB_ENGINE: Vec3 = [0, -15, 0]
-const SIVB_SIDE_EYE: Vec3 = [3.9, -10, 1.3]
+// In the stack (Columbia's frame) the third stage hangs below: its J-2's bell from 24 m to 19 m down.
+const SIVB_ENGINE: Vec3 = [0, -22, 0]
+const SIVB_SIDE_EYE: Vec3 = [3.9, -17, 1.3]
 const LM_TOP: Vec3 = [0, 6.8, 0]
 const LM_LADDER: Vec3 = [0, 1.4, 4.3]
 const FOOTPAD_EYE: Vec3 = [4.6, 0.6, 4.6]

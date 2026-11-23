@@ -25,7 +25,7 @@ export interface TourCamera {
 function sizeOf(scene: Apollo11Scene, subject: Craft): { size: number; centre: Vec3 } {
   if (subject === 'eagle') return { size: 8, centre: [0, 3.5, 0] }
   const cast = craftAt(scene.get).columbia.map((actor) => actor.model)
-  if (cast.includes('saturnV')) return { size: 35, centre: [0, -7, 0] }
+  if (cast.includes('saturnV')) return { size: 35, centre: [0, -12, 0] }
   return cast.includes('lm') ? { size: 20, centre: [0, 9, 0] } : { size: 11, centre: [0, 5, 0] }
 }
 

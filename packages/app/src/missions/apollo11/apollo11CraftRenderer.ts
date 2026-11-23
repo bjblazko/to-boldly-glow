@@ -8,13 +8,15 @@ import { loadVehicleModel, type LoadedModel } from '../../learn/vehicle/vehicleA
 import type { VehicleModel } from '../../learn/vehicle/vehicleConfig'
 import type { Vec3 } from '../../math/tuples'
 import { hingeMatrix } from '../../spacecraft/modelHinge'
-import { ModelRenderer, type ModelContext } from '../../spacecraft/modelRenderer'
+import { ModelRenderer, type Lamp, type ModelContext } from '../../spacecraft/modelRenderer'
 import type { Apollo11Scene, Craft } from './apollo11Scene'
 import { craftAt, type CraftCast } from './craftChoreography'
 import { eagleAttitude } from './craftAttitude'
 import { craftTurns } from './craftTurns'
 import { craftViewpoint, squeezedProjection, sunlit } from './craftPass'
 import { lunarGround, type Site } from './lunarGround'
+import { EnginePlumes, type Plume } from './enginePlume'
+import { burnsAt, NOZZLES } from './engineBurns'
 import { bounceFrom, EARTH_LIGHT, MOON_LIGHT, SPACE_FILL, type BodyLight } from './spaceLight'
 
 // The craft on the GPU - the vehicle lessons' outside models (shared with them) - placed each frame
@@ -30,6 +32,8 @@ const GROUND_KM = 200
 
 interface SceneLight {
   toSun: Vec3
+  // The burning engines' light on the craft.
+  lamps: Lamp[]
   shadows: { centreKm: Vec3; radiusKm: number }[]
   bodies: BodyLight[]
 }
@@ -55,6 +59,8 @@ interface Placed {
 
 export class Apollo11CraftRenderer {
   private loaded: Record<Slot, LoadedModel> | null = null
+  private plumes: EnginePlumes | null = null
+  private plumesShown = false
   private shown: Slot[] = []
 
   constructor(private readonly models: ModelContext) {}
@@ -70,6 +76,7 @@ export class Apollo11CraftRenderer {
     const [saturnV, csm, lm, eagle, siteStage] = await Promise.all([own('saturnV'), own('csm'), own('lm'), own('lm'), own('lm')])
     const groundData = lunarGround(site)
     const ground = { model: groundData.description, data: groundData, renderer: await ModelRenderer.create(this.models, groundData, 'textures') }
+    this.plumes = await EnginePlumes.create(this.models.device, this.models.format)
     this.loaded = { saturnV, csm, lm, eagle, site: siteStage, ground }
   }
 
@@ -88,7 +95,11 @@ export class Apollo11CraftRenderer {
     const planes = metrePlanes(items.map((item) => this.sphereOf(item)), ground ? heightOver(ground) : null)
     const projection = squeezedProjection({ fov: camera.fov, aspect: world.pixels.width / Math.max(1, world.pixels.height), ...planes, lensShift: camera.lensShift })
     const viewpoint = craftViewpoint(world, projection)
-    const light = { toSun: scene.toSun, shadows: [{ centreKm: scene.earthKm(), radiusKm: 6378 }, { centreKm: scene.moonKm(), radiusKm: 1737.4 }], bodies: [{ ...EARTH_LIGHT, centreKm: scene.earthKm() }, { ...MOON_LIGHT, centreKm: scene.moonKm() }] }
+    const plumes = plumesAt(scene, camera.km)
+    this.plumes?.update(viewpoint, plumes)
+    this.plumesShown = plumes.length > 0
+    const lamps = plumes.map(plumeLamp)
+    const light = { toSun: scene.toSun, lamps, shadows: [{ centreKm: scene.earthKm(), radiusKm: 6378 }, { centreKm: scene.moonKm(), radiusKm: 1737.4 }], bodies: [{ ...EARTH_LIGHT, centreKm: scene.earthKm() }, { ...MOON_LIGHT, centreKm: scene.moonKm() }] }
     for (const item of items) this.prepareOne(viewpoint, item, light, camera.km)
     if (ground) this.prepareGround(viewpoint, ground.world, scene.toSun)
   }
@@ -117,6 +128,7 @@ export class Apollo11CraftRenderer {
         materials: description.assemblies.map((assembly) => config.materials?.[assembly.id]),
         hinges: description.assemblies.map((assembly) => hingeMatrix(assembly.hinge, actor.fold)),
         space: { bounce: bounceFrom(at, light.bodies, light.toSun) },
+        lamps: light.lamps,
       },
       description.assemblies.map((assembly) => assembly.explode),
     )
@@ -132,6 +144,7 @@ export class Apollo11CraftRenderer {
   draw(pass: GPURenderPassEncoder): void {
     if (!this.loaded) return
     for (const slot of this.shown) this.loaded[slot].renderer.draw(pass)
+    if (this.plumesShown) this.plumes?.draw(pass)
   }
 }
 
@@ -161,6 +174,30 @@ function heightOver({ world, up }: Ground): number {
 interface Ground {
   world: mat4
   up: Vec3
+}
+
+// The engines burning now, in camera-relative metres: each nozzle on its craft as that is placed
+// and turned (the J-2 only while the third stage is still on).
+function plumesAt(scene: Apollo11Scene, cameraKm: Vec3): Plume[] {
+  const cast = craftAt(scene.get)
+  const turns = craftTurns(scene, cast)
+  return burnsAt(scene.get).flatMap(({ engine, strength }) => {
+    const nozzle = NOZZLES[engine]
+    const turn = turns[nozzle.craft]
+    if (!turn || (engine === 'j2' && !cast.columbia.some((actor) => actor.model === 'saturnV'))) return []
+    const frame = frameAt(scene, nozzle.craft, cameraKm, turn)
+    if (!frame) return []
+    const exit = vec3.transformMat4(vec3.create(), nozzle.exit, frame)
+    const way = vec3.normalize(vec3.create(), vec3.transformMat4(vec3.create(), [0, -1, 0], turn))
+    return [{ exit: [exit[0], exit[1], exit[2]], way: [way[0], way[1], way[2]], radius: nozzle.radius, length: nozzle.length, color: nozzle.color, strength }]
+  })
+}
+
+// An engine's light on its own craft: a lamp just behind the exit, warm and strong.
+const PLUME_LAMP = 260
+function plumeLamp(plume: Plume): Lamp {
+  const place: Vec3 = [0, 1, 2].map((k) => plume.exit[k] + plume.way[k] * plume.radius * 1.5) as Vec3
+  return { place, reach: 80, color: plume.color.map((c) => c * PLUME_LAMP * plume.strength) as Vec3 }
 }
 
 // The ground round the site (in the Moon's axes, camera-relative metres), while the camera is near.

@@ -15,7 +15,8 @@ const SEPARATION = T(3, 15, 23)
 const EXTRACTED = T(4, 17, 40)
 // The third stage drops back after the extraction (its evasive manoeuvre at 4:40 took it further).
 const SIVB_DRIFT_METRES_PER_SECOND = 0.4
-const SIVB_GONE = T(5, 0)
+// It is out of the picture after the docking station (the cut to the coast).
+const SIVB_GONE = T(4, 20)
 const UNDOCKING = T(100, 12)
 const CSM_SEPARATION = T(100, 39, 52.9)
 const OWN_WAY = CSM_SEPARATION + 300
@@ -62,14 +63,23 @@ const UNDOCKING_PLAY: [number, number][] = [[T(99, 55), 0], [T(100, 5), 3.5], [U
 const ASCENT_ONLY = { ...Object.fromEntries(LM_DESCENT_PARTS.map((part) => [part, 0])), person: 0 }
 const DOCKED_LM = pose('lm', { translation: [0, DOCKED_LM_Y, 0], rotation: { x: Math.PI, y: 0 }, visibility: ASCENT_ONLY })
 
+// The close-ups pose the stack from the third stage's top; the tour's path is Columbia's: every
+// actor moved so that Columbia sits at the frame's origin (where the path has it).
+function aroundColumbia(cast: ActorPose[]): ActorPose[] {
+  const csm = cast.find((actor) => actor.model === 'csm')!
+  const [x, y, z] = csm.translation
+  return cast.map((actor) => ({ ...actor, translation: [actor.translation[0] - x, actor.translation[1] - y, actor.translation[2] - z] }))
+}
+
 function earthToMoon(get: number): CraftCast {
-  const cast = posesAt('transposition', along(TRANSPOSITION, get))
+  const cast = aroundColumbia(posesAt('transposition', along(TRANSPOSITION, get)))
   // Inside the adapter Eagle is not seen - and NASSP's Eagle is a little too wide for our adapter
   // (its folded legs would poke through): it shows once the panels have gone.
   if ((cast[0].visibility.sla ?? 1) > 0.5) return { columbia: [cast[0], cast[2]], eagle: null, site: null }
   if (get < EXTRACTED) return { columbia: cast, eagle: null, site: null }
   const [sivb, lm, csm] = cast
-  if (get >= SIVB_GONE) return { columbia: [lm, csm], eagle: null, site: null }
+  // On to the Moon docked as in lunar orbit: Columbia upright at the origin, Eagle on its nose.
+  if (get >= SIVB_GONE) return { columbia: [{ ...DOCKED_LM, visibility: { person: 0, probes: 0 }, fold: 1 }, pose('csm', {})], eagle: null, site: null }
   const drift = SIVB_DRIFT_METRES_PER_SECOND * (get - EXTRACTED)
   const away: Vec3 = [sivb.translation[0], sivb.translation[1] - drift, sivb.translation[2]]
   return { columbia: [{ ...sivb, translation: away }, lm, csm], eagle: null, site: null }
