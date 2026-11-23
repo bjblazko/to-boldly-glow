@@ -47,7 +47,8 @@ export interface ModelPose {
   hinges?: readonly Float32Array[]
   // A craft in space: the Sun casts its shadows (a model made with shadows), and the body near by
   // throws light back - toward it (world), how strongly, its colour and its apparent radius.
-  space?: { bounce: { direction: Vec3; strength: number; color: Vec3; cosRadius: number } | null }
+  // `regolith`: lunar ground, its fine detail made up in the shader.
+  space?: { bounce: { direction: Vec3; strength: number; color: Vec3; cosRadius: number } | null; regolith?: boolean }
 }
 
 // How a surface shines: how tight its highlight is and how strong; a mirror-like one (the command
@@ -280,7 +281,7 @@ function writeSpace(values: Float32Array, pose: ModelPose, shadows: boolean): vo
     return
   }
   const bounce = space.bounce ?? { direction: [0, 0, 0], strength: 0, color: [0, 0, 0], cosRadius: 1 }
-  values.set([1, bounce.cosRadius, shadows ? 1 : 0, 0], SPACE_AT)
+  values.set([1, bounce.cosRadius, shadows ? 1 : 0, space.regolith ? 1 : 0], SPACE_AT)
   values.set([...bounce.direction, bounce.strength], SPACE_AT + 4)
   values.set([...bounce.color, 1], SPACE_AT + 8)
 }

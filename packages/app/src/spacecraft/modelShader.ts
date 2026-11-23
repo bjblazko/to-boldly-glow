@@ -50,7 +50,8 @@ struct Uniforms {
   // Each assembly's fold about its hinge (see modelHinge.ts).
   hinges: array<vec4f, ${MAX_ASSEMBLIES * 3}>,
   // In space (x: 1): no room round it - a flat, faint fill, mirrors that see black space and the
-  // body near by (y: the cosine of its apparent radius); z: 1 when the shadow map is the Sun's.
+  // body near by (y: the cosine of its apparent radius); z: 1 when the shadow map is the Sun's;
+  // w: 1 for lunar ground - regolith detail made up in the shader (bumps, pebbles, rocks).
   space: vec4f,
   // Toward the body near by (world), w: how much of its light it throws back; and its colour.
   bounceDirection: vec4f,
@@ -164,6 +165,30 @@ fn bounceLight(normal: vec3f) -> vec3f {
   return uni.bounceColor.rgb * uni.bounceDirection.w * facing * facing;
 }
 
+// Lunar ground's fine detail, invented (the terrain model has a point every few metres): a height
+// field of noise at three sizes plus scattered rocks, its slope tilting the normal - a bump map with
+// no texture - and the albedo mottled, the rocks a little brighter. It fades out with distance (m),
+// before it would shimmer.
+fn groundHeight(p: vec3f) -> f32 {
+  let rocks = smoothstep(0.74, 0.9, noise3(p * 0.9)) * 0.9 + smoothstep(0.8, 0.95, noise3(p * 3.1 + 17.0)) * 0.25;
+  return noise3(p * 0.08) * 1.6 + noise3(p * 0.45) * 0.45 + noise3(p * 2.2) * 0.1 + rocks;
+}
+
+fn regolith(p: vec3f, normal: vec3f, distance: f32) -> vec4f {
+  let fade = 1.0 - smoothstep(60.0, 900.0, distance);
+  if (fade <= 0.0) { return vec4f(normal, 1.0); }
+  let e = 0.06;
+  let gradient = vec3f(
+    groundHeight(p + vec3f(e, 0.0, 0.0)) - groundHeight(p - vec3f(e, 0.0, 0.0)),
+    groundHeight(p + vec3f(0.0, e, 0.0)) - groundHeight(p - vec3f(0.0, e, 0.0)),
+    groundHeight(p + vec3f(0.0, 0.0, e)) - groundHeight(p - vec3f(0.0, 0.0, e))) / (2.0 * e);
+  let along = gradient - dot(gradient, normal) * normal;
+  let bumped = normalize(normal - along * 0.35 * fade);
+  let rock = smoothstep(0.74, 0.9, noise3(p * 0.9));
+  let mottle = 0.82 + 0.3 * noise3(p * 0.03) + 0.12 * noise3(p * 0.6);
+  return vec4f(bumped, mix(1.0, mottle + rock * 0.25, fade));
+}
+
 // What a mirror sees in space: black, and the body near by as a disc of its light.
 fn spaceSurroundings(direction: vec3f) -> vec3f {
   let onBody = smoothstep(uni.space.y - 0.01, uni.space.y + 0.01, dot(direction, uni.bounceDirection.xyz));
@@ -218,6 +243,11 @@ fn fs(in: VertexOutput, @builtin(front_facing) frontFacing: bool) -> @location(0
   let toCamera = normalize(uni.cameraPosition.xyz - in.worldPosition);
   var normal = normalize(in.normal);
   if (!frontFacing) { normal = -normal; }
+  if (uni.space.w > 0.5) {
+    let ground = regolith(in.local, normal, length(uni.cameraPosition.xyz - in.worldPosition));
+    normal = ground.xyz;
+    albedo *= ground.w;
+  }
   let toLight = normalize(uni.toLight.xyz);
   let diffuse = max(dot(normal, toLight), 0.0);
   let halfway = normalize(toLight + toCamera);

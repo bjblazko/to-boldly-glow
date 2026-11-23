@@ -22,8 +22,8 @@ describe("Tranquility Base's terrain", () => {
       const d = Math.hypot(v[i * 9], v[i * 9 + 1], v[i * 9 + 2])
       if (d < best) [best, nearest] = [d, i]
     }
-    expect(best).toBeLessThan(6)
-    expect(Math.abs(heightOf(nearest))).toBeLessThan(1)
+    expect(best).toBeLessThan(12)
+    expect(Math.abs(heightOf(nearest))).toBeLessThan(1.5)
   })
 
   it('has relief: craters some metres deep near the site', () => {

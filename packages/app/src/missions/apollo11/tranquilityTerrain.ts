@@ -1,7 +1,7 @@
 import type { ModelData } from '../../spacecraft/modelFile'
 
 // Tranquility Base's ground from LROC's terrain model (NAC_DTM_APOLLO11; the data pipeline's
-// buildTranquility cut the tile and evened out its photo's shadows): a grid every 8 m over the 4 km
+// buildTranquility cut the tile and evened out its photo's shadows): a grid every 16 m over the 4 km
 // tile, curved with the Moon, its photo (2 m) on it. In metres, in the Moon's own axes, from the site
 // - as the ground cap round it (lunarGround.ts), which shows beyond it: the tile runs out to the
 // cap's level at a circle round its middle and sinks just under the cap outside it.
@@ -17,7 +17,8 @@ export interface TerrainTile {
 }
 
 const DEG = Math.PI / 180
-const STEP = 2
+// Every 16 m: the terrain's large shapes; the fine detail is the shader's (modelShader's regolith).
+const STEP = 4
 // Where the tile runs out to the cap's level (m from its middle), and how far below the cap it sinks
 // beyond.
 const BLEND_FROM = 1500

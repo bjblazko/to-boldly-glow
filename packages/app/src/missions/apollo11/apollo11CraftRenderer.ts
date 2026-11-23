@@ -182,11 +182,11 @@ export class Apollo11CraftRenderer {
   }
 
   private prepareGround(viewpoint: Viewpoint, world: mat4, toSun: Vec3): void {
-    const pose = { world, toSun, explode: 0, highlight: NO_HIGHLIGHT, cut: 0, light: { sun: SUN_STRENGTH, fill: SPACE_FILL }, materials: [GROUND_MATERIAL] }
+    // In space light, its fine detail made up; the terrain casting the Sun's shadows in its craters.
+    const pose = { world, toSun, explode: 0, highlight: NO_HIGHLIGHT, cut: 0, light: { sun: SUN_STRENGTH, fill: SPACE_FILL }, materials: [GROUND_MATERIAL], space: { bounce: null, regolith: true } }
     this.loaded!.ground.renderer.update(viewpoint, pose, [[0, 0, 0]])
     this.shown.push('ground')
-    // The terrain in space light: the Sun's shadows in its craters.
-    this.terrain?.renderer.update(viewpoint, { ...pose, space: { bounce: null } }, [[0, 0, 0]])
+    this.terrain?.renderer.update(viewpoint, pose, [[0, 0, 0]])
     this.terrainShown = this.terrain !== null
   }
 
