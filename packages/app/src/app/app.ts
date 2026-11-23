@@ -106,10 +106,10 @@ function createPlayers(explorer: ReturnType<typeof createExplorer>, gpu: LessonG
   const soundToggle = requireElement<HTMLInputElement>('#narration-sound-toggle')
   const missions = createMissionTours(explorer, gpu, new MissionNarration(sound.narrationManifest, soundToggle, sound.voice))
   const { session: lessons, firstFrame } = createLessons(explorer, gpu, groundSky, { voice: new LessonNarration(sound.narrationManifest, soundToggle, { player: new AudioClipPlayer(sound.voice), view: new OriginalAudioCaption(requireElement) }), missions })
-  const exploring = () => !lessons.active && !missions.session.active
+  const exploring = () => !lessons.active && !missions.session.active && !missions.apollo11.active
   const now = () => ({ daysSinceEpoch: ephemerisAt(explorer.clock.getCurrentDate()).daysSinceEpoch, scaleBlend: explorer.scaleMode.blend })
   const spacecraft = new ExploreSpacecraft(gpu.models, { exploring, now })
-  return { lessons, firstFrame, players: new ScenePlayers([lessons, missions.session, spacecraft]) }
+  return { lessons, firstFrame, players: new ScenePlayers([lessons, missions.session, missions.apollo11, spacecraft]) }
 }
 
 // The scene's GPU side, its load state mirrored onto the canvas for tests to wait on.
@@ -155,9 +155,7 @@ function createLessons(explorer: ReturnType<typeof createExplorer>, gpu: LessonG
   missions.activeChanged.push((active) => bar.set('mission', active))
   const cameraInput = { setEnabled: (on: boolean) => camera.setInputEnabled(on), setPickEnabled: (on: boolean) => camera.setPickEnabled(on) }
   const progress = new LessonProgress()
-  const address = new AddressBar()
-  explorer.tourStopChanged.push((stop) => address.show(stop ? { kind: 'tour', id: 'grand', part: stop } : null))
-  missions.session.setPlace((probe, station) => address.show(station ? { kind: 'tour', id: probe, part: station } : null))
+  const address = followedByAddressBar(explorer, missions)
   const session: LessonSession = new LessonSession(
     {
       place: (lesson, chapter) => address.show(lesson ? { kind: 'lesson', id: lesson, part: chapter } : null),
@@ -179,6 +177,15 @@ function createLessons(explorer: ReturnType<typeof createExplorer>, gpu: LessonG
   const tours = createTours(explorer, { learnUi, missions })
   const { firstFrame } = createHud(explorer, { learnUi, progress, dock, tours, bar })
   return { session, firstFrame }
+}
+
+// The address bar follows the tours along (a link to where one is).
+function followedByAddressBar(explorer: ReturnType<typeof createExplorer>, missions: MissionTours): AddressBar {
+  const address = new AddressBar()
+  explorer.tourStopChanged.push((stop) => address.show(stop ? { kind: 'tour', id: 'grand', part: stop } : null))
+  missions.session.setPlace((probe, station) => address.show(station ? { kind: 'tour', id: probe, part: station } : null))
+  missions.apollo11.setPlace((station) => address.show(station ? { kind: 'tour', id: 'apollo11', part: station } : null))
+  return address
 }
 
 function createPhasesLesson(gpu: LessonGpu, groundSky: GroundSky): PhasesLesson {

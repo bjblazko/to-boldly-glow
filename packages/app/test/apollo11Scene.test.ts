@@ -54,3 +54,27 @@ describe("Apollo 11's world at true scale", () => {
     }
   })
 })
+
+describe("the craft's motion", () => {
+  it('is measured from the Moon in lunar orbit and from Earth on the way', () => {
+    scene.setMoment(getSeconds('090:00:00'), 'columbia')
+    const inOrbit = scene.motion('columbia')!
+    expect(inOrbit.body).toBe('moon')
+    expect(Math.hypot(...inOrbit.velocity)).toBeCloseTo(1.63, 1)
+    expect(inOrbit.altitudeKm).toBeGreaterThan(90)
+    expect(inOrbit.altitudeKm).toBeLessThan(130)
+    scene.setMoment(getSeconds('030:00:00'), 'columbia')
+    expect(scene.motion('columbia')!.body).toBe('earth')
+  })
+})
+
+describe('Tranquility Base', () => {
+  it('keeps the descent stage where Eagle stood, turning with the Moon', () => {
+    scene.setMoment(getSeconds('124:21:00'), 'eagle')
+    const before = scene.siteKm()!
+    expect(Math.hypot(...before)).toBeLessThan(0.01)
+    scene.setMoment(getSeconds('126:00:00'), 'columbia')
+    const later = scene.siteKm()!
+    expect(Math.hypot(...later.map((v, i) => v - scene.moonKm()[i]))).toBeCloseTo(1735.5, 0)
+  })
+})
