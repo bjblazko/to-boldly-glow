@@ -11,8 +11,10 @@ const CLOSE = new Set(['detail', 'hull', 'watch', 'ground'])
 describe("the tour's shots", () => {
   it('has shots for every station, a far one and a close one among them', () => {
     for (const station of APOLLO11_STATIONS) {
-      const kinds = STATION_SHOTS[station.id].shots.map((s) => s.spec.kind)
-      expect(kinds.some((k) => FAR.has(k)), station.id).toBe(true)
+      const specs = STATION_SHOTS[station.id].shots.map((s) => s.spec)
+      const kinds = specs.map((s) => s.kind)
+      // Far: a body behind the craft - or on the Moon's ground, a long lens from far off.
+      expect(specs.some((s) => FAR.has(s.kind) || (s.kind === 'ground' && (s.lens === 'tele' || s.lens === 'longTele'))), station.id).toBe(true)
       expect(kinds.some((k) => CLOSE.has(k)), station.id).toBe(true)
     }
   })

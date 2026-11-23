@@ -40,8 +40,8 @@ interface SceneLight {
 export function metrePlanes(spheres: { centre: Vec3; radius: number }[], groundM: number | null): { near: number; far: number } {
   const gaps = spheres.map(({ centre, radius }) => Math.hypot(...centre) - radius)
   const reach = spheres.map(({ centre, radius }) => Math.hypot(...centre) + radius)
-  // Halfway to the nearest hull - and with the ground drawn, well short of it.
-  const near = Math.max(0.05, Math.min(Math.min(Infinity, ...gaps) * 0.5, groundM === null ? Infinity : Math.max(0.5, groundM * 0.3)))
+  // Halfway to the nearest hull - and with the ground drawn, half the camera's height over it.
+  const near = Math.max(0.05, Math.min(Math.min(Infinity, ...gaps) * 0.5, groundM === null ? Infinity : Math.max(0.1, groundM * 0.5)))
   return { near, far: Math.max(near * 100, ...reach.map((r) => r * 1.5), groundM === null ? 0 : 60_000) }
 }
 
@@ -85,12 +85,12 @@ export class Apollo11CraftRenderer {
     if (!this.loaded) return
     const items = placed(scene, craftAt(scene.get), camera.km)
     const ground = groundAt(scene, camera.km)
-    const planes = metrePlanes(items.map((item) => this.sphereOf(item)), ground ? Math.hypot(ground[12], ground[13], ground[14]) : null)
+    const planes = metrePlanes(items.map((item) => this.sphereOf(item)), ground ? heightOver(ground) : null)
     const projection = squeezedProjection({ fov: camera.fov, aspect: world.pixels.width / Math.max(1, world.pixels.height), ...planes, lensShift: camera.lensShift })
     const viewpoint = craftViewpoint(world, projection)
     const light = { toSun: scene.toSun, shadows: [{ centreKm: scene.earthKm(), radiusKm: 6378 }, { centreKm: scene.moonKm(), radiusKm: 1737.4 }], bodies: [{ ...EARTH_LIGHT, centreKm: scene.earthKm() }, { ...MOON_LIGHT, centreKm: scene.moonKm() }] }
     for (const item of items) this.prepareOne(viewpoint, item, light, camera.km)
-    if (ground) this.prepareGround(viewpoint, ground, scene.toSun)
+    if (ground) this.prepareGround(viewpoint, ground.world, scene.toSun)
   }
 
   // An item's bounds as a sphere, camera-relative (metres).
@@ -153,8 +153,18 @@ function placed(scene: Apollo11Scene, cast: CraftCast, cameraKm: Vec3): Placed[]
   return out.concat(siteStage(scene, cast, cameraKm))
 }
 
+// How high the camera is over the ground's level (m): the site seen from the camera, along up.
+function heightOver({ world, up }: Ground): number {
+  return Math.abs(world[12] * up[0] + world[13] * up[1] + world[14] * up[2])
+}
+
+interface Ground {
+  world: mat4
+  up: Vec3
+}
+
 // The ground round the site (in the Moon's axes, camera-relative metres), while the camera is near.
-function groundAt(scene: Apollo11Scene, cameraKm: Vec3): mat4 | null {
+function groundAt(scene: Apollo11Scene, cameraKm: Vec3): Ground | null {
   const site = scene.siteMoonFrameKm()
   if (!site) return null
   const axes = scene.moonAxesNow()
@@ -163,7 +173,7 @@ function groundAt(scene: Apollo11Scene, cameraKm: Vec3): mat4 | null {
   const siteKm: Vec3 = [moon[0] + turned[0], moon[1] + turned[1], moon[2] + turned[2]]
   if (Math.hypot(siteKm[0] - cameraKm[0], siteKm[1] - cameraKm[1], siteKm[2] - cameraKm[2]) > GROUND_KM) return null
   const m = mat4.fromTranslation(mat4.create(), [(siteKm[0] - cameraKm[0]) * 1000, (siteKm[1] - cameraKm[1]) * 1000, (siteKm[2] - cameraKm[2]) * 1000])
-  return mat4.multiply(m, m, axes)
+  return { world: mat4.multiply(m, m, axes), up: scene.moonUpAt(siteKm) }
 }
 
 // The descent stage stands where Eagle landed, upright on the ground.
