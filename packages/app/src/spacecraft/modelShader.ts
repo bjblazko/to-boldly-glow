@@ -177,9 +177,14 @@ fn octave(footprint: f32, wavelength: f32) -> f32 {
 fn groundHeight(p: vec3f, footprint: f32) -> f32 {
   let rocks = smoothstep(0.74, 0.9, noise3(p * 0.9)) * 0.9 * octave(footprint, 1.1)
     + smoothstep(0.8, 0.95, noise3(p * 3.1 + 17.0)) * 0.25 * octave(footprint, 0.32);
-  let pebbles = smoothstep(0.7, 0.95, noise3(p * 9.0 + 3.0)) * 0.06 * octave(footprint, 0.11);
+  let pebbles = smoothstep(0.7, 0.95, noise3(p * 9.0 + 3.0)) * 0.06 * octave(footprint, 0.11)
+    + smoothstep(0.82, 0.97, noise3(p * 6.0 + 41.0)) * 0.08 * octave(footprint, 0.17);
+  // Clods: the trampled, lumpy top of the regolith - ridged noise at 25, 12 and 6 cm.
+  let clods = abs(noise3(p * 4.0 + 7.0) - 0.5) * 0.07 * octave(footprint, 0.25)
+    + abs(noise3(p * 8.0 + 11.0) - 0.5) * 0.04 * octave(footprint, 0.12)
+    + abs(noise3(p * 16.0 + 23.0) - 0.5) * 0.02 * octave(footprint, 0.06);
   return noise3(p * 0.08) * 1.6 + noise3(p * 0.45) * 0.45 * octave(footprint, 2.2)
-    + noise3(p * 2.2) * 0.1 * octave(footprint, 0.45) + rocks + pebbles;
+    + noise3(p * 2.2) * 0.1 * octave(footprint, 0.45) + rocks + pebbles + clods;
 }
 
 fn regolith(p: vec3f, normal: vec3f, footprint: f32) -> vec4f {
@@ -189,12 +194,13 @@ fn regolith(p: vec3f, normal: vec3f, footprint: f32) -> vec4f {
     groundHeight(p + vec3f(0.0, e, 0.0), footprint) - groundHeight(p - vec3f(0.0, e, 0.0), footprint),
     groundHeight(p + vec3f(0.0, 0.0, e), footprint) - groundHeight(p - vec3f(0.0, 0.0, e), footprint)) / (2.0 * e);
   let along = gradient - dot(gradient, normal) * normal;
-  let bumped = normalize(normal - along * 0.35);
+  let bumped = normalize(normal - along * 0.5);
   let rock = smoothstep(0.74, 0.9, noise3(p * 0.9)) * octave(footprint, 1.1);
-  let mottle = 0.82 + 0.3 * noise3(p * 0.03) + 0.12 * noise3(p * 0.6) * octave(footprint, 1.7);
+  // Darker than the photo's average up close, as the regolith is in the crew's pictures.
+  let mottle = 0.68 + 0.22 * noise3(p * 0.03) + 0.14 * noise3(p * 0.6) * octave(footprint, 1.7);
   // The grain: cells of a few centimetres, each a little lighter or darker.
-  let grain = (hash3(floor(p * 28.0)) - 0.5) * 0.35 * octave(footprint, 0.036) + (hash3(floor(p * 9.0) + 5.0) - 0.5) * 0.2 * octave(footprint, 0.11);
-  return vec4f(bumped, mottle + rock * 0.25 + grain);
+  let grain = (hash3(floor(p * 28.0)) - 0.5) * 0.45 * octave(footprint, 0.036) + (hash3(floor(p * 9.0) + 5.0) - 0.5) * 0.25 * octave(footprint, 0.11);
+  return vec4f(bumped, mottle + rock * 0.3 + grain);
 }
 
 // What a mirror sees in space: black, and the body near by as a disc of its light.
