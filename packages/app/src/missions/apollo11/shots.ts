@@ -78,9 +78,18 @@ function modelPoint(c: ShotContext, point: Vec3, turn = c.turn, at = c.subjectKm
 const at = (eyeKm: Vec3, lookKm: Vec3, up: Vec3, lens: Lens): Framing => ({ eyeKm, lookKm, up, fov: lensFov(lens) })
 const aim = (c: ShotContext): Vec3 => modelPoint(c, c.centre)
 
+// A camera beside the craft sees it lit from the side, a little from behind - not from its dark
+// side: of the shot's azimuth and the one opposite, the one whose view has the Sun nearer to 60
+// degrees off it.
+function litDirection(c: ShotContext, azimuth: number, elevation: number): Vec3 {
+  const [a, b] = [orbitDirection(c, azimuth, elevation), orbitDirection(c, azimuth + 180, elevation)]
+  const off = (d: Vec3) => Math.abs(d[0] * c.toSun[0] + d[1] * c.toSun[1] + d[2] * c.toSun[2] - 0.5)
+  return off(a) <= off(b) ? a : b
+}
+
 const FRAMINGS: { [K in ShotSpec['kind']]: (spec: Extract<ShotSpec, { kind: K }>, c: ShotContext) => Framing } = {
   orbit: (spec, c) => {
-    const direction = orbitDirection(c, spec.azimuth + (spec.drift ?? 0) * c.seconds, spec.elevation)
+    const direction = litDirection(c, spec.azimuth + (spec.drift ?? 0) * c.seconds, spec.elevation)
     return at(add(aim(c), direction, spec.distance / 1000), aim(c), c.up, spec.lens)
   },
   body: (spec, c) => {
@@ -101,7 +110,7 @@ const FRAMINGS: { [K in ShotSpec['kind']]: (spec: Extract<ShotSpec, { kind: K }>
   hull: (spec, c) => at(modelPoint(c, spec.eye), modelPoint(c, spec.look), c.up, spec.lens),
   detail: (spec, c) => {
     const point = modelPoint(c, spec.point)
-    return at(add(point, orbitDirection(c, spec.azimuth, spec.elevation), spec.distance / 1000), point, c.up, spec.lens)
+    return at(add(point, litDirection(c, spec.azimuth, spec.elevation), spec.distance / 1000), point, c.up, spec.lens)
   },
   ground: (spec, c) => {
     if (!c.siteKm || !c.siteUp) return FRAMINGS.orbit({ kind: 'orbit', lens: spec.lens, distance: 60, azimuth: 30, elevation: 10 }, c)

@@ -14,7 +14,8 @@ describe("the tour's shots", () => {
       const specs = STATION_SHOTS[station.id].shots.map((s) => s.spec)
       const kinds = specs.map((s) => s.kind)
       // Far: a body behind the craft - or on the Moon's ground, a long lens from far off.
-      expect(specs.some((s) => FAR.has(s.kind) || (s.kind === 'ground' && (s.lens === 'tele' || s.lens === 'longTele'))), station.id).toBe(true)
+      const far = (s: (typeof specs)[number]) => FAR.has(s.kind) || (s.kind === 'ground' && (s.lens === 'tele' || s.lens === 'longTele')) || (s.kind === 'orbit' && s.distance >= 1000)
+      expect(specs.some(far), station.id).toBe(true)
       expect(kinds.some((k) => CLOSE.has(k)), station.id).toBe(true)
     }
   })
@@ -73,5 +74,20 @@ describe('framing a shot', () => {
   it('puts a hull shot right against the hull', () => {
     const f = frame({ kind: 'hull', lens: 'ultraWide', eye: [2.6, 1.2, 0.9], look: [0, 10.4, 0] }, context)
     expect(Math.hypot(...f.eyeKm) * 1000).toBeLessThan(3.2)
+  })
+})
+
+describe('the mix of shots', () => {
+  it('has a far shot (a body behind) at most once a station', () => {
+    for (const [id, plan] of Object.entries(STATION_SHOTS)) expect(plan.shots.filter((s) => s.spec.kind === 'body').length, id).toBeLessThanOrEqual(1)
+  })
+})
+
+describe('light on a camera beside the craft', () => {
+  it('takes the side the Sun is on', () => {
+    const lit = { seconds: 0, subjectKm: [0, 0, 0], turn: mat4.create(), velocity: [1, 0, 0], up: [0, 0, 1], size: 11, centre: [0, 0, 0], earthKm: [1e5, 0, 0], moonKm: [0, 1e5, 0], toSun: [-1, 0, 0], otherKm: null, otherTurn: null, siteKm: null, siteUp: null } as ShotContext
+    // Asked for from ahead (azimuth 180 = in front, the Sun behind the craft), it goes behind: sunward.
+    const f = frame({ kind: 'orbit', lens: 'normal', distance: 50, azimuth: 180, elevation: 0 }, lit)
+    expect(f.eyeKm[0]).toBeLessThan(0)
   })
 })

@@ -21,6 +21,8 @@ export interface Kinematics {
   // Toward the other craft, when both fly apart.
   toOther: Vec3 | null
   altitudeKm?: number
+  // The craft's velocity at another mission time (to hold a burn's attitude after it).
+  velocityAt?: (get: number) => Vec3 | null
 }
 
 type Rule = (k: Kinematics) => quat
@@ -38,23 +40,27 @@ function pointing(axis: ArrayLike<number>, toward: ArrayLike<number>): quat {
   return quat.normalize(quat.create(), mat4.getRotation(quat.create(), m))
 }
 
+// In orbit: along its way (forward) or against it (backward, the engine forward), its underside
+// to the ground - turning with the orbit, so the ground below stays put in a sped-up picture.
 const forward: Rule = (k) => pointing(k.velocity, k.up)
 const backward: Rule = (k) => pointing(vec3.negate(vec3.create(), k.velocity), k.up)
-// Held still against the stars, the long axis across the ecliptic: the thermal-control attitude
-// without its slow roll (0.3 degrees a second, which the tour's sped-up time would turn into a
-// spin), and between the burns in orbit too (APPROX) - so a sped-up orbit does not whirl the craft.
-const held: Rule = () => pointing(NORTH, [1, 0, 0])
+// On the coasts: held still against the stars in the attitude a burn ended in (the thermal-control
+// roll left out: sped up it would be a spin).
+const holding = (get: number, sign: 1 | -1): Rule => (k) => {
+  const v = k.velocityAt?.(get) ?? k.velocity
+  return pointing([v[0] * sign, v[1] * sign, v[2] * sign], NORTH)
+}
 
-// Columbia: (from GET, rule).
+// Columbia: (from GET, rule). Every turn falls in the cut between two stations, out of sight:
+// forward in Earth orbit through TLI, held after it to the Moon; against its way in lunar orbit
+// (from LOI on, the engine forward); forward for TEI, held after it; forward for entry.
 const COLUMBIA: [number, Rule][] = [
-  [0, held],
-  [T(2, 40), forward],
-  [T(5, 0), held],
-  [T(75, 41), backward],
-  [T(76, 0), held],
+  [0, forward],
+  [T(2, 51), holding(T(2, 50, 3), 1)],
+  [T(75, 41, 30), backward],
   [T(135, 13), forward],
-  [T(136, 0), held],
-  [T(194, 30), forward],
+  [T(135, 27), holding(T(135, 26, 14), 1)],
+  [T(194, 41), forward],
 ]
 
 const blend = (t: number) => t * t * (3 - 2 * t)

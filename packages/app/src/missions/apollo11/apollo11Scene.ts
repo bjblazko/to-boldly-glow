@@ -88,7 +88,12 @@ export class Apollo11Scene {
   // A craft's motion relative to the body it flies round (the Moon within its sphere of influence,
   // Earth outside): km/s, straight up from that body, and its height over it.
   motion(craft: Craft): Motion | null {
-    const times = [this.get_ - 0.5, this.get_, this.get_ + 0.5]
+    return this.motionAt(craft, this.get_)
+  }
+
+  // The same at another mission time (a burn's end, to hold its attitude after it).
+  motionAt(craft: Craft, get: number): Motion | null {
+    const times = [get - 0.5, get, get + 0.5]
     const places = times.map((get) => this.at(craft, get))
     const moons = times.map((get) => this.trajectory.moon(get))
     if (places.some((p) => !p) || moons.some((m) => !m)) return null

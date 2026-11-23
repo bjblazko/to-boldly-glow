@@ -45,8 +45,16 @@ export function tourCamera(scene: Apollo11Scene, at: { stationId: string; statio
   const context = shotContext(scene, subject, running.seconds)
   if (!context) return null
   if (memory.shot?.key !== running.key) memory.shot = { key: running.key, velocity: context.velocity, up: context.up }
-  const steady = { ...context, velocity: memory.shot.velocity, up: memory.shot.up }
+  // In orbit the camera goes round with it, as the craft does (the ground stays put below); on the
+  // way between Earth and the Moon it keeps the directions the shot started with.
+  const steady = inOrbit(scene, subject) ? context : { ...context, velocity: memory.shot.velocity, up: memory.shot.up }
   return { framing: frame(running.shot.spec, steady), shotKey: running.key, subject }
+}
+
+const ORBIT_KM = 3000
+function inOrbit(scene: Apollo11Scene, subject: Craft): boolean {
+  const motion = scene.motion(subject)
+  return motion !== null && motion.altitudeKm < ORBIT_KM
 }
 
 function shotContext(scene: Apollo11Scene, subject: Craft, seconds: number): ShotContext | null {

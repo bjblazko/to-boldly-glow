@@ -10,7 +10,8 @@ import type { CraftCast } from './craftChoreography'
 export function craftTurns(scene: Apollo11Scene, cast: CraftCast): { columbia: mat4 | null; eagle: mat4 | null } {
   const [motion, eagleMotion] = [scene.motion('columbia'), scene.motion('eagle')]
   const [columbiaKm, eagleKm] = [scene.craftKm('columbia'), scene.craftKm('eagle')]
-  const columbia = motion ? columbiaAttitude({ get: scene.get, ...motion, toOther: toward(columbiaKm, eagleKm) }) : null
+  const velocityAt = (get: number) => scene.motionAt('columbia', get)?.velocity ?? null
+  const columbia = motion ? columbiaAttitude({ get: scene.get, ...motion, toOther: toward(columbiaKm, eagleKm), velocityAt }) : null
   if (!cast.eagle || !eagleMotion) return { columbia, eagle: null }
   const eagle = cast.eagle.frame === 'columbia' ? columbia : eagleAttitude({ get: scene.get, ...eagleMotion, toOther: toward(eagleKm, columbiaKm) })
   return { columbia, eagle }
