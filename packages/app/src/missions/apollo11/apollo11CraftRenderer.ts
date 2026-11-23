@@ -85,10 +85,11 @@ export class Apollo11CraftRenderer {
     const [saturnV, csm, lm, eagle, siteStage] = await Promise.all([own('saturnV'), own('csm'), own('lm'), own('lm'), own('lm')])
     const tile = await loadTerrain()
     const groundData = lunarGround(site, 'moon.jpg', tile ? tileCircle(tile.tile) : undefined)
-    const ground = { model: groundData.description, data: groundData, renderer: await ModelRenderer.create(this.models, groundData, 'textures') }
+    const detail = await this.models.textures.loadColor(`${TERRAIN_FILES}/regolith-detail.png`)
+    const ground = { model: groundData.description, data: groundData, renderer: await ModelRenderer.create(this.models, groundData, 'textures', { detail }) }
     if (tile) {
       const terrainData = tranquilityTerrain(tile.tile, tile.raw, site)
-      this.terrain = { model: terrainData.description, data: terrainData, renderer: await ModelRenderer.create(this.models, terrainData, TERRAIN_FILES, { shadows: true }) }
+      this.terrain = { model: terrainData.description, data: terrainData, renderer: await ModelRenderer.create(this.models, terrainData, TERRAIN_FILES, { shadows: true, detail }) }
       this.groundHeight = terrainHeight(tile.tile, tile.raw, site)
     }
     this.shadows = [await ModelRenderer.create(this.models, lm.data, MODELS.lm.url), await ModelRenderer.create(this.models, lm.data, MODELS.lm.url)]

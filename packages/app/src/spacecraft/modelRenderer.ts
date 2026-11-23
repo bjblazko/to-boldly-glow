@@ -93,6 +93,8 @@ export interface ModelContext {
   textures: TextureLoader
   sampler: GPUSampler
   shadows: { pipeline: GPURenderPipeline; sampler: GPUSampler; none: GPUTextureView }
+  // The detail tile lunar ground is drawn with (a white texel for every other model).
+  noDetail: GPUTextureView
 }
 
 export async function createModelContext(device: GPUDevice, format: GPUTextureFormat, textures: TextureLoader): Promise<ModelContext> {
@@ -110,7 +112,7 @@ export async function createModelContext(device: GPUDevice, format: GPUTextureFo
   const sampler = device.createSampler({ label: 'model sampler', addressModeU: 'repeat', addressModeV: 'repeat', magFilter: 'linear', minFilter: 'linear', mipmapFilter: 'linear', maxAnisotropy: 16 })
   const shadowSampler = device.createSampler({ label: 'model shadow sampler', compare: 'less-equal', magFilter: 'linear', minFilter: 'linear' })
   const none = device.createTexture({ label: 'no shadow map', size: [1, 1], format: SHADOW_FORMAT, usage: GPUTextureUsage.TEXTURE_BINDING }).createView()
-  return { device, format, pipelines: { bothSides, frontOnly }, textures, sampler, shadows: { pipeline: shadowPipeline, sampler: shadowSampler, none } }
+  return { device, format, pipelines: { bothSides, frontOnly }, textures, sampler, shadows: { pipeline: shadowPipeline, sampler: shadowSampler, none }, noDetail: textures.white().createView() }
 }
 
 interface Draw {
@@ -132,15 +134,16 @@ export class ModelRenderer {
   ) {}
 
   // The model's textures are loaded from next to it (`textureBaseUrl`/<file>); `shadows`: lamps
-  // will light it and the first casts shadows (a shadow map of its own).
-  static async create(context: ModelContext, model: ModelData, textureBaseUrl: string, { shadows = false } = {}): Promise<ModelRenderer> {
+  // will light it and the first casts shadows (a shadow map of its own); `detail`: lunar ground's
+  // detail tile.
+  static async create(context: ModelContext, model: ModelData, textureBaseUrl: string, { shadows = false, detail }: { shadows?: boolean; detail?: GPUTexture } = {}): Promise<ModelRenderer> {
     const { device } = context
     const pipeline = model.description.oneSided ? context.pipelines.frontOnly : context.pipelines.bothSides
     const shadowMap = shadows ? ModelShadowMap.create(device, context.shadows.pipeline) : null
     const uniforms = device.createBuffer({ label: 'model uniforms', size: MODEL_UNIFORM_FLOAT_COUNT * 4, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST })
     const draws = await Promise.all(
       model.description.draws.map(async ({ texture, firstIndex, indexCount }) => ({
-        bindGroup: bindTexture(context, { pipeline, uniforms, shadowMap: shadowMap?.view ?? context.shadows.none }, await context.textures.loadColor(`${textureBaseUrl}/${texture}`)),
+        bindGroup: bindTexture(context, { pipeline, uniforms, shadowMap: shadowMap?.view ?? context.shadows.none, detail }, await context.textures.loadColor(`${textureBaseUrl}/${texture}`)),
         firstIndex,
         indexCount,
       })),
@@ -247,7 +250,7 @@ function cutawayOf({ description }: ModelData): Cutaway {
   return { kinds, bottom: min[1], reach: max[1] + highest - min[1] }
 }
 
-function bindTexture({ device, sampler, shadows }: ModelContext, { pipeline, uniforms, shadowMap }: { pipeline: GPURenderPipeline; uniforms: GPUBuffer; shadowMap: GPUTextureView }, texture: GPUTexture): GPUBindGroup {
+function bindTexture({ device, sampler, shadows, noDetail }: ModelContext, { pipeline, uniforms, shadowMap, detail }: { pipeline: GPURenderPipeline; uniforms: GPUBuffer; shadowMap: GPUTextureView; detail?: GPUTexture }, texture: GPUTexture): GPUBindGroup {
   return device.createBindGroup({
     label: `model ${texture.label}`,
     layout: pipeline.getBindGroupLayout(0),
@@ -257,6 +260,7 @@ function bindTexture({ device, sampler, shadows }: ModelContext, { pipeline, uni
       { binding: 2, resource: texture.createView() },
       { binding: 3, resource: shadows.sampler },
       { binding: 4, resource: shadowMap },
+      { binding: 5, resource: detail?.createView() ?? noDetail },
     ],
   })
 }

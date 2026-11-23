@@ -30,7 +30,8 @@
     "fetch-launcher-photos": "tsx src/fetchLauncherPhotos.ts",
     "fetch-apollo11-photos": "tsx src/fetchApollo11Photos.ts",
     "fetch-columbia-photos": "tsx src/fetchColumbiaPhotos.ts",
-    "build-tranquility": "tsx src/buildTranquility.ts"
+    "build-tranquility": "tsx src/buildTranquility.ts",
+    "build-regolith": "tsx src/buildRegolith.ts"
   },
   "devDependencies": {
     "@gltf-transform/core": "^4.5.1",
