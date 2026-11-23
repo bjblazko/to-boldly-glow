@@ -3,7 +3,8 @@ import type { CameraLens } from '../camera/cameraLens'
 import { NO_LENS_SHIFT, type Viewpoint } from '../camera/viewpoint'
 import { COMPACT_MIN_ORBIT_RADIUS } from '../camera/orbitCamera'
 import type { DisplaySettings, LessonDisplaySnapshot } from '../hud/displaySettings'
-import { msg } from '../i18n/i18n'
+import { formatNumber, locale, msg } from '../i18n/i18n'
+import { LOCALE_TAGS } from '../i18n/locale'
 import { loadVoyagerAssets } from '../learn/voyager/voyagerAssets'
 import type { VoyagerLabels } from '../learn/voyager/voyagerLabels'
 import type { VoyagerProbeId } from '../learn/voyager/voyagerStage'
@@ -16,7 +17,7 @@ import { besideColumnShift } from '../learn/lessonFrame'
 import { MissionPlayer, type MissionMoment } from './missionPlayer'
 import { MissionScenes } from './missionScenes'
 import { missionClipId, stationDay, type Mission, type Station } from './missionTimeline'
-import type { MissionTourUi } from './missionTourUi'
+import type { MissionTourUi, StationCard, TourOutline } from './missionTourUi'
 import { VOYAGER_MISSIONS } from './voyagerMissions'
 
 export interface MissionTourParts {
@@ -79,7 +80,7 @@ export class MissionTourSession implements ScenePlayer {
     const scenes = new MissionScenes(this.parts.gpu, assets, probe, this.parts.labels)
     const player = new MissionPlayer(this.plan(mission), { arrived: (index) => this.arrived(index), ended: () => this.parts.ui.ended() }, !prefersReducedMotion())
     this.running = { mission, player, scenes, borrowed: this.borrow(), lastPhase: null, seconds: 0 }
-    this.parts.ui.open(mission, {
+    this.parts.ui.open(voyagerOutline(mission), {
       togglePause: () => player.setPaused(!player.isPaused),
       previous: () => player.jumpTo(player.moment.stationIndex - 1),
       next: () => player.jumpTo(player.moment.stationIndex + 1),
@@ -119,7 +120,9 @@ export class MissionTourSession implements ScenePlayer {
       this.parts.narration.prefetch(missionClipId(running.mission.probe, next.id))
     }
     this.steer(running, moment, station, deltaSeconds)
-    this.parts.ui.update(moment, running.scenes.route.probeAu(running.mission.probe).distanceAu)
+    const distanceAu = running.scenes.route.probeAu(running.mission.probe).distanceAu
+    const state = { stationIndex: moment.stationIndex, fade: moment.fade, paused: moment.paused || moment.phase === 'end', travelling: moment.phase === 'flight' }
+    this.parts.ui.update(state, msg.missions.ui.distance(formatNumber(distanceAu, 1), formatNumber(distanceAu * LIGHT_HOURS_PER_AU, 1)))
   }
 
   layout(): SceneLayout | null {
@@ -170,7 +173,7 @@ export class MissionTourSession implements ScenePlayer {
     const running = this.running
     if (!running) return
     this.parts.narration.say(missionClipId(running.mission.probe, running.mission.stations[index].id))
-    this.parts.ui.showStation(index)
+    this.parts.ui.showStation(index, voyagerCard(running.mission, index))
     this.place(running.mission.probe, running.mission.stations[index].id)
   }
 
@@ -220,4 +223,19 @@ export class MissionTourSession implements ScenePlayer {
     camera.setInputEnabled(true)
     camera.setPickEnabled(true)
   }
+}
+
+// Light needs about 499 seconds per AU.
+const LIGHT_HOURS_PER_AU = 499.005 / 3600
+
+function voyagerOutline(mission: Mission): TourOutline {
+  const texts = msg.missions[mission.probe].stations
+  return { id: mission.probe, stations: mission.stations.map((station) => ({ title: texts[station.id].title, mark: station.date.slice(0, 4) })) }
+}
+
+function voyagerCard(mission: Mission, index: number): StationCard {
+  const station = mission.stations[index]
+  const text = msg.missions[mission.probe].stations[station.id]
+  const when = new Date(station.date).toLocaleDateString(LOCALE_TAGS[locale], { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })
+  return { title: text.title, text: text.text, when, badge: station.encounter ? msg.missions.ui.flyby : undefined, facts: station.facts, photo: station.photo, chart: station.chart }
 }
