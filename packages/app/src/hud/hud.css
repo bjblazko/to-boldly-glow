@@ -53,6 +53,7 @@
 .hud-phase-inset,
 .hud-route-clock,
 .hud-mission-card,
+.hud-shuttle,
 .hud-camera-hint,
 .hud-browser-hint,
 .gpu-lost-alert {
@@ -71,6 +72,7 @@
 .hud-phase-inset,
 .hud-route-clock,
 .hud-mission-card,
+.hud-shuttle,
 .hud-browser-hint,
 .gpu-lost-alert {
   --hud-slab-depth: 7px;
@@ -93,6 +95,7 @@
 .hud-phase-inset::before,
 .hud-route-clock::before,
 .hud-mission-card::before,
+.hud-shuttle::before,
 .hud-browser-hint::before,
 .gpu-lost-alert::before {
   content: '';
@@ -118,6 +121,7 @@
 .hud-phase-inset::after,
 .hud-route-clock::after,
 .hud-mission-card::after,
+.hud-shuttle::after,
 .hud-browser-hint::after,
 .gpu-lost-alert::after {
   content: '';

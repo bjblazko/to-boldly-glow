@@ -11,6 +11,7 @@ import type { SceneLayout } from '../../scene/sceneLayout'
 import type { ModelContext } from '../../spacecraft/modelRenderer'
 import { encounterGoal, steerCamera } from '../missionCamera'
 import type { MissionTourUi, StationCard, TourOutline } from '../missionTourUi'
+import type { Scrubbable, TourShuttle } from '../tourShuttle'
 import { Apollo11Clock, type ClockMoment } from './apollo11Clock'
 import { Apollo11CraftRenderer } from './apollo11CraftRenderer'
 import { Apollo11Scene, KM_PER_UNIT, type Craft } from './apollo11Scene'
@@ -24,6 +25,7 @@ export interface Apollo11TourParts {
   display: DisplaySettings
   gpu: { models: ModelContext }
   ui: MissionTourUi
+  shuttle: TourShuttle
   activeChanged(active: boolean): void
 }
 
@@ -32,6 +34,8 @@ interface Running {
   scene: Apollo11Scene
   borrowed: { camera: CameraSnapshot; display: LessonDisplaySnapshot; maxRadius: number; fov: number }
   framing: Framing | null
+  // The jog and shuttle's speed (0: the tour plays as it does).
+  rate: number
 }
 
 const MAX_TOUR_RADIUS = 6000
@@ -75,14 +79,20 @@ export class Apollo11TourSession implements ScenePlayer {
     const [trajectory] = await Promise.all([loadApollo11Trajectory(), this.craft.load()])
     if (attempt !== this.starting) return
     const clock = new Apollo11Clock(APOLLO11_STATIONS, { arrived: (index) => this.arrived(index), ended: () => this.parts.ui.ended() }, !prefersReducedMotion())
-    this.running = { clock, scene: new Apollo11Scene(trajectory), borrowed: this.borrow(), framing: null }
+    const running: Running = { clock, scene: new Apollo11Scene(trajectory), borrowed: this.borrow(), framing: null, rate: 0 }
+    this.running = running
     this.parts.ui.open(outline(), {
-      togglePause: () => clock.setPaused(!clock.isPaused),
+      // While shuttled, Pause stops it where it is.
+      togglePause: () => {
+        if (running.rate !== 0) running.rate = 0
+        clock.setPaused(running.rate === 0 && !clock.isPaused)
+      },
       previous: () => clock.jumpTo(clock.moment.stationIndex - 1),
       next: () => clock.jumpTo(clock.moment.stationIndex + 1),
       jumpTo: (index) => clock.jumpTo(index),
       close: () => this.stop(),
     })
+    this.parts.shuttle.attach(scrubbable(running))
     this.parts.activeChanged(true)
     clock.start()
     if (stationIndex !== null && stationIndex > 0) clock.jumpTo(stationIndex)
@@ -94,6 +104,7 @@ export class Apollo11TourSession implements ScenePlayer {
     if (!running) return
     this.running = null
     this.parts.ui.close()
+    this.parts.shuttle.detach()
     this.place(null)
     this.giveBack(running.borrowed)
     this.parts.activeChanged(false)
@@ -102,11 +113,13 @@ export class Apollo11TourSession implements ScenePlayer {
   update(deltaSeconds: number): void {
     const running = this.running
     if (!running) return
-    const moment = running.clock.update(deltaSeconds)
+    if (running.rate !== 0) running.clock.seek(running.clock.position + deltaSeconds * running.rate)
+    const moment = running.rate !== 0 ? running.clock.moment : running.clock.update(deltaSeconds)
     const focus: Craft = EAGLE_STATIONS.has(APOLLO11_STATIONS[moment.stationIndex].id) && running.scene.craftKm('eagle') ? 'eagle' : 'columbia'
     running.scene.setMoment(moment.get, focus)
     this.steer(running, focus)
-    this.parts.ui.update({ stationIndex: moment.stationIndex, fade: moment.fade, paused: moment.paused || moment.ended, travelling: false }, this.status(running, moment, focus))
+    this.parts.ui.update({ stationIndex: moment.stationIndex, fade: moment.fade, paused: running.rate === 0 && (moment.paused || moment.ended), travelling: false }, this.status(running, moment, focus))
+    this.parts.shuttle.update()
   }
 
   layout(): SceneLayout | null {
@@ -185,6 +198,36 @@ export class Apollo11TourSession implements ScenePlayer {
 function cameraKm(viewpoint: Viewpoint): Vec3 {
   const p = viewpoint.position
   return [p[0] * KM_PER_UNIT, p[1] * KM_PER_UNIT, p[2] * KM_PER_UNIT]
+}
+
+// The tour as the jog and shuttle drive it: shuttling holds the tour's own play, letting go leaves
+// it standing where it got to.
+function scrubbable(running: Running): Scrubbable {
+  const texts = msg.missions.apollo11.stations
+  let start = 0
+  const stations = APOLLO11_STATIONS.map((station) => {
+    const entry = { start, seconds: station.seconds, title: texts[station.id as keyof typeof texts].title }
+    start += station.seconds
+    return entry
+  })
+  return {
+    get length() {
+      return running.clock.length
+    },
+    get position() {
+      return running.clock.position
+    },
+    get rate() {
+      return running.rate
+    },
+    stations,
+    seek: (position) => running.clock.seek(position),
+    setRate: (rate) => {
+      running.rate = rate
+      running.clock.setPaused(true)
+    },
+    readout: () => `GET ${formatGet(running.clock.moment.get)} · ${stations[running.clock.moment.stationIndex].title}`,
+  }
 }
 
 function outline(): TourOutline {

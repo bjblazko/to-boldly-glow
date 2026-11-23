@@ -2,6 +2,7 @@ import type { LearnUi } from '../learn/learnUi'
 import type { MissionNarration } from '../missions/missionNarration'
 import { MissionTourSession } from '../missions/missionTourSession'
 import { MissionTourUi } from '../missions/missionTourUi'
+import { TourShuttle } from '../missions/tourShuttle'
 import { Apollo11TourSession } from '../missions/apollo11/apollo11TourSession'
 import type { ModelContext } from '../spacecraft/modelRenderer'
 import type { TourId } from '../tours/tourLibrary'
@@ -28,6 +29,7 @@ export function createMissionTours(explorer: Explorer, gpu: { device: GPUDevice;
     display: explorer.display,
     gpu,
     ui,
+    shuttle: new TourShuttle(requireElement),
     activeChanged: (active) => activeChanged.forEach((listener) => listener(active)),
   })
   const session = new MissionTourSession({

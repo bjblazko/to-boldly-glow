@@ -11,6 +11,11 @@ type Stations = Record<string, StationText>
 
 export const missions = {
   ui: {
+    shuttle: 'Jog',
+    shuttleTitle: 'Jog and shuttle (J, K, L, arrow keys)',
+    overview: 'Whole tour',
+    spring: 'Shuttle: push to run back or forward, faster the further',
+    jog: 'Jog wheel: turn for single frames, Shift for seconds',
     play: 'Play',
     pause: 'Pause',
     previous: 'Previous station',
