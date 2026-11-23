@@ -23,6 +23,12 @@ seeing the controls that are worked when something happens.
   worked (a switch thrown, the DSKY's lights, a lamp coming on).
 - Back / next / pause and a link to each station, as in the other tours (`#tour/apollo11/<id>`).
 
+- Jog and shuttle for the long tour (the owner, 2026-11-23: "not a lame scrollbar like youtube - it
+  must be able to scroll fast for longer distances but also smaller stuff down to frames"), shown and
+  hidden from the bar: the whole tour as a strip to jump along, a spring-loaded shuttle (a quarter to
+  64 times play speed, both ways; let go, it stands), a jog wheel a frame (1/30 s) a notch, a second
+  with Shift; J/K/L and the arrow keys as in an editing suite.
+
 ## Non-goals (this version)
 
 - The launch and ascent, pad 39A (step 10). The tour starts in Earth orbit.
