@@ -106,3 +106,41 @@ describe('the Apollo 11 tour clock', () => {
     expect(() => new Apollo11Clock([{ id: 'x', from: 0, to: 10, seconds: 60 }], { arrived: () => {}, ended: () => {} }, true)).toThrow()
   })
 })
+
+describe('scrubbing the tour', () => {
+  it('knows its place in the whole tour and its length', () => {
+    const { c } = clock()
+    run(c, 70)
+    expect(c.position).toBeCloseTo(70, 1)
+    expect(c.length).toBe(210)
+  })
+
+  it('seeks anywhere: the station and its mission time follow', () => {
+    const { c, heard } = clock()
+    c.seek(120)
+    expect(c.moment.stationIndex).toBe(1)
+    expect(heard.at(-1)).toBe('arrived 1')
+    c.seek(0)
+    expect(c.moment.get).toBe(1000)
+    c.seek(1e9)
+    expect(c.position).toBe(210)
+  })
+
+  it('runs backwards, into the station before', () => {
+    const { c } = clock()
+    c.seek(62)
+    const gets: number[] = []
+    for (let i = 0; i < 40; i++) gets.push(c.update(-0.1).get)
+    expect(c.moment.stationIndex).toBe(0)
+    expect(gets.at(-1)!).toBeLessThan(9000)
+    expect(c.position).toBeCloseTo(58, 1)
+  })
+
+  it('stops at the start when running backwards', () => {
+    const { c } = clock()
+    c.seek(1)
+    c.update(-5)
+    expect(c.position).toBe(0)
+    expect(c.moment.ended).toBe(false)
+  })
+})

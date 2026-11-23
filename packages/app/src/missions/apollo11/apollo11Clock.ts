@@ -76,6 +76,8 @@ function getIn(piece: Piece, t: number): number {
 
 export class Apollo11Clock {
   private readonly plans: Piece[][]
+  // Where each station starts in the whole tour (s).
+  private readonly starts: number[]
   private index = 0
   private elapsed = 0
   private paused = false
@@ -89,6 +91,30 @@ export class Apollo11Clock {
     private readonly animate: boolean,
   ) {
     this.plans = stations.map(pieces)
+    this.starts = stations.map((_, i) => stations.slice(0, i).reduce((sum, station) => sum + station.seconds, 0))
+  }
+
+  // The whole tour's length and where it is in it (s).
+  get length(): number {
+    return this.starts[this.starts.length - 1] + this.stations[this.stations.length - 1].seconds
+  }
+
+  get position(): number {
+    return this.starts[this.index] + this.elapsed
+  }
+
+  // Straight to a place in the tour (s): its station's card opens if it is another one. At the end,
+  // the tour has ended.
+  seek(position: number): void {
+    const p = Math.min(Math.max(0, position), this.length)
+    const index = this.starts.reduce((found, start, i) => (start <= p && start < this.length ? i : found), 0)
+    const changed = index !== this.index
+    this.index = index
+    this.elapsed = p - this.starts[index]
+    if (changed) this.listener.arrived(index)
+    const atEnd = p >= this.length
+    if (atEnd && !this.ended) this.listener.ended()
+    this.ended = atEnd
   }
 
   start(): void {
@@ -116,8 +142,14 @@ export class Apollo11Clock {
     return { stationIndex: this.index, get: this.get(), fade: this.fade(), paused: this.paused, ended: this.ended }
   }
 
+  // Forward, or backward with a negative step (it stops at the start).
   update(deltaSeconds: number): ClockMoment {
-    if (this.paused || this.ended) return this.moment
+    if (this.paused) return this.moment
+    if (deltaSeconds < 0) {
+      this.seek(this.position + deltaSeconds)
+      return this.moment
+    }
+    if (this.ended) return this.moment
     this.elapsed += deltaSeconds
     if (this.elapsed >= this.stations[this.index].seconds) this.leave()
     if (this.pauseRequested && this.fade() === 0) {
