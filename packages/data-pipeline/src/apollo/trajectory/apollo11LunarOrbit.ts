@@ -163,12 +163,6 @@ export function atUndocking(field: GravityField | null, insertion: Insertion = I
   return integrate(circularize(field, insertion), EVENTS.undocked, { step: LUNAR_STEP, acceleration: lunarOrbitAcceleration(field) })
 }
 
-// Columbia flying alone after its separation burn, from the undocking state (atUndocking).
-export function columbiaSeparated(field: GravityField | null, undocked: State): State {
-  const fly = (from: State, until: number) => integrate(from, until, { step: LUNAR_STEP, acceleration: lunarOrbitAcceleration(field) })
-  return fly(impulse(fly(undocked, SEPARATION.get), SEPARATION.deltaV, 'down'), EVENTS.separated)
-}
-
 // From the lunar orbit insertion to the transearth injection's ignition, in the given field.
 export function inLunarOrbit(field: GravityField | null, sample?: (state: State) => void, insertion: Insertion = INSERTION): LunarOrbitCheckpoints {
   const fly = (from: State, until: number) => integrate(from, until, { step: LUNAR_STEP, acceleration: lunarOrbitAcceleration(field), sample })

@@ -1,3 +1,4 @@
+import { encodeRecords } from './apollo/trajectory/trajectoryRecords'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -32,9 +33,7 @@ function toEcliptic([x, y, z]: Vec3): Vec3 {
 }
 
 function binary(records: { t: number; position: Vec3 }[]): Buffer {
-  const values = new Float32Array(records.length * 4)
-  records.forEach(({ t, position }, index) => values.set([t, ...toEcliptic(position)], index * 4))
-  return Buffer.from(values.buffer)
+  return encodeRecords(records.map(({ t, position }) => ({ t, position: toEcliptic(position) })))
 }
 
 // A cubic Hermite join between two states (position and velocity at each end).

@@ -1,6 +1,6 @@
 import { Monotone, onSurface, poweredDescent, SITE_RADIUS } from './apollo11Descent'
 import { eagleAtPdi } from './apollo11LunarFit'
-import { atUndocking, columbiaSeparated, lunarOrbitAcceleration, moonRelative, ontoOrbit } from './apollo11LunarOrbit'
+import { inLunarOrbit, lunarOrbitAcceleration, moonRelative, ontoOrbit } from './apollo11LunarOrbit'
 import { moonAt, MOON_RADIUS, RANGE_ZERO_JD } from './apollo11Translunar'
 import type { GravityField } from './lunarGravity'
 import { moonFrame, rotate, rotateBack } from './moonOrientation'
@@ -130,23 +130,36 @@ function insertionDegrees(setting: Setting): number {
   return b
 }
 
-// Columbia second by second from the cutoff to the docking.
-function columbiaTrack(field: GravityField | null, atCutoff: State): (get: number) => State {
+// Columbia as lunar.bin has it (the same flight, sampled every 10 s), between the samples by cubic
+// Hermite on their states - so Eagle docks with the Columbia the tour shows, not with a twin
+// integrated separately (another step size drifts some 700 m apart over the 28 hours).
+function columbiaFlown(field: GravityField | null): (get: number) => State {
   const path: State[] = []
-  integrate(atCutoff, DOCKED, { step: 1, acceleration: lunarOrbitAcceleration(field), sample: (state) => path.push(state) })
-  return (get) => path[Math.min(path.length - 1, Math.max(0, Math.round(get - atCutoff.t)))]
+  inLunarOrbit(field, (state) => path.push(state))
+  path.sort((a, b) => a.t - b.t)
+  return (get) => {
+    const i = Math.max(0, Math.min(path.length - 2, path.findIndex((state) => state.t > get) - 1))
+    const [a, b] = [path[i], path[i + 1]]
+    const span = b.t - a.t
+    const s = span > 0 ? (get - a.t) / span : 0
+    const [h00, h10, h01, h11] = [2 * s ** 3 - 3 * s ** 2 + 1, s ** 3 - 2 * s ** 2 + s, -2 * s ** 3 + 3 * s ** 2, s ** 3 - s ** 2]
+    const [d00, d10, d01, d11] = [6 * s ** 2 - 6 * s, 3 * s ** 2 - 4 * s + 1, -6 * s ** 2 + 6 * s, 3 * s ** 2 - 2 * s]
+    const position = a.position.map((value, k) => h00 * value + h10 * span * a.velocity[k] + h01 * b.position[k] + h11 * span * b.velocity[k]) as Vec3
+    const velocity = a.position.map((value, k) => (d00 * value + d01 * b.position[k]) / span + d10 * a.velocity[k] + d11 * b.velocity[k]) as Vec3
+    return { t: get, position, velocity }
+  }
 }
 
 export function eagleUp(field: GravityField | null): { ascent: Ascent; coast: State[] } {
   const descent = poweredDescent(eagleAtPdi(field))
-  const columbiaAtCutoff = integrate(columbiaSeparated(field, atUndocking(field)), INSERTION_CUTOFF, { step: STEP, acceleration: lunarOrbitAcceleration(field) })
-  const columbiaAtDock = integrate(columbiaAtCutoff, DOCKED, { step: STEP, acceleration: lunarOrbitAcceleration(field) })
+  const columbia = columbiaFlown(field)
+  const [columbiaAtCutoff, columbiaAtDock] = [columbia(INSERTION_CUTOFF), columbia(DOCKED)]
   const setting = { field, columbiaAtCutoff, columbiaAtDock, site: rotateBack(moonFrame(julian(INSERTION_CUTOFF)), descent.up) }
   const degrees = insertionDegrees(setting)
   const insertion = insertionAt(columbiaAtCutoff, setting.site, degrees)
   const flown: State[] = []
   rendezvous(field, insertion, (state) => flown.push(state))
-  return { ascent: { ...poweredAscent(descent, insertion), insertionDegrees: degrees, columbiaAtDock }, coast: closeIn(flown, columbiaTrack(field, columbiaAtCutoff)) }
+  return { ascent: { ...poweredAscent(descent, insertion), insertionDegrees: degrees, columbiaAtDock }, coast: closeIn(flown, columbia) }
 }
 
 // The climb in the Moon's frame: height over the site's level and distance along the ground, from
