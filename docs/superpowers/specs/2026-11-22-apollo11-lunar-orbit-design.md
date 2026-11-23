@@ -85,3 +85,19 @@ documented values.
   70 × 50, a coincidence. Ruling: the orbit over the site matters more for the tour than TEI's
   height; the transearth path (computed backward from entry) joins at TEI as before.
 - Next: Eagle's powered descent (from this PDI state to the site), ascent and rendezvous.
+
+## Eagle down and up (2026-11-23)
+
+- Powered descent (`apollo11Descent.ts`): a monotone profile of height and distance to the site
+  through the crew's callouts (NASA's technical air-to-ground transcript; times read off its
+  pages, APPROX a few seconds), joined without a step to the coast at ignition; high gate about
+  26,000 ft out (APPROX); touchdown at 102:45:42; then Eagle stands on the site with the Moon.
+- Ascent and rendezvous (`apollo11Ascent.ts`): the powered ascent as a smooth climb from rest into
+  the documented 48.0 × 9.4 n mi orbit; each rendezvous burn (CSI, CDH, TPI, TPF) puts Eagle on the
+  orbit ABTN gives after it. How far on from the site the insertion lay is solved so Eagle arrives
+  at Columbia at docking time: about 8.4° (some 250 km), plausible for a 7-minute ascent. The site
+  lies 0.18° off Columbia's plane at liftoff - the orbit fit holds on the way back. After the last
+  braking burn Eagle's path eases into Columbia's (by eye, as flown), 30 m off at stationkeeping,
+  together at docking. The midcourse corrections (1.0, 1.5 ft/s) are left out.
+- `eagle.bin`: from undocking to docking, from the Moon's centre, thinned to a metre.
+- Next (step 8, last part): Tranquility Base's terrain (LRO NAC DTM), then the tour (steps 9-11).

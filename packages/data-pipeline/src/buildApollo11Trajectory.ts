@@ -6,6 +6,7 @@ import { inLunarOrbit, intoLunarOrbit } from './apollo/trajectory/apollo11LunarO
 import { grailField } from './apollo/trajectory/lunarGravity'
 import { eagleAtPdi } from './apollo/trajectory/apollo11LunarFit'
 import { descentAt, onSurface, poweredDescent, TOUCHDOWN } from './apollo/trajectory/apollo11Descent'
+import { ascentAt, eagleUp, INSERTION_CUTOFF, LIFTOFF } from './apollo/trajectory/apollo11Ascent'
 import { coast, moonAt, tliState } from './apollo/trajectory/apollo11Translunar'
 import { backToTei, ENTRY_INTERFACE, entryInterfaceState, solveTransearthCorrection, TRANSEARTH_MIDCOURSE } from './apollo/trajectory/apollo11Transearth'
 import type { State, Vec3 } from './apollo/trajectory/propagate'
@@ -13,8 +14,9 @@ import { simplifyTrajectory } from './voyager/trajectorySamples'
 
 // Writes Apollo 11's reconstructed path (apollo/trajectory/) for the app: from the S-IVB's first
 // cutoff in Earth orbit to lunar orbit insertion (packages/app/public/data/apollo11/translunar.bin),
-// Columbia's lunar orbits to the transearth injection (lunar.bin) and Eagle's way down and its stay
-// (eagle.bin) - these two from the Moon's centre - from the transearth injection to entry
+// Columbia's lunar orbits to the transearth injection (lunar.bin) and Eagle's way down, its stay
+// and its way back up to Columbia (eagle.bin) - these two from the Moon's centre - from the
+// transearth injection to entry
 // interface (transearth.bin), and the Moon's positions over the whole flight (moon.bin) - float32 records of mission time
 // (GET, s) and geocentric position (km) in the ecliptic frame of J2000 (the app's planets'), the
 // path thinned to within 1 km. The TLI burn (2:44:16 to 2:50:13) is drawn as a smooth join between
@@ -65,14 +67,18 @@ export async function apollo11InLunarOrbit(): Promise<State[]> {
 }
 
 // Eagle on its own: from the undocking through its descent orbit and powered descent to the
-// landing, then standing on Tranquility Base (turning with the Moon) until its liftoff.
-const LUNAR_LIFTOFF = 124 * 3600 + 22 * 60 + 0.79
-export async function apollo11EagleDown(): Promise<State[]> {
+// landing, standing on Tranquility Base (turning with the Moon) until its liftoff, then its ascent
+// stage's climb and rendezvous back to Columbia, to the docking.
+export async function apollo11Eagle(): Promise<State[]> {
+  const field = await grailField(60)
   const states: State[] = []
-  const atPdi = eagleAtPdi(await grailField(60), undefined, (state) => states.push(state))
+  const atPdi = eagleAtPdi(field, undefined, (state) => states.push(state))
   const descent = poweredDescent(atPdi)
   for (let get = atPdi.t + 1; get <= TOUCHDOWN; get += 1) states.push(descentAt(descent, get))
-  for (let get = TOUCHDOWN + 60; get <= LUNAR_LIFTOFF; get += 60) states.push(onSurface(descent, get))
+  for (let get = TOUCHDOWN + 60; get < LIFTOFF; get += 60) states.push(onSurface(descent, get))
+  const { ascent, coast } = eagleUp(field)
+  for (let get = LIFTOFF; get < INSERTION_CUTOFF; get += 1) states.push(ascentAt(ascent, get))
+  states.push(...coast)
   return ordered(states)
 }
 
@@ -118,7 +124,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const lunar = thinned(fromMoon(await apollo11InLunarOrbit()), ORBIT_TOLERANCE_KM)
   writeFileSync(join(out, 'lunar.bin'), binary(lunar))
   console.log(`lunar.bin: ${lunar.length} points`)
-  const eagle = thinned(fromMoon(await apollo11EagleDown()), EAGLE_TOLERANCE_KM)
+  const eagle = thinned(fromMoon(await apollo11Eagle()), EAGLE_TOLERANCE_KM)
   writeFileSync(join(out, 'eagle.bin'), binary(eagle))
   console.log(`eagle.bin: ${eagle.length} points`)
   const moon = Array.from({ length: Math.ceil((ENTRY_INTERFACE.get - path[0].t) / MOON_STEP) + 1 }, (_, k) => {

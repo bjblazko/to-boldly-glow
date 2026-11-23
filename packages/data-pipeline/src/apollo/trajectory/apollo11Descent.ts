@@ -43,8 +43,8 @@ const RANGES: readonly { get: number; feet: number }[] = [
   { get: T(102, 44, 51), feet: 240 },
 ]
 
-// A monotone cubic through knots (Fritsch-Carlson), its first slope given (the coast's), its last
-// zero (at rest on the ground).
+// A monotone cubic through knots (Fritsch-Carlson), its end slopes given (the coast's at one end,
+// at rest on the ground at the other).
 export class Monotone {
   private readonly slopes: number[]
 
@@ -52,11 +52,12 @@ export class Monotone {
     private readonly t: number[],
     private readonly y: number[],
     firstSlope: number,
+    lastSlope = 0,
   ) {
     const secants = t.slice(1).map((value, i) => (y[i + 1] - y[i]) / (value - t[i]))
     this.slopes = t.map((_, i) => {
       if (i === 0) return firstSlope
-      if (i === t.length - 1) return 0
+      if (i === t.length - 1) return lastSlope
       const [a, b] = [secants[i - 1], secants[i]]
       return a * b <= 0 ? 0 : (2 * a * b) / (a + b)
     })

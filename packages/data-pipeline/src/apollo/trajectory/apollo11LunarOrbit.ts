@@ -129,7 +129,7 @@ export function osculating(state: State): Osculating {
 
 // The velocity that puts the craft, where it is, on an orbit of the given apocynthion and
 // pericynthion (n mi), in its plane, still climbing or falling as it was.
-function ontoOrbit(state: State, apocynthion: number, pericynthion: number): State {
+export function ontoOrbit(state: State, apocynthion: number, pericynthion: number): State {
   const { r, v } = moonRelative(state)
   const radius = Math.hypot(...r)
   const [ra, rp] = [apocynthion * 1.852 + MOON_RADIUS, pericynthion * 1.852 + MOON_RADIUS]
@@ -161,6 +161,12 @@ function circularize(field: GravityField | null, insertion: Insertion, sample?: 
 // Columbia (and Eagle with it) at the undocking.
 export function atUndocking(field: GravityField | null, insertion: Insertion = INSERTION): State {
   return integrate(circularize(field, insertion), EVENTS.undocked, { step: LUNAR_STEP, acceleration: lunarOrbitAcceleration(field) })
+}
+
+// Columbia flying alone after its separation burn, from the undocking state (atUndocking).
+export function columbiaSeparated(field: GravityField | null, undocked: State): State {
+  const fly = (from: State, until: number) => integrate(from, until, { step: LUNAR_STEP, acceleration: lunarOrbitAcceleration(field) })
+  return fly(impulse(fly(undocked, SEPARATION.get), SEPARATION.deltaV, 'down'), EVENTS.separated)
 }
 
 // From the lunar orbit insertion to the transearth injection's ignition, in the given field.
