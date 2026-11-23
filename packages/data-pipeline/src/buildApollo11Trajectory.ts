@@ -13,7 +13,8 @@ import { simplifyTrajectory } from './voyager/trajectorySamples'
 
 // Writes Apollo 11's reconstructed path (apollo/trajectory/) for the app: from the S-IVB's first
 // cutoff in Earth orbit to lunar orbit insertion (packages/app/public/data/apollo11/translunar.bin),
-// Columbia's lunar orbits to the transearth injection (lunar.bin), from the transearth injection to entry
+// Columbia's lunar orbits to the transearth injection (lunar.bin) and Eagle's way down and its stay
+// (eagle.bin) - these two from the Moon's centre - from the transearth injection to entry
 // interface (transearth.bin), and the Moon's positions over the whole flight (moon.bin) - float32 records of mission time
 // (GET, s) and geocentric position (km) in the ecliptic frame of J2000 (the app's planets'), the
 // path thinned to within 1 km. The TLI burn (2:44:16 to 2:50:13) is drawn as a smooth join between
@@ -90,8 +91,21 @@ function ordered(states: State[]): State[] {
   return sorted.filter((state, index) => index === 0 || state.t > sorted[index - 1].t)
 }
 
-function thinned(path: State[]): { t: number; position: Vec3 }[] {
-  return simplifyTrajectory(path.map((state) => ({ julianDay: state.t, position: state.position, velocity: state.velocity })), TOLERANCE_KM).map(({ julianDay, position }) => ({ t: julianDay, position }))
+function thinned(path: State[], tolerance = TOLERANCE_KM): { t: number; position: Vec3 }[] {
+  return simplifyTrajectory(path.map((state) => ({ julianDay: state.t, position: state.position, velocity: state.velocity })), tolerance).map(({ julianDay, position }) => ({ t: julianDay, position }))
+}
+
+// Near the Moon, positions from its centre: float32 then keeps centimetres (from Earth's centre only
+// tens of metres), what Eagle's last metres down need: its path thinned to within a metre,
+// Columbia's orbits to within 10 m.
+const EAGLE_TOLERANCE_KM = 0.001
+const ORBIT_TOLERANCE_KM = 0.01
+function fromMoon(path: State[]): State[] {
+  return path.map((state) => {
+    const moon = moonAt(state.t)
+    const [ahead, behind] = [moonAt(state.t + 1), moonAt(state.t - 1)]
+    return { t: state.t, position: state.position.map((value, k) => value - moon[k]) as Vec3, velocity: state.velocity.map((value, k) => value - (ahead[k] - behind[k]) / 2) as Vec3 }
+  })
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
@@ -101,10 +115,10 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const [outbound, inbound] = [thinned(path), thinned(home)]
   writeFileSync(join(out, 'translunar.bin'), binary(outbound))
   writeFileSync(join(out, 'transearth.bin'), binary(inbound))
-  const lunar = thinned(await apollo11InLunarOrbit())
+  const lunar = thinned(fromMoon(await apollo11InLunarOrbit()), ORBIT_TOLERANCE_KM)
   writeFileSync(join(out, 'lunar.bin'), binary(lunar))
   console.log(`lunar.bin: ${lunar.length} points`)
-  const eagle = thinned(await apollo11EagleDown())
+  const eagle = thinned(fromMoon(await apollo11EagleDown()), EAGLE_TOLERANCE_KM)
   writeFileSync(join(out, 'eagle.bin'), binary(eagle))
   console.log(`eagle.bin: ${eagle.length} points`)
   const moon = Array.from({ length: Math.ceil((ENTRY_INTERFACE.get - path[0].t) / MOON_STEP) + 1 }, (_, k) => {
