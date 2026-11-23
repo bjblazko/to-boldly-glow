@@ -1,3 +1,5 @@
+import { apollo11Tour } from './apollo11Tour'
+
 // The mission tours' words: the controls, and each station's card - its title, what the narrator
 // says (and the card shows), a photo's caption and its facts. Facts from NASA/JPL's Voyager mission
 // pages; flyby distances from the probes' JPL Horizons flyby paths (from the planet's centre).
@@ -160,4 +162,5 @@ export const missions = {
       },
     } as Stations,
   },
+  apollo11: apollo11Tour,
 }

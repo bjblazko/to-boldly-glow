@@ -1,3 +1,5 @@
+import { apollo11Tour } from './apollo11Tour'
+
 import type { Messages } from '../en'
 
 export const missions: Messages['missions'] = {
@@ -160,4 +162,5 @@ export const missions: Messages['missions'] = {
       },
     },
   },
+  apollo11: apollo11Tour,
 }

@@ -49,7 +49,8 @@ export function createTours(explorer: Explorer, { learnUi, missions }: { learnUi
     learnUi.explore()
     stopAll()
     if (tour === 'grand') explorer.startNarratedTour(partIndex)
-    else void missions.session.start(tour, partIndex)
+    // The Apollo 11 tour's own session comes with its scene (plan 2026-11-23, task 5).
+    else if (tour !== 'apollo11') void missions.session.start(tour, partIndex)
   }
   return { start, stopAll }
 }

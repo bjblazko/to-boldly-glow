@@ -45,6 +45,6 @@ describe('what a deep link opens', () => {
     expect(resolveDeepLink({ kind: 'tour', id: 'voyager1', part: station })).toEqual({ kind: 'tour', tour: 'voyager1', partIndex: 2 })
     expect(resolveDeepLink({ kind: 'tour', id: 'grand', part: 'saturn' })).toEqual({ kind: 'tour', tour: 'grand', partIndex: 6 })
     expect(resolveDeepLink({ kind: 'tour', id: 'grand', part: null })).toEqual({ kind: 'tour', tour: 'grand', partIndex: null })
-    expect(resolveDeepLink({ kind: 'tour', id: 'apollo11', part: null })).toBeNull()
+    expect(resolveDeepLink({ kind: 'tour', id: 'apollo13', part: null })).toBeNull()
   })
 })

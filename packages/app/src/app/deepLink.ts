@@ -1,4 +1,5 @@
 import { GRAND_TOUR } from '../camera/tour/grandTour'
+import { APOLLO11_STATIONS } from '../missions/apollo11/apollo11Stations'
 import { LESSONS_BY_ID } from '../learn/lessons/lessonCatalog'
 import type { Lesson } from '../learn/lessonTypes'
 import { VOYAGER_MISSIONS } from '../missions/voyagerMissions'
@@ -48,6 +49,7 @@ function lessonTarget(link: DeepLink): DeepLinkTarget | null {
 // A tour's stops or stations, by name, in order; null for no such tour.
 function tourParts(id: string): string[] | null {
   if (id === 'grand') return GRAND_TOUR.map(({ stop }) => stop)
+  if (id === 'apollo11') return APOLLO11_STATIONS.map((station) => station.id)
   return id in VOYAGER_MISSIONS ? VOYAGER_MISSIONS[id as VoyagerProbeId].stations.map((station) => station.id) : null
 }
 
