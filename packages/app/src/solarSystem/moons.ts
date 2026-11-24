@@ -81,6 +81,9 @@ export const MOONS: MoonDefinition[] = [
     orbitAscendingNodeDegrees: 0,
     textureUrl: 'textures/moon.jpg',
     grayscaleTexture: true,
+    // LOLA's heights (NASA SVS CGI Moon Kit): the maria low, the highlands' craters and mountains.
+    bumpMapUrl: 'textures/moon_bump.jpg',
+    bumpIntensity: 0.45,
   },
   {
     id: 'io',

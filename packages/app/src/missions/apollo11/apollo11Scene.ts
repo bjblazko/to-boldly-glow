@@ -164,7 +164,7 @@ export class Apollo11Scene {
     return toMoonFrame(moonAxes64(julian), minus(eagle, moon))
   }
 
-  private julianDay(): number {
+  julianDay(): number {
     return 2451545.0 + this.ephemeris.daysSinceEpoch
   }
 

@@ -29,7 +29,7 @@ export interface CreditGroup {
 const TEXT = msg.credits
 const CC_BY_4 = 'https://creativecommons.org/licenses/by/4.0/'
 
-const SOLAR_SYSTEM_SCOPE_FILES = ['sun', 'mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'moon'].map((id) => `textures/${id}.jpg`)
+const SOLAR_SYSTEM_SCOPE_FILES = ['sun', 'mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune'].map((id) => `textures/${id}.jpg`)
 
 export const CREDIT_GROUPS: CreditGroup[] = [
   {
@@ -88,6 +88,13 @@ export const CREDIT_GROUPS: CreditGroup[] = [
         text: CC_BY_4,
         changes: TEXT.changes.solarSystemScope,
         files: [...SOLAR_SYSTEM_SCOPE_FILES, 'textures/saturn_ring.png', ...['jupiter', 'saturn', 'uranus', 'neptune'].map((id) => `textures/${id}_bump.png`)],
+      },
+      {
+        name: 'NASA’s Scientific Visualization Studio, CGI Moon Kit',
+        use: TEXT.uses.cgiMoonKit,
+        license: TEXT.licenses.publicDomain,
+        home: 'https://svs.gsfc.nasa.gov/4720',
+        files: ['textures/moon.jpg', 'textures/moon_bump.jpg', 'data/apollo11/moon-region.jpg', 'data/apollo11/moon-region-heights.bin', 'data/apollo11/moon-region.json'],
       },
       {
         name: 'NASA / JPL / USGS',

@@ -75,8 +75,14 @@ a radial gradient/alpha strip) is `2k_saturn_ring_alpha.png` from the same sourc
 
 ## Moon textures
 
-The Moon's texture (`packages/app/public/textures/moon.jpg`, `2k_moon.jpg`) is also from Solar
-System Scope, same source/license as above.
+The Moon's map and relief (`packages/app/public/textures/moon.jpg`, 8192 x 4096, and
+`moon_bump.jpg`) and the region round Tranquility Base the Apollo 11 tour flies over
+(`packages/app/public/data/apollo11/moon-region.jpg`, `moon-region-heights.bin`, `moon-region.json`)
+are from NASA's Scientific Visualization Studio, CGI Moon Kit (https://svs.gsfc.nasa.gov/4720;
+LRO's LROC WAC colour mosaic and LOLA heights; visualizer Ernie Wright, scientist Noah Petro).
+NASA media are generally not subject to copyright in the United States
+(https://www.nasa.gov/multimedia/guidelines/); credit: "NASA's Scientific Visualization Studio".
+Made grey, resized and cut to the region by the data pipeline (`npm run build-moon-maps`).
 
 The Galilean moons (Io, Europa, Ganymede, Callisto) and Titan use public-domain NASA/JPL/USGS
 imagery, sourced via Wikimedia Commons (each confirmed "Public domain" under `{{PD-USGov-NASA}}`

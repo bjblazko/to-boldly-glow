@@ -14,6 +14,7 @@ import type { MissionTourUi, StationCard, TourOutline } from '../missionTourUi'
 import type { Scrubbable, TourShuttle } from '../tourShuttle'
 import { Apollo11Clock, type ClockMoment } from './apollo11Clock'
 import { Apollo11CraftRenderer } from './apollo11CraftRenderer'
+import { MoonRegionRenderer } from './moonRegionRenderer'
 import { Apollo11Scene, KM_PER_UNIT, type Craft } from './apollo11Scene'
 import { APOLLO11_STATIONS } from './apollo11Stations'
 import { loadApollo11Trajectory } from './apollo11Trajectory'
@@ -73,10 +74,12 @@ export class Apollo11TourSession implements ScenePlayer {
   private running: Running | null = null
   private starting = 0
   private readonly craft: Apollo11CraftRenderer
+  private readonly region: MoonRegionRenderer
   private place: (stationId: string | null) => void = () => {}
 
   constructor(private readonly parts: Apollo11TourParts) {
     this.craft = new Apollo11CraftRenderer(parts.gpu.models)
+    this.region = new MoonRegionRenderer(parts.gpu.models)
   }
 
   get active(): boolean {
@@ -92,7 +95,8 @@ export class Apollo11TourSession implements ScenePlayer {
     const attempt = ++this.starting
     const trajectory = await loadApollo11Trajectory()
     const scene = new Apollo11Scene(trajectory)
-    await this.craft.load(siteOf(scene))
+    const site = siteOf(scene)
+    await Promise.all([this.craft.load(site), this.region.load({ ...site, radius: 42_000 })])
     if (attempt !== this.starting) return
     const clock = new Apollo11Clock(APOLLO11_STATIONS, { arrived: (index) => this.arrived(index), ended: () => this.parts.ui.ended() }, !prefersReducedMotion())
     const running: Running = { clock, scene, borrowed: this.borrow(), framing: null, rate: 0, shot: null }
@@ -146,6 +150,7 @@ export class Apollo11TourSession implements ScenePlayer {
   updateOverlays(_layout: SceneLayout, viewpoint: Viewpoint): void {
     const running = this.running
     if (!running?.framing) return
+    this.region.prepare(viewpoint, running.scene, running.framing.eyeKm)
     // The eye as the shot placed it, in double precision - read back from the view matrix (float32,
     // turning about a point far ahead) it would shake by metres.
     this.craft.prepare(viewpoint, running.scene, { km: running.framing.eyeKm, fov: this.parts.lens.fov, lensShift: this.parts.lens.lensShift })
@@ -158,7 +163,9 @@ export class Apollo11TourSession implements ScenePlayer {
   drawBehindBodies(): void {}
 
   drawInFrontOfBodies(pass: GPURenderPassEncoder): void {
-    if (this.running) this.craft.draw(pass)
+    if (!this.running) return
+    this.region.draw(pass)
+    this.craft.draw(pass)
   }
 
   drawOverlays(): void {}

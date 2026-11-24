@@ -13,6 +13,7 @@ export const credits = {
     ibmPlexMono: 'The typeface of numbers and readouts',
     solarSystemScope: 'Surface maps of the Sun, the planets and the Moon, and Saturn’s rings',
     nasaMoonMaps: 'Maps of Io, Europa, Ganymede, Callisto and Titan',
+    cgiMoonKit: 'The Moon’s map and heights (LRO: LROC WAC colour, LOLA heights), whole and round Tranquility Base',
     earthAtNight: 'Earth’s city lights (Robert Simmon, Suomi NPP VIIRS data, NOAA)',
     brightStarCatalogue: 'The ~9,100 stars: positions, brightness, colors (Hoffleit & Warren, via CDS)',
     astronomia: 'VSOP87 coefficients for the planets’ positions',

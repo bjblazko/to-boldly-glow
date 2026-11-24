@@ -14,6 +14,7 @@ export const credits: Messages['credits'] = {
     ibmPlexMono: 'Die Schrift der Zahlen und Anzeigen',
     solarSystemScope: 'Oberflächenkarten der Sonne, der Planeten und des Mondes, und Saturns Ringe',
     nasaMoonMaps: 'Karten von Io, Europa, Ganymed, Kallisto und Titan',
+    cgiMoonKit: 'Karte und Höhen des Mondes (LRO: LROC-WAC-Farbe, LOLA-Höhen), ganz und rund um Tranquility Base',
     earthAtNight: 'Die Lichter der Städte auf der Erde (Robert Simmon, Suomi-NPP-VIIRS-Daten, NOAA)',
     brightStarCatalogue: 'Die rund 9.100 Sterne: Positionen, Helligkeit, Farben (Hoffleit & Warren, über CDS)',
     astronomia: 'VSOP87-Koeffizienten für die Positionen der Planeten',
