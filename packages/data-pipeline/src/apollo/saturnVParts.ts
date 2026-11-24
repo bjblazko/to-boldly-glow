@@ -1,7 +1,7 @@
 import type { AssemblyKind } from '../../../app/src/spacecraft/modelFile'
 import type { MeshPrimitive } from '../spacecraft/glbMesh'
 import { latheMesh, mergePrimitives, type ProfilePoint } from './latheMesh'
-import { ENGINES, FAIRING, FIN, LES, LM, PERSON, SHELLS, TANKS, TOTAL_HEIGHT, type Tank } from './saturnVProfile'
+import { ENGINES, FAIRING, FIN, LES, LM, PERSON, SHELLS, sivbAftProfile, TANKS, TOTAL_HEIGHT, type Tank } from './saturnVProfile'
 import { swatchUv } from './palette'
 import { placedLathe, plateMesh, strutMesh, tankProfile } from './shapes'
 
@@ -60,10 +60,11 @@ export function saturnVParts(): Map<SaturnVAssembly, MeshPrimitive[]> {
     ['sic', [mergePrimitives([shell(SHELLS.sic), ...fins(), ...fairings()])]],
     ['sicInside', [mergePrimitives([tank(TANKS.sicLox, 'lox'), tank(TANKS.sicFuel, 'rp1'), ...loxTunnels()])]],
     ['sicEngines', [engines(ENGINES.sic)]],
-    ['sii', [mergePrimitives([shell(SHELLS.siiInterstage), shell(SHELLS.sii)])]],
+    // The S-II/S-IVB interstage stayed with the S-II when the S-IVB left it.
+    ['sii', [mergePrimitives([shell(SHELLS.siiInterstage), shell(SHELLS.sii), shell(SHELLS.sivbInterstage)])]],
     ['siiInside', [mergePrimitives([tank(TANKS.siiLox, 'lox'), tank(TANKS.siiLh2, 'lh2')])]],
     ['siiEngines', [engines(ENGINES.sii)]],
-    ['sivb', [mergePrimitives([shell(SHELLS.sivbInterstage), shell(SHELLS.sivb)])]],
+    ['sivb', [shell(SHELLS.sivb), latheMesh(sivbAftProfile(), colored('engine', ROUND))]],
     ['sivbInside', [mergePrimitives([tank(TANKS.sivbLox, 'lox'), tank(TANKS.sivbLh2, 'lh2')])]],
     ['sivbEngine', [engines(ENGINES.sivb)]],
     ['iu', [shell(SHELLS.iu)]],

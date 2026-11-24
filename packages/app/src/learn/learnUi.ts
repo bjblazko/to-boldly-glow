@@ -22,4 +22,10 @@ export class LearnUi {
   openLesson(lesson: Lesson): void {
     this.session.start(lesson, this.progress.resumeAt(lesson), this.progress.sortingOf(lesson))
   }
+
+  // From a link: at the chapter's index in the lesson's first order, or where it was left (null).
+  openLessonAt(lesson: Lesson, chapterIndex: number | null): void {
+    if (chapterIndex === null) this.openLesson(lesson)
+    else this.session.start(lesson, chapterIndex, lesson.sortings?.[0]?.id)
+  }
 }

@@ -14,6 +14,11 @@ export class GrandTourRemote {
 
   constructor(private readonly parts: GrandTourParts) {}
 
+  // The stop the tour is at or heading for (its index in GRAND_TOUR).
+  get stopIndex(): number {
+    return this.parts.narrator.stopIndex
+  }
+
   get paused(): boolean {
     return this.held !== null
   }
@@ -51,7 +56,8 @@ export class GrandTourRemote {
     narrator.setPaused(false)
   }
 
-  private goTo(stop: number): void {
+  // On to a stop of the route now (back, next, or a link into the tour).
+  goTo(stop: number): void {
     if (this.held) this.carryOn()
     this.parts.itinerary.seek(stop)
     this.parts.narrator.seek(stop)

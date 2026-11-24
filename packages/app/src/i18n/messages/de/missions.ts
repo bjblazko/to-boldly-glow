@@ -1,7 +1,14 @@
+import { apollo11Tour } from './apollo11Tour'
+
 import type { Messages } from '../en'
 
 export const missions: Messages['missions'] = {
   ui: {
+    shuttle: 'Jog',
+    shuttleTitle: 'Jog und Shuttle (J, K, L, Pfeiltasten)',
+    overview: 'Die ganze Tour',
+    spring: 'Shuttle: schieben, um zurück oder vor zu laufen, je weiter, desto schneller',
+    jog: 'Jog-Rad: drehen für einzelne Bilder, mit Umschalt für Sekunden',
     play: 'Abspielen',
     pause: 'Anhalten',
     previous: 'Vorige Station',
@@ -160,4 +167,5 @@ export const missions: Messages['missions'] = {
       },
     },
   },
+  apollo11: apollo11Tour,
 }

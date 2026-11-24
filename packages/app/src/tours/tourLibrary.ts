@@ -1,9 +1,9 @@
 import { msg } from '../i18n/i18n'
 
-export type TourId = 'grand' | 'voyager1' | 'voyager2'
+export type TourId = 'grand' | 'voyager1' | 'voyager2' | 'apollo11'
 
 // The tours the start page offers as cards (the grand tour has its own place at the top).
-const MISSION_TOURS = ['voyager1', 'voyager2'] as const
+const MISSION_TOURS = ['voyager1', 'voyager2', 'apollo11'] as const
 
 // The mission tours on the start page, one card each - like the lessons, for flights the narrator
 // guides.

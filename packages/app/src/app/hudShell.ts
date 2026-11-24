@@ -17,6 +17,7 @@ import { requireElement } from './dom'
 import type { createExplorer } from './explorer'
 import { gatherPaletteItems } from './paletteItems'
 import { markStartPageSeen, startPageSeen, startPageWanted } from './startupTour'
+import { parseDeepLink, resolveDeepLink } from './deepLink'
 import type { Tours } from './tours'
 
 type Explorer = ReturnType<typeof createExplorer>
@@ -43,8 +44,21 @@ export function createHud(explorer: Explorer, parts: HudParts): { firstFrame: ()
   requireElement('#beta-chip').addEventListener('click', () => about.open())
   explorer.canvas.addEventListener('pointerdown', () => parts.dock.closeActivePanel())
   createPalette(explorer, parts, { hideInterface: () => ui.hide(), showAbout: () => about.open() })
+  // A link into a lesson or a tour opens it - on arrival, and when the address changes later.
+  const followLink = (): boolean => {
+    const link = parseDeepLink(window.location.hash)
+    const target = link && resolveDeepLink(link)
+    if (!target) return false
+    if (target.kind === 'lesson') {
+      parts.tours.stopAll()
+      parts.learnUi.openLessonAt(target.lesson, target.chapterIndex)
+    } else parts.tours.start(target.tour, target.partIndex)
+    return true
+  }
+  window.addEventListener('hashchange', followLink)
   return {
     firstFrame: () => {
+      if (followLink()) return
       if (!startPageWanted(window.location.search, startPageSeen())) return
       markStartPageSeen()
       start.open()

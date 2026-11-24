@@ -37,10 +37,10 @@ const EXPLODES: Partial<Record<ActorModel, Record<string, Vec3>>> = { csm: { cm:
 
 const SATURN_V_SHOWN = ['sivb', 'sivbEngine', 'iu', 'sla']
 const SATURN_V_PARTS = ['les', 'cm', 'sm', 'sla', 'lm', 'iu', 'sivb', 'sivbInside', 'sivbEngine', 'sii', 'siiInside', 'siiEngines', 'sic', 'sicInside', 'sicEngines', 'person']
-const LM_DESCENT_PARTS = ['descent', 'descentInside', 'leg0', 'leg1', 'leg2', 'leg3', 'link0', 'link1', 'link2', 'link3', 'probes']
+export const LM_DESCENT_PARTS = ['descent', 'descentInside', 'leg0', 'leg1', 'leg2', 'leg3', 'link0', 'link1', 'link2', 'link3', 'probes']
 const SM_PARTS = ['sm', 'smInside', 'sps', 'rcs', 'antenna']
 // Eagle docked to Columbia's nose, upside down to it (turned half round across its axis).
-const DOCKED_LM_Y = CM_APEX[1] + LM_TOP[1]
+export const DOCKED_LM_Y = CM_APEX[1] + LM_TOP[1]
 
 // How far along a stretch of the play (seconds) - eased in and out, 0 before, 1 after.
 function phase(seconds: number, from: number, to: number): number {
@@ -48,7 +48,7 @@ function phase(seconds: number, from: number, to: number): number {
   return u * u * (3 - 2 * u)
 }
 
-function pose(model: ActorModel, fields: Partial<Omit<ActorPose, 'model'>>): ActorPose {
+export function pose(model: ActorModel, fields: Partial<Omit<ActorPose, 'model'>>): ActorPose {
   return { model, translation: [0, 0, 0], rotation: { x: 0, y: 0 }, pivot: [0, 0, 0], explode: 0, fold: 0, visibility: { person: 0 }, ...fields }
 }
 

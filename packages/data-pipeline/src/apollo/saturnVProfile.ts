@@ -97,6 +97,16 @@ export const J2_ENGINE: ProfilePoint[] = [
   [0, 11 * FT + 1 * 0.0254], // NR: 11 ft 1 in long
 ]
 
+// The S-IVB's aft end, seen up its aft skirt: the thrust structure - a cone from the J-2's gimbal
+// (its top, 4.9 m above the S-II's) out to the LOX tank's lower dome (2.2 m deep, its rim 7.3 m up),
+// then the dome out to the skirt. The cone's size APPROX (FM: a truncated cone carrying the J-2).
+export function sivbAftProfile(): ProfilePoint[] {
+  const base = HEIGHTS.siiTop
+  const domeRadius = UPPER_RADIUS - 0.06
+  const dome = (r: number): ProfilePoint => [r, base + 7.3 - 2.2 * Math.sqrt(Math.max(0, 1 - (r / domeRadius) ** 2))]
+  return [[0.3, base + 4.9], dome(1.5), dome(2.2), dome(2.8), dome(3.1), dome(domeRadius), [UPPER_RADIUS, base + 7.3]]
+}
+
 // APPROX: the service module's engine (SPS) bell, about 2.9 m long and 2.5 m across.
 export const SPS_ENGINE: ProfilePoint[] = [[1.25, 0], [1.0, 0.9], [0.65, 1.9], [0.3, 2.6], [0, 2.9]]
 

@@ -1,0 +1,20 @@
+{
+  "source": "NASA's Scientific Visualization Studio, CGI Moon Kit (svs.gsfc.nasa.gov/4720): LROC WAC colour, LOLA heights",
+  "bounds": {
+    "west": -10,
+    "east": 60,
+    "south": -10,
+    "north": 12
+  },
+  "colour": {
+    "file": "moon-region.jpg",
+    "width": 5320,
+    "height": 1672
+  },
+  "heights": {
+    "file": "moon-region-heights.bin",
+    "width": 560,
+    "height": 176,
+    "format": "uint16 little-endian; km from the Moon centre = 1727.4 + value / 2000"
+  }
+}

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Links straight into every lesson and tour, down to the chapter or station:
+  `#lesson/apollo11/landing`, `#tour/voyager1/jupiter`, `#tour/grand/saturn`. The address bar
+  follows along, so it always holds a link to where one is.
+
 ## [0.8.0] - 2026-11-22
 
 ### Added

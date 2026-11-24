@@ -71,20 +71,23 @@ export function createExplorer(canvas: HTMLCanvasElement, display: DisplaySettin
   const bodyLabels = new BodyLabels(requireElement('#body-labels'))
   const tour = (route: TourRoute) => startTour(camera, clock, now, route)
   const narration = new NarratedTour(sound.narrationManifest, requireElement, sound.voice)
-  const tourBar = new GrandTourBar(requireElement)
+  const tourBar = new GrandTourBar(requireElement, (stop) => tourStopChanged.forEach((listener) => listener(stop)))
   // The narrator paces the grand tour and hears where it is; started from a click, so it may speak.
-  const narratedTour = () => {
+  // `stopIndex`: a stop of the route to go straight to (a link into the tour).
+  const narratedTour = (stopIndex: number | null = null) => {
     if (camera.isTouring) camera.stopTour()
     const narrator = narration.begin()
     const route = grandTourRoute({ pacing: narrator, listener: narrator })
     tour(route)
     const ship = { redirect: () => camera.redirectTour(), setPaused: (paused: boolean) => camera.setTourPaused(paused) }
-    tourBar.attach(new GrandTourRemote({ narrator, itinerary: route.itinerary, tour: ship, clock }))
+    const remote = new GrandTourRemote({ narrator, itinerary: route.itinerary, tour: ship, clock })
+    tourBar.attach(remote)
+    if (stopIndex !== null && stopIndex > 0) remote.goTo(stopIndex)
     narratedTourChanged.forEach((listener) => listener(true))
   }
-  // Who hears when a narrated tour sets off (true) and ends (false).
-  const narratedTourChanged: ((flying: boolean) => void)[] = []
-  return { canvas, display, scaleMode, camera, guide, lens, clock, timeControls: createTimeControls(clock), bodyLabels, orbitPaths, shown, select, startNarratedTour: narratedTour, narratedTourChanged }
+  // Who hears when a narrated tour sets off (true) and ends (false), and which stop it is at.
+  const [narratedTourChanged, tourStopChanged]: [((flying: boolean) => void)[], ((stop: string | null) => void)[]] = [[], []]
+  return { canvas, display, scaleMode, camera, guide, lens, clock, timeControls: createTimeControls(clock), bodyLabels, orbitPaths, shown, select, startNarratedTour: narratedTour, narratedTourChanged, tourStopChanged }
 }
 
 interface CameraWiring {

@@ -621,6 +621,10 @@
           <svg class="icon icon-play-glyph" aria-hidden="true"><use href="#icon-play"></use></svg>
           <span class="hud-dock-label" data-i18n="ui.bar.play">Play</span>
         </button>
+        <button id="mission-shuttle-btn" class="hud-dock-btn" type="button" aria-pressed="false" aria-controls="mission-shuttle" title="Jog and shuttle (J, K, L, arrow keys)" data-i18n-attr="title:missions.ui.shuttleTitle">
+          <svg class="icon" aria-hidden="true"><use href="#icon-forward"></use></svg>
+          <span class="hud-dock-label" data-i18n="missions.ui.shuttle">Jog</span>
+        </button>
       </div>
       <div class="hud-bar-group" data-for="tour">
         <button id="tour-prev" class="hud-dock-btn" type="button" aria-label="Previous stop" data-i18n-attr="aria-label:ui.narration.previousStop">
@@ -743,6 +747,26 @@
           <div id="mission-card-media" class="hud-lesson-media" hidden></div>
         </div>
       </article>
+      <div id="mission-shuttle" class="hud-shuttle" hidden>
+        <div id="mission-shuttle-overview" class="hud-shuttle-overview" role="slider" tabindex="0" aria-label="Whole tour" data-i18n-attr="aria-label:missions.ui.overview" aria-valuemin="0">
+          <div class="hud-shuttle-segments"></div>
+          <div class="hud-shuttle-playhead"></div>
+        </div>
+        <div class="hud-shuttle-row">
+          <div class="hud-shuttle-readout">
+            <span id="mission-shuttle-timecode" class="hud-shuttle-timecode">00:00:00</span>
+            <span id="mission-shuttle-get" class="hud-shuttle-get"></span>
+          </div>
+          <div id="mission-shuttle-spring" class="hud-shuttle-spring" role="slider" tabindex="0" aria-label="Shuttle: push to run back or forward, faster the further" data-i18n-attr="aria-label:missions.ui.spring" aria-valuemin="-64" aria-valuemax="64" aria-valuenow="0">
+            <span class="hud-shuttle-scale" aria-hidden="true"><span>◀◀</span><span>■</span><span>▶▶</span></span>
+            <span class="hud-shuttle-knob"></span>
+            <span id="mission-shuttle-rate" class="hud-shuttle-rate"></span>
+          </div>
+          <div id="mission-shuttle-jog" class="hud-shuttle-jog" role="slider" tabindex="0" aria-label="Jog wheel: turn for single frames, Shift for seconds" data-i18n-attr="aria-label:missions.ui.jog">
+            <span class="hud-shuttle-jog-dimple"></span>
+          </div>
+        </div>
+      </div>
     </section>
 
 

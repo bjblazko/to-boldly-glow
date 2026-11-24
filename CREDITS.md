@@ -75,8 +75,14 @@ a radial gradient/alpha strip) is `2k_saturn_ring_alpha.png` from the same sourc
 
 ## Moon textures
 
-The Moon's texture (`packages/app/public/textures/moon.jpg`, `2k_moon.jpg`) is also from Solar
-System Scope, same source/license as above.
+The Moon's map and relief (`packages/app/public/textures/moon.jpg`, 4096 x 2048, and
+`moon_bump.jpg`) and the region round Tranquility Base the Apollo 11 tour flies over
+(`packages/app/public/data/apollo11/moon-region.jpg`, `moon-region-heights.bin`, `moon-region.json`)
+are from NASA's Scientific Visualization Studio, CGI Moon Kit (https://svs.gsfc.nasa.gov/4720;
+LRO's LROC WAC colour mosaic and LOLA heights; visualizer Ernie Wright, scientist Noah Petro).
+NASA media are generally not subject to copyright in the United States
+(https://www.nasa.gov/multimedia/guidelines/); credit: "NASA's Scientific Visualization Studio".
+Made grey, resized and cut to the region by the data pipeline (`npm run build-moon-maps`).
 
 The Galilean moons (Io, Europa, Ganymede, Callisto) and Titan use public-domain NASA/JPL/USGS
 imagery, sourced via Wikimedia Commons (each confirmed "Public domain" under `{{PD-USGov-NASA}}`
@@ -360,7 +366,21 @@ NASA's "Apollo 11 Mission Report" (MSC-00171, 1969; https://archive.org/details/
 both public domain. The path (`packages/app/public/data/apollo11/translunar.bin`, `transearth.bin`) is our own
 reconstruction by `packages/data-pipeline/src/buildApollo11Trajectory.ts`; the Moon's and the Sun's
 positions it is integrated in (`data/apollo11-ephemeris.json`, and `public/data/apollo11/moon.bin`)
-are from NASA/JPL Horizons (DE441).
+are from NASA/JPL Horizons (DE441). Columbia's lunar orbits (`lunar.bin`) and Eagle's way down (`eagle.bin`, its powered descent through the crew's callouts in NASA's technical air-to-ground transcript) are integrated in the Moon's gravity field GRGM660PRIM
+(Lemoine et al. 2013, NASA/GSFC, from GRAIL; NASA Planetary Data System,
+https://pds-geosciences.wustl.edu/grail/grail-l-lgrs-5-rdr-v1/grail_1001/shadr/, public domain), to
+degree 60, with the Moon's orientation from the IAU WGCCRE report (Archinal et al. 2018); the field
+itself is not shipped.
+
+Tranquility Base's terrain (`packages/app/public/data/apollo11/terrain/`) is made from LROC's NAC
+terrain model of the Apollo 11 landing site and its orthophoto (NAC M150361817), product
+NAC_DTM_APOLLO11 v1.9 of the NASA Planetary Data System's LRO-L-LROC-5-RDR-V1.0 archive
+(https://pds.lroc.im-ldi.com/data/LRO-L-LROC-5-RDR-V1.0/LROLRC_2001/DATA/SDP/NAC_DTM/APOLLO11/),
+public domain per LROC's terms for data from the PDS archive; credit NASA/GSFC/Arizona State
+University. Method: Henriksen et al., "Extracting accurate and precise topography from LROC narrow
+angle camera stereo observations", Icarus 283 (2017). Cropped, its heights halved to 4 m, its
+stereo seams evened, and the photo's own shadows divided out by
+`packages/data-pipeline/src/buildTranquility.ts`.
 
 ## Tonemapping
 

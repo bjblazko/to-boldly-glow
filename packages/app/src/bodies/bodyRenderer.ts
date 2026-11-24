@@ -8,7 +8,7 @@ import { saturnRingRadii } from '../saturnRing/saturnRing'
 import { bodyWorldMatrix, type MoonPose, type PlanetPose, type SceneLayout } from '../scene/sceneLayout'
 import { LIT_UNIFORM_FLOAT_COUNT, litSphereShaderCode } from './litBodyShader'
 import { packLitBodyUniforms, sunlightDirection, type Occluder } from './litBodyUniforms'
-import { createSphereMeshBuffers, drawSphere, SPHERE_VERTEX_BUFFERS, type SphereMeshBuffers } from './sphereMesh'
+import { createSphereMeshBuffers, drawSphere, FINE_SPHERE_SEGMENTS, generateSphereMesh, needsFineSphere, SPHERE_VERTEX_BUFFERS, type SphereMeshBuffers } from './sphereMesh'
 import { SUN_UNIFORM_FLOAT_COUNT, sunShaderCode } from './sunShader'
 import { SunSurface } from './sunSurface'
 import { createBodySampler } from './bodySampler'
@@ -40,6 +40,9 @@ interface BindingContext {
 // that the frame's scene layout contains.
 export class BodyRenderer {
   private readonly sunSurface = new SunSurface()
+  // The bodies the camera is close to this frame (drawn with the fine sphere).
+  private readonly closeBodies = new Set<string>()
+  private fine: SphereMeshBuffers | null = null
 
   private constructor(
     private readonly device: GPUDevice,
@@ -74,6 +77,11 @@ export class BodyRenderer {
     const bodyFrame = { layout, viewpoint, timeSeconds: frame.timeSeconds, clouds: frame.clouds }
     for (const planet of layout.planets) this.writePlanet(planet, bodyFrame)
     for (const moon of layout.moons) this.writeMoon(moon, bodyFrame)
+    this.closeBodies.clear()
+    for (const body of [...layout.planets, ...layout.moons]) {
+      const [x, y, z] = [body.position[0] - viewpoint.position[0], body.position[1] - viewpoint.position[1], body.position[2] - viewpoint.position[2]]
+      if (needsFineSphere(Math.hypot(x, y, z), body.radius)) this.closeBodies.add(body.definition.id)
+    }
   }
 
   draw(pass: GPURenderPassEncoder, layout: SceneLayout): void {
@@ -81,8 +89,15 @@ export class BodyRenderer {
     drawSphere(pass, this.sphereMesh, this.bindings.sun.bindGroup)
     pass.setPipeline(this.pipelines.lit)
     for (const body of [...layout.planets, ...layout.moons]) {
-      drawSphere(pass, this.sphereMesh, this.bindings.litBodies.get(body.definition.id)!.bindGroup)
+      const mesh = this.closeBodies.has(body.definition.id) ? this.fineMesh() : this.sphereMesh
+      drawSphere(pass, mesh, this.bindings.litBodies.get(body.definition.id)!.bindGroup)
     }
+  }
+
+  // The fine sphere, made the first time a body is close.
+  private fineMesh(): SphereMeshBuffers {
+    this.fine ??= createSphereMeshBuffers(this.device, generateSphereMesh(1, FINE_SPHERE_SEGMENTS / 2, FINE_SPHERE_SEGMENTS))
+    return this.fine
   }
 
   private writePlanet(planet: PlanetPose, { layout, viewpoint, timeSeconds, clouds }: BodyFrame): void {

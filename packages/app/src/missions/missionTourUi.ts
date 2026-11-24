@@ -1,9 +1,7 @@
-import { formatNumber, locale, msg } from '../i18n/i18n'
-import { LOCALE_TAGS } from '../i18n/locale'
+import { msg } from '../i18n/i18n'
 import { renderFact } from '../learn/lessonPanel'
 import { LessonMedia } from '../learn/lessonMedia'
-import type { MissionMoment } from './missionPlayer'
-import type { Mission } from './missionTimeline'
+import type { ChapterChart, ChapterFact, ChapterPhoto } from '../learn/lessonTypes'
 
 type Find = <T extends HTMLElement>(selector: string) => T
 
@@ -15,8 +13,34 @@ export interface MissionTourHandlers {
   close(): void
 }
 
-// Light needs about 499 seconds per AU.
-const LIGHT_HOURS_PER_AU = 499.005 / 3600
+// A tour as its panel shows it: a name (the page's data-mission-tour) and its stations, each with
+// its title and a short mark on the timeline (a year, a mission time).
+export interface TourOutline {
+  id: string
+  stations: { title: string; mark: string }[]
+}
+
+// A station's card.
+export interface StationCard {
+  title: string
+  text: string
+  // Its date or mission time, over the title.
+  when: string
+  // A badge under it (a flyby at true scale), if any.
+  badge?: string
+  facts?: ChapterFact[]
+  photo?: ChapterPhoto
+  chart?: ChapterChart
+}
+
+// What the panel shows as the tour runs.
+export interface TourState {
+  stationIndex: number
+  fade: number
+  paused: boolean
+  // On the way to a station whose card is not open yet.
+  travelling: boolean
+}
 
 interface Elements {
   root: HTMLElement
@@ -52,7 +76,7 @@ function findElements(find: Find): Elements {
 export class MissionTourUi {
   private readonly el: Elements
   private readonly media: LessonMedia
-  private mission: Mission | null = null
+  private outline: TourOutline | null = null
   private handlers: MissionTourHandlers | null = null
   private shownIndex = -1
 
@@ -63,21 +87,21 @@ export class MissionTourUi {
     find('#mission-next').addEventListener('click', () => this.handlers?.next())
     this.el.play.addEventListener('click', () => this.handlers?.togglePause())
     window.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && this.mission) this.handlers?.close()
+      if (event.key === 'Escape' && this.outline) this.handlers?.close()
     })
   }
 
-  open(mission: Mission, handlers: MissionTourHandlers): void {
-    this.mission = mission
+  open(outline: TourOutline, handlers: MissionTourHandlers): void {
+    this.outline = outline
     this.handlers = handlers
     this.shownIndex = -1
-    this.renderTimeline(mission)
+    this.renderTimeline(outline)
     this.el.root.hidden = false
-    document.body.dataset.missionTour = mission.probe
+    document.body.dataset.missionTour = outline.id
   }
 
   close(): void {
-    this.mission = null
+    this.outline = null
     this.handlers = null
     this.el.root.hidden = true
     this.el.fade.style.opacity = '0'
@@ -85,34 +109,31 @@ export class MissionTourUi {
     delete document.body.dataset.missionTour
   }
 
-  showStation(index: number): void {
-    const mission = this.mission
-    if (!mission) return
-    const station = mission.stations[index]
-    const text = msg.missions[mission.probe].stations[station.id]
+  showStation(index: number, card: StationCard): void {
+    if (!this.outline) return
     this.shownIndex = index
-    this.el.title.textContent = text.title
-    this.el.text.textContent = text.text
-    this.el.date.textContent = new Date(station.date).toLocaleDateString(LOCALE_TAGS[locale], { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })
-    this.el.flyby.hidden = !station.encounter
-    this.el.flyby.textContent = msg.missions.ui.flyby
-    this.el.facts.replaceChildren(...(station.facts ?? []).map(renderFact))
-    this.el.facts.hidden = !station.facts?.length
-    this.media.show(station)
+    this.el.title.textContent = card.title
+    this.el.text.textContent = card.text
+    this.el.date.textContent = card.when
+    this.el.flyby.hidden = !card.badge
+    this.el.flyby.textContent = card.badge ?? ''
+    this.el.facts.replaceChildren(...(card.facts ?? []).map(renderFact))
+    this.el.facts.hidden = !card.facts?.length
+    this.media.show(card)
   }
 
-  update(moment: MissionMoment, distanceAu: number): void {
-    this.el.fade.style.opacity = String(moment.fade)
-    this.el.distance.textContent = msg.missions.ui.distance(formatNumber(distanceAu, 1), formatNumber(distanceAu * LIGHT_HOURS_PER_AU, 1))
-    const paused = moment.paused || moment.phase === 'end'
-    this.showPlayState(paused)
+  // `status`: the line under the title (the distance from the Sun, the craft's height).
+  update(state: TourState, status: string): void {
+    this.el.fade.style.opacity = String(state.fade)
+    this.el.distance.textContent = status
+    this.showPlayState(state.paused)
     for (const item of this.el.timeline.querySelectorAll<HTMLElement>('li')) {
       const index = Number(item.dataset.index)
-      item.classList.toggle('is-done', index < moment.stationIndex)
-      if (index === moment.stationIndex) item.setAttribute('aria-current', 'step')
+      item.classList.toggle('is-done', index < state.stationIndex)
+      if (index === state.stationIndex) item.setAttribute('aria-current', 'step')
       else item.removeAttribute('aria-current')
     }
-    this.el.root.classList.toggle('is-travelling', moment.phase === 'flight' && this.shownIndex !== moment.stationIndex)
+    this.el.root.classList.toggle('is-travelling', state.travelling && this.shownIndex !== state.stationIndex)
   }
 
   ended(): void {
@@ -129,16 +150,15 @@ export class MissionTourUi {
     this.el.play.setAttribute('aria-label', paused ? msg.missions.ui.play : msg.missions.ui.pause)
   }
 
-  private renderTimeline(mission: Mission): void {
-    const texts = msg.missions[mission.probe].stations
+  private renderTimeline(outline: TourOutline): void {
     this.el.timeline.setAttribute('aria-label', msg.missions.ui.timeline)
     this.el.timeline.replaceChildren(
-      ...mission.stations.map((station, index) => {
+      ...outline.stations.map((station, index) => {
         const item = document.createElement('li')
         item.dataset.index = String(index)
-        const button = Object.assign(document.createElement('button'), { type: 'button', className: 'hud-mission-stop', title: texts[station.id].title })
-        button.setAttribute('aria-label', `${texts[station.id].title}, ${station.date.slice(0, 4)}`)
-        button.append(Object.assign(document.createElement('span'), { className: 'hud-mission-stop-year', textContent: station.date.slice(0, 4) }))
+        const button = Object.assign(document.createElement('button'), { type: 'button', className: 'hud-mission-stop', title: station.title })
+        button.setAttribute('aria-label', `${station.title}, ${station.mark}`)
+        button.append(Object.assign(document.createElement('span'), { className: 'hud-mission-stop-year', textContent: station.mark }))
         button.addEventListener('click', () => this.handlers?.jumpTo(index))
         item.append(button)
         return item

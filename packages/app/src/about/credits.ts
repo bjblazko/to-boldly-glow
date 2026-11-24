@@ -29,7 +29,7 @@ export interface CreditGroup {
 const TEXT = msg.credits
 const CC_BY_4 = 'https://creativecommons.org/licenses/by/4.0/'
 
-const SOLAR_SYSTEM_SCOPE_FILES = ['sun', 'mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'moon'].map((id) => `textures/${id}.jpg`)
+const SOLAR_SYSTEM_SCOPE_FILES = ['sun', 'mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune'].map((id) => `textures/${id}.jpg`)
 
 export const CREDIT_GROUPS: CreditGroup[] = [
   {
@@ -88,6 +88,13 @@ export const CREDIT_GROUPS: CreditGroup[] = [
         text: CC_BY_4,
         changes: TEXT.changes.solarSystemScope,
         files: [...SOLAR_SYSTEM_SCOPE_FILES, 'textures/saturn_ring.png', ...['jupiter', 'saturn', 'uranus', 'neptune'].map((id) => `textures/${id}_bump.png`)],
+      },
+      {
+        name: 'NASA’s Scientific Visualization Studio, CGI Moon Kit',
+        use: TEXT.uses.cgiMoonKit,
+        license: TEXT.licenses.publicDomain,
+        home: 'https://svs.gsfc.nasa.gov/4720',
+        files: ['textures/moon.jpg', 'textures/moon_bump.jpg', 'data/apollo11/moon-region.jpg', 'data/apollo11/moon-region-heights.bin', 'data/apollo11/moon-region.json'],
       },
       {
         name: 'NASA / JPL / USGS',
@@ -197,7 +204,21 @@ export const CREDIT_GROUPS: CreditGroup[] = [
         license: TEXT.licenses.publicDomain,
         home: 'https://archive.org/details/apollo-by-the-numbers',
         changes: TEXT.changes.apollo11Trajectory,
-        files: ['data/apollo11/translunar.bin', 'data/apollo11/transearth.bin'],
+        files: ['data/apollo11/translunar.bin', 'data/apollo11/lunar.bin', 'data/apollo11/eagle.bin', 'data/apollo11/transearth.bin'],
+      },
+      {
+        name: 'NASA/GSFC, GRAIL lunar gravity field GRGM660PRIM (Lemoine et al. 2013, NASA Planetary Data System)',
+        use: TEXT.uses.grail,
+        license: TEXT.licenses.publicDomain,
+        home: 'https://pds-geosciences.wustl.edu/grail/grail-l-lgrs-5-rdr-v1/grail_1001/shadr/',
+        files: ['data/apollo11/lunar.bin', 'data/apollo11/eagle.bin'],
+      },
+      {
+        name: 'NASA/GSFC/Arizona State University, LROC NAC terrain model and orthophoto of the Apollo 11 site (NAC_DTM_APOLLO11; Henriksen et al. 2017, NASA Planetary Data System)',
+        use: TEXT.uses.lrocTranquility,
+        license: TEXT.licenses.publicDomain,
+        home: 'https://pds.lroc.im-ldi.com/data/LRO-L-LROC-5-RDR-V1.0/LROLRC_2001/DATA/SDP/NAC_DTM/APOLLO11/',
+        files: ['data/apollo11/terrain/tranquility-heights.bin', 'data/apollo11/terrain/tranquility-albedo.jpg', 'data/apollo11/terrain/tranquility.json'],
       },
       {
         name: 'NASA Space Physics Data Facility, Voyager 1 and 2 merged data (CRS, MAG)',
@@ -251,7 +272,7 @@ export const CREDIT_GROUPS: CreditGroup[] = [
         license: 'GPL-3.0-or-later',
         home: 'https://github.com/bjblazko/to-boldly-glow',
         text: 'licenses/to-boldly-glow.txt',
-        files: ['logo.svg', 'sky/milkyWay.jpg', 'licenses/'],
+        files: ['logo.svg', 'sky/milkyWay.jpg', 'licenses/', 'data/apollo11/terrain/regolith-detail.png'],
       },
     ],
   },

@@ -73,12 +73,30 @@ from the Mission Report / Apollo Flight Journal state vectors, the real Moon, ev
    the Smithsonian scan for the notes on the walls and a new closing chapter "Columbia today" (the
    real capsule in the museum); the outside stays our own model (the cutaways need it).
 8. The tour's lunar orbit and descent: the Moon's gravity field for the 55 h in lunar orbit (step 5's
-   open end), Tranquility Base's terrain from the LRO NAC DTM, the descent (P63/P64/P66, 1202 alarm,
+   open end; built 2026-11-22 - GRAIL to degree 60, Columbia's orbits fitted to run over Tranquility
+   Base, ABTN's orbit shapes met; next: Eagle's powered descent, ascent and rendezvous - spec
+   `superpowers/specs/2026-11-22-apollo11-lunar-orbit-design.md`), Tranquility Base's terrain from the LRO NAC DTM, the descent (P63/P64/P66, 1202 alarm,
    fuel), the ascent and rendezvous.
 9. Camera language for the tour (cuts, tracking, onboard and tower cameras, auto direction).
-10. Launch and ascent (exhaust, staging), pad 39A and the ground scene.
+   Decided 2026-11-23: some 20-30 minutes to watch (the key moments in real time, the long coasts
+   sped up); within a phase the camera stays on the real path with time sped up, between phases a
+   cut behind a fade with the mission time shown; the tour cuts between inside and outside itself,
+   with a switch for outside only / inside only / auto; the first version starts in Earth orbit and
+   runs to splashdown, the launch (step 10) is put in front of it later. Foundation built: the
+   trajectory files to the millisecond, the app's loader for Columbia, Eagle and the Moon at any
+   mission time.
+   Tranquility Base's terrain, decided 2026-11-23: the LRO NAC DTM (2 m) and orthophoto around the
+   site, fading into the global Moon outside; the photo's own shadows evened out and lit by the
+   Sun of 20 July 1969; on the ground the descent stage left behind, the flag and experiments, the
+   crew's paths and two plain suited figures. Source only NASA's PDS archive (public domain per
+   LROC's terms; credit NASA/GSFC/Arizona State University, Henriksen et al. 2017).
+10. Launch and ascent (exhaust, staging), pad 39A and the ground scene. Wanted (the owner,
+    2026-11-23): the S-II's interstage ring dropping away some 30 s after the second stage lit,
+    as the onboard film shows it (looking aft past the J-2s, Earth below).
 11. The full "Apollo 11" tour: the whole mission at true scale on the reconstructed path, with the
     vehicles, the original audio and the photos.
+**Later**: more of the Saturn V's inside (the tanks' ribs, the thrust structures), wanted by the
+owner 2026-11-23.
 **Risks**: depth precision for metres beside Earth and Moon (a metre pass, as in the Voyager
 encounters), interior light and shadow (the model shader has none), download size (load per
 lesson), rights of every photo and audio clip (`huepattl-legal-check` before shipping).

@@ -1,6 +1,6 @@
 {
- "vertexCount": 18642,
- "indexCount": 92772,
+ "vertexCount": 19321,
+ "indexCount": 96228,
  "indexFormat": "uint16",
  "draws": [
   {
@@ -11,7 +11,7 @@
   {
    "texture": "saturnV-palette.png",
    "firstIndex": 13848,
-   "indexCount": 78924
+   "indexCount": 82380
   }
  ],
  "bounds": {
@@ -190,7 +190,7 @@
   ],
   "sii": [
    0,
-   54.49740219116211,
+   57.08015060424805,
    0
   ],
   "siiInside": [
@@ -205,7 +205,7 @@
   ],
   "sivb": [
    0,
-   75.86240005493164,
+   78.31239700317383,
    0
   ],
   "sivbInside": [

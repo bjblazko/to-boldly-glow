@@ -13,7 +13,8 @@ test('a lost GPU device is reported with a way to reload instead of a silently f
   })
   await page.goto('/?tour=off')
   const alert = page.getByRole('alert')
-  await expect(alert).toContainText('graphics device stopped working')
+  // The app has to start first: on software WebGPU (CI) that takes as long as any boot.
+  await expect(alert).toContainText('graphics device stopped working', { timeout: 30_000 })
   await expect(alert).toContainText('simulated loss')
   await expect(alert.getByRole('button', { name: 'Reload' })).toBeVisible()
 })

@@ -1,3 +1,5 @@
+import { apollo11Tour } from './apollo11Tour'
+
 // The mission tours' words: the controls, and each station's card - its title, what the narrator
 // says (and the card shows), a photo's caption and its facts. Facts from NASA/JPL's Voyager mission
 // pages; flyby distances from the probes' JPL Horizons flyby paths (from the planet's centre).
@@ -9,6 +11,11 @@ type Stations = Record<string, StationText>
 
 export const missions = {
   ui: {
+    shuttle: 'Jog',
+    shuttleTitle: 'Jog and shuttle (J, K, L, arrow keys)',
+    overview: 'Whole tour',
+    spring: 'Shuttle: push to run back or forward, faster the further',
+    jog: 'Jog wheel: turn for single frames, Shift for seconds',
     play: 'Play',
     pause: 'Pause',
     previous: 'Previous station',
@@ -160,4 +167,5 @@ export const missions = {
       },
     } as Stations,
   },
+  apollo11: apollo11Tour,
 }

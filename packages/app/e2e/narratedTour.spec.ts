@@ -137,7 +137,7 @@ test('the narrator picked on the start page speaks, and More shows the same choi
 test('a mission tour from the start page puts its controls in the bar; End tour returns to exploring', async ({ page }) => {
   await openApp(page)
   await page.locator('#start-btn').click()
-  await expect(page.locator('#start-page [data-tour-id]')).toHaveCount(2)
+  await expect(page.locator('#start-page [data-tour-id]')).toHaveCount(3)
   await page.locator('#start-page [data-tour-id="voyager1"]').click()
   await expect(page.locator('body')).toHaveAttribute('data-context', 'mission')
   await expect(page.locator('#mission-play')).toBeVisible()
