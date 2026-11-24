@@ -31,6 +31,10 @@ export interface Motion {
 
 // The Moon's sphere of influence (about 66,000 km): inside it the Moon is the body flown round.
 const MOON_INFLUENCE_KM = 60_000
+// The Moon's sphere drawn a few kilometres small: under the maria, so the region of true heights
+// drawn over it (moonRegion.ts) and Tranquility Base's ground (2 km under the mean radius) never
+// fight with it; 0.25% of its size, nothing from afar.
+const DRAWN_MOON_RADIUS_KM = 1733
 const LANDING_SITE_RADIUS_KM = 1735.47
 const LANDED = 102 * 3600 + 45 * 60 + 40
 const LIFTOFF = 124 * 3600 + 22 * 60 + 0.79
@@ -146,7 +150,7 @@ export class Apollo11Scene {
 
   layout(): SceneLayout {
     const earth: PlanetPose = { definition: EARTH, position: this.units(this.earthKm()), radius: EARTH.radiusKm / KM_PER_UNIT, ...realOrientation(EARTH, this.ephemeris) }
-    const moon: MoonPose = { definition: MOON, parent: earth, position: this.units(this.moonKm()), radius: MOON.radiusKm / KM_PER_UNIT, tilt: moonTilt(this.julianDay()), spinRadians: 0 }
+    const moon: MoonPose = { definition: MOON, parent: earth, position: this.units(this.moonKm()), radius: DRAWN_MOON_RADIUS_KM / KM_PER_UNIT, tilt: moonTilt(this.julianDay()), spinRadians: 0 }
     const sunUnits = this.toSun.map((value) => value * SUN_DISTANCE_UNITS) as Vec3
     const sun = { position: sunUnits, radius: (SUN.radiusKm / AU_KM) * SUN_DISTANCE_UNITS, ...realOrientation(SUN, this.ephemeris) }
     return { sun, planets: [earth], moons: [moon] }

@@ -7,7 +7,7 @@ describe("the region of the Moon under the tour's lunar orbit", () => {
   const raw = new Uint16Array(71 * 23).fill(20_000)
   const model = moonRegion(region, raw, { latitude: 0.674, longitude: 23.47, radius: 45_000 })
 
-  it('lies just over the Moon’s sphere, its normals up', () => {
+  it('lies at its true heights round the region’s middle, its normals up', () => {
     const v = model.vertices
     const i = (11 * 71 + 35) * 9
     const [x, y, z] = [v[i], v[i + 1], v[i + 2]]

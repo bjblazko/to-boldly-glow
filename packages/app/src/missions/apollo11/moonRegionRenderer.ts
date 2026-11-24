@@ -12,8 +12,6 @@ import { fromMoonFrame, moonAxes64 } from './moonOrientation'
 const URL = 'data/apollo11'
 // Drawn while the camera is within this of the Moon's centre (km).
 const NEAR_MOON_KM = 6000
-// ...and no lower than this from it (some 5 km over the site's level).
-const LOWEST_KM = 1741
 const NO_HIGHLIGHT = { assembly: -1, strength: 0 }
 
 export class MoonRegionRenderer {
@@ -39,8 +37,7 @@ export class MoonRegionRenderer {
   prepare(viewpoint: Viewpoint, scene: Apollo11Scene, cameraKm: Vec3): void {
     const moon = scene.moonKm()
     const fromCentre = Math.hypot(moon[0] - cameraKm[0], moon[1] - cameraKm[1], moon[2] - cameraKm[2])
-    // From orbit: not near the ground, where the site's own ground shows.
-    this.shown = this.renderer !== null && fromCentre < NEAR_MOON_KM && fromCentre > LOWEST_KM
+    this.shown = this.renderer !== null && fromCentre < NEAR_MOON_KM
     if (!this.shown) return
     const axes = scene.moonAxesNow()
     // The region's middle in double precision, the rest a small turn and the metres to units.

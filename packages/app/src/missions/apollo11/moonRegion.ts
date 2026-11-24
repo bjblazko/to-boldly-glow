@@ -4,10 +4,9 @@ import type { ModelData } from '../../spacecraft/modelFile'
 // comes round on to well past the site): LOLA's heights every ~3.8 km under LROC's colour at some
 // 400 m a pixel (NASA SVS CGI Moon Kit; the data pipeline's build-moon-maps), so mountains and
 // large craters stand out on the horizon. Built in metres in the Moon's own axes, from the point at
-// the region's middle on the mean sphere; drawn with the Moon in the world's pass, its lowest point
-// a little above the Moon's sphere so the two never fight (the maria lie some kilometres under the
-// mean radius - the relief keeps its shape, lifted as a whole). From orbit only: near the ground the
-// site's own ground and terrain show.
+// the region's middle on the mean sphere; drawn with the Moon in the world's pass at its true
+// heights - the tour draws the Moon's sphere a few kilometres small, under the maria (apollo11Scene),
+// so the two never fight and the region meets the ground at the site.
 
 export interface RegionDescription {
   bounds: { west: number; east: number; south: number; north: number }
@@ -16,10 +15,6 @@ export interface RegionDescription {
 
 const DEG = Math.PI / 180
 const MEAN_RADIUS_M = 1_737_400
-// Lifted over the Moon's sphere (m): from orbit nothing, but the sphere stays under it.
-const LIFT_M = 400
-// Exaggerating the relief a little, as a model of the Moon would: its mountains read from orbit.
-const RELIEF = 1.6
 
 function direction(latitude: number, longitude: number): [number, number, number] {
   const [la, lo] = [latitude * DEG, longitude * DEG]
@@ -40,11 +35,10 @@ function regionVertices(region: RegionDescription, raw: Uint16Array, hole: Hole)
   const holeDirection = direction(hole.latitude, hole.longitude)
   const vertices = new Float32Array(columns * rows * 9)
   const inside: boolean[] = []
-  const lowest = raw.reduce((low, value) => Math.min(low, value), 65535)
   for (let i = 0; i < columns * rows; i++) {
     const [u, v] = [(i % columns) / (columns - 1), Math.floor(i / columns) / (rows - 1)]
     const d = direction(bounds.north + (bounds.south - bounds.north) * v, bounds.west + (bounds.east - bounds.west) * u)
-    const r = MEAN_RADIUS_M + LIFT_M + (raw[i] - lowest) * 0.5 * RELIEF
+    const r = 1_727_400 + raw[i] * 0.5
     vertices.set([d[0] * r - middle[0], d[1] * r - middle[1], d[2] * r - middle[2], d[0], d[1], d[2], u, v, 0], i * 9)
     inside.push(MEAN_RADIUS_M * Math.acos(Math.min(1, d[0] * holeDirection[0] + d[1] * holeDirection[1] + d[2] * holeDirection[2])) < hole.radius)
   }
