@@ -7,7 +7,7 @@ import { regionPixels, REGION } from './apollo/moonMaps'
 // The Moon's maps from NASA's Scientific Visualization Studio CGI Moon Kit (svs.gsfc.nasa.gov/4720;
 // LROC WAC colour, LOLA heights; NASA media, not under copyright in the US - credit "NASA's
 // Scientific Visualization Studio"), downloaded once into cache/moon-kit (not committed):
-// - textures/moon.jpg: the whole Moon at 8192 x 4096 (some 1.3 km a pixel);
+// - textures/moon.jpg: the whole Moon at 4096 x 2048 (some 2.7 km a pixel);
 // - textures/moon_bump.jpg: its heights (LOLA, 16 pixels a degree) for the body shader's relief;
 // - data/apollo11/moon-region.jpg and moon-region-heights.bin (+ .json): the region round
 //   Tranquility Base the tour flies over, its colour at some 400 m a pixel and its heights every
@@ -19,9 +19,11 @@ const APP = join(HERE, '../../app/public')
 sharp.cache(false)
 
 async function globalMaps(): Promise<void> {
-  await sharp(join(CACHE, 'lroc_color_poles_8k.tif'), { limitInputPixels: false }).greyscale().jpeg({ quality: 82, mozjpeg: true }).toFile(join(APP, 'textures/moon.jpg'))
+  // 4096 x 2048: sharp enough for every view (the tour's region has its own, finer map), and light
+  // enough for software rendering (CI's) to mipmap at start.
+  await sharp(join(CACHE, 'lroc_color_poles_8k.tif'), { limitInputPixels: false }).resize(4096, 2048).greyscale().jpeg({ quality: 84, mozjpeg: true }).toFile(join(APP, 'textures/moon.jpg'))
   // The heights stretched over 8 bits (the shader wants relief, not metres).
-  await sharp(join(CACHE, 'ldem_16_uint.tif'), { limitInputPixels: false }).resize(4096, 2048).normalise().toColourspace('b-w').jpeg({ quality: 90 }).toFile(join(APP, 'textures/moon_bump.jpg'))
+  await sharp(join(CACHE, 'ldem_16_uint.tif'), { limitInputPixels: false }).resize(2048, 1024).normalise().toColourspace('b-w').jpeg({ quality: 90 }).toFile(join(APP, 'textures/moon_bump.jpg'))
 }
 
 async function regionMaps(): Promise<void> {

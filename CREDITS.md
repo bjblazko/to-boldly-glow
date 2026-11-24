@@ -75,7 +75,7 @@ a radial gradient/alpha strip) is `2k_saturn_ring_alpha.png` from the same sourc
 
 ## Moon textures
 
-The Moon's map and relief (`packages/app/public/textures/moon.jpg`, 8192 x 4096, and
+The Moon's map and relief (`packages/app/public/textures/moon.jpg`, 4096 x 2048, and
 `moon_bump.jpg`) and the region round Tranquility Base the Apollo 11 tour flies over
 (`packages/app/public/data/apollo11/moon-region.jpg`, `moon-region-heights.bin`, `moon-region.json`)
 are from NASA's Scientific Visualization Studio, CGI Moon Kit (https://svs.gsfc.nasa.gov/4720;
