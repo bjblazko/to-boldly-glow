@@ -15,6 +15,8 @@ import { eagleAttitude } from './craftAttitude'
 import { craftTurns } from './craftTurns'
 import { craftViewpoint, squeezedProjection, sunlit } from './craftPass'
 import { lunarGround, type Site } from './lunarGround'
+import { withBoulders } from './boulders'
+import { boulderField, craterField } from './craterField'
 import { terrainHeight, tileCircle, tranquilityTerrain } from './tranquilityTerrain'
 import { flattenOnto, groundAt, heightOver, heightOverPlane, loadTerrain, TERRAIN_FILES, type Ground } from './siteGround'
 import { EnginePlumes, type Plume } from './enginePlume'
@@ -30,6 +32,8 @@ const NO_HIGHLIGHT = { assembly: -1, strength: 0 }
 const SUN_STRENGTH = 1.15
 const SHADOW_FILL = 0.12
 const GROUND_MATERIAL = { shininess: 4, shine: 0.02 }
+// The terrain's shadow map covers this much round the site (m): some 30 cm a texel.
+const SHADOW_FOCUS_M = 350
 
 interface SceneLight {
   toSun: Vec3
@@ -84,18 +88,24 @@ export class Apollo11CraftRenderer {
       return { model: data.description, data, renderer: await ModelRenderer.create(this.models, data, MODELS[model].url, { shadows: true }) }
     }
     const [saturnV, csm, lm, eagle, siteStage] = await Promise.all([own('saturnV'), own('csm'), own('lm'), own('lm'), own('lm')])
-    const tile = await loadTerrain()
-    const groundData = lunarGround(site, 'moon.jpg', tile ? tileCircle(tile.tile) : undefined)
-    const detail = await this.models.textures.loadColor(`${TERRAIN_FILES}/regolith-detail.png`)
-    const ground = { model: groundData.description, data: groundData, renderer: await ModelRenderer.create(this.models, groundData, 'textures', { detail }) }
-    if (tile) {
-      const terrainData = tranquilityTerrain(tile.tile, tile.raw, site)
-      this.terrain = { model: terrainData.description, data: terrainData, renderer: await ModelRenderer.create(this.models, terrainData, TERRAIN_FILES, { shadows: true, detail }) }
-      this.groundHeight = terrainHeight(tile.tile, tile.raw, site)
-    }
+    const ground = await this.loadGround(site)
     this.shadows = [await ModelRenderer.create(this.models, lm.data, MODELS.lm.url), await ModelRenderer.create(this.models, lm.data, MODELS.lm.url)]
     this.plumes = await EnginePlumes.create(this.models.device, this.models.format)
     this.loaded = { saturnV, csm, lm, eagle, site: siteStage, ground }
+  }
+
+  // The ground round the site: the cap, and (if its files load) the terrain, its height for cameras
+  // standing on it and the boulders on it - all with the regolith's detail tile.
+  private async loadGround(site: Site): Promise<LoadedModel> {
+    const tile = await loadTerrain()
+    const groundData = lunarGround(site, 'moon.jpg', tile ? tileCircle(tile.tile) : undefined)
+    const detail = await this.models.textures.loadColor(`${TERRAIN_FILES}/regolith-detail.png`)
+    if (tile) {
+      this.groundHeight = terrainHeight(tile.tile, tile.raw, site)
+      const terrainData = withBoulders(tranquilityTerrain(tile.tile, tile.raw, site), boulderField(craterField()), { ...site, heightAt: this.groundHeight, bounds: tile.tile.bounds })
+      this.terrain = { model: terrainData.description, data: terrainData, renderer: await ModelRenderer.create(this.models, terrainData, TERRAIN_FILES, { shadows: true, detail }) }
+    }
+    return { model: groundData.description, data: groundData, renderer: await ModelRenderer.create(this.models, groundData, 'textures', { detail }) }
   }
 
   // Before the scene's pass: the Sun's shadow maps of the craft shown.
@@ -189,7 +199,8 @@ export class Apollo11CraftRenderer {
     const pose = { world, toSun, explode: 0, highlight: NO_HIGHLIGHT, cut: 0, light: { sun: SUN_STRENGTH, fill: SPACE_FILL }, materials: [GROUND_MATERIAL], space: { bounce: null, regolith: true } }
     this.loaded!.ground.renderer.update(viewpoint, pose, [[0, 0, 0]])
     this.shown.push('ground')
-    this.terrain?.renderer.update(viewpoint, pose, [[0, 0, 0]])
+    // Its shadow map spent on the ground round the site, sharp enough for the boulders' shadows.
+    this.terrain?.renderer.update(viewpoint, { ...pose, shadowFocus: { centre: [world[12], world[13], world[14]], radius: SHADOW_FOCUS_M } }, [[0, 0, 0]])
     this.terrainShown = this.terrain !== null
   }
 

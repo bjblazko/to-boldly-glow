@@ -49,6 +49,9 @@ export interface ModelPose {
   // throws light back - toward it (world), how strongly, its colour and its apparent radius.
   // `regolith`: lunar ground, its fine detail made up in the shader.
   space?: { bounce: { direction: Vec3; strength: number; color: Vec3; cosRadius: number } | null; regolith?: boolean }
+  // Where the Sun's shadow map is spent (world): a part of a large model near the camera, sharp,
+  // rather than all of it, coarse. The whole model where not given.
+  shadowFocus?: { centre: Vec3; radius: number }
 }
 
 // How a surface shines: how tight its highlight is and how strong; a mirror-like one (the command
@@ -197,7 +200,7 @@ export class ModelRenderer {
     const { shadowMap, middle, radius } = this.shape
     if (!shadowMap) return null
     const target = vec3.transformMat4(vec3.create(), middle, pose.world)
-    if (pose.space) return sunViewProjection(target, pose.toSun, radius)
+    if (pose.space) return pose.shadowFocus ? sunViewProjection(vec3.fromValues(...pose.shadowFocus.centre), pose.toSun, pose.shadowFocus.radius) : sunViewProjection(target, pose.toSun, radius)
     const lamp = pose.lamps?.[0]
     return lamp ? lampViewProjection(lamp.place, [target[0], target[1], target[2]], lamp.reach) : null
   }

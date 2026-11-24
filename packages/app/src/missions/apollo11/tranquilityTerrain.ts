@@ -1,7 +1,8 @@
 import type { ModelData } from '../../spacecraft/modelFile'
+import { craterField, craterHeights } from './craterField'
 
 // Tranquility Base's ground from LROC's terrain model (NAC_DTM_APOLLO11; the data pipeline's
-// buildTranquility cut the tile and evened out its photo's shadows): a grid every 16 m over the 4 km
+// buildTranquility cut the tile and evened out its photo's shadows): a grid every 8 m over the 4 km
 // tile, curved with the Moon, its photo (2 m) on it. In metres, in the Moon's own axes, from the site
 // - as the ground cap round it (lunarGround.ts), which shows beyond it: the tile runs out to the
 // cap's level at a circle round its middle and sinks just under the cap outside it.
@@ -17,8 +18,9 @@ export interface TerrainTile {
 }
 
 const DEG = Math.PI / 180
-// Every 16 m: the terrain's large shapes; the fine detail is the shader's (modelShader's regolith).
-const STEP = 4
+// Every 8 m: the terrain's shapes and the made-up craters from 10 m across (craterField.ts); the
+// fine detail is the shader's (modelShader's regolith).
+const STEP = 2
 // Where the tile runs out to the cap's level (m from its middle), and how far below the cap it sinks
 // beyond.
 const BLEND_FROM = 1500
@@ -43,14 +45,17 @@ const smooth = (u: number) => {
 type Ground = { latitude: number; longitude: number; radiusKm: number }
 
 // One grid point (row and column in the heights): its place (m from the site) and its uv.
-function gridPoint(tile: TerrainTile, raw: Uint16Array, ground: Ground, [row, column]: [number, number]): { position: number[]; uv: [number, number] } {
+function gridPoint(tile: TerrainTile, raw: Uint16Array, ground: Ground & { craters: (east: number, north: number) => number }, [row, column]: [number, number]): { position: number[]; uv: [number, number] } {
   const { bounds, heights, site } = tile
   const [u, v] = [column / (heights.width - 1), row / (heights.height - 1)]
   const d = direction(bounds.north + (bounds.south - bounds.north) * v, bounds.west + (bounds.east - bounds.west) * u)
   const middle = direction((bounds.north + bounds.south) / 2, (bounds.west + bounds.east) / 2)
   const radius = ground.radiusKm * 1000
   const fromMiddle = radius * Math.acos(Math.min(1, d[0] * middle[0] + d[1] * middle[1] + d[2] * middle[2]))
-  const relief = heights.offset + raw[row * heights.width + column] * heights.scale - site.heightMetres
+  const latitude = bounds.north + (bounds.south - bounds.north) * v
+  const longitude = bounds.west + (bounds.east - bounds.west) * u
+  const [east, north] = [(longitude - ground.longitude) * DEG * ground.radiusKm * 1000 * Math.cos(ground.latitude * DEG), (latitude - ground.latitude) * DEG * ground.radiusKm * 1000]
+  const relief = heights.offset + raw[row * heights.width + column] * heights.scale - site.heightMetres + ground.craters(east, north)
   const height = relief * (1 - smooth((fromMiddle - BLEND_FROM) / (BLEND_TO - BLEND_FROM))) - SUNK * smooth((fromMiddle - BLEND_TO) / 80)
   const centre = direction(ground.latitude, ground.longitude)
   return { position: [0, 1, 2].map((k) => d[k] * (radius + height) - centre[k] * radius), uv: [u, v] }
@@ -63,9 +68,10 @@ export function tranquilityTerrain(tile: TerrainTile, raw: Uint16Array, ground: 
   const rows = Math.floor((tile.heights.height - 1) / STEP) + 1
   const positions = new Float32Array(columns * rows * 3)
   const uvs = new Float32Array(columns * rows * 2)
+  const withCraters = { ...ground, craters: craterHeights(craterField()) }
   for (let row = 0; row < rows; row++) {
     for (let column = 0; column < columns; column++) {
-      const { position, uv } = gridPoint(tile, raw, ground, [row * STEP, column * STEP])
+      const { position, uv } = gridPoint(tile, raw, withCraters, [row * STEP, column * STEP])
       positions.set(position, (row * columns + column) * 3)
       uvs.set(uv, (row * columns + column) * 2)
     }
@@ -121,6 +127,7 @@ function gridNormals(positions: Float32Array, columns: number, rows: number): Fl
 export function terrainHeight(tile: TerrainTile, raw: Uint16Array, ground: Ground): (east: number, north: number) => number | null {
   const { bounds, heights, site } = tile
   const radius = ground.radiusKm * 1000
+  const craters = craterHeights(craterField())
   return (east, north) => {
     const latitude = ground.latitude + (north / radius) / DEG
     const longitude = ground.longitude + (east / (radius * Math.cos(ground.latitude * DEG))) / DEG
@@ -132,6 +139,6 @@ export function terrainHeight(tile: TerrainTile, raw: Uint16Array, ground: Groun
     const [fx, fy] = [x - x0, y - y0]
     const top = value(y0, x0) * (1 - fx) + value(y0, x0 + 1) * fx
     const bottom = value(y0 + 1, x0) * (1 - fx) + value(y0 + 1, x0 + 1) * fx
-    return top * (1 - fy) + bottom * fy - site.heightMetres
+    return top * (1 - fy) + bottom * fy - site.heightMetres + craters(east, north)
   }
 }
