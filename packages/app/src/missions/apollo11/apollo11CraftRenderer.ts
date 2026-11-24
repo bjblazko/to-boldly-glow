@@ -28,6 +28,7 @@ import { bounceFrom, EARTH_LIGHT, MOON_LIGHT, SPACE_FILL, type BodyLight } from 
 const MODELS: Record<ActorModel, VehicleModel> = { saturnV: SATURN_V.models[0], csm: COLUMBIA.models[0], lm: EAGLE.models[0] }
 const NO_HIGHLIGHT = { assembly: -1, strength: 0 }
 const SUN_STRENGTH = 1.15
+const SHADOW_FILL = 0.12
 const GROUND_MATERIAL = { shininess: 4, shine: 0.02 }
 
 interface SceneLight {
@@ -154,7 +155,8 @@ export class Apollo11CraftRenderer {
         highlight: NO_HIGHLIGHT,
         cut: 0,
         visibility: description.assemblies.map((assembly) => actor.visibility[assembly.id] ?? 1),
-        light: { sun: SUN_STRENGTH * sunlit(at, light.shadows, light.toSun), fill: SPACE_FILL },
+        // In a body's shadow a little more fill, so the craft keeps its shape (a film's cheat).
+        light: { sun: SUN_STRENGTH * sunlit(at, light.shadows, light.toSun), fill: SPACE_FILL + SHADOW_FILL * (1 - sunlit(at, light.shadows, light.toSun)) },
         materials: description.assemblies.map((assembly) => config.materials?.[assembly.id]),
         hinges: description.assemblies.map((assembly) => hingeMatrix(assembly.hinge, actor.fold)),
         space: { bounce: bounceFrom(at, light.bodies, light.toSun) },

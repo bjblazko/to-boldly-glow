@@ -40,7 +40,6 @@ const LM_LADDER: Vec3 = [0, 1.4, 4.3]
 const FOOTPAD_EYE: Vec3 = [4.6, 0.6, 4.6]
 // From Columbia's left rendezvous window, ahead along its nose.
 const COLUMBIA_WINDOW: Vec3 = [0.6, 10.2, 0.4]
-const EAGLE_WINDOW: Vec3 = [0.4, 5.6, 1.2]
 
 // orbit(lens, [distance m, azimuth°, elevation°, drift °/s])
 const orbit = (lens: ShotSpec['lens'], [distance, azimuth, elevation, drift = 0]: number[]): ShotSpec => ({ kind: 'orbit', lens, distance, azimuth, elevation, drift })
@@ -106,7 +105,7 @@ export const STATION_SHOTS: Record<string, StationShots> = {
   rendezvous: {
     focus: 'eagle',
     shots: [shot(orbit('tele', [300, 40, 10]), 7), shot({ kind: 'watch', lens: 'normal', from: COLUMBIA_WINDOW }, 7), shot(orbit('wide', [40, 200, 20]), 7), shot(orbit('longTele', [1800, 120, -3]), 7), shot(orbit('normal', [70, 30, 15]), 6)],
-    pinned: [{ from: T(128, 2, 30), to: T(128, 3), spec: { kind: 'watch', lens: 'normal', from: EAGLE_WINDOW }, seconds: 30, subject: 'columbia' }],
+    pinned: [{ from: T(128, 2, 30), to: T(128, 3, 20), spec: orbit('normal', [45, 90, 12]), seconds: 50, subject: 'columbia' }],
   },
   tei: {
     focus: 'columbia',

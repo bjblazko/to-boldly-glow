@@ -5,6 +5,7 @@ import { craftAt } from './craftChoreography'
 import { craftTurns } from './craftTurns'
 import { shotAt } from './director'
 import { flipShot, frame, type ShotContext, type ShotSpec } from './shots'
+import { sunlit } from './craftPass'
 import { STATION_SHOTS } from './stationShots'
 
 // The tour's camera at a moment: the director's shot for the station, framed on its craft. The
@@ -23,9 +24,12 @@ export interface TourCamera {
 // sits above its nose).
 function sizeOf(scene: Apollo11Scene, subject: Craft): { size: number; centre: Vec3 } {
   if (subject === 'eagle') return { size: 8, centre: [0, 3.5, 0] }
-  const cast = craftAt(scene.get).columbia.map((actor) => actor.model)
-  if (cast.includes('saturnV')) return { size: 35, centre: [0, -12, 0] }
-  return cast.includes('lm') ? { size: 20, centre: [0, 9, 0] } : { size: 11, centre: [0, 5, 0] }
+  const cast = craftAt(scene.get)
+  const models = cast.columbia.map((actor) => actor.model)
+  if (models.includes('saturnV')) return { size: 35, centre: [0, -12, 0] }
+  // Docked, or Eagle close by in Columbia's frame (the undocking, the last approach): the pair.
+  const pair = models.includes('lm') || cast.eagle?.frame === 'columbia'
+  return pair ? { size: 20, centre: [0, 9, 0] } : { size: 11, centre: [0, 5, 0] }
 }
 
 // A shot keeps the directions it started with - along the craft's way and up - for as long as it
@@ -39,6 +43,8 @@ export interface ShotMemory {
   // orbit.
   flipped: boolean
   follows: boolean
+  // In a body's shadow when it started (it is shot against the Sun).
+  inShadow: boolean
 }
 
 export function tourCamera(scene: Apollo11Scene, at: { stationId: string; stationSeconds: number; get: number; take?: number; inOrbit?: boolean }, memory: { shot: ShotMemory | null; groundAt?: ShotContext['groundAt'] }): TourCamera | null {
@@ -54,16 +60,26 @@ export function tourCamera(scene: Apollo11Scene, at: { stationId: string; statio
   // way between Earth and the Moon, and nearly at rest (on the ground, touching down), it keeps the
   // directions the shot started with. Decided at the cut, with the side it stands on.
   if (memory.shot?.key !== running.key) memory.shot = rememberShot(running, context, at.inOrbit === true)
+  const spec = memory.shot.inShadow ? inTheDark(running.shot.spec) : running.shot.spec
   const kept = { ...context, flipped: memory.shot.flipped }
   const steady = memory.shot.follows ? kept : { ...kept, velocity: memory.shot.velocity, up: memory.shot.up }
-  return { framing: frame(running.shot.spec, steady), shotKey: running.key, subject }
+  return { framing: frame(spec, steady), shotKey: running.key, subject }
 }
 
 // What a shot keeps from its start: the directions, its side, and whether it goes round with the
 // orbit - in an orbit station, low over the body, and moving (not nearly at rest, touching down).
 function rememberShot(running: { key: string; shot: { spec: ShotSpec } }, context: ShotContext, orbitStation: boolean): ShotMemory {
   const follows = orbitStation && Math.hypot(...context.velocity) > 0.05 && inOrbitAt(context)
-  return { key: running.key, velocity: context.velocity, up: context.up, flipped: flipShot(running.shot.spec, context), follows }
+  const shadows = [{ centreKm: context.earthKm, radiusKm: 6378 }, { centreKm: context.moonKm, radiusKm: 1737.4 }]
+  const inShadow = running.shot.spec.kind !== 'ground' && sunlit(context.subjectKm, shadows, context.toSun) < 0.5
+  return { key: running.key, velocity: context.velocity, up: context.up, flipped: flipShot(running.shot.spec, context), follows, inShadow }
+}
+
+// In a body's shadow a far shot or a long lens would show a dim craft against a dark blur: the
+// camera comes in close instead (the craft gets a little more fill there, see the renderer).
+function inTheDark(spec: ShotSpec): ShotSpec {
+  const far = spec.kind === 'body' || spec.lens === 'tele' || spec.lens === 'longTele'
+  return far ? { kind: 'orbit', lens: 'normal', distance: 45, azimuth: spec.kind === 'orbit' ? spec.azimuth : 60, elevation: 15 } : spec
 }
 
 const ORBIT_KM = 3000
