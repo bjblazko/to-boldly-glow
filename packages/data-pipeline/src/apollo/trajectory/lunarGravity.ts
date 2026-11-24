@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { Vec3 } from './propagate'
@@ -41,7 +41,11 @@ export async function grailField(degree: number): Promise<GravityField> {
     const response = await fetch(GRAIL_URL)
     if (!response.ok) throw new Error(`GRAIL: HTTP ${response.status}`)
     mkdirSync(dirname(CACHE), { recursive: true })
-    writeFileSync(CACHE, Buffer.from(await response.arrayBuffer()))
+    // Written whole under a name of its own first, then moved into place: tests running side by
+    // side (CI, no cache yet) each download it, and none may read another's half-written file.
+    const part = `${CACHE}.${process.pid}.${Math.random().toString(36).slice(2)}.part`
+    writeFileSync(part, Buffer.from(await response.arrayBuffer()))
+    renameSync(part, CACHE)
   }
   return parseField(readFileSync(CACHE, 'latin1'), degree)
 }
